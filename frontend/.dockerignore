@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.env
+*.log
+package-lock.json
+.env.*
+!.env.sample
+!.env.production.sample
+*.local
+LOCAL_LOGIN.md
+.claude
+src.backup-pre-spinzy

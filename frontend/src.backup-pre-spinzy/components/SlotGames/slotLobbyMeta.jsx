@@ -1,0 +1,84 @@
+const ICONS = {
+  replay: ['M20.5 12a8.5 8.5 0 1 1-2.6-6.1', 'M20.5 4.2v4.6h-4.6'],
+  slots: ['M3 5.5h18v13H3z', 'M9 5.5v13', 'M15 5.5v13', 'M6 12h.6', 'M11.7 12h.6', 'M17.4 12h.6', 'M7 2.6h10'],
+  fish: ['M21 12c-2.6 3.4-5.8 5.2-9.4 5.2S5 15.4 3 12c2-3.4 5-5.2 8.6-5.2S18.4 8.6 21 12Z', 'M16.6 10.6h.01'],
+  bolt: ['M13.6 2.5 5 13.4h5.6L9.9 21.5 18.8 10.6h-5.7l.5-8.1Z'],
+  target: ['M12 4.5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15Z', 'M12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z', 'M12 1.8v2.7', 'M12 19.5v2.7', 'M1.8 12h2.7', 'M19.5 12h2.7'],
+  cards: ['M8.4 3h11.6v15.4H8.4z', 'M5.6 6.2 4 7.2v9.6A2.4 2.4 0 0 0 6.4 19.2h8.2'],
+  ticket: ['M3 8.4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1.4a2.2 2.2 0 1 0 0 4.4v1.4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1.4a2.2 2.2 0 1 0 0-4.4V8.4Z', 'M12 7.6v1.6', 'M12 11.2v1.6', 'M12 14.8v1.6'],
+  bingo: ['M12 3.4a8.6 8.6 0 1 1 0 17.2 8.6 8.6 0 0 1 0-17.2Z', 'M12 7.8a4.2 4.2 0 1 1 0 8.4 4.2 4.2 0 0 1 0-8.4Z'],
+  keno: ['M3.2 3.2h17.6v17.6H3.2z', 'M9.1 3.2v17.6', 'M14.9 3.2v17.6', 'M3.2 9.1h17.6', 'M3.2 14.9h17.6'],
+  lottery: ['M12 2.8 14.5 8l5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4L9.5 8 12 2.8Z'],
+  play: ['M7.4 4.6 19 12 7.4 19.4V4.6Z'],
+  apps: ['M4 4h6.5v6.5H4z', 'M13.5 4H20v6.5h-6.5z', 'M4 13.5h6.5V20H4z', 'M13.5 13.5H20V20h-6.5z'],
+  crown: ['M3 8.2 7.2 13 12 5.5 16.8 13 21 8.2V19H3z', 'M6.2 19h11.6'],
+  mountain: ['M3 19.5 8.8 8.8 12.2 14.2 16 7.2 21 19.5z', 'M2.5 19.5h19'],
+  buffalo: ['M5 9.2c-1.8-2.8 1.4-5.2 3.4-2.8', 'M19 9.2c1.8-2.8-1.4-5.2-3.4-2.8', 'M12 19.4c-4.1 0-7.2-3-7.2-6.8S8.2 6.4 12 6.4s7.2 2.4 7.2 6.2-3.1 6.8-7.2 6.8z'],
+  candy: ['M12 3.6a5.4 5.4 0 1 1 0 10.8 5.4 5.4 0 0 1 0-10.8Z', 'M12 14.4V21', 'M9.2 8.2c1.6-1.4 4-1.4 5.6 0'],
+  paw: [
+    'M8.2 8.6a1.8 1.8 0 1 1 0-3.6 1.8 1.8 0 0 1 0 3.6Z',
+    'M15.8 8.6a1.8 1.8 0 1 1 0-3.6 1.8 1.8 0 0 1 0 3.6Z',
+    'M5.4 12.6a1.8 1.8 0 1 1 0-3.6 1.8 1.8 0 0 1 0 3.6Z',
+    'M18.6 12.6a1.8 1.8 0 1 1 0-3.6 1.8 1.8 0 0 1 0 3.6Z',
+    'M12 20.4c-3.2 0-5.4-2.2-5.4-4.8 0-2 2.1-3.4 5.4-3.4s5.4 1.4 5.4 3.4c0 2.6-2.2 4.8-5.4 4.8Z',
+  ],
+};
+
+const CATEGORY_META = {
+  'recently-played': { icon: 'replay', color: '#b8b193', subtitle: 'You played these' },
+  'top-games': { icon: 'slots', color: '#F2C14E', subtitle: 'Highest performing titles' },
+  'top-fishing': { icon: 'fish', color: '#d49e2d', subtitle: 'Ranked by players this week' },
+  slots: { icon: 'slots', color: '#F2C14E', subtitle: 'Spin and win' },
+  fishing: { icon: 'fish', color: '#d49e2d', subtitle: 'Shoot to win' },
+  'instant-win': { icon: 'bolt', color: '#fada60', subtitle: 'Crash and instant' },
+  shooting: { icon: 'target', color: '#fff05c', subtitle: 'Aim and fire' },
+  'table-games': { icon: 'cards', color: '#34D399', subtitle: 'Blackjack and roulette' },
+  'scratch-cards': { icon: 'ticket', color: '#F59E0B', subtitle: 'Scratch to reveal' },
+  bingo: { icon: 'bingo', color: '#eeb522', subtitle: 'Mark your card' },
+  keno: { icon: 'keno', color: '#fa8b9d', subtitle: 'Pick your numbers' },
+  lottery: { icon: 'lottery', color: '#34D399', subtitle: 'Daily draws' },
+  'crash-game': { icon: 'bolt', color: '#fada60', subtitle: 'Fast rounds' },
+  'firekirin-exclusive': { icon: 'bolt', color: '#F97316', subtitle: 'Firekirin originals' },
+  'live-casino': { icon: 'cards', color: '#fff05c', subtitle: 'Live tables' },
+  plinko: { icon: 'bolt', color: '#34D399', subtitle: 'Drop and win' },
+  'video-poker': { icon: 'cards', color: '#fada60', subtitle: 'Draw your hand' },
+  'casual-games': { icon: 'slots', color: '#F2C14E', subtitle: 'Quick plays' },
+  others: { icon: 'apps', color: '#b8b193', subtitle: 'More games' },
+  'buffalo-blast': { icon: 'buffalo', color: '#F97316', subtitle: 'Buffalo slots' },
+  zesus: { icon: 'crown', color: '#FBBF24', subtitle: 'Zeus Kingdom' },
+  olympus: { icon: 'mountain', color: '#F59E0B', subtitle: 'Olympus World' },
+  candy: { icon: 'candy', color: '#f48472', subtitle: 'Candy Land' },
+  animal: { icon: 'paw', color: '#34D399', subtitle: 'Animal Creature' },
+};
+
+export function getSlotLobbyCategoryMeta(categoryId, gameCount = 0) {
+  const id = String(categoryId || '').trim();
+  const base = CATEGORY_META[id] || { icon: 'slots', color: '#F2C14E', subtitle: 'Tap to play' };
+  const countLabel =
+    gameCount > 0 && id !== 'recently-played' && id !== 'top-fishing' && id !== 'top-games' && id !== 'buffalo-blast' && id !== 'olympus' && id !== 'candy' && id !== 'animal'
+      ? ` · ${gameCount} games`
+      : '';
+  return {
+    ...base,
+    subtitle: `${base.subtitle}${countLabel}`,
+  };
+}
+
+export function SlotLobbyIcon({ name = 'slots', filled = false }) {
+  const paths = ICONS[name] || ICONS.slots;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      {paths.map((d) => (
+        <path key={d} d={d} fill={filled ? 'currentColor' : name === 'play' ? 'currentColor' : 'none'} />
+      ))}
+    </svg>
+  );
+}

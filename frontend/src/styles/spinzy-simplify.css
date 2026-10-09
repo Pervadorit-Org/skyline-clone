@@ -1,0 +1,123 @@
+/* Spinzy "simple & professional" global pass.
+   Replaces the fancy display fonts (Russo One / Rajdhani / Baloo 2 / Bebas / Lilita)
+   with flat Inter site-wide, flattens buttons, and removes decorative text-shadows.
+   Loaded last so it wins via specificity + !important. */
+
+:root {
+  --df-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --df-display: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* ---- Typography: force Inter everywhere ----
+   Scoped under #root (an ID) so it outranks the app's class-level !important
+   font rules. The universal selector leaves ::before/::after icon glyphs alone. */
+html,
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+#root * {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif !important;
+}
+
+/* Professional weight/spacing for headings (Spinzy uses tight, bold, no glow) */
+#root h1,
+#root h2,
+#root h3,
+#root h4,
+#root h5,
+#root h6 {
+  letter-spacing: -0.01em !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: 0 !important;
+}
+
+/* Kill decorative text shadows / strokes that read as "fancy" */
+button,
+a,
+.btn-cta,
+[class*='title'],
+[class*='heading'],
+[class*='-label'],
+[class*='Headline'] {
+  text-shadow: none !important;
+}
+
+/* ---- Buttons: flat & professional ---- */
+.btn-cta,
+button.btn-cta {
+  background: linear-gradient(180deg, #ffe58a 0%, #fcdb57 55%, #f0b92e 100%) !important;
+  border: 1px solid #fbe78b !important;
+  color: #2a1206 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+.btn-cta:hover,
+button.btn-cta:hover {
+  filter: brightness(1.04);
+}
+
+/* Common primary / gold / gradient buttons across the app -> flat gold */
+[class*='primary-gradient'],
+[class*='gold-button'],
+[class*='GoldButton'],
+button[class*='cta'],
+.df-cta,
+.df-primary-btn {
+  text-shadow: none !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+/* ---- Auth buttons: flat, Spinzy-style (green register / purple login) ---- */
+#root .dash-btn-signup,
+#root .df-pill--signup,
+#root .df-btn-signup,
+#root [class*='signup-btn'] {
+  background: #48b95d !important;
+  background-image: none !important;
+  border: 1px solid #48b95d !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+#root .dash-btn-signup:hover,
+#root .df-pill--signup:hover {
+  background: #3da551 !important;
+  filter: none !important;
+}
+#root .dash-btn-login,
+#root .df-pill--login,
+#root .df-btn-login,
+#root [class*='login-btn'] {
+  background: #52375e !important;
+  background-image: none !important;
+  border: 1px solid #6e4e7a !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+#root .dash-btn-login:hover,
+#root .df-pill--login:hover {
+  background: #5f4170 !important;
+  filter: none !important;
+}
+
+/* Rounded, flat cards feel (soften heavy neon borders/glows where used) */
+.spz-pro-flat,
+.spz-pro-flat * {
+  text-shadow: none !important;
+}

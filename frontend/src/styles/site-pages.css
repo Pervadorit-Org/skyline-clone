@@ -1,0 +1,277 @@
+/*
+ * Inner pages: follow the home design system (same content width, flat panels,
+ * heading scale, gold accents). Loaded after spinzy-layout.css; #root wins over page CSS.
+ */
+#root {
+  --page-w: 1480px;
+  --page-narrow: 1040px;
+}
+
+/* One content width for every page that uses the standard shell */
+#root main > .dash-shell-inner {
+  max-width: var(--page-w) !important;
+}
+
+/* Page wrappers that used to cap themselves at ~1100px */
+#root .pj-seo-games,
+#root .pj-blog-page,
+#root .df-content-page--wide {
+  max-width: var(--page-w);
+}
+#root .df-content-page {
+  max-width: min(var(--page-narrow), 100%);
+}
+
+/* Content cards: flat panel like home sections instead of the chunky rimmed frame */
+#root .df-content-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  background: linear-gradient(135deg, #2a1a30 0%, #1e0a22 110%);
+  box-shadow: none;
+  padding: clamp(22px, 3vw, 44px);
+}
+#root .df-content-title {
+  font-family: inherit;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: #fff;
+  text-shadow: none;
+}
+#root .df-content-lead {
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  color: rgba(255, 255, 255, 0.7);
+}
+#root .df-content-badge {
+  border-color: #fbe78b;
+  background: rgba(252, 219, 87, 0.12);
+  color: #fcdb57;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Bonus lounge: fill the shared column instead of a ~840px strip */
+#root .bonus-lounge-grid,
+#root .bonus-lounge-feat,
+#root .bonus-lounge-banner,
+#root .bonus-lounge-sec,
+#root .bonus-lounge-signup {
+  max-width: none;
+}
+
+/* Bonus page: use the shared column; three status panels in one row on desktop */
+#root .df-bonus-page {
+  width: 100%;
+  max-width: var(--page-w);
+  padding: 8px 0 60px;
+}
+@media (min-width: 900px) {
+  #root .df-bonus-page {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  #root .df-bonus-page > .df-bonus-invite {
+    grid-column: 1 / -1;
+  }
+}
+#root .df-bonus-panel {
+  border-radius: 20px;
+  padding: clamp(18px, 2vw, 28px);
+}
+
+/* Dashboard-style pages (casino / firekirin / platform): same column as home */
+#root .dashboard.dash-page .dash-layout,
+#root .dashboard.dash-page .dash-main {
+  max-width: var(--page-w);
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+#root .df-route-heading {
+  text-align: left;
+}
+#root .df-route-heading h1 {
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 800;
+}
+
+/* Page titles: same flat white heading as home sections (drop the gold-gradient glow) */
+#root .df-content-title,
+#root .pj-blog-title,
+#root .df-help-page .df-content-title {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+  filter: none;
+  color: #fff;
+  text-shadow: none;
+  font-family: inherit;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+#root .pj-blog-label {
+  font-family: inherit;
+  font-weight: 700;
+  color: #fcdb57;
+}
+#root .pj-blog-status {
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #2a1a30 0%, #1e0a22 110%);
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+#root .pj-journal-title {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+}
+#root .pj-journal-kicker {
+  color: #fcdb57;
+}
+
+/* Primary buttons everywhere: the same gold as the header Sign Up / hero CTA */
+#root .df-content-btn:not(.df-content-btn--ghost),
+#root .inst-cta,
+#root .inst-coach .inst-cta,
+#root .inst-coach button.inst-cta {
+  background: linear-gradient(180deg, #ffe58a 0%, #fcdb57 55%, #f0b92e 100%) !important;
+  background-color: #fcdb57 !important;
+  border: 1px solid #fbe78b;
+  color: #2a1206 !important;
+  -webkit-text-fill-color: #2a1206 !important;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25) !important;
+  font-family: inherit !important;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+#root .df-content-btn:not(.df-content-btn--ghost):hover,
+#root .inst-cta:hover,
+#root .inst-coach .inst-cta:hover {
+  background: linear-gradient(180deg, #ffe58a 0%, #fcdb57 55%, #f0b92e 100%) !important;
+  color: #2a1206 !important;
+  -webkit-text-fill-color: #2a1206 !important;
+  filter: brightness(1.06);
+}
+#root .df-content-btn--ghost {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: none;
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Link2Play pay bar: gold primary + quiet secondary instead of green / purple */
+#root .lp-pay-btn--deposit {
+  background: linear-gradient(180deg, #ffe58a 0%, #fcdb57 55%, #f0b92e 100%) !important;
+  border: 1px solid #fbe78b !important;
+  color: #2a1206 !important;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25) !important;
+}
+#root .lp-pay-btn--withdrawal,
+#root .lp-pay-btn--link2play {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+#root .lp-pay-btn:focus-visible {
+  outline: 3px solid #fcdb57;
+  outline-offset: 3px;
+}
+
+/* Platform page: same column + spacing as home */
+#root .dash-platform-page .dash-layout,
+#root .dash-platform-page .dash-main {
+  max-width: none;
+}
+#root .dash-platform-page .dash-main {
+  --home-w: 1480px;
+  --home-gutter: clamp(12px, 1.6vw, 20px);
+  --home-gap: clamp(36px, 4vw, 56px);
+  padding-top: 12px;
+}
+#root .dash-platform-page .dash-main > .spz-hero,
+#root .dash-platform-page .dash-main > section {
+  box-sizing: border-box;
+  width: min(calc(100% - 2 * var(--home-gutter)), var(--home-w));
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0;
+  padding-right: 0;
+}
+#root .dash-platform-page .dash-main > section {
+  margin-top: var(--home-gap);
+}
+
+/* ───────── Accessibility baseline ───────── */
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100001;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #fcdb57;
+  color: #2a1206;
+  font: 700 14px Inter, system-ui, sans-serif;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform 0.15s ease;
+}
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 3px solid #2a1206;
+  outline-offset: 2px;
+}
+#main-content:focus {
+  outline: none;
+}
+/* Every interactive element gets a visible keyboard focus ring unless a component defines a better one */
+#root :is(a, button, [role="button"], [role="tab"], [role="menuitem"], summary, input, select, textarea, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 3px solid #fcdb57;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+  #root *,
+  #root *::before,
+  #root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Touch / pointer targets: nav text links get a comfortable hit area without changing the look */
+#root .df-nav-link,
+#root .df-desktop-auth-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+}
+#root .spz-dot {
+  position: relative;
+}
+#root .spz-dot::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+}

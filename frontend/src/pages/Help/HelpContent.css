@@ -1,0 +1,266 @@
+/**
+ * Typography for Help page content (DragonFury theme).
+ * .help-api-content: HTML from DB
+ * .help-tab-body: Static fallback tab content
+ */
+
+.help-api-content,
+.help-tab-body {
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+}
+
+.help-api-content h1,
+.help-tab-body h1,
+.help-api-content h2,
+.help-tab-body h2,
+.help-api-content h3,
+.help-tab-body h3,
+.help-api-content h4,
+.help-tab-body h4,
+.help-api-content h5,
+.help-api-content h6,
+.help-tab-body h5,
+.help-tab-body h6 {
+  color: #ffe06a;
+  font-family: "Lilita One", "Baloo 2", system-ui, sans-serif;
+  font-weight: 400;
+}
+
+.help-api-content h1,
+.help-tab-body h1 {
+  font-size: 1.25rem;
+  margin: 1.25rem 0 0.65rem;
+}
+.help-api-content h1:first-child,
+.help-tab-body h1:first-child {
+  margin-top: 0;
+}
+
+.help-api-content h2,
+.help-tab-body h2 {
+  font-size: 1.1rem;
+  margin: 1.1rem 0 0.5rem;
+}
+.help-api-content h2:first-child,
+.help-tab-body h2:first-child {
+  margin-top: 0;
+}
+
+.help-api-content h3,
+.help-tab-body h3 {
+  font-size: 1rem;
+  margin: 0.95rem 0 0.45rem;
+}
+.help-api-content h3:first-child,
+.help-tab-body h3:first-child {
+  margin-top: 0;
+}
+
+.help-api-content h4,
+.help-tab-body h4,
+.help-api-content h5,
+.help-api-content h6,
+.help-tab-body h5,
+.help-tab-body h6 {
+  font-size: 0.95rem;
+  margin: 0.85rem 0 0.35rem;
+  color: #ffc928;
+}
+
+.help-api-content p,
+.help-tab-body p {
+  margin: 0 0 0.75rem;
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.help-api-content ul,
+.help-tab-body ul {
+  list-style: disc;
+  padding-left: 1.35rem;
+  margin: 0.65rem 0;
+}
+
+.help-api-content ol,
+.help-tab-body ol {
+  list-style: decimal;
+  padding-left: 1.35rem;
+  margin: 0.65rem 0;
+}
+
+.help-api-content li,
+.help-tab-body li {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0.25rem 0;
+}
+
+.help-api-content strong,
+.help-tab-body strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+.help-api-content em,
+.help-tab-body em {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.help-api-content a,
+.help-tab-body a {
+  color: #ffc928;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.help-api-content a:hover,
+.help-tab-body a:hover {
+  color: #ffe06a;
+}
+
+.help-api-content blockquote,
+.help-tab-body blockquote {
+  margin: 0.75rem 0;
+  padding: 0.65rem 0.9rem;
+  border-left: 3px solid rgba(255, 201, 40, 0.55);
+  background: rgba(22, 11, 27, 0.55);
+  color: rgba(255, 255, 255, 0.78);
+  font-style: italic;
+}
+
+.help-api-content code,
+.help-tab-body code {
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.35rem;
+  background: rgba(22, 11, 27, 0.75);
+  color: #ffe06a;
+  font-size: 0.85em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.help-api-content pre,
+.help-tab-body pre {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: rgba(22, 11, 27, 0.8);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+.help-api-content img,
+.help-tab-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+/* Quill alignment & formatting */
+.help-api-content .ql-align-left,
+.help-tab-body .ql-align-left {
+  text-align: left;
+}
+.help-api-content .ql-align-center,
+.help-tab-body .ql-align-center {
+  text-align: center;
+}
+.help-api-content .ql-align-right,
+.help-tab-body .ql-align-right {
+  text-align: right;
+}
+.help-api-content .ql-align-center img,
+.help-tab-body .ql-align-center img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.help-api-content .ql-align-right img,
+.help-tab-body .ql-align-right img {
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
+}
+.help-api-content .ql-align-justify,
+.help-tab-body .ql-align-justify {
+  text-align: justify;
+}
+.help-api-content .ql-direction-rtl,
+.help-tab-body .ql-direction-rtl {
+  direction: rtl;
+  text-align: inherit;
+}
+.help-api-content .ql-indent-1:not(.ql-direction-rtl),
+.help-api-content li.ql-indent-1:not(.ql-direction-rtl),
+.help-tab-body .ql-indent-1:not(.ql-direction-rtl),
+.help-tab-body li.ql-indent-1:not(.ql-direction-rtl) { padding-left: 3em; }
+.help-api-content .ql-indent-2:not(.ql-direction-rtl),
+.help-api-content li.ql-indent-2:not(.ql-direction-rtl),
+.help-tab-body .ql-indent-2:not(.ql-direction-rtl),
+.help-tab-body li.ql-indent-2:not(.ql-direction-rtl) { padding-left: 6em; }
+.help-api-content .ql-indent-3:not(.ql-direction-rtl),
+.help-api-content li.ql-indent-3:not(.ql-direction-rtl),
+.help-tab-body .ql-indent-3:not(.ql-direction-rtl),
+.help-tab-body li.ql-indent-3:not(.ql-direction-rtl) { padding-left: 9em; }
+.help-api-content .ql-indent-4:not(.ql-direction-rtl),
+.help-api-content li.ql-indent-4:not(.ql-direction-rtl),
+.help-tab-body .ql-indent-4:not(.ql-direction-rtl),
+.help-tab-body li.ql-indent-4:not(.ql-direction-rtl) { padding-left: 12em; }
+.help-api-content .ql-indent-5:not(.ql-direction-rtl),
+.help-api-content li.ql-indent-5:not(.ql-direction-rtl),
+.help-tab-body .ql-indent-5:not(.ql-direction-rtl),
+.help-tab-body li.ql-indent-5:not(.ql-direction-rtl) { padding-left: 15em; }
+.help-api-content .ql-indent-6:not(.ql-direction-rtl),
+.help-api-content li.ql-indent-6:not(.ql-direction-rtl),
+.help-tab-body .ql-indent-6:not(.ql-direction-rtl),
+.help-tab-body li.ql-indent-6:not(.ql-direction-rtl) { padding-left: 18em; }
+.help-api-content .ql-indent-7:not(.ql-direction-rtl),
+.help-api-content li.ql-indent-7:not(.ql-direction-rtl),
+.help-tab-body .ql-indent-7:not(.ql-direction-rtl),
+.help-tab-body li.ql-indent-7:not(.ql-direction-rtl) { padding-left: 21em; }
+.help-api-content .ql-indent-8:not(.ql-direction-rtl),
+.help-api-content li.ql-indent-8:not(.ql-direction-rtl),
+.help-tab-body .ql-indent-8:not(.ql-direction-rtl),
+.help-tab-body li.ql-indent-8:not(.ql-direction-rtl) { padding-left: 24em; }
+.help-api-content .ql-indent-9:not(.ql-direction-rtl),
+.help-api-content li.ql-indent-9:not(.ql-direction-rtl),
+.help-tab-body .ql-indent-9:not(.ql-direction-rtl),
+.help-tab-body li.ql-indent-9:not(.ql-direction-rtl) { padding-left: 27em; }
+.help-api-content .ql-indent-1.ql-direction-rtl.ql-align-right,
+.help-api-content li.ql-indent-1.ql-direction-rtl.ql-align-right,
+.help-tab-body .ql-indent-1.ql-direction-rtl.ql-align-right,
+.help-tab-body li.ql-indent-1.ql-direction-rtl.ql-align-right { padding-right: 3em; }
+.help-api-content .ql-indent-2.ql-direction-rtl.ql-align-right,
+.help-api-content li.ql-indent-2.ql-direction-rtl.ql-align-right,
+.help-tab-body .ql-indent-2.ql-direction-rtl.ql-align-right,
+.help-tab-body li.ql-indent-2.ql-direction-rtl.ql-align-right { padding-right: 6em; }
+.help-api-content .ql-indent-3.ql-direction-rtl.ql-align-right,
+.help-api-content li.ql-indent-3.ql-direction-rtl.ql-align-right,
+.help-tab-body .ql-indent-3.ql-direction-rtl.ql-align-right,
+.help-tab-body li.ql-indent-3.ql-direction-rtl.ql-align-right { padding-right: 9em; }
+.help-api-content .ql-indent-4.ql-direction-rtl.ql-align-right,
+.help-api-content li.ql-indent-4.ql-direction-rtl.ql-align-right,
+.help-tab-body .ql-indent-4.ql-direction-rtl.ql-align-right,
+.help-tab-body li.ql-indent-4.ql-direction-rtl.ql-align-right { padding-right: 12em; }
+.help-api-content .ql-indent-5.ql-direction-rtl.ql-align-right,
+.help-api-content li.ql-indent-5.ql-direction-rtl.ql-align-right,
+.help-tab-body .ql-indent-5.ql-direction-rtl.ql-align-right,
+.help-tab-body li.ql-indent-5.ql-direction-rtl.ql-align-right { padding-right: 15em; }
+.help-api-content .ql-indent-6.ql-direction-rtl.ql-align-right,
+.help-api-content li.ql-indent-6.ql-direction-rtl.ql-align-right,
+.help-tab-body .ql-indent-6.ql-direction-rtl.ql-align-right,
+.help-tab-body li.ql-indent-6.ql-direction-rtl.ql-align-right { padding-right: 18em; }
+.help-api-content .ql-indent-7.ql-direction-rtl.ql-align-right,
+.help-api-content li.ql-indent-7.ql-direction-rtl.ql-align-right,
+.help-tab-body .ql-indent-7.ql-direction-rtl.ql-align-right,
+.help-tab-body li.ql-indent-7.ql-direction-rtl.ql-align-right { padding-right: 21em; }
+.help-api-content .ql-indent-8.ql-direction-rtl.ql-align-right,
+.help-api-content li.ql-indent-8.ql-direction-rtl.ql-align-right,
+.help-tab-body .ql-indent-8.ql-direction-rtl.ql-align-right,
+.help-tab-body li.ql-indent-8.ql-direction-rtl.ql-align-right { padding-right: 24em; }
+.help-api-content .ql-indent-9.ql-direction-rtl.ql-align-right,
+.help-api-content li.ql-indent-9.ql-direction-rtl.ql-align-right,
+.help-tab-body .ql-indent-9.ql-direction-rtl.ql-align-right,
+.help-tab-body li.ql-indent-9.ql-direction-rtl.ql-align-right { padding-right: 27em; }

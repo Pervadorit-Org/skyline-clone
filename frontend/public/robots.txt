@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+Disallow: /deposit
+Disallow: /withdraw
+Disallow: /settings
+Disallow: /account
+Disallow: /promotions
+Disallow: /spinwheel
+Disallow: /play/
+Disallow: /auth/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /*?*session=
+Disallow: /*?*token=

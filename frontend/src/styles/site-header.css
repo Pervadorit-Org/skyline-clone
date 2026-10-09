@@ -1,0 +1,253 @@
+/*
+ * Logged-in header (desktop): clean two-tier bar.
+ * Tier 1 (64px): logo | wallet + actions.   Tier 2 (44px): primary navigation tabs.
+ * #root prefix + !important: this loads before the lazy dashboard CSS that it replaces.
+ */
+@media (min-width: 1024px) {
+  #root .dash-root:has(.dash-nav--authenticated) {
+    --dash-nav-h: 109px;
+  }
+
+  #root .dash-nav.dash-nav--authenticated {
+    min-height: 0 !important;
+    height: auto !important;
+    background: linear-gradient(180deg, #1e0a22 0%, #170719 100%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35) !important;
+    backdrop-filter: none !important;
+  }
+
+  #root .dash-nav-inner--auth {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+    grid-template-rows: 64px 44px !important;
+    gap: 0 20px !important;
+    padding: 0 clamp(16px, 2vw, 28px) !important;
+    max-width: 1560px !important;
+    margin: 0 auto !important;
+    align-items: center !important;
+  }
+
+  /* logo */
+  #root .dash-nav-inner--auth .dash-nav-auth-logo {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    justify-content: flex-start !important;
+  }
+  #root .dash-nav-inner--auth .dash-nav-auth-logo .site-logo--nav,
+  #root .dash-root .dash-nav--authenticated .site-logo--nav {
+    height: 44px !important;
+    max-height: 44px !important;
+    width: auto !important;
+    max-width: 130px !important;
+  }
+
+  /* wallet */
+  #root .dash-nav-inner--auth .df-auth-balances {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    justify-self: end;
+  }
+  #root .dash-nav-inner--auth .df-auth-balances .df-wallet-hud {
+    --w-bar: 168px;
+    --w-plus: 40px;
+    gap: 8px;
+  }
+  #root .df-wallet-hud__bar {
+    width: var(--w-bar);
+    height: 40px;
+    aspect-ratio: auto;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+  }
+  #root .df-wallet-hud__holder {
+    display: none;
+  }
+  #root .df-wallet-hud__amount {
+    inset: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    transform: none;
+    min-height: 40px;
+    padding: 0 14px;
+    justify-content: flex-start;
+    gap: 8px;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: none;
+  }
+  #root .df-wallet-hud__amount small {
+    order: 0;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: #fcdb57;
+    color: #2a1206;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+  #root .df-wallet-hud__add {
+    width: 40px;
+    height: 40px;
+    aspect-ratio: auto;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #ffe58a 0%, #fcdb57 55%, #f0b92e 100%);
+    border: 1px solid #fbe78b;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+  }
+  #root .df-wallet-hud__add img {
+    display: none;
+  }
+  #root .df-wallet-hud__add::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    background:
+      linear-gradient(#2a1206, #2a1206) center / 100% 2.5px no-repeat,
+      linear-gradient(#2a1206, #2a1206) center / 2.5px 100% no-repeat;
+  }
+
+  /* actions */
+  #root .df-lobby-header-actions {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    gap: 8px;
+  }
+  #root .df-lobby-header-actions .df-profile-trigger-wrap,
+  #root .df-lobby-header-actions .df-profile-trigger {
+    display: grid !important;
+  }
+  #root .df-lobby-header-actions .df-profile-trigger {
+    order: 3;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    border: 2px solid rgba(252, 219, 87, 0.8);
+    box-shadow: none;
+    background: #3b2845;
+  }
+  #root .df-lobby-header-actions .df-tour-btn,
+  #root .df-lobby-header-actions .df-header-logout {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  #root .df-lobby-header-actions .df-tour-btn:hover,
+  #root .df-lobby-header-actions .df-header-logout:hover {
+    background: rgba(252, 219, 87, 0.14);
+    border-color: #fcdb57;
+  }
+  #root .df-lobby-header-actions .df-tour-btn img,
+  #root .df-lobby-header-actions .df-header-logout img {
+    display: none;
+  }
+  #root .df-lobby-header-actions .df-tour-btn::before,
+  #root .df-lobby-header-actions .df-header-logout::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    -webkit-mask: var(--hdr-icon) center / contain no-repeat;
+    mask: var(--hdr-icon) center / contain no-repeat;
+  }
+  #root .df-lobby-header-actions .df-tour-btn {
+    order: 1;
+    --hdr-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E");
+  }
+  #root .df-lobby-header-actions .df-header-logout {
+    order: 4;
+    --hdr-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/%3E%3Cpath d='m16 17 5-5-5-5'/%3E%3Cpath d='M21 12H9'/%3E%3C/svg%3E");
+  }
+
+  /* tier 2: nav tabs */
+  #root .dash-nav-inner--auth .df-desktop-auth-nav {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    justify-self: stretch !important;
+    max-width: none !important;
+    gap: 2px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  #root .df-desktop-auth-nav::-webkit-scrollbar {
+    display: none;
+  }
+  #root .df-desktop-auth-nav a {
+    position: relative;
+    padding: 0 clamp(10px, 1vw, 16px);
+    border-radius: 0;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 43px;
+    color: rgba(255, 255, 255, 0.7);
+    background: none;
+  }
+  #root .df-desktop-auth-nav a:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  #root .df-desktop-auth-nav a.df-desktop-auth-nav__active {
+    color: #fcdb57 !important;
+    background: none !important;
+  }
+  #root .df-desktop-auth-nav a.df-desktop-auth-nav__active::after {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 0;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: #fcdb57;
+  }
+  #root .df-desktop-auth-nav a:focus-visible,
+  #root .df-lobby-header-actions button:focus-visible,
+  #root .df-wallet-hud__add:focus-visible,
+  #root .df-wallet-hud__amount:focus-visible {
+    outline: 3px solid #fcdb57;
+    outline-offset: -3px;
+    border-radius: 8px;
+  }
+}
+
+/* Logged-in home greeting: left-aligned in the shared column, not a centered title floating on the artwork */
+#root .dash-main > .df-auth-welcome {
+  box-sizing: border-box;
+  width: min(calc(100% - 2 * var(--home-gutter, 20px)), var(--home-w, 1480px));
+  margin: 18px auto 14px;
+  text-align: left;
+}
+#root .df-auth-welcome h1 {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-family: Inter, system-ui, sans-serif !important;
+  text-shadow: none !important;
+}
+#root .df-welcome-kick {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+#root .df-welcome-name {
+  color: #fff;
+  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}

@@ -1,0 +1,284 @@
+/* Site footer: professional multi-column layout (brand + link columns, trust row, legal bar) */
+.site-footer {
+  --sf-gold: #fcdb57;
+  --sf-line: rgba(255, 255, 255, 0.1);
+  --sf-text: rgba(255, 255, 255, 0.72);
+  --sf-muted: rgba(255, 255, 255, 0.5);
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  margin-top: clamp(40px, 5vw, 72px);
+  background: linear-gradient(180deg, #1e0a22 0%, #140618 100%);
+  border-top: 1px solid var(--sf-line);
+  color: var(--sf-text);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.site-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--sf-gold), transparent);
+  opacity: 0.55;
+}
+.site-footer__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.site-footer__inner {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: clamp(36px, 5vw, 56px) clamp(16px, 3vw, 24px) calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+/* top: brand + columns */
+.site-footer__top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr);
+  gap: clamp(28px, 5vw, 64px);
+  padding-bottom: clamp(28px, 4vw, 40px);
+}
+.site-footer__logo {
+  display: inline-block;
+  line-height: 0;
+  border-radius: 8px;
+}
+.site-footer__logo-img {
+  width: auto;
+  height: 56px;
+  max-width: 100%;
+  object-fit: contain;
+}
+.site-footer__brand p {
+  margin: 16px 0 0;
+  max-width: 44ch;
+  color: var(--sf-muted);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.site-footer__social {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+.site-footer__social-label {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.site-footer__social .lp-social-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+}
+.site-footer .lp-social-link {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--sf-line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  box-shadow: none;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.site-footer .lp-social-link:hover {
+  background: rgba(252, 219, 87, 0.14);
+  border-color: var(--sf-gold);
+  transform: translateY(-2px);
+  filter: none;
+}
+.site-footer .lp-social-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.site-footer__cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 28px clamp(20px, 3vw, 40px);
+  align-content: start;
+}
+.site-footer__col h3 {
+  margin: 0 0 14px;
+  color: var(--sf-gold);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.site-footer__col nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.site-footer__link {
+  display: inline-block;
+  padding: 5px 0;
+  border: 0;
+  background: none;
+  color: var(--sf-text);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+.site-footer__link:hover {
+  color: #fff;
+  transform: translateX(2px);
+}
+
+/* trust row */
+.site-footer__trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 22px 0;
+  list-style: none;
+  border-top: 1px solid var(--sf-line);
+}
+.site-footer__trust li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--sf-line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--sf-text);
+  font-size: 13px;
+  font-weight: 500;
+}
+.site-footer__trust svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--sf-gold);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.site-footer__age {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 5px;
+  background: var(--sf-gold);
+  color: #2a1206;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* bottom bar */
+.site-footer__bottom {
+  padding-top: 20px;
+  border-top: 1px solid var(--sf-line);
+}
+.site-footer__bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+}
+.site-footer__copy {
+  margin: 0;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+.site-footer__mini {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+.site-footer__mini a {
+  padding: 4px 0;
+  color: var(--sf-text);
+  font-size: 13px;
+  text-decoration: none;
+}
+.site-footer__mini a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+.site-footer__note {
+  margin: 12px 0 0;
+  max-width: 100ch;
+  color: var(--sf-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.site-footer__note strong {
+  color: var(--sf-text);
+}
+
+.site-footer a:focus-visible,
+.site-footer button:focus-visible {
+  outline: 3px solid var(--sf-gold);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (max-width: 900px) {
+  .site-footer__top {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 767px) {
+  /* clear the mobile bottom nav */
+  .site-footer__inner {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+  .site-footer__cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .site-footer__trust li {
+    flex: 1 1 calc(50% - 10px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-footer *,
+  .site-footer *::before {
+    transition: none !important;
+  }
+}
+
+/* Games list is long: span the full row and flow into columns */
+.site-footer__col:has(#site-footer-games) {
+  grid-column: 1 / -1;
+  padding-top: 20px;
+  border-top: 1px solid var(--sf-line);
+}
+.site-footer__col:has(#site-footer-games) nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 2px 20px;
+}
+/* no social links configured: hide the empty "Follow us" label */
+.site-footer__social:not(:has(.lp-social-link)) {
+  display: none;
+}

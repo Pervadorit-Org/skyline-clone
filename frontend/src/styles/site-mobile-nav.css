@@ -1,0 +1,455 @@
+/*
+ * Mobile / tablet (<1024px): simple top bar with hamburger, slide-in drawer from the left,
+ * and a flat bottom navigation bar. Desktop uses the header tabs instead (no bottom bar).
+ * #root / html body prefixes win over the older lazy-loaded dashboard CSS.
+ */
+
+/* ───────── Bottom bar ───────── */
+@media (max-width: 1023px) {
+  #root .mobile-lobby-nav.df-nav-hud {
+    position: fixed !important;
+    inset: auto 0 0 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    transform: none !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: space-around !important;
+    padding: 0 4px env(safe-area-inset-bottom, 0px) !important;
+    background: #1a0a1f !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35) !important;
+    pointer-events: auto !important;
+    z-index: 60 !important;
+  }
+  #root .df-nav-hud .df-nav-hud__backdrop {
+    display: none !important;
+  }
+  #root .df-nav-hud .df-nav-hud__item {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    height: 60px !important;
+    padding: 6px 0 4px !important;
+    gap: 3px !important;
+    justify-content: center !important;
+    align-items: center !important;
+    color: rgba(255, 255, 255, 0.62) !important;
+    background: none !important;
+    border: 0 !important;
+    font-family: Inter, system-ui, sans-serif;
+  }
+  #root .df-nav-hud .df-nav-hud__art {
+    position: relative !important;
+    left: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    display: grid !important;
+    place-items: center;
+    width: 40px !important;
+    height: 28px !important;
+    border-radius: 14px;
+    transition: background 0.15s ease;
+  }
+  #root .df-nav-hud .df-nav-hud__art svg {
+    display: block;
+  }
+  #root .df-nav-hud .df-nav-hud__label {
+    position: static !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.01em !important;
+    text-transform: none !important;
+    color: inherit !important;
+    text-shadow: none !important;
+    line-height: 1 !important;
+  }
+  #root .df-nav-hud .df-nav-hud__item--active {
+    color: #fcdb57 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  #root .df-nav-hud .df-nav-hud__item--active .df-nav-hud__art {
+    background: rgba(252, 219, 87, 0.16);
+  }
+  #root .df-nav-hud .df-nav-hud__item:active {
+    transform: scale(0.97) !important;
+  }
+  #root .df-nav-hud .df-nav-hud__counter {
+    position: absolute !important;
+    top: -4px !important;
+    right: -2px !important;
+    left: auto !important;
+    bottom: auto !important;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #fcdb57 !important;
+    color: #2a1206 !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    line-height: 16px;
+    text-align: center;
+    text-shadow: none !important;
+    transform: none !important;
+  }
+  #root .df-nav-hud a:focus-visible,
+  #root .df-nav-hud button:focus-visible {
+    outline: 3px solid #fcdb57;
+    outline-offset: -3px;
+    border-radius: 10px;
+  }
+
+  /* keep page content and footer clear of the bar */
+  #root .dash-root {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+  #root .dash-root .dash-shell-main {
+    padding-bottom: 16px !important;
+  }
+  #root .site-footer .site-footer__inner {
+    padding-bottom: 24px;
+  }
+  /* floating help bubble sits above the bar */
+  .df-help-launcher {
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+@media (min-width: 1024px) {
+  #root .mobile-lobby-nav.df-nav-hud {
+    display: none !important;
+  }
+}
+
+/* ───────── Top bar (logged in) ───────── */
+@media (max-width: 1023px) {
+  #root .dash-nav.dash-nav--authenticated {
+    min-height: 0 !important;
+    height: auto !important;
+    background: linear-gradient(180deg, #1e0a22 0%, #170719 100%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: none !important;
+  }
+  #root .dash-root:has(.dash-nav--authenticated) {
+    --dash-nav-h: 57px;
+  }
+  #root .dash-nav-inner--auth {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    height: 56px;
+    padding: 0 12px !important;
+  }
+  #root .dash-nav-inner--auth .dash-nav-auth-logo {
+    display: flex !important;
+    order: 1;
+    margin: 0;
+    width: auto !important;
+    min-height: 0 !important;
+  }
+  #root .dash-nav-inner--auth .dash-nav-auth-logo .site-logo--nav {
+    display: block !important;
+    height: 34px !important;
+    max-height: 34px !important;
+    width: auto !important;
+    max-width: 84px !important;
+  }
+  #root .dash-nav-inner--auth .df-auth-balances {
+    order: 3;
+    margin-left: auto;
+    width: auto !important;
+    height: auto !important;
+    pointer-events: auto !important;
+  }
+  /* flat wallet pill + gold "+" */
+  #root .dash-nav-inner--auth .df-auth-balances .df-wallet-hud {
+    position: static !important;
+    --w-bar: 108px;
+    --w-plus: 36px;
+    gap: 6px;
+  }
+  #root .df-wallet-hud__bar {
+    width: var(--w-bar);
+    height: 36px;
+    aspect-ratio: auto;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+  }
+  #root .df-wallet-hud__holder {
+    display: none;
+  }
+  #root .df-wallet-hud__amount {
+    inset: 0;
+    transform: none;
+    min-height: 36px;
+    padding: 0 8px;
+    justify-content: flex-start;
+    gap: 6px;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: none;
+  }
+  #root .df-wallet-hud__amount small {
+    padding: 2px 5px;
+    border-radius: 5px;
+    background: #fcdb57;
+    color: #2a1206;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  #root .df-wallet-hud__add {
+    width: 36px;
+    height: 36px;
+    aspect-ratio: auto;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #ffe58a 0%, #fcdb57 55%, #f0b92e 100%);
+    border: 1px solid #fbe78b;
+  }
+  #root .df-wallet-hud__add img {
+    display: none;
+  }
+  #root .df-wallet-hud__add::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    background:
+      linear-gradient(#2a1206, #2a1206) center / 100% 2.5px no-repeat,
+      linear-gradient(#2a1206, #2a1206) center / 2.5px 100% no-repeat;
+  }
+
+  /* actions: flatten so hamburger can sit first, avatar last */
+  #root .dash-nav-inner--auth .df-lobby-header-actions {
+    display: contents !important;
+  }
+  #root .df-lobby-header-actions .df-tour-btn {
+    display: none !important;
+  }
+  #root .df-lobby-header-actions .df-profile-trigger-wrap {
+    display: grid !important;
+    order: 4;
+    flex: 0 0 auto;
+  }
+  #root .df-lobby-header-actions .df-profile-trigger {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    border: 2px solid rgba(252, 219, 87, 0.8);
+    box-shadow: none;
+  }
+  #root .df-lobby-header-actions .df-menu-btn {
+    order: 0;
+    display: grid !important;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+  }
+  #root .df-menu-btn__dots {
+    display: none;
+  }
+  #root .df-menu-btn::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 6h16M4 12h16M4 18h16'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 6h16M4 12h16M4 18h16'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  #root .df-menu-btn:focus-visible,
+  #root .df-profile-trigger:focus-visible {
+    outline: 3px solid #fcdb57;
+    outline-offset: 2px;
+  }
+}
+
+/* ───────── Drawer (portal in <body>) ───────── */
+.df-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear 0.28s;
+}
+.df-drawer.is-open {
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+.df-drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(8, 2, 12, 0.6);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+  cursor: pointer;
+}
+.df-drawer.is-open .df-drawer__backdrop {
+  opacity: 1;
+}
+.df-drawer__panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(320px, 86vw);
+  padding: 0 0 env(safe-area-inset-bottom, 0px);
+  background: linear-gradient(180deg, #24102b 0%, #170719 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 12px 0 40px rgba(0, 0, 0, 0.5);
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.22, 0.8, 0.3, 1);
+  color: #fff;
+  font-family: Inter, system-ui, sans-serif;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.df-drawer.is-open .df-drawer__panel {
+  transform: translateX(0);
+}
+.df-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.df-drawer__logo {
+  height: 40px;
+  width: auto;
+  max-width: 120px;
+}
+.df-drawer__close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  cursor: pointer;
+}
+.df-drawer__user {
+  margin: 0;
+  padding: 14px 16px 6px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+}
+.df-drawer__user strong {
+  color: #fff;
+}
+.df-drawer__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+}
+.df-drawer__link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: rgba(255, 255, 255, 0.78);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.df-drawer__link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.df-drawer__link.is-active {
+  background: rgba(252, 219, 87, 0.14);
+  color: #fcdb57;
+}
+.df-drawer__link--danger {
+  color: #ff9aa8;
+}
+.df-drawer__foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.df-drawer button:focus-visible {
+  outline: 3px solid #fcdb57;
+  outline-offset: -3px;
+}
+body.df-drawer-open {
+  overflow: hidden;
+}
+@media (min-width: 1024px) {
+  .df-drawer {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .df-drawer,
+  .df-drawer__backdrop,
+  .df-drawer__panel {
+    transition: none;
+  }
+}
+
+/* ───────── Hero banner on phones: copy on top, artwork tucked bottom-right (no overlap) ───────── */
+@media (max-width: 640px) {
+  #root .spz-hero__main {
+    min-height: 330px;
+  }
+  #root .spz-hero__slide {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    min-height: 330px;
+    padding: 22px 20px 60px;
+  }
+  #root .spz-hero__content {
+    max-width: 100%;
+  }
+  #root .spz-hero__title {
+    font-size: 1.7rem;
+    line-height: 1.12;
+  }
+  #root .spz-hero__subtitle {
+    max-width: 22ch;
+    margin-bottom: 16px;
+  }
+  #root .spz-hero__art {
+    right: 6px;
+    bottom: 46px;
+    height: 128px;
+    max-width: 44%;
+    opacity: 1;
+  }
+  #root .spz-hero__dots {
+    left: 20px;
+    transform: none;
+    bottom: 22px;
+  }
+  #root .spz-hero__arrows {
+    right: 16px;
+    bottom: 14px;
+  }
+}

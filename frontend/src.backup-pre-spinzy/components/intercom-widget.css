@@ -1,0 +1,446 @@
+:root {
+  --intercom-launcher-bottom: 20px;
+  --intercom-launcher-size: 64px;
+  --lp-side-fab-gap: 12px;
+}
+
+/* Legacy Intercom FAB — replaced by .df-help-launcher */
+.pj-intercom-launcher,
+.pj-intercom-launcher--hidden {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* ── DragonFury Help Desk chat modal (live-matched) ── */
+
+.df-help-desk {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  font-family: "Baloo 2", system-ui, sans-serif;
+}
+
+.df-help-desk__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  cursor: pointer;
+  background:
+    radial-gradient(70% 60% at 50% 40%, rgba(255, 0, 56, 0.45), transparent 70%),
+    rgba(40, 6, 10, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+.df-help-desk__panel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(430px, 100%);
+  height: min(680px, calc(100dvh - 36px));
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  border: 3px solid #ffb8c0;
+  border-radius: 26px;
+  color: #fff;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 14%, transparent 28%),
+    radial-gradient(120% 60% at 50% -4%, rgba(255, 0, 56, 0.45), transparent 62%),
+    linear-gradient(180deg, #601622 0%, #3a360c 52%, #26070c 100%);
+  box-shadow:
+    0 0 0 4px #4a0f16,
+    0 0 0 6px rgba(255, 128, 123, 0.55),
+    0 0 40px rgba(255, 184, 192, 0.35),
+    0 30px 80px rgba(0, 0, 0, 0.7),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+    inset 0 -12px 28px rgba(50, 6, 13, 0.55);
+  animation: df-help-desk-enter 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes df-help-desk-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.df-help-desk__header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 76px;
+  padding: 12px 14px;
+  border-radius: 22px 22px 0 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.18), transparent 60%),
+    linear-gradient(135deg, #ff4d61, #6d1ed4 60%, #a82337);
+  box-shadow:
+    inset 0 -2px rgba(255, 184, 192, 0.6),
+    0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.df-help-desk__avatar {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(32, 29, 6, 0.55);
+  box-shadow:
+    0 0 0 2.5px #ffb8c0,
+    0 0 0 4.5px #4a0f16,
+    0 0 18px rgba(255, 128, 123, 0.6);
+}
+
+.df-help-desk__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.df-help-desk__titles {
+  min-width: 0;
+}
+
+.df-help-desk__header h2 {
+  margin: 0;
+  font-family: "Lilita One", "Baloo 2", system-ui, sans-serif;
+  font-size: clamp(1rem, 3.4vw, 1.2rem);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: #ffe06a;
+  background: linear-gradient(#fff8d6, #ffe06a 34%, #ffc928 58%, #f6b900);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter:
+    drop-shadow(0 2px 0 #3a1305)
+    drop-shadow(0 0 10px rgba(255, 128, 123, 0.45));
+}
+
+.df-help-desk__presence {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.df-help-desk__presence i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #50eb8c;
+  box-shadow: 0 0 10px #50eb8c;
+}
+
+.df-help-desk__presence.is-offline i {
+  background: #f2bd55;
+  box-shadow: 0 0 8px rgba(242, 189, 85, 0.5);
+}
+
+.df-help-desk__badge {
+  max-width: 88px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 7px 10px;
+  border: 2px solid rgb(255, 220, 223);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ff5c7a, #ff0038 55%, #b3151b);
+  box-shadow: 0 3px 0 #4a0f16;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(110, 0, 10, 0.8);
+}
+
+.df-help-desk__close {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.df-help-desk__close img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+}
+
+.df-help-desk.is-exiting {
+  pointer-events: none;
+}
+
+.df-help-desk.is-exiting .df-help-desk__backdrop {
+  animation: df-help-desk-backdrop-out 0.22s ease-in both;
+}
+
+.df-help-desk.is-exiting .df-help-desk__panel {
+  animation: df-help-desk-exit 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes df-help-desk-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+}
+
+@keyframes df-help-desk-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.df-help-desk__intro {
+  display: grid;
+  gap: 4px;
+  padding: 12px 16px;
+  border: 2px solid rgba(200, 70, 87, 0.45);
+  border-width: 0 0 2px;
+  margin: 10px 12px 0;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #201d06, #302d0a);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+.df-help-desk__intro strong {
+  color: #ffc928;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.df-help-desk__intro span {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.df-help-desk__scroll {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(243, 193, 15, 0.55) transparent;
+}
+
+.df-help-desk__action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  padding: 14px;
+  border: 1px solid rgba(255, 184, 192, 0.28);
+  border-radius: 16px;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  background: rgba(32, 29, 6, 0.5);
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.df-help-desk__action:hover,
+.df-help-desk__action:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 201, 40, 0.45);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.df-help-desk__action--primary {
+  border-color: rgba(255, 201, 40, 0.4);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 40%),
+    rgba(74, 15, 22, 0.75);
+}
+
+.df-help-desk__action strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.df-help-desk__action small {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+}
+
+.df-help-desk__action .pj-support-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: #ffc928;
+}
+
+.df-help-desk__topics {
+  padding-top: 2px;
+}
+
+.df-help-desk__section-label {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 224, 106, 0.75);
+}
+
+.df-help-desk__topic {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 10px;
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.df-help-desk__topic:hover,
+.df-help-desk__topic:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.df-help-desk__topic .pj-support-chevron {
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.df-help-desk__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255, 184, 192, 0.22);
+  background: rgba(32, 29, 6, 0.55);
+  flex-shrink: 0;
+}
+
+.df-help-desk__footer-btn,
+.df-help-desk__footer-link {
+  min-width: 74px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 11px;
+  color: rgba(255, 255, 255, 0.68);
+  background: transparent;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.df-help-desk__footer-btn.is-active {
+  color: #3a1400;
+  background: linear-gradient(180deg, #ffd24a, #f08a12);
+  box-shadow: 0 4px 12px rgba(240, 138, 18, 0.35);
+}
+
+.df-help-desk__footer-btn:hover,
+.df-help-desk__footer-link:hover,
+.df-help-desk__footer-btn:focus-visible,
+.df-help-desk__footer-link:focus-visible {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.df-help-desk__footer-btn.is-active:hover,
+.df-help-desk__footer-btn.is-active:focus-visible {
+  color: #3a1400;
+  background: linear-gradient(180deg, #ffd24a, #f08a12);
+}
+
+.pj-support-footer-icon {
+  width: 20px;
+  height: 20px;
+}
+
+body.df-help-desk-open .df-help-launcher {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body.hide-intercom-launcher:not(.intercom-maximized) .pj-intercom-launcher,
+body.app-modal-open:not(.intercom-maximized) .pj-intercom-launcher,
+body[data-scroll-locked]:not(.intercom-maximized) .pj-intercom-launcher,
+body.welcome-modal-open .pj-intercom-launcher,
+body.onboarding-tutorial-active .pj-intercom-launcher,
+body.game-transfer-modal-open .pj-intercom-launcher,
+body.guest-spin-modal-open .pj-intercom-launcher,
+body.page-loader-active:not(.intercom-maximized) .pj-intercom-launcher,
+body.slot-game-play-active .pj-intercom-launcher {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.app-modal-open:not(.intercom-maximized) .df-help-desk,
+body[data-scroll-locked]:not(.intercom-maximized) .df-help-desk,
+body.welcome-modal-open .df-help-desk,
+body.onboarding-tutorial-active .df-help-desk,
+body.game-transfer-modal-open .df-help-desk,
+body.guest-spin-modal-open .df-help-desk,
+body.page-loader-active:not(.intercom-maximized) .df-help-desk,
+body.slot-game-play-active .df-help-desk {
+  display: none !important;
+}
+
+@media (min-width: 720px) {
+  .df-help-desk__panel {
+    height: min(720px, calc(100dvh - 48px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .df-help-desk__panel {
+    animation: none;
+  }
+}
