@@ -1,0 +1,792 @@
+/* ==========================================================================
+   Home page (guest view) redesign — scoped entirely under .df-home2 so it
+   never bleeds into any other route or into the authenticated dashboard.
+   Every color/font/radius/layout value below reads a CSS custom property
+   generated from src/config/homeConfig.js (see Home2/HomeV2.jsx) — change a
+   value in that one file and this whole page restyles.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+.df-home2 {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  background: var(--df-home2-color-bg);
+  color: var(--df-home2-color-text);
+  font-family: var(--df-home2-font-body);
+}
+.df-home2 > * {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.df-home2 h1,
+.df-home2 h2,
+.df-home2 h3 {
+  font-family: var(--df-home2-font-heading);
+  margin: 0;
+}
+
+/* ---------- shared placeholder (missing-asset slots) ---------- */
+.df-home2-placeholder {
+  background: var(--df-home2-color-card);
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: var(--df-home2-radius-tile);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  width: 100%;
+}
+
+/* ---------- pill buttons ---------- */
+.df-home2-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 24px;
+  border-radius: var(--df-home2-radius-pill);
+  font: 700 16px var(--df-home2-font-heading);
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.df-home2-pill:hover {
+  transform: translateY(-1px);
+}
+.df-home2-pill--solid {
+  background: linear-gradient(135deg, var(--df-home2-color-goldFrom), var(--df-home2-color-goldTo));
+  color: var(--df-home2-color-onGold);
+}
+.df-home2-pill--outline {
+  background: #000;
+  border: 2px solid var(--df-home2-color-gold);
+  color: #fff;
+}
+
+/* ---------- section heading ---------- */
+.df-home2-section {
+  padding: 48px 20px;
+}
+.df-home2-heading {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.df-home2-heading__title {
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--df-home2-color-text);
+  padding-top: 12px;
+}
+.df-home2-heading__title--upper {
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 36px;
+}
+/* Two-line stacked heading (e.g. "More Reasons to" / "Join Dragon Fury today").
+   Scoped under .df-home2 to beat the global `.dash-page--fury h2` uppercase rule. */
+.df-home2 .df-home2-heading__title--stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-transform: none;
+  font-weight: 600;
+}
+.df-home2-heading__lead {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.df-home2-heading__main {
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+@media (min-width: 1024px) {
+  .df-home2-heading__lead,
+  .df-home2-heading__main {
+    font-size: 36px;
+  }
+}
+.df-home2-heading__subtitle {
+  margin-top: 8px;
+  color: var(--df-home2-color-muted);
+}
+
+@media (min-width: 1024px) {
+  .df-home2-heading__title--upper {
+    font-size: 36px;
+    line-height: 40px;
+  }
+}
+
+/* ---------- Hero 1 ---------- */
+.df-home2-hero1 {
+  position: relative;
+  /* Full-bleed: cancel the shell's 4px side inset (Layout.jsx `px-1`) and any
+     top gap so the hero sits flush under the header, edge to edge. */
+  width: calc(100% + 8px);
+  margin: 0 -4px;
+  border-radius: 0 0 clamp(60px, 10.5vw, 140px) clamp(60px, 10.5vw, 140px);
+  overflow: hidden;
+  aspect-ratio: 828 / 1119;
+  background: #0a1a5c;
+}
+@media (min-width: 768px) {
+  .df-home2-hero1 {
+    aspect-ratio: 1726 / 1352;
+    max-height: 1017px;
+  }
+}
+.df-home2-hero1__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.df-home2-hero1__content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  padding: 16px 20px 12%;
+}
+.df-home2-hero1__offer-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.df-home2-hero1__logo {
+  width: clamp(150px, 24vw, 340px);
+  height: auto;
+  filter: drop-shadow(0 0 24px rgba(252, 233, 129, 0.35));
+}
+.df-home2-hero1__character {
+  width: min(560px, 85%);
+  height: auto;
+  min-height: 0;
+  background: transparent;
+  border: none;
+  object-fit: contain;
+  margin: -12px 0 -24px;
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.45));
+}
+.df-home2 .df-home2-hero1__eyebrow {
+  font-family: var(--df-home2-font-hero);
+  font-weight: 700;
+  color: #fff;
+  font-size: clamp(14px, 2.2vw, 30px);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+.df-home2 .df-home2-hero1__offer {
+  font-family: var(--df-home2-font-hero);
+  font-weight: 800;
+  color: #fff;
+  font-size: clamp(24px, 4.4vw, 64px);
+  line-height: 1.1;
+  text-transform: uppercase;
+  margin: 0;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
+}
+.df-home2 .df-home2-hero1__cta {
+  width: clamp(150px, 20vw, 290px);
+  height: clamp(36px, 4.4vw, 62px);
+  border-radius: clamp(8px, 1vw, 15px);
+  font-family: var(--df-home2-font-hero);
+  font-weight: 800;
+  font-size: clamp(14px, 2vw, 28px);
+  text-transform: uppercase;
+  box-shadow: 0 0 13.6px var(--df-home2-color-ctaGlow);
+  margin-top: 12px;
+}
+
+/* ---------- Hero 2: full-width "Play - Win - Redeem" banner image ---------- */
+.df-home2-hero2 {
+  width: 100%;
+  max-width: 1679px;
+  margin: 0 auto;
+  padding: 16px 0 0;
+}
+.df-home2-hero2__link,
+.df-home2-hero2 picture,
+.df-home2-hero2 img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---------- Intro ---------- */
+.df-home2-intro {
+  text-align: center;
+  padding: 32px 20px 24px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.df-home2 .df-home2-intro__headline {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.15;
+  text-transform: none;
+}
+@media (min-width: 768px) {
+  .df-home2 .df-home2-intro__headline {
+    font-size: 32px;
+  }
+}
+.df-home2-intro__highlight {
+  color: var(--df-home2-color-accentBlue);
+}
+.df-home2-intro__subtitle {
+  margin-top: 12px;
+  color: var(--df-home2-color-muted);
+}
+
+/* ---------- Category strip (horizontal scrollable pills) ---------- */
+.df-home2-catstrip {
+  max-width: var(--df-home2-layout-column);
+  margin: 0 auto;
+  padding: 4px 20px 16px;
+}
+.df-home2-catstrip__scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  font-family: var(--df-home2-font-body);
+  user-select: none;
+}
+.df-home2-catstrip__scroll::-webkit-scrollbar {
+  display: none;
+}
+.df-home2-catstrip__tab {
+  display: flex;
+  min-width: 112px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  white-space: nowrap;
+  text-decoration: none;
+  color: var(--df-home2-color-text);
+  font-weight: 600;
+  font-size: 16px;
+  background: transparent;
+  border: 1.5px solid transparent;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.df-home2-catstrip__tab:hover {
+  color: var(--df-home2-color-gold);
+}
+.df-home2-catstrip__tab--active {
+  font-weight: 700;
+  color: var(--df-home2-color-onGold);
+  background: linear-gradient(135deg, var(--df-home2-color-goldFrom), var(--df-home2-color-goldTo));
+}
+.df-home2-catstrip__tab--active:hover {
+  color: var(--df-home2-color-onGold);
+}
+.df-home2-catstrip__icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.df-home2-catstrip__icon {
+  width: 18px;
+  height: auto;
+}
+.df-home2-catstrip__emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+.df-home2-catstrip__pad {
+  width: 8px;
+  flex-shrink: 0;
+}
+@media (min-width: 768px) {
+  .df-home2-catstrip__tab {
+    font-size: 20px;
+    gap: 8px;
+  }
+  .df-home2-catstrip__icon {
+    width: 24px;
+  }
+  .df-home2-catstrip__emoji {
+    font-size: 22px;
+  }
+}
+
+/* ---------- Top games: restyle the reused catalog grid to a 7-col tile grid ---------- */
+.df-home2-top-games .df-games-included {
+  max-width: var(--df-home2-layout-column);
+  margin: 0 auto;
+  padding: 0;
+}
+.df-home2-top-games .df-games-tabs {
+  justify-content: center;
+  gap: 8px;
+}
+.df-home2-top-games .df-games-tab {
+  height: 40px;
+  min-width: 116px;
+  border-radius: var(--df-home2-radius-tab);
+  background: transparent;
+  border: 1.5px solid transparent;
+  color: var(--df-home2-color-text);
+  font: 700 16px var(--df-home2-font-body);
+}
+.df-home2-top-games .df-games-tab--active {
+  background: #000;
+  border-color: var(--df-home2-color-gold);
+}
+.df-home2-top-games .df-games-grid,
+.df-home2-top-games .df-games-grid--dense {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px 8px;
+}
+@media (min-width: 640px) {
+  .df-home2-top-games .df-games-grid,
+  .df-home2-top-games .df-games-grid--dense {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .df-home2-top-games .df-games-grid,
+  .df-home2-top-games .df-games-grid--dense {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+.df-home2-top-games .df-game-card {
+  aspect-ratio: 158 / 180;
+  border-radius: var(--df-home2-radius-tile);
+  overflow: hidden;
+}
+/* Static showcase tiles (shown while the live catalog is empty) */
+.df-home2-static-games .df-game-card {
+  display: block;
+  background: var(--df-home2-color-card);
+  transition: transform 0.15s ease;
+}
+.df-home2-static-games .df-game-card:hover {
+  transform: translateY(-3px);
+}
+.df-home2-static-games .df-game-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---------- Platforms: restyle the reused GuestHomePlatforms tile grid ---------- */
+.df-home2-platforms .df-other-games__list {
+  max-width: var(--df-home2-layout-column);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px 8px;
+  list-style: none;
+  padding: 0;
+}
+@media (min-width: 640px) {
+  .df-home2-platforms .df-other-games__list {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .df-home2-platforms .df-other-games__list {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+.df-home2-platforms .df-other-games__tile {
+  aspect-ratio: 158 / 180;
+  border-radius: var(--df-home2-radius-tile);
+  overflow: hidden;
+  width: 100%;
+}
+
+/* ---------- Reasons / Feature cards (shared grid + card) ---------- */
+.df-home2-reasons__grid {
+  max-width: var(--df-home2-layout-features);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 400px));
+  justify-content: center;
+  gap: 40px;
+}
+.df-home2-feature-card {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  min-height: 320px;
+  background: var(--df-home2-color-card);
+  border-radius: var(--df-home2-radius-card);
+  padding: 56px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.df-home2-feature-card__icon {
+  position: absolute;
+  top: -40px;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.df-home2-feature-card__icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.df-home2-feature-card__icon-emoji {
+  font-size: 48px;
+}
+.df-home2-feature-card__title {
+  font: 800 22px var(--df-home2-font-body);
+  margin-top: 12px;
+}
+.df-home2-feature-card__body {
+  font: 500 16px/24px var(--df-home2-font-body);
+  color: var(--df-home2-color-text);
+  margin-top: 8px;
+}
+
+/* ---------- Providers strip ---------- */
+.df-home2-providers {
+  text-align: center;
+}
+.df-home2-providers__viewport {
+  overflow: hidden;
+  margin-top: 24px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.df-home2-providers__track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  animation: df-home2-scroll 28s linear infinite;
+}
+.df-home2-providers__tile {
+  width: 130px;
+  height: 50px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--df-home2-color-card);
+}
+.df-home2-providers__tile img {
+  max-width: 80%;
+  max-height: 60%;
+}
+@keyframes df-home2-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- Testimonials ---------- */
+.df-home2-testimonials__grid {
+  max-width: var(--df-home2-layout-testimonials);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 768px) {
+  .df-home2-testimonials__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.df-home2-testimonial {
+  background: var(--df-home2-color-card);
+  border-radius: var(--df-home2-radius-card);
+  padding: 32px 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+.df-home2-testimonial__avatar {
+  width: 48px;
+  height: 48px;
+  color: var(--df-home2-color-text);
+}
+.df-home2-testimonial__stars {
+  color: var(--df-home2-color-gold);
+  font-size: 18px;
+}
+.df-home2-testimonial__quote {
+  font-size: 16px;
+  padding: 0 32px;
+  margin: 0;
+}
+.df-home2-testimonial__name {
+  font: 400 20px var(--df-home2-font-heading);
+  color: var(--df-home2-color-muted);
+}
+
+/* ---------- Promo banners ---------- */
+.df-home2-promo-banner {
+  width: calc(100% - 40px);
+  max-width: var(--df-home2-layout-column);
+  margin: 0 auto;
+  border-radius: var(--df-home2-radius-banner);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px 0;
+  gap: 24px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+}
+.df-home2-promo-banner__picture {
+  display: block;
+  align-self: flex-end;
+  line-height: 0;
+}
+@media (min-width: 1024px) {
+  .df-home2-promo-banner {
+    flex-direction: row;
+    justify-content: space-between;
+    min-height: 320px;
+  }
+  .df-home2-promo-banner--left {
+    flex-direction: row-reverse;
+  }
+}
+.df-home2-promo-banner__text {
+  max-width: 420px;
+  text-align: center;
+}
+@media (min-width: 1024px) {
+  .df-home2-promo-banner__text {
+    text-align: left;
+  }
+}
+.df-home2 .df-home2-promo-banner__text h2 {
+  text-transform: none;
+  font: 600 30px/36px var(--df-home2-font-heading);
+}
+.df-home2-promo-banner__text p {
+  font: 600 14px/20px var(--df-home2-font-heading);
+  color: rgba(255, 255, 255, 0.8);
+  margin: 12px 0 20px;
+}
+.df-home2-promo-banner__cta {
+  width: auto;
+  padding: 0 20px;
+  white-space: nowrap;
+  height: 44px;
+}
+.df-home2-promo-banner__character {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  min-height: 0;
+  height: auto;
+  background: transparent;
+  border: none;
+}
+@media (min-width: 1024px) {
+  .df-home2-promo-banner__character {
+    max-width: 300px;
+  }
+}
+.df-home2-promo-banner--right .df-home2-promo-banner__picture,
+.df-home2-promo-banner--left .df-home2-promo-banner__picture {
+  align-self: center;
+}
+@media (min-width: 1024px) {
+  .df-home2-promo-banner .df-home2-promo-banner__picture {
+    align-self: flex-end;
+    margin-right: 40px;
+  }
+  .df-home2-promo-banner--left .df-home2-promo-banner__picture {
+    margin: 0 0 0 40px;
+  }
+}
+
+/* ---------- No Purchase Necessary split section ---------- */
+.df-home2-nopurchase {
+  padding: 48px 20px;
+}
+.df-home2-nopurchase__inner {
+  max-width: var(--df-home2-layout-features);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 32px 24px;
+  border-radius: var(--df-home2-radius-card);
+  overflow: hidden;
+  /* On-brand CSS backdrop (no external image) standing in for the reference's
+     play-for-free-bg.webp — deep purple/blue glow. */
+  background:
+    radial-gradient(ellipse 60% 80% at 15% 50%, rgba(123, 58, 237, 0.35), transparent 60%),
+    radial-gradient(ellipse 60% 80% at 90% 60%, rgba(59, 130, 246, 0.25), transparent 60%),
+    linear-gradient(135deg, #1a1033, #0d1030);
+}
+@media (min-width: 1024px) {
+  .df-home2-nopurchase__inner {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 40px 64px;
+  }
+}
+.df-home2-nopurchase__text {
+  flex: 1 1 0;
+  max-width: 560px;
+  text-align: center;
+}
+@media (min-width: 1024px) {
+  .df-home2-nopurchase__text {
+    text-align: left;
+  }
+}
+.df-home2-nopurchase__title {
+  font: 700 28px var(--df-home2-font-heading);
+  color: var(--df-home2-color-text);
+}
+@media (min-width: 1024px) {
+  .df-home2-nopurchase__title {
+    font-size: 36px;
+  }
+}
+.df-home2-nopurchase__body {
+  margin: 16px 0 0;
+  font: 600 14px/1.6 var(--df-home2-font-body);
+  color: rgba(255, 255, 255, 0.8);
+}
+@media (min-width: 1024px) {
+  .df-home2-nopurchase__body {
+    max-width: 78%;
+  }
+}
+.df-home2-nopurchase__cta {
+  margin-top: 24px;
+  height: 52px;
+  padding: 0 32px;
+  font-size: 17px;
+}
+.df-home2-nopurchase__cta-mobile {
+  display: none;
+}
+@media (max-width: 1023px) {
+  .df-home2-nopurchase__cta-desktop {
+    display: none;
+  }
+  .df-home2-nopurchase__cta-mobile {
+    display: inline;
+    text-transform: uppercase;
+  }
+}
+.df-home2-nopurchase__character {
+  width: min(360px, 85%);
+  height: auto;
+  min-height: 0;
+  background: transparent;
+  border: none;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 30px rgba(252, 233, 129, 0.3)) drop-shadow(0 16px 28px rgba(0, 0, 0, 0.5));
+}
+@media (min-width: 1024px) {
+  .df-home2-nopurchase__character {
+    width: 420px;
+  }
+}
+
+/* ==========================================================================
+   Mobile reorder: hero1, topGames, hero2, intro (desktop source order above
+   is already hero1, hero2, intro, topGames, ... so only mobile needs
+   explicit flex `order`; every section needs one so nothing jumps ahead of
+   the first four).
+   ========================================================================== */
+@media (max-width: 767px) {
+  .df-home2-section,
+  .df-home2-hero1,
+  .df-home2-hero2,
+  .df-home2-intro {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+  .df-home2-hero1 {
+    order: 1;
+  }
+  .df-home2-catstrip {
+    order: 2;
+  }
+  .df-home2-top-games {
+    order: 3;
+  }
+  .df-home2-hero2 {
+    order: 4;
+  }
+  .df-home2-intro {
+    order: 5;
+  }
+  .df-home2-platforms {
+    order: 6;
+  }
+  .df-home2-reasons:not(.df-home2-feature-cards) {
+    order: 7;
+  }
+  .df-home2-providers {
+    order: 8;
+  }
+  .df-home2-testimonials {
+    order: 9;
+  }
+  .df-home2-banner1 {
+    order: 10;
+  }
+  .df-home2-feature-cards {
+    order: 11;
+  }
+  .df-home2-nopurchase {
+    order: 12;
+  }
+  .df-home2-banner2 {
+    order: 13;
+  }
+  .df-home2-heading__title--upper {
+    font-size: 24px;
+  }
+  .df-home2-reasons__grid {
+    grid-template-columns: 1fr;
+  }
+}

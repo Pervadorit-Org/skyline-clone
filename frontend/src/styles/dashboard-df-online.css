@@ -264,6 +264,15 @@ body.guest-landing-active .dash-root,
   --dash-nav-h: 88px;
 }
 
+/* Guest landing: flat dark page, no fireworks/lightning/glow — matches reference */
+body.guest-landing-active,
+body.guest-landing-active .dash-root {
+  background: linear-gradient(180deg, #0b0d1a, #111122) !important;
+}
+body.guest-landing-active .dash-root::before {
+  display: none !important;
+}
+
 body.guest-landing-active .dash-root .dash-nav,
 .dash-root--guest-landing .dash-nav,
 body.guest-landing-active .dash-nav {
@@ -272,9 +281,9 @@ body.guest-landing-active .dash-nav {
   padding: 12px clamp(16px, 4vw, 56px) !important;
   gap: 16px !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: linear-gradient(rgba(24, 12, 29, 0.86), rgba(24, 12, 29, 0.3)) !important;
-  box-shadow: rgba(0, 0, 0, 0.45) 0 6px 22px, rgba(177, 28, 227, 0.3) 0 1px !important;
-  backdrop-filter: blur(10px) saturate(1.2);
+  background: #000000 !important;
+  box-shadow: rgba(0, 0, 0, 0.45) 0 6px 22px !important;
+  backdrop-filter: none;
   overflow: visible !important;
 }
 
@@ -336,47 +345,89 @@ body.guest-landing-active .dash-nav-auth .dash-btn-login {
   align-items: center;
   justify-content: center;
   min-height: 36px !important;
-  padding: 0 14px !important;
-  border: 0 !important;
+  padding: 0 16px !important;
   border-radius: 999px !important;
-  color: #fff !important;
   font-family: "Baloo 2", system-ui, sans-serif !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   font-size: 0.82rem !important;
   letter-spacing: 0 !important;
   text-transform: none !important;
   text-decoration: none !important;
   animation: none !important;
-  -webkit-text-stroke: 0.9px rgb(138, 113, 11) !important;
-  paint-order: stroke !important;
-  text-shadow: rgb(138, 113, 11) 0 2px 0, rgba(0, 0, 0, 0.35) 0 3px 6px !important;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.28) 34%, rgba(255, 255, 255, 0) 48%),
-    linear-gradient(rgb(255, 228, 159), rgb(68, 230, 68) 40%, rgb(255, 228, 120), rgb(255, 212, 0)) !important;
-  box-shadow:
-    rgb(243, 193, 15) 0 5px,
-    rgb(176, 140, 11) 0 0 0 2px,
-    rgba(0, 0, 0, 0.45) 0 12px 22px,
-    rgba(68, 230, 68, 0.55) 0 0 26px,
-    rgba(255, 255, 255, 0.85) 0 2px inset,
-    rgba(243, 193, 15, 0.35) 0 -3px inset !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
   transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), filter 0.14s, box-shadow 0.14s !important;
+}
+
+/* Sign Up — solid gold pill, Golden Dragon style */
+body.guest-landing-active .dash-root .dash-btn-signup,
+body.guest-landing-active .dash-nav-auth .dash-btn-signup {
+  border: 0 !important;
+  color: #01113e !important;
+  background: linear-gradient(135deg, #fce981, #d89829) !important;
+  box-shadow: none !important;
+}
+
+/* Login — black pill, thin gold border */
+body.guest-landing-active .dash-root .dash-btn-login,
+body.guest-landing-active .dash-nav-auth .dash-btn-login {
+  border: 1.5px solid #ebc567 !important;
+  color: #ffffff !important;
+  background: #000000 !important;
+  box-shadow: none !important;
 }
 
 body.guest-landing-active .dash-root .dash-btn-signup:hover,
 body.guest-landing-active .dash-root .dash-btn-login:hover {
-  filter: brightness(1.06) !important;
+  filter: brightness(1.08) !important;
   transform: translateY(-2px) !important;
 }
 
 body.guest-landing-active .dash-root .dash-btn-signup:active,
 body.guest-landing-active .dash-root .dash-btn-login:active {
-  transform: translateY(4px) !important;
-  box-shadow:
-    rgb(243, 193, 15) 0 1px,
-    rgb(176, 140, 11) 0 0 0 2px,
-    rgba(0, 0, 0, 0.4) 0 6px 12px,
-    rgba(255, 255, 255, 0.6) 0 2px inset !important;
+  transform: translateY(1px) !important;
+}
+
+/* Guest header: hamburger menu (replaces the logo), Golden-Dragon style */
+.df-guest-menu {
+  position: relative;
+  flex: 0 0 auto;
+}
+.df-guest-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+.df-guest-menu-panel {
+  left: 0;
+  right: auto;
+  min-width: 200px;
+  padding: 8px;
+  background: #000000;
+  border: 1px solid rgba(235, 197, 103, 0.3);
+}
+body.guest-landing-active .df-guest-menu-panel .df-nav-links,
+.df-guest-menu-panel .df-nav-links {
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+}
+.df-guest-menu-panel .df-nav-link {
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-shadow: none !important;
+}
+.df-guest-menu-panel .df-nav-link:hover {
+  background: rgba(235, 197, 103, 0.1);
+  transform: none;
 }
 
 .df-menu-btn {

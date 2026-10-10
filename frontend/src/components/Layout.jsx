@@ -198,6 +198,12 @@ export function Layout({ children }) {
   }, [isGuestLanding]);
 
   useEffect(() => {
+    // The sidebar isn't rendered for guests, so clear any `data-rail` state
+    // left over from a previous authenticated session in this tab.
+    if (isGuestLanding) document.documentElement.removeAttribute('data-rail');
+  }, [isGuestLanding]);
+
+  useEffect(() => {
     if (!hideGuestBuyWithdraw) {
       document.body.classList.remove('guest-hide-buy-withdraw');
       return undefined;
@@ -212,19 +218,21 @@ export function Layout({ children }) {
 
   return (
     <div
-      className={`dash-root flex flex-col min-h-screen${isGuestLanding ? ' dash-root--guest-landing' : ''}${
+      className={`dash-root flex flex-col min-h-screen${isGuestLanding ? ' dash-root--guest-landing dash-root--no-rail' : ''}${
         useNavOnlyBottomPad ? ' dash-root--bottom-nav-only' : ''
       }${
         /* DF lobby uses document scroll (live dragonfury.online) — do not lock to split-pane */
         ''
       }${isSupportChat ? ' dash-root--support-chat' : ''}`}
     >
-      <Suspense fallback={null}>
-        <DashboardBackground />
-      </Suspense>
-      <a href="#main-content" className="skip-link">Skip to main content</a>
+      {!isGuestLanding ? (
+        <Suspense fallback={null}>
+          <DashboardBackground />
+        </Suspense>
+      ) : null}
+      {/* <a href="#main-content" className="skip-link">Skip to main content</a> */}
       <Navbar />
-      <SpinzySidebar />
+      {!isGuestLanding ? <SpinzySidebar /> : null}
       <main
         id="main-content"
         tabIndex={-1}

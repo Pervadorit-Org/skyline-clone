@@ -7,16 +7,27 @@ import { getGameDisplayName } from '../../utils/gameDisplay';
 const GUEST_PLATFORMS = buildGuestPlatformGames([]);
 const PAGE_SIZE = 12;
 
-export function GuestHomePlatforms() {
+export function GuestHomePlatforms({
+  eyebrow = 'Also on your account',
+  title = 'TRY OTHER GAMES',
+  subtitle = (
+    <>
+      Dragon Fury is the main event. One <strong>DragonFury.casino</strong> account also opens
+      these web platforms.
+    </>
+  ),
+  limit = null,
+}) {
   const navigate = useNavigate();
   const { search } = useLocation();
   const signupTo = `/register${search || ''}`;
   const [visiblePages, setVisiblePages] = useState(1);
 
-  const total = GUEST_PLATFORMS.length;
-  const visibleCount = Math.min(total, PAGE_SIZE * visiblePages);
-  const visibleGames = GUEST_PLATFORMS.slice(0, visibleCount);
-  const remaining = Math.max(0, total - visibleCount);
+  const source = limit ? GUEST_PLATFORMS.slice(0, limit) : GUEST_PLATFORMS;
+  const total = source.length;
+  const visibleCount = limit ? total : Math.min(total, PAGE_SIZE * visiblePages);
+  const visibleGames = source.slice(0, visibleCount);
+  const remaining = limit ? 0 : Math.max(0, total - visibleCount);
 
   const goSignup = useCallback(() => {
     navigate(signupTo);
@@ -24,14 +35,11 @@ export function GuestHomePlatforms() {
 
   return (
     <section className="df-other-games" id="games" aria-labelledby="df-other-games-title">
-      <p className="df-games-eyebrow">Also on your account</p>
+      {eyebrow ? <p className="df-games-eyebrow">{eyebrow}</p> : null}
       <h2 className="df-games-title" id="df-other-games-title">
-        TRY OTHER GAMES
+        {title}
       </h2>
-      <p className="df-games-sub">
-        Dragon Fury is the main event. One <strong>DragonFury.casino</strong> account also opens
-        these web platforms.
-      </p>
+      {subtitle ? <p className="df-games-sub">{subtitle}</p> : null}
 
       <ul className="df-other-games__list">
         {visibleGames.map((game, index) => {

@@ -53,6 +53,40 @@ function DesktopAuthNav({ pathname }) {
   );
 }
 
+// Decorative hover sparkles for the guest Login/Sign Up pills — a generic
+// four-point sparkle glyph (own path data, not copied from any reference site).
+function DfNavSparkles() {
+  const spec = [
+    { cls: 'df-nav-sparkle__dot--a', size: 9 },
+    { cls: 'df-nav-sparkle__dot--b', size: 11 },
+    { cls: 'df-nav-sparkle__dot--c', size: 8 },
+    { cls: 'df-nav-sparkle__dot--d', size: 13 },
+  ];
+  return (
+    <>
+      {spec.map(({ cls, size }) => (
+        <svg
+          key={cls}
+          className={`df-nav-sparkle__dot ${cls}`}
+          width={size}
+          height={size}
+          viewBox="0 0 10 10"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path d="M5 0c0 2.2 1.8 4 4 4-2.2 0-4 1.8-4 4 0-2.2-1.8-4-4-4 2.2 0 4-1.8 4-4Z" fill="url(#df-nav-sparkle-grad)" />
+          <defs>
+            <linearGradient id="df-nav-sparkle-grad" x1="1" y1="9" x2="9" y2="1" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#FFD12E" />
+              <stop offset="1" stopColor="#FF7C1D" />
+            </linearGradient>
+          </defs>
+        </svg>
+      ))}
+    </>
+  );
+}
+
 function formatNotificationDate(createdAt) {
   if (!createdAt) return '';
   const d = new Date(createdAt);
@@ -92,6 +126,8 @@ export function Navbar() {
   const [scBreakdownOpen, setScBreakdownOpen] = useState(false);
   const [phoneUnlockOpen, setPhoneUnlockOpen] = useState(false);
   const [quickMenuOpen, setQuickMenuOpen] = useState(false);
+  const [guestMenuOpen, setGuestMenuOpen] = useState(false);
+  const guestMenuRef = useRef(null);
   const lockedSc = Number(lockedBalanceSc) || 0;
   const unlockedTotal = Number(balanceSc) || 0;
   const pillAmount = unlockedTotal > 0 ? unlockedTotal : lockedSc;
@@ -196,10 +232,15 @@ export function Navbar() {
     function handleClickOutside(e) {
       if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
       if (scBreakdownOpen && !e.target.closest?.('.df-wallet-hud')) setScBreakdownOpen(false);
+      if (guestMenuRef.current && !guestMenuRef.current.contains(e.target)) setGuestMenuOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [scBreakdownOpen]);
+
+  useEffect(() => {
+    setGuestMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (notifOpen && isAuthenticated) fetchNotifications();
@@ -397,10 +438,25 @@ export function Navbar() {
           </>
         ) : (
           <>
-            <Link to="/" className="dash-logo dash-nav-guest-logo min-w-0">
-              <SiteLogo variant="nav" />
-            </Link>
-            <HeaderPageLinks pathname={location.pathname} />
+            <div className="df-guest-menu" ref={guestMenuRef}>
+              <button
+                type="button"
+                className="df-guest-menu-btn"
+                aria-label={guestMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-haspopup="menu"
+                aria-expanded={guestMenuOpen}
+                onClick={() => setGuestMenuOpen((o) => !o)}
+              >
+                <svg width="22" height="18" viewBox="0 0 22 18" fill="none" aria-hidden="true">
+                  <path d="M1 1h20M1 9h20M1 17h20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+              {guestMenuOpen ? (
+                <div className="dash-dropdown df-guest-menu-panel" role="menu">
+                  <HeaderPageLinks pathname={location.pathname} />
+                </div>
+              ) : null}
+            </div>
             <div className="dash-nav-actions">
               {/* Tutorial hidden
               <Link to="/help" className="df-tour-btn" aria-label="Website tour" title="Help">
@@ -408,12 +464,18 @@ export function Navbar() {
               </Link>
               */}
               <div className="dash-nav-auth">
-                <Link to={registerPath} className="dash-btn-signup">
-                  Sign Up
-                </Link>
-                <Link to={loginPath} className="dash-btn-login">
-                  Login
-                </Link>
+                <span className="df-nav-sparkle">
+                  <DfNavSparkles />
+                  <Link to={loginPath} className="dash-btn-login">
+                    Login
+                  </Link>
+                </span>
+                <span className="df-nav-sparkle">
+                  <DfNavSparkles />
+                  <Link to={registerPath} className="dash-btn-signup">
+                    Sign Up
+                  </Link>
+                </span>
               </div>
             </div>
           </>

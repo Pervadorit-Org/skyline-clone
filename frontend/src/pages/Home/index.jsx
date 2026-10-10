@@ -5,15 +5,9 @@ import { useAuth } from '../../context/AuthContext';
 import * as welcomeSignupBonusApi from '../../api/welcomeSignupBonus';
 import { DashboardSidebar } from '../../components/Home/DashboardSidebar';
 import { SpinzyHero } from '../../components/Home/SpinzyHero';
-import { SpinzyProviders } from '../../components/Home/SpinzyProviders';
-import { LandingTestimonials } from '../../components/LandingTestimonials';
 import '../../styles/spinzy-layout.css';
 import { AppLoader } from '../../components/AppLoader';
-import { GuestHomePlatforms } from '../../components/Home/GuestHomePlatforms';
-import { DragonFuryOnlineHero } from '../../components/Home/DragonFuryOnlineHero';
-import { WhyPlaySection } from '../../components/Home/WhyPlaySection';
-import { HowToPlaySection } from '../../components/Home/HowToPlaySection';
-import { GuestTopPlayersLive } from '../../components/Home/GuestTopPlayersLive';
+import { HomeV2 } from '../../components/Home/Home2/HomeV2';
 import { WelcomeBonusModal } from '../../components/Home/WelcomeBonusModal';
 import { useWelcomeBonusScrollModal } from '../../hooks/useWelcomeBonusScrollModal';
 import { useWelcomeBonusImagePreload } from '../../hooks/useWelcomeBonusImagePreload';
@@ -27,19 +21,6 @@ const LandingFooter = lazy(() =>
 
 const GamesSection = lazy(() =>
   import('../../components/Home/GamesSection').then((m) => ({ default: m.GamesSection }))
-);
-const SpinWinSection = lazy(() =>
-  import('../../components/SpinWinSection').then((m) => ({ default: m.SpinWinSection }))
-);
-const PaymentMethodsSection = lazy(() =>
-  import('../../components/PaymentMethodsSection').then((m) => ({
-    default: m.PaymentMethodsSection,
-  }))
-);
-const DashboardSlotGamesSection = lazy(() =>
-  import('../../components/Home/DashboardSlotGamesSection').then((m) => ({
-    default: m.DashboardSlotGamesSection,
-  }))
 );
 
 function GamesLoading() {
@@ -146,7 +127,7 @@ export function Home() {
           {showGuestSections ? (
             <>
               <h1 className="dash-home-h1 sr-only">{site.seoTitle || site.platformName}</h1>
-              <SpinzyHero />
+              <HomeV2 revealBelowFold={belowFoldReady} />
             </>
           ) : isAuthenticated ? (
             <>
@@ -168,46 +149,9 @@ export function Home() {
             <Suspense fallback={<GamesLoading />}>
               <GamesSection />
             </Suspense>
-          ) : !loading && !isAuthenticated ? (
-            <GuestHomePlatforms />
-          ) : (
+          ) : !loading && !isAuthenticated ? null : (
             <GamesLoading />
           )}
-
-          {showGuestSections ? (
-            <Suspense fallback={null}>
-              <DashboardSlotGamesSection catalogOnly />
-            </Suspense>
-          ) : null}
-
-          {showGuestSections && belowFoldReady && (
-            <Suspense fallback={null}>
-              <SpinWinSection />
-            </Suspense>
-          )}
-
-          {showGuestSections && belowFoldReady && <WhyPlaySection />}
-
-          {showGuestSections && belowFoldReady && <HowToPlaySection />}
-
-          {showGuestSections && belowFoldReady && (
-            <section className="df-weekly-win" aria-labelledby="df-weekly-win-title">
-              <h2 className="df-games-title df-weekly-win-heading" id="df-weekly-win-title">
-                Biggest weekly win
-              </h2>
-              <GuestTopPlayersLive />
-            </section>
-          )}
-
-          {showGuestSections && belowFoldReady && (
-            <Suspense fallback={null}>
-              <PaymentMethodsSection />
-            </Suspense>
-          )}
-
-          {showGuestSections && belowFoldReady && <LandingTestimonials />}
-
-          {showGuestSections && belowFoldReady && <SpinzyProviders />}
 
           {belowFoldReady ? (
             <Suspense fallback={null}>

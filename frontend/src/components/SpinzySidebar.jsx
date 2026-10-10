@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -118,10 +119,30 @@ const BOTTOM = [
   { id: 'support', label: 'Support', icon: 'support', to: '/support', auth: false },
 ];
 
+const RAIL_KEY = 'df_rail_open';
+
+const readRailOpen = () => {
+  try {
+    return window.localStorage.getItem(RAIL_KEY) !== '0';
+  } catch {
+    return true;
+  }
+};
+
 export function SpinzySidebar() {
+  const [open, setOpen] = useState(readRailOpen);
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
+
+  useEffect(() => {
+    document.documentElement.dataset.rail = open ? 'open' : 'closed';
+    try {
+      window.localStorage.setItem(RAIL_KEY, open ? '1' : '0');
+    } catch {
+      /* storage unavailable: state still works for this visit */
+    }
+  }, [open]);
 
   const go = (item) => {
     if (item.auth && !isAuthenticated) {
@@ -140,17 +161,32 @@ export function SpinzySidebar() {
       type="button"
       className={`spz-rail__item ${isActive(item.to) ? 'spz-rail__item--active' : ''}`}
       aria-label={item.label}
-      title={item.label}
+      aria-current={isActive(item.to) ? 'page' : undefined}
+      title={open ? undefined : item.label}
       onClick={() => go(item)}
     >
       <span className="spz-rail__icon">
         <Icon name={item.icon} />
       </span>
+      <span className="spz-rail__label">{item.label}</span>
     </button>
   );
 
   return (
-    <aside className="spz-rail" aria-label="Main sidebar">
+    <aside className={`spz-rail${open ? ' spz-rail--open' : ''}`} aria-label="Main sidebar">
+      <button
+        type="button"
+        className="spz-rail__toggle"
+        aria-expanded={open}
+        aria-label={open ? 'Collapse sidebar' : 'Expand sidebar'}
+        title={open ? 'Collapse sidebar' : 'Expand sidebar'}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d={open ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
+        </svg>
+        <span className="spz-rail__label">Close menu</span>
+      </button>
       <div className="spz-rail__top">
         <button
           type="button"
@@ -166,6 +202,9 @@ export function SpinzySidebar() {
               <Icon name="user" />
             </span>
           )}
+          <span className="spz-rail__label spz-rail__label--profile">
+            {isAuthenticated ? user?.username || user?.firstName || 'Profile' : 'Log in'}
+          </span>
         </button>
 
         <button
@@ -177,6 +216,7 @@ export function SpinzySidebar() {
         >
           <img src="/df-online/sc-coin.webp" alt="" loading="lazy" />
           <span>VIP</span>
+          <span className="spz-rail__label">VIP status</span>
         </button>
 
         <hr className="spz-rail__divider" />

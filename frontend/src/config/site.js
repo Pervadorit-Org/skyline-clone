@@ -75,6 +75,18 @@ export const site = {
       typeof import.meta !== 'undefined' && import.meta.env?.VITE_SOCIAL_MESSENGER_URL
         ? String(import.meta.env.VITE_SOCIAL_MESSENGER_URL).trim()
         : '',
+    instagram:
+      typeof import.meta !== 'undefined' && import.meta.env?.VITE_SOCIAL_INSTAGRAM_URL
+        ? String(import.meta.env.VITE_SOCIAL_INSTAGRAM_URL).trim()
+        : '',
+    twitter:
+      typeof import.meta !== 'undefined' && import.meta.env?.VITE_SOCIAL_TWITTER_URL
+        ? String(import.meta.env.VITE_SOCIAL_TWITTER_URL).trim()
+        : '',
+    discord:
+      typeof import.meta !== 'undefined' && import.meta.env?.VITE_SOCIAL_DISCORD_URL
+        ? String(import.meta.env.VITE_SOCIAL_DISCORD_URL).trim()
+        : '',
   },
 };
 

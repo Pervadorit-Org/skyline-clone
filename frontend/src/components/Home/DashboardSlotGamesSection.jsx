@@ -328,7 +328,7 @@ export async function prefetchLobbySlotGames(onUpdate) {
   }
 }
 
-export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = null }) {
+export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = null, hideIntro = false }) {
   const resolvedCategoryId = normalizeSlotCategoryId(categoryId);
   const navigate = useNavigate();
   const location = useLocation();
@@ -833,6 +833,7 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
           playingGameId={launchingGameId}
           loading={loading}
           guestSpinModal
+          hideIntro={hideIntro}
         />
         <DepositRequiredModal
           open={depositRequiredModalOpen}

@@ -1098,19 +1098,72 @@
   max-width: 104px !important;
   height: auto !important;
 }
+#root .dash-root .dash-nav .dash-btn-signup,
+#root .dash-root .dash-nav .dash-btn-login {
+  width: 144px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-size: 15px !important;
+  letter-spacing: 0.01em;
+  transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
 #root .dash-root .dash-nav .dash-btn-signup {
-  background: linear-gradient(180deg, #ffe58a 0%, var(--spz-gold) 55%, #f0b92e 100%) !important;
-  border: 1px solid var(--spz-gold-border) !important;
-  color: var(--spz-gold-ink) !important;
-  font-weight: 800 !important;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25) !important;
+  background: linear-gradient(180deg, #fce981, #d89829) !important;
+  border: 0 !important;
+  border-radius: 9999px !important;
+  color: #01113e !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25) inset, 0 0 16px rgba(252, 209, 46, 0.35) !important;
 }
 #root .dash-root .dash-nav .dash-btn-signup:hover {
   filter: brightness(1.06);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35) inset, 0 0 22px rgba(252, 209, 46, 0.55) !important;
 }
 #root .dash-root .dash-nav .dash-btn-signup:active {
   filter: brightness(0.96);
 }
+#root .dash-root .dash-nav .dash-btn-login {
+  background: #000000 !important;
+  border: 1.5px solid #ebc567 !important;
+  border-radius: 9999px !important;
+  color: #f2a93d !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 0 1px rgba(235, 197, 103, 0.18) !important;
+}
+#root .dash-root .dash-nav .dash-btn-login:hover {
+  filter: brightness(1.2);
+  box-shadow: 0 0 14px rgba(235, 197, 103, 0.45) !important;
+}
+#root .dash-root .dash-nav .dash-btn-login:active {
+  filter: brightness(0.9);
+}
+
+/* Hover sparkles around the guest nav pills (own glyph — see DfNavSparkles) */
+#root .dash-root .dash-nav .df-nav-sparkle {
+  position: relative;
+  display: inline-flex;
+  overflow: visible;
+}
+#root .dash-root .dash-nav .df-nav-sparkle__dot {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+#root .dash-root .dash-nav .df-nav-sparkle:hover .df-nav-sparkle__dot,
+#root .dash-root .dash-nav .df-nav-sparkle:focus-within .df-nav-sparkle__dot {
+  opacity: 1;
+  transform: scale(1);
+}
+#root .dash-root .dash-nav .df-nav-sparkle__dot--a { top: -6px; left: -6px; }
+#root .dash-root .dash-nav .df-nav-sparkle__dot--b { top: 6px; right: -8px; }
+#root .dash-root .dash-nav .df-nav-sparkle__dot--c { bottom: -5px; left: 18px; }
+#root .dash-root .dash-nav .df-nav-sparkle__dot--d { bottom: -8px; right: 22px; }
 
 /* ---------- Home: fuller, bigger sections (wider column, larger cards & type) ---------- */
 #root .dash-main {
@@ -1430,3 +1483,122 @@
 #root .spz-spin-steps li {
   text-align: left;
 }
+
+/* ---------- Expanded rail: full-width sidebar with labels (default), collapsible ---------- */
+.spz-rail__label,
+.spz-rail__toggle {
+  display: none;
+}
+@media (min-width: 768px) {
+  #root .spz-rail__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 54px;
+    height: 36px;
+    margin: 0 0 6px;
+    border: 1px solid var(--spz-line);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  #root .spz-rail__toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  html:not([data-rail="closed"]) #root .spz-rail {
+    width: 248px !important;
+    align-items: stretch;
+    padding: 14px 12px 16px;
+    transition: width 0.2s ease;
+  }
+  html:not([data-rail="closed"]) #root .dash-root {
+    padding-left: 248px;
+  }
+  html[data-rail="closed"] #root .spz-rail,
+  html[data-rail="closed"] #root .dash-root {
+    transition: width 0.2s ease, padding-left 0.2s ease;
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__toggle {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0 14px;
+    font: 600 13px Inter, system-ui, sans-serif;
+    color: var(--spz-muted);
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__top,
+  html:not([data-rail="closed"]) #root .spz-rail__bottom,
+  html:not([data-rail="closed"]) #root .spz-rail__nav {
+    align-items: stretch;
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__label {
+    display: inline;
+    font: 600 15px Inter, system-ui, sans-serif;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__toggle .spz-rail__label {
+    font-size: 13px;
+    color: var(--spz-muted);
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__item {
+    width: 100%;
+    height: 48px;
+    justify-content: flex-start;
+    gap: 14px;
+    padding: 0 14px;
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__item--active .spz-rail__label {
+    color: var(--spz-gold);
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__divider {
+    width: 100%;
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__avatar {
+    width: 100%;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 10px;
+    text-align: left;
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__avatar img {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__vip {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 14px;
+    width: 100%;
+    height: 48px;
+    padding: 0 14px;
+    border-radius: 12px;
+    font-size: 15px;
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__vip:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__vip > span:not(.spz-rail__label) {
+    display: none;
+  }
+  html:not([data-rail="closed"]) #root .spz-rail__vip .spz-rail__label {
+    color: var(--spz-gold);
+  }
+}
+
+/* ---------- Guests: no sidebar at all — full-width content like Golden Dragon ---------- */
+@media (min-width: 768px) {
+  html #root .dash-root.dash-root--no-rail {
+    padding-left: 0 !important;
+  }
+}
+

@@ -2,34 +2,53 @@ import { Link } from 'react-router-dom';
 import { site } from '../config/site';
 import { openSupportWidget } from './intercomApi';
 import { SiteLogo } from './SiteLogo';
-import { LandingSocialLinks } from './LandingSocialLinks';
-import { useStoreFooter } from '../hooks/useStoreFooter';
 import { useGamePageLinks } from '../hooks/useGamePageLinks';
+import { FEATURED_PLATFORM_GAMES } from '../config/featuredPlatformGames';
 import '../styles/site-footer.css';
 
-function footerPageHref(page) {
-  if (page?.redirectPath) return page.redirectPath;
-  return `/${encodeURIComponent(page.slug)}`;
+/** Split a list into two balanced columns (matches the reference's 2-col panels). */
+function splitTwo(arr) {
+  const half = Math.ceil(arr.length / 2);
+  return [arr.slice(0, half), arr.slice(half)];
 }
 
-function isExternalHref(href) {
-  return /^https?:\/\//i.test(String(href || ''));
-}
+// Real DragonFury page routes (the ones actually registered in App.jsx) —
+// same "Pages" panel shape as the reference, our own destinations.
+const FOOTER_PAGE_LINKS = [
+  { to: '/blog', label: 'Blog' },
+  { to: '/help', label: 'Help Center' },
+  { to: '/faq', label: 'FAQ' },
+  { to: '/contact', label: 'Contact Us' },
+  { to: '/privacy', label: 'Privacy Policy' },
+  { to: '/terms', label: 'Terms & Conditions' },
+  { to: '/responsible-gaming', label: 'Responsible Gaming' },
+  { to: '/bonus', label: 'Bonuses' },
+];
 
-function FooterNavLink({ to, children, onClick }) {
-  if (onClick) {
-    return (
-      <button type="button" onClick={onClick} className="site-footer__link">
-        {children}
-      </button>
-    );
-  }
+function FooterLink({ to, children }) {
   return (
-    <Link to={to} className="site-footer__link">
-      {children}
-    </Link>
+    <li>
+      <Link to={to} className="site-footer__link">
+        {children}
+      </Link>
+    </li>
   );
 }
+
+// Same real payment methods DragonFury actually accepts (see PaymentMethodsSection.jsx) —
+// not invented brands, just a compact logo row for the footer like Golden Dragon's.
+const ICONIFY = 'https://api.iconify.design';
+const FOOTER_PAYMENT_ICONS = [
+  { id: 'visa', name: 'Visa', src: `${ICONIFY}/logos/visa.svg` },
+  { id: 'mc', name: 'Mastercard', src: `${ICONIFY}/logos/mastercard.svg` },
+  { id: 'cashapp', name: 'Cash App', src: '/df-online/pay/cash-app.svg' },
+  { id: 'chime', name: 'Chime', src: `${ICONIFY}/thesvg-color/chime-dark.svg` },
+  { id: 'gpay', name: 'Google Pay', src: `${ICONIFY}/logos/google-pay.svg` },
+  { id: 'apay', name: 'Apple Pay', src: `${ICONIFY}/logos/apple-pay.svg` },
+  { id: 'btc', name: 'Bitcoin', src: `${ICONIFY}/logos/bitcoin.svg` },
+  { id: 'usdt', name: 'USDT', src: `${ICONIFY}/token-branded/usdt.svg` },
+  { id: 'bank', name: 'Bank transfer', src: `${ICONIFY}/mdi/bank.svg?color=%23bebebe` },
+];
 
 function TrustIcon({ children }) {
   return (
@@ -39,197 +58,241 @@ function TrustIcon({ children }) {
   );
 }
 
-/** Drop CMS links that collide with built-in footer destinations. */
-function filterCmsPages(pages, reservedPaths) {
-  return (pages || []).filter((page) => {
-    const href = footerPageHref(page);
-    if (isExternalHref(href)) return true;
-    const path = String(href).replace(/\/+$/, '') || '/';
-    return !reservedPaths.has(path.toLowerCase());
-  });
+// Contact-panel social icons (same 2-col grid design as the reference) using
+// standard brand glyphs, linked to DragonFury's OWN configured social URLs
+// (src/config/site.js → socialLinks). Icons always render so the layout is
+// present; each becomes a real external link once its URL is set.
+const FOOTER_SOCIALS = [
+  {
+    id: 'instagram',
+    label: 'Instagram',
+    href: site.socialLinks.instagram,
+    path: 'M12 2.2c3.2 0 3.6 0 4.85.07 1.17.05 1.8.25 2.23.42.56.22.96.48 1.38.9.42.42.68.82.9 1.38.17.42.37 1.06.42 2.23.06 1.27.07 1.65.07 4.85s0 3.58-.07 4.85c-.05 1.17-.25 1.8-.42 2.23a3.7 3.7 0 0 1-.9 1.38c-.42.42-.82.68-1.38.9-.42.17-1.06.37-2.23.42-1.27.06-1.65.07-4.85.07s-3.58 0-4.85-.07c-1.17-.05-1.8-.25-2.23-.42a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.17-.42-.37-1.06-.42-2.23C2.21 15.58 2.2 15.2 2.2 12s0-3.58.07-4.85c.05-1.17.25-1.8.42-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.17 1.06-.37 2.23-.42C8.42 2.21 8.8 2.2 12 2.2Zm0 1.95c-3.15 0-3.52.01-4.76.07-.9.04-1.39.2-1.72.32-.43.17-.74.37-1.06.69-.32.32-.52.63-.69 1.06-.12.33-.28.82-.32 1.72-.06 1.24-.07 1.61-.07 4.76s.01 3.52.07 4.76c.04.9.2 1.39.32 1.72.17.43.37.74.69 1.06.32.32.63.52 1.06.69.33.12.82.28 1.72.32 1.24.06 1.61.07 4.76.07s3.52-.01 4.76-.07c.9-.04 1.39-.2 1.72-.32.43-.17.74-.37 1.06-.69.32-.32.52-.63.69-1.06.12-.33.28-.82.32-1.72.06-1.24.07-1.61.07-4.76s-.01-3.52-.07-4.76c-.04-.9-.2-1.39-.32-1.72a2.85 2.85 0 0 0-.69-1.06 2.85 2.85 0 0 0-1.06-.69c-.33-.12-.82-.28-1.72-.32-1.24-.06-1.61-.07-4.76-.07Zm0 3.32a4.53 4.53 0 1 1 0 9.06 4.53 4.53 0 0 1 0-9.06Zm0 1.95a2.58 2.58 0 1 0 0 5.16 2.58 2.58 0 0 0 0-5.16Zm4.74-1.11a1.06 1.06 0 1 1-2.12 0 1.06 1.06 0 0 1 2.12 0Z',
+  },
+  {
+    id: 'twitter',
+    label: 'X',
+    href: site.socialLinks.twitter,
+    path: 'M17.53 3h3.08l-6.73 7.69L21.75 21h-6.19l-4.85-6.34L5.16 21H2.08l7.2-8.23L1.5 3h6.34l4.38 5.79L17.53 3Zm-1.08 16.17h1.7L7.09 4.74H5.26l11.19 14.43Z',
+  },
+  {
+    id: 'facebook',
+    label: 'Facebook',
+    href: site.socialLinks.facebook,
+    path: 'M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07c0 6.02 4.39 11.01 10.12 11.92v-8.43H7.08v-3.49h3.04V9.41c0-3.01 1.79-4.68 4.53-4.68 1.31 0 2.69.24 2.69.24v2.97h-1.52c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8v8.43C19.61 23.08 24 18.09 24 12.07Z',
+  },
+  {
+    id: 'discord',
+    label: 'Discord',
+    href: site.socialLinks.discord,
+    path: 'M20.32 4.37A19.8 19.8 0 0 0 15.44 3c-.21.38-.46.9-.63 1.31a18.3 18.3 0 0 0-5.62 0C9.02 3.9 8.76 3.38 8.56 3a19.74 19.74 0 0 0-4.89 1.37C.56 9 .06 13.5.31 17.95a19.9 19.9 0 0 0 6.06 3.06c.49-.67.93-1.38 1.3-2.13-.71-.27-1.4-.6-2.04-.99.17-.13.34-.26.5-.4a14.2 14.2 0 0 0 12.14 0c.17.14.34.27.5.4-.65.39-1.33.72-2.05.99.38.75.81 1.46 1.3 2.13a19.9 19.9 0 0 0 6.07-3.06c.3-5.15-.51-9.6-3.37-13.58ZM8.02 15.33c-1.18 0-2.15-1.09-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.1 2.15 2.42 0 1.33-.95 2.42-2.15 2.42Zm7.96 0c-1.18 0-2.15-1.09-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.1 2.15 2.42 0 1.33-.95 2.42-2.15 2.42Z',
+  },
+];
+
+function FooterSocials() {
+  return (
+    <ul className="site-footer__socials" aria-label={`${site.platformName} social media`}>
+      {FOOTER_SOCIALS.map(({ id, label, href, path }) => {
+        const icon = (
+          <svg viewBox="0 0 24 24" aria-hidden="true" className="site-footer__social-glyph">
+            <path fill="currentColor" d={path} />
+          </svg>
+        );
+        return (
+          <li key={id}>
+            {href ? (
+              <a href={href} target="_blank" rel="noreferrer noopener" aria-label={label} className="site-footer__social-btn">
+                {icon}
+              </a>
+            ) : (
+              <span className="site-footer__social-btn" aria-label={label} role="img" title={label}>
+                {icon}
+              </span>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
 }
 
 export function LandingFooter() {
-  const { menus, showDefaultMenus } = useStoreFooter();
   const gameLinksRaw = useGamePageLinks();
-  // Dedupe (the hook can emit each platform twice) and cap so the footer stays tidy.
-  const gameLinks = (() => {
+  // Prefer real game-page links when the store has them; otherwise fall back to
+  // the curated featured-platform names (all DragonFury's own) pointing at the
+  // platforms grid. Deduped so the panel stays tidy.
+  const platformLinks = (() => {
     const seen = new Set();
     const out = [];
     for (const link of gameLinksRaw || []) {
       const key = String(link?.to || link?.label || link?.key || '').toLowerCase();
       if (!key || seen.has(key)) continue;
       seen.add(key);
-      out.push(link);
-      if (out.length >= 12) break;
+      out.push({ to: link.to, label: link.label });
+      if (out.length >= 14) break;
     }
-    return out;
+    if (out.length > 0) return out;
+    return FEATURED_PLATFORM_GAMES.slice(0, 14).map((p) => ({ to: '/platform', label: p.name }));
   })();
-  const reservedPaths = new Set([
-    '/',
-    '/contact',
-    '/help',
-    '/faq',
-    '/login',
-    '/register',
-    '/bonus',
-    '/casino',
-    '/blog',
-    '/privacy',
-    '/terms',
-    '/responsible-gaming',
-  ]);
-  const cmsMenus = menus
-    .map((m) => ({
-      ...m,
-      pages: filterCmsPages(m.pages, reservedPaths),
-    }))
-    .filter((m) => Array.isArray(m.pages) && m.pages.length > 0);
+  const [platformsA, platformsB] = splitTwo(platformLinks);
+  const [pagesA, pagesB] = splitTwo(FOOTER_PAGE_LINKS);
   const brandCopy =
     site.seoDescription ||
     `${site.platformName} brings supported games, account tools, transfers and rewards together. Availability and eligibility depend on current rules. No purchase necessary where provided by the Sweepstakes Rules.`;
 
-  const renderCol = (id, title, label, links) => (
-    <section className="site-footer__col" aria-labelledby={id} key={id}>
-      <h3 id={id}>{title}</h3>
-      <nav aria-label={label}>{links}</nav>
-    </section>
-  );
-
   return (
     <footer className="site-footer" aria-label={`${site.platformName} site footer`}>
       <div className="site-footer__inner">
-        <div className="site-footer__top">
-          <section className="site-footer__brand" aria-labelledby="site-footer-title">
-            <h2 className="site-footer__sr-only" id="site-footer-title">
-              {site.platformName}
-            </h2>
+        <ul className="site-footer__payments" aria-label="Accepted payment methods">
+          {FOOTER_PAYMENT_ICONS.map((icon) => (
+            <li key={icon.id}>
+              <img src={icon.src} alt={icon.name} width={32} height={20} loading="lazy" decoding="async" />
+            </li>
+          ))}
+        </ul>
+
+        <div className="site-footer__panels">
+          <div className="site-footer__brandcol">
             <Link to="/" className="site-footer__logo" aria-label={`${site.platformName} home`}>
               <SiteLogo variant="footer" className="site-footer__logo-img" />
             </Link>
-            <p>{brandCopy}</p>
-            <div className="site-footer__social">
-              <span className="site-footer__social-label" id="site-footer-social">Follow us</span>
-              <LandingSocialLinks variant="inline" className="site-footer__social-list" />
+            <p className="site-footer__brand-copy">{brandCopy}</p>
+          </div>
+
+          <section className="site-footer__panel" aria-labelledby="ft-platforms">
+            <h3 id="ft-platforms">Platforms</h3>
+            <div className="site-footer__panel-cols">
+              <ul>
+                {platformsA.map((l, i) => (
+                  <FooterLink key={`pa-${i}`} to={l.to}>{l.label}</FooterLink>
+                ))}
+              </ul>
+              <ul>
+                {platformsB.map((l, i) => (
+                  <FooterLink key={`pb-${i}`} to={l.to}>{l.label}</FooterLink>
+                ))}
+              </ul>
             </div>
           </section>
 
-          <div className="site-footer__cols">
-            {showDefaultMenus ? (
-              <>
-                {renderCol('site-footer-company', 'Company', 'Company information', [
-                  <FooterNavLink key="contact" to="/contact">Contact Us</FooterNavLink>,
-                  <FooterNavLink key="help" to="/help">Help Center</FooterNavLink>,
-                  <FooterNavLink key="support" onClick={openSupportWidget}>Support</FooterNavLink>,
-                  <FooterNavLink key="faq" to="/faq">FAQ</FooterNavLink>,
-                ])}
-                {renderCol('site-footer-explore', 'Explore', `Explore ${site.platformName}`, [
-                  <FooterNavLink key="home" to="/">{site.platformName}</FooterNavLink>,
-                  <FooterNavLink key="login" to="/login">Login</FooterNavLink>,
-                  <FooterNavLink key="register" to="/register">Create an Account</FooterNavLink>,
-                  <FooterNavLink key="bonus" to="/bonus">Bonuses</FooterNavLink>,
-                  <FooterNavLink key="casino" to="/casino">Casino</FooterNavLink>,
-                  <FooterNavLink key="blog" to="/blog">Blog</FooterNavLink>,
-                ])}
-                {renderCol('site-footer-legal', 'Legal', 'Legal information', [
-                  <FooterNavLink key="privacy" to="/privacy">Privacy Policy</FooterNavLink>,
-                  <FooterNavLink key="terms" to="/terms">Terms &amp; Conditions</FooterNavLink>,
-                  <FooterNavLink key="rg" to="/responsible-gaming">Responsible Gaming</FooterNavLink>,
-                ])}
-              </>
-            ) : null}
+          <section className="site-footer__panel" aria-labelledby="ft-pages">
+            <h3 id="ft-pages">Pages</h3>
+            <div className="site-footer__panel-cols">
+              <ul>
+                {pagesA.map((l) => (
+                  <FooterLink key={l.to} to={l.to}>{l.label}</FooterLink>
+                ))}
+              </ul>
+              <ul>
+                {pagesB.map((l) => (
+                  <FooterLink key={l.to} to={l.to}>{l.label}</FooterLink>
+                ))}
+              </ul>
+            </div>
+          </section>
 
-            {gameLinks.length > 0 &&
-              renderCol(
-                'site-footer-games',
-                'Games',
-                'Game pages',
-                gameLinks.map((link) => (
-                  <FooterNavLink key={link.key} to={link.to}>{link.label}</FooterNavLink>
-                )),
-              )}
-
-            {cmsMenus.map((menu) =>
-              renderCol(
-                `site-footer-cms-${menu.id || menu.label}`,
-                menu.label,
-                menu.label,
-                (menu.pages || []).map((page) => {
-                  const href = footerPageHref(page);
-                  if (isExternalHref(href)) {
-                    return (
-                      <a
-                        key={page.id || page.slug}
-                        href={href}
-                        className="site-footer__link"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {page.title}
-                      </a>
-                    );
-                  }
-                  return (
-                    <Link key={page.id || page.slug} to={href} className="site-footer__link">
-                      {page.title}
-                    </Link>
-                  );
-                }),
-              ),
-            )}
-          </div>
+          <section className="site-footer__panel" aria-labelledby="ft-contact">
+            <h3 id="ft-contact">Contact</h3>
+            <div className="site-footer__contact">
+              <ul className="site-footer__contact-list">
+                <li>
+                  <a href={`mailto:${site.supportEmail}`} className="site-footer__contact-mail">
+                    {site.supportEmail}
+                  </a>
+                </li>
+                <li>
+                  <button type="button" onClick={openSupportWidget} className="site-footer__contact-chat">
+                    Chat Now
+                  </button>
+                </li>
+              </ul>
+              <FooterSocials />
+            </div>
+          </section>
         </div>
 
-        <ul className="site-footer__trust" aria-label="Platform trust information">
-          <li>
-            <span className="site-footer__age">18+</span>
-            <span>Adults Only</span>
-          </li>
-          <li>
-            <TrustIcon>
-              <path d="M12 3 4.5 6v5.3c0 4.7 3.1 8.2 7.5 9.7 4.4-1.5 7.5-5 7.5-9.7V6L12 3Z" />
-              <path d="m8.5 12 2.2 2.2 4.8-5" />
-            </TrustIcon>
-            <span>Responsible Social Gaming</span>
-          </li>
-          <li>
-            <TrustIcon>
-              <rect x="5" y="10" width="14" height="10" rx="3" />
-              <path d="M8 10V7.5a4 4 0 0 1 8 0V10" />
-              <circle cx="12" cy="15" r="1.2" />
-            </TrustIcon>
-            <span>Secure Platform</span>
-          </li>
-          <li>
-            <TrustIcon>
-              <rect x="5" y="10" width="14" height="10" rx="3" />
-              <path d="M8 10V7.5a4 4 0 0 1 8 0V10" />
-              <path d="M12 14v2.5" />
-            </TrustIcon>
-            <span>Encrypted Payments</span>
-          </li>
-        </ul>
+        <div className="site-footer__bottom" aria-label="Compliance and platform notice">
+          <ul className="site-footer__trust" aria-label="Platform trust and compliance">
+            <li>
+              <span className="site-footer__age">18+</span>
+              <span className="site-footer__sr-only">18+ only</span>
+            </li>
+            <li>
+              <TrustIcon>
+                <path d="M12 3 4.5 6v5.3c0 4.7 3.1 8.2 7.5 9.7 4.4-1.5 7.5-5 7.5-9.7V6L12 3Z" />
+                <path d="m8.5 12 2.2 2.2 4.8-5" />
+              </TrustIcon>
+              <span className="site-footer__sr-only">Safe gambling</span>
+            </li>
+            <li>
+              <TrustIcon>
+                <circle cx="12" cy="12" r="8.5" />
+                <path d="m8.5 12 2.2 2.2 4.8-5" />
+              </TrustIcon>
+              <span className="site-footer__sr-only">Verified</span>
+            </li>
+            <li>
+              <TrustIcon>
+                <rect x="5" y="10" width="14" height="10" rx="3" />
+                <path d="M8 10V7.5a4 4 0 0 1 8 0V10" />
+                <circle cx="12" cy="15" r="1.2" />
+              </TrustIcon>
+              <span className="site-footer__sr-only">Intellectual property protected</span>
+            </li>
+            <li>
+              <TrustIcon>
+                <path d="M12 3 4.5 6v5.3c0 4.7 3.1 8.2 7.5 9.7 4.4-1.5 7.5-5 7.5-9.7V6L12 3Z" />
+                <path d="M12 8v4" />
+                <path d="M12 15.5v.5" />
+              </TrustIcon>
+              <span className="site-footer__sr-only">Certified</span>
+            </li>
+            <li>
+              <TrustIcon>
+                <circle cx="12" cy="12" r="8.5" />
+                <path d="M12 7.5V12l3 2" />
+              </TrustIcon>
+              <span className="site-footer__sr-only">24/7 customer service</span>
+            </li>
+            <li>
+              <TrustIcon>
+                <rect x="5" y="10" width="14" height="10" rx="3" />
+                <path d="M8 10V7.5a4 4 0 0 1 8 0V10" />
+                <path d="M12 14v2.5" />
+              </TrustIcon>
+              <span className="site-footer__sr-only">Play safe</span>
+            </li>
+            <li>
+              <TrustIcon>
+                <circle cx="12" cy="12" r="8.5" />
+                <path d="M12 7.5V12l3 2" />
+                <circle cx="12" cy="10.5" r="2" />
+              </TrustIcon>
+              <span className="site-footer__sr-only">ID verified</span>
+            </li>
+          </ul>
 
-        <div className="site-footer__bottom" aria-label="Copyright and platform notice">
-          <div className="site-footer__bottom-row">
-            <p className="site-footer__copy">
-              © {site.year} {site.platformName}. All Rights Reserved.
-            </p>
-            <nav className="site-footer__mini" aria-label="Footer legal shortcuts">
-              <Link to="/privacy">Privacy</Link>
-              <Link to="/terms">Terms</Link>
-              <Link to="/responsible-gaming">Responsible Gaming</Link>
-            </nav>
-          </div>
           <p className="site-footer__note">
-            {site.platformName} is a social casino account platform. Eligibility, purchases and redemptions are
-            subject to the current Terms and Sweepstakes Rules.
+            NO PURCHASE REQUIRED to participate in the sweepstakes. Sweepstakes are VOID WHERE PROHIBITED BY LAW.
+            Please refer to the{' '}
+            <Link to="/terms" className="site-footer__note-link">Terms and Conditions</Link>.
+          </p>
+          <p className="site-footer__note">
+            © {site.year} {site.platformName}. We maintain full AML and KYC compliance, ensuring player identity and
+            transactions are verified for safety and integrity. For details, please review our{' '}
+            <Link to="/privacy" className="site-footer__note-link">Privacy Policy</Link>.
+          </p>
+          <p className="site-footer__note">
+            Individuals under the age of 18 are strictly prohibited from creating an account or participating in any
+            games offered on this platform.
           </p>
           <p className="site-footer__note" role="note">
             <strong>Disclaimer.</strong> {site.platformName} is a website for playing supported games. All game
             titles, logos, characters, artwork and other elements shown on this site are the material and property
-            of their respective third-party owners and are used for identification only. Play is subject to the
-            game provider&apos;s own terms and to our Terms of Service.
+            of their respective third-party owners and are used for identification only.
+          </p>
+          <p className="site-footer__copy">
+            © {site.year} {site.platformName}. All Rights Reserved.
           </p>
         </div>
       </div>

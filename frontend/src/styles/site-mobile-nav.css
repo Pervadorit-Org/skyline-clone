@@ -112,8 +112,12 @@
     padding-bottom: 24px;
   }
   /* floating help bubble sits above the bar */
-  .df-help-launcher {
-    bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+  html body .df-help-launcher,
+  html body:not(.guest-landing-active) .df-help-launcher,
+  html body.guest-landing-active .df-help-launcher {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+    width: 54px !important;
+    height: 54px !important;
   }
 }
 @media (min-width: 1024px) {

@@ -23,12 +23,12 @@ export const JOIN_REASONS = [
     emoji: '🔒',
     gradient: 'linear-gradient(135deg, #ffd75e, #b07c00)',
   },
-  {
-    id: 'players',
-    title: 'Join Million Players',
-    text: 'Be part of a massive community winning and competing every single day.',
-    icon: '/join-million-players.webp',
-    emoji: '👥',
-    gradient: 'linear-gradient(135deg, #fdf6b5, #9121b6)',
-  },
+  // {
+  //   id: 'players',
+  //   title: 'Join Million Players',
+  //   text: 'Be part of a massive community winning and competing every single day.',
+  //   icon: '/join-million-players.webp',
+  //   emoji: '👥',
+  //   gradient: 'linear-gradient(135deg, #fdf6b5, #9121b6)',
+  // },
 ];
