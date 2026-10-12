@@ -86,6 +86,27 @@
   padding: 20px clamp(16px, 5vw, 64px);
   overflow: hidden;
 }
+/* image banners (signed-in): sized by the artwork's own ratio */
+.df-lobby__banner-slide--image {
+  display: block;
+  min-height: 0;
+  padding: 0;
+  aspect-ratio: 430 / 366;
+}
+.df-lobby__banner-slide--image picture,
+.df-lobby__banner-slide--image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.df-lobby__banner-slide--image img {
+  object-fit: cover;
+}
+@media (min-width: 768px) {
+  .df-lobby__banner-slide--image {
+    aspect-ratio: 1080 / 340;
+  }
+}
 .df-lobby__banner-art {
   position: absolute;
   left: clamp(0px, 3vw, 48px);
@@ -145,63 +166,228 @@
   background: #fff;
 }
 
-/* ---- promo cards ---- */
+/* ---- promo cards (Daily Rewards chest + Spin the Wheel) ---- */
 .df-lobby__promos {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 .df-lobby__promo {
   position: relative;
   overflow: hidden;
-  min-height: clamp(96px, 12vw, 150px);
-  border-radius: 12px;
-  border: 1px solid var(--lb-line);
+  height: 176px;
+  border-radius: 8px;
+  border: 0;
   display: flex;
   align-items: center;
-  padding: 14px clamp(12px, 2.5vw, 28px);
-}
-.df-lobby__promo--daily {
-  background: linear-gradient(100deg, #5a3a06, #1b1307 70%);
-}
-.df-lobby__promo--spin {
-  background: linear-gradient(100deg, #23160a, #0c0a12 70%);
+  justify-content: space-between;
+  background-color: #14110a;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: 'Montserrat', system-ui, sans-serif;
 }
 .df-lobby__promo-copy {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
+  min-width: 0;
 }
 .df-lobby__promo-copy h3 {
-  font: 800 clamp(13px, 1.6vw, 20px) 'Outfit', sans-serif;
-  color: var(--lb-gold);
-}
-.df-lobby__promo--spin h3 {
-  color: #fff;
+  margin: 0;
+  font-weight: 800;
+  line-height: 1.15;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #f8d36f 0%, #fcef85 25.48%, #fff79c 47.6%, #e1ad44 75%, #77511a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 .df-lobby__promo-sub {
   margin: 0;
-  font: 700 clamp(11px, 1.2vw, 15px) 'Montserrat', sans-serif;
-  color: var(--lb-gold);
+  font-weight: 600;
+  line-height: 1.15;
+  background: linear-gradient(180deg, #f8d36f 0%, #fcef85 25.48%, #fff79c 47.6%, #e1ad44 75%, #77511a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 .df-lobby__promo-note {
   margin: 0;
-  font: 500 10px 'Montserrat', sans-serif;
-  color: rgba(255, 255, 255, 0.6);
+  max-width: 24rem;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
-.df-lobby__promo-art {
+
+/* Daily Rewards: silver pill on the chest artwork */
+.df-lobby__promo--daily {
+  padding: 24px;
+}
+.df-lobby__promos .df-lobby__promo--daily .df-lobby__chip {
+  padding: 8px 20px;
+  border: 0;
+  border-radius: 32px;
+  background: linear-gradient(180deg, #9c9c9c 8.95%, #dcdcdc 25.3%, #8f8f8f 99.48%);
+  color: #374151;
+  font: 700 14px 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: none;
+}
+.df-lobby__promos .df-lobby__promo--daily .df-lobby__chip:hover {
+  filter: brightness(1.08);
+}
+
+/* Spin the Wheel: gold pill, dark-red label */
+.df-lobby__promo--spin {
+  padding: 20px 0 20px 16px;
+}
+.df-lobby__promo--spin .df-lobby__promo-copy h3 {
+  font-family: 'Baloo Bhaijaan 2', 'Baloo 2', 'Montserrat', sans-serif;
+  white-space: nowrap;
+  text-transform: none;
+}
+.df-lobby__promos .df-lobby__promo--spin .df-lobby__cta {
+  padding: 4px 20px;
+  border: 0;
+  border-radius: 32px;
+  background: linear-gradient(95.47deg, #da8207 -0.22%, #dd9318 10.66%, #ffcb3c 26.65%, #ffcb3c 78.95%, #e39c1e 93%, #fbc63a 97.24%);
+  color: #740000;
+  font: 900 16px ui-sans-serif, system-ui, sans-serif;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: none;
+}
+.df-lobby__promos .df-lobby__promo--spin .df-lobby__cta:hover {
+  filter: brightness(1.06);
+}
+
+.df-lobby__promo--daily .df-lobby__promo-copy h3 {
+  font-size: 20px;
+}
+.df-lobby__promo--spin .df-lobby__promo-copy h3 {
+  font-size: 16px;
+}
+.df-lobby__promo--spin .df-lobby__promo-sub {
+  max-width: 8.5rem;
+  font-size: 14px;
+}
+
+/* wheel: segments spin (6s ease-in-out) inside the fixed outer ring */
+.df-lobby__wheel {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  align-self: center;
+  width: 112px;
+  height: 112px;
+  margin-right: 4px;
+  pointer-events: none;
+}
+.df-lobby__wheel-ring,
+.df-lobby__wheel-segments {
+  display: block;
+  max-width: none;
+}
+.df-lobby__wheel-ring {
   position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 130%;
-  width: auto;
-  max-width: 50%;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  opacity: 0.95;
+}
+.df-lobby__wheel-segments {
+  position: absolute;
+  top: 6.16%;
+  left: 1.56%;
+  width: 94.68%;
+  height: 94.68%;
+  animation: df-lobby-wheel-wobble 6s ease-in-out infinite;
+}
+@keyframes df-lobby-wheel-wobble {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@media (min-width: 480px) {
+  .df-lobby__promo--spin .df-lobby__promo-copy h3 {
+    font-size: 20px;
+  }
+  .df-lobby__promo--spin .df-lobby__promo-sub {
+    max-width: 10rem;
+    font-size: 16px;
+  }
+  .df-lobby__wheel {
+    width: 144px;
+    height: 144px;
+    margin-right: 8px;
+  }
+}
+@media (min-width: 1200px) {
+  .df-lobby__promos {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 768px) {
+  .df-lobby__promo {
+    height: 224px;
+  }
+  .df-lobby__promo--daily {
+    padding: 40px;
+  }
+  .df-lobby__promo--daily .df-lobby__promo-copy {
+    gap: 8px;
+  }
+  .df-lobby__promo--daily .df-lobby__promo-copy h3 {
+    font-size: 30px;
+  }
+  .df-lobby__promos .df-lobby__promo--daily .df-lobby__chip {
+    padding: 12px 28px;
+    font-size: 16px;
+  }
+  .df-lobby__promo--spin {
+    padding: 28px 0 28px 24px;
+  }
+  .df-lobby__promo--spin .df-lobby__promo-copy h3 {
+    font-size: 30px;
+  }
+  .df-lobby__promos .df-lobby__promo--spin .df-lobby__cta {
+    padding: 8px 28px;
+    font-size: 20px;
+  }
+  .df-lobby__promo--spin .df-lobby__promo-sub {
+    max-width: 16rem;
+    font-size: 18px;
+    line-height: 1.35;
+  }
+  .df-lobby__promo-note {
+    font-size: 14px;
+  }
+  .df-lobby__wheel {
+    width: 208px;
+    height: 208px;
+    margin-right: 12px;
+  }
+}
+@media (min-width: 1280px) {
+  .df-lobby__promo--spin .df-lobby__promo-sub {
+    max-width: none;
+    font-size: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .df-lobby__wheel-segments {
+    animation: none;
+  }
 }
 
 /* ---- category tabs ---- */

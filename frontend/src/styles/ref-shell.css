@@ -754,3 +754,179 @@ html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger svg {
     height: 26px !important;
   }
 }
+
+/* ==========================================================================
+   Guest lobby shell (body.df-ref-shell, guest header): compact Login / Sign Up
+   pills with a clear gap, and a larger logo. Scoped to the guest nav so the
+   signed-in header is untouched.
+   ========================================================================== */
+html body.df-ref-shell #root .dash-nav-inner--guest .dash-nav-actions {
+  margin-left: auto;
+}
+html body.df-ref-shell #root .dash-nav-inner--guest .dash-nav-auth {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 12px;
+}
+html body.df-ref-shell #root .dash-nav-inner--guest .df-nav-sparkle {
+  display: inline-flex;
+}
+html body.df-ref-shell #root .dash-nav-inner--guest .dash-btn-login,
+html body.df-ref-shell #root .dash-nav-inner--guest .dash-btn-signup {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  height: 40px !important;
+  min-height: 40px !important;
+  min-width: 0 !important;
+  width: auto !important;
+  padding: 0 22px !important;
+  border-radius: 999px !important;
+  font-family: var(--fury-sans, 'Baloo 2', 'Segoe UI', sans-serif) !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em;
+  line-height: 1 !important;
+  white-space: nowrap;
+  animation: none !important;
+}
+/* Login: outlined gold pill on the dark header */
+html body.df-ref-shell #root .dash-nav-inner--guest .dash-btn-login {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: var(--ref-gold, #ebc567) !important;
+  border: 1.5px solid var(--ref-gold, #ebc567) !important;
+  box-shadow: none !important;
+}
+html body.df-ref-shell #root .dash-nav-inner--guest .dash-btn-login:hover {
+  background: rgba(235, 197, 103, 0.12) !important;
+}
+/* Sign Up: solid gold pill */
+html body.df-ref-shell #root .dash-nav-inner--guest .dash-btn-signup {
+  background: linear-gradient(180deg, #ffd76a, #e3b24e 70%, #d19a37) !important;
+  color: #1b1405 !important;
+  border: 0 !important;
+  box-shadow: 0 4px 14px rgba(235, 197, 103, 0.3) !important;
+}
+html body.df-ref-shell #root .dash-nav-inner--guest .dash-btn-signup:hover {
+  filter: brightness(1.04);
+}
+
+/* Larger lobby logo for guests */
+html body.df-ref-shell #root .dash-nav-inner--guest .dash-nav-auth-logo img,
+html body.df-ref-shell #root .dash-nav-inner--guest .dash-nav-auth-logo .site-logo--nav {
+  height: 46px !important;
+  max-height: 46px !important;
+  width: auto !important;
+}
+@media (max-width: 767px) {
+  html body.df-ref-shell #root .dash-nav-inner--guest .dash-nav-auth-logo img,
+  html body.df-ref-shell #root .dash-nav-inner--guest .dash-nav-auth-logo .site-logo--nav {
+    height: 40px !important;
+    max-height: 40px !important;
+  }
+  html body.df-ref-shell #root .dash-nav-inner--guest .dash-btn-login,
+  html body.df-ref-shell #root .dash-nav-inner--guest .dash-btn-signup {
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 16px !important;
+    font-size: 13px !important;
+  }
+  html body.df-ref-shell #root .dash-nav-inner--guest .dash-nav-auth {
+    gap: 8px;
+  }
+}
+
+/* ==========================================================================
+   Bottom-right floating dock: round dark Support (headset) button with the
+   Sound button beside it. Replaces the purple "?" HELP bubble and the sound
+   tab that used to sit on the right edge. Doubled selectors beat the older
+   launcher / music rules regardless of stylesheet load order.
+   ========================================================================== */
+:root {
+  --df-fab-size: 56px;
+  --df-fab-gap: 12px;
+  --df-fab-right: max(14px, env(safe-area-inset-right));
+  --df-fab-bottom: max(14px, env(safe-area-inset-bottom));
+}
+@media (max-width: 1023px) {
+  :root {
+    /* sit above the mobile bottom nav bar */
+    --df-fab-bottom: calc(max(10px, env(safe-area-inset-bottom)) + 76px);
+  }
+  body.guest-landing-active {
+    --df-fab-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+}
+
+html body .df-help-launcher.df-help-launcher {
+  right: var(--df-fab-right) !important;
+  left: auto !important;
+  bottom: var(--df-fab-bottom) !important;
+  width: var(--df-fab-size) !important;
+  height: var(--df-fab-size) !important;
+  border: 0 !important;
+  background: #1a1b2b !important;
+  color: #fff !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+  text-shadow: none;
+}
+html body .df-help-launcher.df-help-launcher:hover,
+html body .df-help-launcher.df-help-launcher:focus-visible {
+  background: #25273c !important;
+  outline: 2px solid rgba(235, 197, 103, 0.7);
+  outline-offset: 2px;
+  transform: translateY(-2px);
+}
+html body .df-help-launcher.df-help-launcher:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+.df-help-launcher__icon {
+  display: block;
+  width: 28px;
+  height: 28px;
+}
+
+/* Sound: bottom right, directly left of the support button */
+html body .bgm-widget.bgm-widget {
+  position: fixed;
+  left: auto;
+  top: auto;
+  right: calc(var(--df-fab-right) + var(--df-fab-size) + var(--df-fab-gap));
+  bottom: var(--df-fab-bottom);
+  align-items: flex-end;
+  transform: none;
+  z-index: 520;
+}
+html body .bgm-widget.bgm-widget .bgm-btn {
+  width: var(--df-fab-size);
+  height: var(--df-fab-size);
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #1a1b2b;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+html body .bgm-widget.bgm-widget .bgm-btn:hover {
+  background: #25273c;
+  filter: none;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+html body .bgm-widget.bgm-widget .bgm-btn__rule {
+  display: none;
+}
+html body .bgm-widget.bgm-widget .bgm-btn__icon-wrap {
+  width: 28px;
+  height: 28px;
+  margin: 0;
+}
+html body .bgm-widget.bgm-widget .bgm-btn__icon {
+  width: 24px;
+  height: 24px;
+}
+html body .bgm-widget.bgm-widget .bgm-btn.is-muted {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.55);
+}

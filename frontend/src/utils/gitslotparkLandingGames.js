@@ -1426,6 +1426,25 @@ export function buildOrionstarSlotCategories(allGames, options = {}) {
   return orderCasinoLobbyCategories(categories);
 }
 
+/**
+ * Full game list for one /category/:slug page. Unlike the lobby rows this
+ * is not capped or hidden: it returns every eligible game in the category.
+ * `catalogId` is the id used by buildOrionstarSlotCategories (see
+ * config/gameCategories.js); Virtual Game is bucketed here because the lobby
+ * builder deliberately skips hidden category ids.
+ */
+export function buildCategoryPageGames(allGames, catalogId) {
+  if (catalogId === 'virtual-games') {
+    return prepareDashboardSlotGames(allGames || []).filter((game) => {
+      if (String(game.provider || '').toLowerCase() === 'bona') return false;
+      if (isGrazGameBrand(game)) return false;
+      return isOneGameHubProvider(game.provider) && resolveOrionstarCategory(game).id === 'virtual-games';
+    });
+  }
+  const category = buildOrionstarSlotCategories(allGames, {}).find((c) => c.id === catalogId);
+  return category?.games || [];
+}
+
 export function resolveLaunchGameId(game) {
   const raw = game?.gameid ?? game?.gameId ?? game?.gameCode ?? game?.id;
   if (raw == null || String(raw).trim() === '') return null;

@@ -1,10 +1,12 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { casinoLobbyConfig as cfg } from '../../config/casinoLobbyConfig';
+import { getGameCategoryPath } from '../../config/gameCategories';
 import { useAuth } from '../../context/AuthContext';
 import { useCasinoLobbyCategories } from '../Home/homeCasinoLobbyMix';
 import { useLaunchDashboardSlotGame } from '../../hooks/useLaunchDashboardSlotGame';
 import { DepositRequiredModal } from '../Games/DepositRequiredModal';
+import { GoldenLobbySections } from './GoldenLobbySections';
 import { BIG_WIN_ENTRIES } from '../Home/RecentBigWins';
 import { fetchNormalizedDepositPackagesCatalog } from '../../api/depositPackages';
 import { cloneGuestWinnerRows } from '../../utils/guestWinnersLeaderboard';
@@ -24,9 +26,39 @@ function formatCoins(n) {
 }
 
 /* ---------- banner carousel ---------- */
+function BannerSlideImage({ banner }) {
+  const picture = (
+    <picture>
+      <source media="(max-width: 767px)" srcSet={banner.mobile} />
+      <img src={banner.desktop} alt={banner.label} draggable="false" />
+    </picture>
+  );
+  const className = 'df-lobby__banner-slide df-lobby__banner-slide--image';
+  if (!banner.href) return <div className={className}>{picture}</div>;
+  if (/^https?:\/\//i.test(banner.href)) {
+    return (
+      <a className={className} href={banner.href} target="_blank" rel="noopener noreferrer">
+        {picture}
+      </a>
+    );
+  }
+  return (
+    <Link className={className} to={banner.href}>
+      {picture}
+    </Link>
+  );
+}
+
 function BannerCarousel() {
+  const { isAuthenticated } = useAuth();
   const [active, setActive] = useState(0);
-  const slides = cfg.banners;
+  // Signed-in players get the image banners; guests keep the built-in slides.
+  const imageMode = isAuthenticated && cfg.imageBanners?.length > 0;
+  const slides = imageMode ? cfg.imageBanners : cfg.banners;
+
+  useEffect(() => {
+    setActive(0);
+  }, [imageMode]);
 
   useEffect(() => {
     const id = window.setInterval(() => setActive((i) => (i + 1) % slides.length), cfg.bannerIntervalMs);
@@ -36,7 +68,9 @@ function BannerCarousel() {
   return (
     <section className="df-lobby__banner" aria-roledescription="carousel" aria-label="Featured offers">
       <div className="df-lobby__banner-track" style={{ transform: `translateX(-${active * 100}%)` }}>
-        {slides.map((s) => (
+        {slides.map((s) => imageMode ? (
+          <BannerSlideImage key={s.id} banner={s} />
+        ) : (
           <div
             key={s.id}
             className="df-lobby__banner-slide"
@@ -74,16 +108,27 @@ function PromoCards() {
   return (
     <section className="df-lobby__promos">
       {cfg.promoCards.map((c) => (
-        <div key={c.id} className={`df-lobby__promo df-lobby__promo--${c.variant}`}>
+        <div
+          key={c.id}
+          className={`df-lobby__promo df-lobby__promo--${c.variant}`}
+          style={c.bg ? { backgroundImage: `url("${c.bg}")` } : undefined}
+        >
           <div className="df-lobby__promo-copy">
             <h3>{c.title}</h3>
-            {c.variant === 'daily' ? null : <p className="df-lobby__promo-sub">{c.subtitle}</p>}
             <Link to={c.href} className={c.variant === 'daily' ? 'df-lobby__chip' : 'df-lobby__cta df-lobby__cta--sm'}>
               {c.ctaLabel}
             </Link>
+            {c.variant === 'daily' ? null : <p className="df-lobby__promo-sub">{c.subtitle}</p>}
             <p className="df-lobby__promo-note">{c.note || c.subtitle}</p>
           </div>
-          <img className="df-lobby__promo-art" src={c.art} alt="" loading="lazy" draggable="false" />
+          {c.wheel ? (
+            <div className="df-lobby__wheel" aria-hidden="true">
+              <img className="df-lobby__wheel-segments" src={c.wheel.segments} alt="" loading="lazy" draggable="false" />
+              <img className="df-lobby__wheel-ring" src={c.wheel.ring} alt="" loading="lazy" draggable="false" />
+            </div>
+          ) : c.bg ? null : (
+            <img className="df-lobby__promo-art" src={c.art} alt="" loading="lazy" draggable="false" />
+          )}
         </div>
       ))}
     </section>
@@ -103,7 +148,7 @@ function CategoryTabs() {
       {cfg.categories.map((c, i) => (
         <Link
           key={c.label}
-          to={c.id ? `/casino/${c.id}` : '/casino'}
+          to={c.id ? getGameCategoryPath(c.id) : '/casino'}
           className={`df-lobby__tab${i === 0 ? ' is-active' : ''}`}
         >
           <img src={c.icon} alt="" width="16" height="16" />
@@ -485,6 +530,24 @@ export function CasinoLobby() {
     (id) => cfg.categories.find((c) => c.id === id)?.icon,
     []
   );
+  // Lobby panels that sit between the game sections (same spots as the reference lobby).
+  const renderLobbyInsert = useCallback((afterTitle) => {
+    switch (afterTitle) {
+      case 'GD Best Banner':
+        return (
+          <>
+            <PackagesRow />
+            <InviteDeals />
+          </>
+        );
+      case 'Keno':
+        return <ProvidersStrip />;
+      case 'Shooting':
+        return <ExclusiveBanner />;
+      default:
+        return null;
+    }
+  }, []);
   const topRef = useRef(null);
   useEffect(() => {
     topRef.current?.scrollIntoView?.({ block: 'start' });
@@ -501,52 +564,25 @@ export function CasinoLobby() {
         <BigWinsTicker />
       </section>
 
-      <FeaturedGameSection games={allGames} onPlay={handlePlayGame} playingId={launchingGameId} />
-
-      {!isAuthenticated ? (
-        <div className="df-lobby__gate">
-          <p>Sign in to browse the full game catalog.</p>
-          <button type="button" className="df-lobby__cta df-lobby__cta--sm" onClick={() => navigate('/register')}>
-            Sign Up
-          </button>
-        </div>
-      ) : null}
-
-      {(() => {
-        let bannerSeen = 0;
-        return categories.map((category, i) => {
-          const layout = cfg.rowPattern[i % cfg.rowPattern.length];
-          const insert = cfg.inserts[i];
-          const bannerArt =
-            layout === 'banner'
-              ? cfg.bannerArt[bannerSeen++ % cfg.bannerArt.length]
-              : undefined;
-          return (
-            <Fragment key={category.id}>
-              {insert === 'packages' ? <PackagesRow /> : null}
-              {insert === 'providers' ? <ProvidersStrip /> : null}
-              {insert === 'inviteDeals' ? <InviteDeals /> : null}
-              {insert === 'exclusive' ? <ExclusiveBanner /> : null}
-              <CategoryRow
-                category={category}
-                layout={layout}
-                onPlay={handlePlayGame}
-                playingId={launchingGameId}
-                categoryIcon={iconFor(category.id)}
-                bannerArt={bannerArt}
-              />
-            </Fragment>
-          );
-        });
-      })()}
-      {categories.length === 0 ? (
+      {isAuthenticated ? (
+        <GoldenLobbySections onPlayGame={handlePlayGame} renderInsert={renderLobbyInsert} />
+      ) : (
         <>
+          <FeaturedGameSection games={allGames} onPlay={handlePlayGame} playingId={launchingGameId} />
+
+          <div className="df-lobby__gate">
+            <p>Sign in to browse the full game catalog.</p>
+            <button type="button" className="df-lobby__cta df-lobby__cta--sm" onClick={() => navigate('/register')}>
+              Sign Up
+            </button>
+          </div>
+
           <PackagesRow />
           <ProvidersStrip />
           <InviteDeals />
           <ExclusiveBanner />
         </>
-      ) : null}
+      )}
 
       <PickForMe games={allGames} onPlay={handlePlayGame} />
       <TopWinners />

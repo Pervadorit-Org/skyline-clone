@@ -148,6 +148,7 @@ export function Layout({ children }) {
     layoutPath === '/link2play' ||
     layoutPath === '/casino' ||
     layoutPath.startsWith('/casino/') ||
+    layoutPath.startsWith('/category/') ||
     layoutPath === '/firekirin-exclusive' ||
     layoutPath === '/platform' ||
     layoutPath === '/bonus';
@@ -156,8 +157,16 @@ export function Layout({ children }) {
     layoutPath === '/bonus' ||
     layoutPath === '/platform' ||
     layoutPath === '/casino' ||
-    layoutPath.startsWith('/casino/');
-  const isGuestLanding = !authLoading && !isAuthenticated && !isAuthPage;
+    layoutPath.startsWith('/casino/') ||
+    layoutPath.startsWith('/category/');
+  const isGuest = !authLoading && !isAuthenticated;
+  // The landing-page treatment (big login/signup hero nav, no rail) is only for
+  // the home page and the auth overlays that render Home behind them.
+  const isGuestLanding = isGuest && !isAuthPage && (layoutPath === '/' || isAuthOverlay);
+  // Guests on any other page (e.g. /casino) get the signed-in dashboard shell:
+  // slim icon rail + dark single-row header, with login-gated features opening
+  // the auth modal.
+  const isGuestShell = isGuest && !isAuthPage && !isGuestLanding;
   const hideGuestBuyWithdraw = !authLoading && !isAuthenticated;
   const isBottomNavOnly =
     layoutPath === '/deposit' ||
@@ -194,11 +203,12 @@ export function Layout({ children }) {
   }, [pathname, isAuthenticated]);
 
   useEffect(() => {
-    // Slim icon rail + single-row header shell for signed-in players.
-    const on = isAuthenticated && !isAuthPage;
+    // Slim icon rail + single-row header shell for signed-in players, and for
+    // guests browsing non-landing pages (so /casino etc. look like the lobby).
+    const on = (isAuthenticated || isGuestShell) && !isAuthPage;
     document.body.classList.toggle('df-ref-shell', on);
     return () => document.body.classList.remove('df-ref-shell');
-  }, [isAuthenticated, isAuthPage]);
+  }, [isAuthenticated, isGuestShell, isAuthPage]);
 
   useEffect(() => {
     if (!isGuestLanding) {

@@ -67,6 +67,9 @@ const GamesListing = lazy(() =>
 const SeoGameCategory = lazy(() =>
   import('./pages/Games/SeoGameCategory').then((m) => ({ default: m.SeoGameCategory }))
 );
+const CategoryPage = lazy(() =>
+  import('./pages/Category/CategoryPage').then((m) => ({ default: m.CategoryPage }))
+);
 const FaqPage = lazy(() =>
   import('./pages/Faq').then((m) => ({ default: m.FaqPage }))
 );
@@ -313,7 +316,7 @@ function RouteTitleManager() {
 
     let pageTitle = routeTitleMap.get(pathname);
 
-    if (!pageTitle && pathname.startsWith('/casino/')) {
+    if (!pageTitle && (pathname.startsWith('/casino/') || pathname.startsWith('/category/'))) {
       pageTitle = 'Games';
     }
 
@@ -450,6 +453,8 @@ function App() {
                 <Route path="/games" element={<GamesListing />} />
                 <Route path="/games/:gameId" element={<GameDetailOrSeo />} />
 
+                <Route path="/category" element={<Navigate to="/casino" replace />} />
+                <Route path="/category/:slug" element={<CategoryPage />} />
                 <Route path="/casino" element={<AllSlotGames />} />
                 <Route path="/casino/:categoryId" element={<AllSlotGames />} />
                 <Route

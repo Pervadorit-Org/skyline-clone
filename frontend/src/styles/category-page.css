@@ -1,0 +1,216 @@
+/* /category/:slug — category strip, gold title, search, game grid. */
+.df-cat {
+  --cat-gold-from: #ffd12e;
+  --cat-gold-to: #ff9d2e;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 4px 4px 8px;
+}
+
+/* ---------- category strip ---------- */
+.df-cat__strip {
+  position: relative;
+  z-index: 2;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(10, 11, 20, 0.72);
+  backdrop-filter: blur(8px);
+}
+.df-cat__strip-track {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.df-cat__strip-track::-webkit-scrollbar {
+  display: none;
+}
+.df-cat__tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px 8px 12px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  color: #fff;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.df-cat__tab img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+.df-cat__tab:hover,
+.df-cat__tab:focus-visible {
+  color: var(--cat-gold-from);
+  background: rgba(255, 209, 46, 0.08);
+  outline: none;
+}
+.df-cat__tab.is-active {
+  border-color: #f2c14e;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 0 0 1px rgba(242, 193, 78, 0.35), 0 0 14px rgba(242, 193, 78, 0.18);
+}
+
+/* ---------- body ---------- */
+.df-cat__body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 6px 12px;
+}
+.df-cat__title {
+  margin: 0;
+  text-align: center;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #ffe28a 0%, var(--cat-gold-from) 45%, #e8a63a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.df-cat__search {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 256px;
+}
+.df-cat__search svg {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+.df-cat__search input {
+  width: 100%;
+  height: 36px;
+  padding: 0 14px 0 34px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(14, 16, 32, 0.9);
+  color: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  outline: none;
+}
+.df-cat__search input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+.df-cat__search input:focus {
+  border-color: rgba(242, 193, 78, 0.45);
+}
+.df-cat__search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* ---------- game grid ---------- */
+.df-cat__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 12px;
+}
+.df-cat__card {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 0.85;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+.df-cat__card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.df-cat__card:hover,
+.df-cat__card:focus-visible {
+  transform: translateY(-8px);
+  border-color: rgba(242, 193, 78, 0.55);
+  box-shadow: 0 10px 24px rgba(242, 193, 78, 0.28);
+  outline: none;
+}
+.df-cat__card.is-playing {
+  opacity: 0.7;
+  pointer-events: none;
+}
+.df-cat__card--skeleton {
+  cursor: default;
+  pointer-events: none;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.04) 30%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.04) 70%);
+  background-size: 200% 100%;
+  animation: df-cat-shimmer 1.3s linear infinite;
+}
+@keyframes df-cat-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+.df-cat__empty {
+  margin: 24px 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+}
+
+@media (min-width: 640px) {
+  .df-cat__title {
+    font-size: 1.9rem;
+  }
+  .df-cat__grid {
+    grid-template-columns: repeat(auto-fill, 164px);
+    gap: 14px;
+  }
+}
+@media (min-width: 1024px) {
+  .df-cat__title {
+    font-size: 2.25rem;
+  }
+  .df-cat__body {
+    padding: 0 20px 20px;
+  }
+  .df-cat__tab {
+    min-width: 112px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .df-cat__card,
+  .df-cat__card--skeleton {
+    transition: none;
+    animation: none;
+  }
+  .df-cat__card:hover,
+  .df-cat__card:focus-visible {
+    transform: none;
+  }
+}

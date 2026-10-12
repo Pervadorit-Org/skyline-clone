@@ -6,10 +6,12 @@ import { openTaskList } from './Tasks/TaskListModal';
 import { DashboardSidebar, RAIL_ITEMS } from './Home/DashboardSidebar';
 import '../styles/dashboard-sidebar.css';
 
-/* Persistent icon-only rail for logged-in users (click an icon → navigate). */
-function IconRail({ onNavigate }) {
+/* Persistent icon-only rail (click an icon → navigate). Shown to logged-in
+   players and to guests browsing non-landing pages. For guests, login-gated
+   items open the auth modal instead of navigating into protected routes. */
+function IconRail({ onNavigate, isGuest = false }) {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const { logout } = useAuth();
 
   const isActive = (to) => {
@@ -17,6 +19,18 @@ function IconRail({ onNavigate }) {
     return pathname === to || pathname.startsWith(`${to}/`);
   };
   const handle = (it) => {
+    if (isGuest) {
+      // Login-gated features (account, rewards, tasks) → open the login modal.
+      if (it.action === 'tasks' || it.authRequired) {
+        navigate(`/login${search || ''}`);
+      } else if (it.action === 'support') {
+        openSupportWidget();
+      } else if (it.to) {
+        navigate(it.to);
+      }
+      onNavigate?.();
+      return;
+    }
     if (it.action === 'support') {
       openSupportWidget();
     } else if (it.action === 'tasks') {
@@ -29,10 +43,15 @@ function IconRail({ onNavigate }) {
     onNavigate?.();
   };
 
+  // Guests have no session to log out of; hide the logout control for them.
+  const items = isGuest
+    ? RAIL_ITEMS.filter((it) => it.action !== 'logout')
+    : RAIL_ITEMS;
+
   return (
     <aside className="dgs-rail" aria-label="Sidebar">
       <div className="dgs-rail__list">
-        {RAIL_ITEMS.map((it, i) =>
+        {items.map((it, i) =>
           it.divider ? (
             <hr key={`d${i}`} className="dgs-rail__div" aria-hidden />
           ) : (
@@ -45,7 +64,7 @@ function IconRail({ onNavigate }) {
               onClick={() => handle(it)}
             >
               {it.icon}
-              {it.badge ? <span className="dgs-rail__badge">{it.badge}</span> : null}
+              {it.badge && !isGuest ? <span className="dgs-rail__badge">{it.badge}</span> : null}
             </button>
           )
         )}
@@ -54,14 +73,30 @@ function IconRail({ onNavigate }) {
   );
 }
 
+const AUTH_PAGES = new Set([
+  '/login',
+  '/register',
+  '/check-email',
+  '/forgot-password',
+  '/reset-password',
+]);
+
 /**
  * App sidebar.
  *  - Logged-in: a persistent icon rail + an expand drawer (header hamburger).
- *  - Guest: only the expand drawer (header hamburger). Guest behavior unchanged.
+ *  - Guest on a non-landing page (e.g. /casino): the same icon rail, with
+ *    login-gated items opening the auth modal, + the drawer.
+ *  - Guest on the landing / auth pages: only the expand drawer.
  */
 export function SpinzySidebar() {
   const [open, setOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+  const { pathname } = useLocation();
+
+  // Guests see the rail everywhere except the landing page and auth screens.
+  const showGuestRail =
+    !loading && !isAuthenticated && pathname !== '/' && !AUTH_PAGES.has(pathname);
+  const showRail = isAuthenticated || showGuestRail;
 
   useEffect(() => {
     const toggle = () => setOpen((v) => !v);
@@ -77,9 +112,9 @@ export function SpinzySidebar() {
     };
   }, []);
 
-  // reserve rail space (desktop) only while logged in
+  // reserve rail space (desktop) whenever the rail is shown
   useEffect(() => {
-    if (isAuthenticated) {
+    if (showRail) {
       document.documentElement.dataset.railDock = '1';
     } else {
       delete document.documentElement.dataset.railDock;
@@ -87,7 +122,7 @@ export function SpinzySidebar() {
     return () => {
       delete document.documentElement.dataset.railDock;
     };
-  }, [isAuthenticated]);
+  }, [showRail]);
 
   // lock page scroll while the drawer is open
   useEffect(() => {
@@ -110,7 +145,7 @@ export function SpinzySidebar() {
 
   return (
     <>
-      {isAuthenticated ? <IconRail onNavigate={close} /> : null}
+      {showRail ? <IconRail onNavigate={close} isGuest={!isAuthenticated} /> : null}
 
       <div className={`dgs-overlay${open ? ' is-open' : ''}`} aria-hidden={!open}>
         <div className="dgs-backdrop" onClick={close} />

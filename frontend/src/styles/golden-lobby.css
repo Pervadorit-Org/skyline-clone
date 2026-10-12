@@ -1,0 +1,390 @@
+/* Casino lobby sections (GoldenLobbySections.jsx). Layout values follow the
+   reference lobby: 159×187 game cards, 3-row mosaics, parallax feature banners. */
+.gl-feed {
+  --gl-card-w: 7.5rem;
+  --gl-card-r: 1.125rem;
+  --gl-gold: #ebc567;
+  --gl-surface: #121421;
+  --gl-surface-light: #161b2e;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+@media (min-width: 475px) {
+  .gl-feed {
+    --gl-card-w: 9.9375rem;
+  }
+}
+@media (min-width: 1024px) {
+  .gl-feed {
+    gap: 40px;
+  }
+}
+
+/* ---------- section header ---------- */
+.gl-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+}
+.df-lobby .gl-head__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font: 700 16px/1.3 'Montserrat', sans-serif;
+  text-transform: capitalize;
+  color: #fff;
+}
+@media (min-width: 768px) {
+  .df-lobby .gl-head__title {
+    font-size: 20px;
+  }
+}
+.gl-head__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+.gl-head__icon img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+.gl-head__icon--cat img {
+  width: 24px;
+  height: 24px;
+}
+@media (min-width: 768px) {
+  .gl-head__icon img {
+    width: 20px;
+    height: 20px;
+  }
+  .gl-head__icon--cat img {
+    width: 24px;
+    height: 24px;
+  }
+}
+.gl-head__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-top: 2px;
+}
+.gl-head__viewall {
+  padding-top: 2px;
+  font: 600 16px 'Baloo Bhaijaan 2', 'Baloo 2', 'Montserrat', sans-serif;
+  color: #fff;
+  text-decoration: none;
+}
+.gl-head__viewall:hover {
+  color: var(--gl-gold);
+}
+.gl-head__arrows {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 8px;
+}
+.gl-head__arrow {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+.gl-head__arrow:hover,
+.gl-head__arrow:focus-visible {
+  color: var(--gl-gold);
+  outline: none;
+}
+.gl-head__arrow--prev {
+  transform: rotate(180deg);
+}
+
+/* ---------- scroller (room for the hover lift) ---------- */
+.gl-scroller {
+  margin: -12px 0;
+  padding: 12px 0;
+  overflow-x: auto;
+  user-select: none;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  cursor: grab;
+}
+.gl-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- game card ---------- */
+.gl-card {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: var(--gl-card-w);
+  aspect-ratio: 159 / 187;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--gl-card-r);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.gl-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .gl-card:hover,
+  .gl-card:focus-visible {
+    transform: translateY(-0.5rem);
+    box-shadow: 0 10px 15px -3px rgba(235, 197, 103, 0.5), 0 4px 6px -4px rgba(235, 197, 103, 0.5);
+    outline: none;
+  }
+}
+.gl-card--fill {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.gl-card--block {
+  width: 100%;
+}
+
+/* ---------- rows ---------- */
+.gl-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: max-content;
+}
+.gl-rows__line {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- mosaic (3 rows, auto columns, spanning feature tiles) ---------- */
+.gl-mosaic {
+  --mosaic-cell-w: var(--gl-card-w);
+  --mosaic-cell-h: calc(var(--mosaic-cell-w) * 187 / 159);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--mosaic-cell-w);
+  grid-template-rows: repeat(3, var(--mosaic-cell-h));
+  gap: 8px;
+  width: max-content;
+}
+.gl-mosaic__cell {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ---------- flowing grid (New Games): 5 rows on phones, 2 on desktop ---------- */
+.gl-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(5, auto);
+  gap: 8px;
+  width: max-content;
+}
+@media (min-width: 1024px) {
+  .gl-grid {
+    grid-template-rows: repeat(2, auto);
+  }
+}
+
+/* ---------- Top 10 ---------- */
+.gl-scroller--rank {
+  margin: -16px 0;
+  padding: 16px 0 16px 24px;
+  display: flex;
+}
+@media (min-width: 1024px) {
+  .gl-scroller--rank {
+    padding-left: 0;
+  }
+}
+.gl-rank {
+  display: flex;
+}
+.gl-rank__item {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  margin-left: -24px;
+  font-family: 'Poppins', 'Montserrat', sans-serif;
+  font-weight: 700;
+}
+@media (min-width: 1024px) {
+  .gl-rank__item {
+    margin-left: 8px;
+  }
+}
+.gl-rank__num {
+  font-size: 8rem;
+  line-height: 1;
+  transform: translateX(2.5rem);
+  transition: transform 0.4s;
+  -webkit-text-stroke: 2px rgb(253, 242, 139);
+  -webkit-text-fill-color: transparent;
+  background: linear-gradient(180.02deg, rgba(253, 241, 140, 0) 42.79%, rgb(253, 209, 68) 73.38%) text;
+  background-clip: text;
+}
+.gl-rank__num.is-first {
+  transform: translateX(1.25rem);
+}
+.gl-rank__num.is-last {
+  transform: translateX(3rem);
+}
+@media (min-width: 1024px) {
+  .gl-rank__num {
+    font-size: 12rem;
+  }
+}
+.gl-rank__item:hover .gl-rank__num {
+  transform: translateX(calc(2.5rem + 0.75rem));
+}
+.gl-rank__item:hover .gl-rank__num.is-first {
+  transform: translateX(calc(1.25rem + 0.75rem));
+}
+.gl-rank__item:hover .gl-rank__num.is-last {
+  transform: translateX(calc(3rem + 0.75rem));
+}
+.gl-rank__card {
+  position: relative;
+  flex: 0 0 auto;
+  width: 7rem;
+  height: max-content;
+}
+@media (min-width: 768px) {
+  .gl-rank__card {
+    width: 9rem;
+  }
+}
+@media (min-width: 1024px) {
+  .gl-rank__card {
+    width: 9.5rem;
+  }
+}
+.gl-rank__hover {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--gl-card-r);
+  background: linear-gradient(180deg, rgba(235, 197, 103, 0.6) 0%, var(--gl-surface) 100%);
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.gl-rank__hover svg {
+  width: 2rem;
+  height: 2rem;
+}
+@media (min-width: 768px) {
+  .gl-rank__hover svg {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+@media (min-width: 1024px) {
+  .gl-rank__hover svg {
+    width: 5rem;
+    height: 5rem;
+  }
+}
+.gl-rank__item:hover .gl-rank__hover {
+  opacity: 1;
+  transform: translateY(-0.5rem);
+}
+
+/* ---------- featured provider banner ---------- */
+.gl-featured {
+  position: relative;
+  min-height: 544px;
+  overflow: clip;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: var(--gl-surface-light);
+}
+@media (min-width: 640px) {
+  .gl-featured {
+    min-height: 420px;
+  }
+}
+.gl-featured__bg {
+  position: absolute;
+  top: -15%;
+  inset-inline: 0;
+  height: 130%;
+  will-change: transform;
+}
+.gl-featured__bg img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+@supports (animation-timeline: view()) {
+  .gl-featured__bg {
+    animation: gl-parallax linear both;
+    animation-timeline: view();
+  }
+}
+@keyframes gl-parallax {
+  0% { transform: translateY(-30%); }
+  100% { transform: translateY(30%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gl-featured__bg {
+    animation: none;
+  }
+}
+.gl-featured__fade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to right, var(--gl-surface) 0%, transparent 25%, transparent 75%, var(--gl-surface) 100%);
+}
+.gl-featured__games {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 8px;
+}
+@media (min-width: 768px) {
+  .gl-featured__games {
+    inset-inline: auto;
+    top: 0;
+    right: 0;
+    width: 60%;
+  }
+}
+.gl-scroller--featured {
+  width: 100%;
+}
+.gl-featured__grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  justify-content: start;
+  gap: 8px;
+}

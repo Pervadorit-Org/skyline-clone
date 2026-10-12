@@ -85,53 +85,138 @@
   background: linear-gradient(170deg, var(--dgs-card-from), var(--dgs-card-to));
 }
 
-/* ---- balance card ---- */
-.dgs__balance {
+/* ---- guest: "Refer a Friend" banner (replaces balance / VIP cards) ---- */
+.dgs__refer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 78px;
   margin-top: 8px;
-  padding: 26px 10px 14px;
+  padding: 10px 12px;
+  overflow: hidden;
+  border: 2px solid #fff;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f6cf4d 0%, #eaa83a 100%);
+  text-decoration: none;
+  transition: filter 0.2s, transform 0.2s;
 }
+.dgs__refer:hover {
+  filter: brightness(1.06);
+}
+.dgs__refer:active {
+  transform: scale(0.99);
+}
+.dgs__refer-text {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 16px 10px 14px;
+  border-radius: 12px;
+  background: rgba(120, 90, 30, 0.45);
+  font-family: 'Montserrat', sans-serif;
+}
+.dgs__refer-text b {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.dgs__refer-text span {
+  color: #6bff3d;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.dgs__refer-img {
+  position: absolute;
+  right: -6px;
+  bottom: -8px;
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+}
+
+/* ---- balance + vip cards (gradient-ring tiles, Golden Dragon style) ---- */
+.dgs__card.dgs__balance,
+.dgs__card.dgs__vip {
+  --ring-width: 2px;
+  position: relative;
+  z-index: 0;
+  border-radius: 20px;
+  padding: 0;
+  background: linear-gradient(180deg, #191d35 0%, #0c0e1a 100%);
+}
+.dgs__card.dgs__balance::before,
+.dgs__card.dgs__vip::before {
+  z-index: -1;
+  border-radius: inherit;
+  padding: var(--ring-width);
+  background: var(--ring-fill);
+}
+.dgs__card.dgs__balance {
+  --ring-width: 2px;
+  --ring-fill: linear-gradient(180deg, #171b33 8%, #fec602 100%);
+  margin-top: 8px;
+  padding: 32px 0 16px;
+}
+.dgs__card.dgs__vip {
+  --ring-width: 1.5px;
+  --ring-fill: linear-gradient(180deg, #000 0%, #666 100%);
+  margin-top: 12px;
+}
+
 .dgs__balance-ribbon {
   position: absolute;
   top: 0;
   left: 50%;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 144px;
+  padding: 8px 0 4px;
   transform: translateX(-50%);
-  min-width: 140px;
-  text-align: center;
-  padding: 5px 16px 4px;
-  border-radius: 0 0 12px 12px;
-  background: linear-gradient(135deg, var(--dgs-gold-bright), var(--dgs-gold-deep));
-  color: #2a1803;
-  font: 900 11px/1 'Outfit', sans-serif;
+  border-radius: 0 0 20px 20px;
+  background: linear-gradient(rgb(255, 113, 36), rgb(255, 94, 26), rgb(255, 49, 2));
+  color: #fff;
+  font: 900 12px/1.3 'Outfit', 'Montserrat', sans-serif;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.35);
 }
 .dgs__balance-body {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 0 4px;
+  gap: 18px;
+  margin-top: 8px;
+  padding: 0 8px 0 12px;
 }
 .dgs__balance-vault {
-  width: 92px;
+  width: 112px;
   height: auto;
   flex-shrink: 0;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5));
 }
 .dgs__pills {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .dgs__pill {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  height: 38px;
-  padding: 0 12px;
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
   border-radius: 999px;
   border: 2px solid;
-  background: rgba(8, 9, 16, 0.8);
+  background: rgba(12, 14, 26, 0.8);
 }
 .dgs__pill img {
   width: 24px;
@@ -144,62 +229,94 @@
   color: var(--dgs-fg);
 }
 .dgs__pill--gc {
-  border-color: var(--dgs-gold-bright);
-  box-shadow: inset 0 0 10px rgba(235, 197, 103, 0.35);
+  border-color: #fec602;
+  box-shadow: inset 0 0 10px 0 #ebc567;
 }
 .dgs__pill--sc {
-  border-color: var(--dgs-sweep);
-  box-shadow: inset 0 0 10px rgba(55, 215, 155, 0.35);
+  border-color: #1fa724;
+  box-shadow: inset 0 0 10px 0 #1fa724;
 }
+
 .dgs__balance-actions {
   display: flex;
   justify-content: center;
-  gap: 14px;
-  margin-top: 14px;
+  gap: 16px;
+  margin-top: 12px;
+}
+/* rim around each button, then a gradient-ring button inside it */
+.dgs__rim {
+  display: inline-flex;
+  padding: 1.25px;
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.dgs__rim--buy {
+  background: radial-gradient(60.71% 50%, rgb(210, 125, 8) 71.13%, rgba(255, 203, 60, 0.85));
+}
+.dgs__rim--redeem {
+  background: radial-gradient(60.71% 50%, rgb(31, 167, 36) 71.13%, rgba(60, 196, 65, 0.85));
 }
 .dgs__store-btn {
-  min-width: 108px;
-  height: 38px;
+  --ring-width: 1.5px;
+  position: relative;
+  z-index: 0;
+  min-width: 112px;
+  height: 34px;
+  padding: 0 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 0;
   border-radius: 999px;
-  cursor: pointer;
-  font: 700 15px 'Montserrat', sans-serif;
-  text-decoration: none;
+  font: 700 16px 'Montserrat', sans-serif;
+  transition: filter 0.2s;
+}
+.dgs__store-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: var(--ring-width);
+  border-radius: inherit;
+  background: var(--ring-fill);
+  pointer-events: none;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.dgs__rim:hover .dgs__store-btn {
+  filter: brightness(1.08);
 }
 .dgs__store-btn--buy {
-  background: linear-gradient(135deg, var(--dgs-gold-bright), var(--dgs-gold-deep));
-  color: #2a1803;
-  box-shadow: 0 0 14px var(--dgs-ring);
+  --ring-fill: linear-gradient(180deg, #fdc83a 8.95%, #fdecba 25.3%, #f1b42d 99.48%);
+  color: rgb(76, 44, 0);
+  background: linear-gradient(95.47deg, rgb(218, 130, 7) -0.22%, rgb(221, 147, 24) 10.66%, rgb(255, 203, 60) 26.65%, rgb(255, 203, 60) 78.95%, rgb(227, 156, 30) 93%, rgb(251, 198, 58) 97.24%);
 }
 .dgs__store-btn--redeem {
-  background: linear-gradient(135deg, #3ad88f, #138a56);
-  color: #04281a;
-  box-shadow: 0 0 14px rgba(55, 215, 155, 0.3);
+  --ring-fill: linear-gradient(180deg, #3cc441 8.95%, #87ff8c 25.3%, #62ea67 99.48%);
+  color: rgb(1, 58, 1);
+  background: linear-gradient(95.47deg, rgb(0, 120, 0) -0.22%, rgb(22, 158, 27) 10.66%, rgb(98, 234, 103) 26.65%, rgb(98, 234, 103) 78.95%, rgb(22, 158, 27) 93%, rgb(0, 120, 0) 97.24%);
 }
 
-/* ---- vip card ---- */
+/* vip card */
 .dgs__vip {
-  margin-top: 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px;
+  gap: 8px;
+  padding: 8px;
 }
 .dgs__vip-link {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex: 1;
   min-width: 0;
   text-decoration: none;
   color: inherit;
 }
 .dgs__vip-tier {
-  width: 54px;
-  height: 60px;
+  width: 56px;
+  height: 64px;
   flex-shrink: 0;
   object-fit: contain;
 }
@@ -208,28 +325,28 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 .dgs__vip-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  font: 800 16px 'Outfit', sans-serif;
+  font: 800 16px 'Inter', 'Montserrat', sans-serif;
 }
 .dgs__vip-row b {
   color: var(--dgs-fg);
   font-weight: 800;
 }
 .dgs__vip-row span {
-  color: var(--dgs-gold-bright);
+  color: #fec602;
   text-transform: uppercase;
 }
 .dgs__vip-track {
   width: 100%;
   height: 4px;
   border-radius: 999px;
-  background: rgba(75, 91, 214, 0.4);
+  background: rgba(96, 165, 250, 0.4);
   overflow: hidden;
 }
 .dgs__vip-fill {
@@ -242,8 +359,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  font: 500 12px 'Montserrat', sans-serif;
-  color: var(--dgs-muted);
+  font: 400 12px 'Inter', 'Montserrat', sans-serif;
+  color: #bebebe;
   white-space: nowrap;
 }
 .dgs__vip-next b {
@@ -571,7 +688,8 @@
 }
 /* mobile: no persistent rail — the header hamburger opens the drawer */
 @media (max-width: 767px) {
+  #root .dgs-rail,
   .dgs-rail {
-    display: none;
+    display: none !important;
   }
 }

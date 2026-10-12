@@ -137,8 +137,16 @@ export function Navbar() {
     location.pathname === '/link2play' ||
     location.pathname === '/bonus' ||
     location.pathname === '/casino' ||
-    location.pathname.startsWith('/casino/');
-  const isGuestLanding = !isAuthenticated && !authLoading;
+    location.pathname.startsWith('/casino/') ||
+    location.pathname.startsWith('/category/');
+  // Landing-style hero nav only on the home page and the auth overlays that
+  // render Home behind them; other guest pages use the compact lobby header.
+  const isGuestLanding =
+    !isAuthenticated &&
+    !authLoading &&
+    (location.pathname === '/' ||
+      location.pathname === '/login' ||
+      location.pathname === '/register');
   const registerPath = `/register${location.search || ''}`;
   const loginPath = `/login${location.search || ''}`;
 
@@ -445,6 +453,11 @@ export function Navbar() {
                 </svg>
               </button>
             </div>
+            {!isGuestLanding ? (
+              <Link to="/casino" className="dash-logo dash-nav-auth-logo min-w-0 mr-auto" aria-label="Go to lobby">
+                <SiteLogo variant="nav" />
+              </Link>
+            ) : null}
             <div className="dash-nav-actions">
               {/* Tutorial hidden
               <Link to="/help" className="df-tour-btn" aria-label="Website tour" title="Help">

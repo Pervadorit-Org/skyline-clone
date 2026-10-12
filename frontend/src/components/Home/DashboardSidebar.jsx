@@ -4,14 +4,16 @@ import { useAuth } from '../../context/AuthContext';
 import { openSupportWidget } from '../intercomApi';
 import { openTaskList } from '../Tasks/TaskListModal';
 import { warmupCasino } from '../../utils/preloadCasino';
+import { getGameCategoryPath } from '../../config/gameCategories';
 import '../../styles/dashboard-sidebar.css';
 
 /* ---- your own assets ---- */
 const LOGO_SRC = '/df-online/logo-512.webp';
-const VAULT_SRC = '/df-online/platforms/game-vault.webp';
-const GC_COIN_SRC = '/icons/coin.png';
-const SC_COIN_SRC = '/df-online/sc-coin.webp';
+const VAULT_SRC = 'https://www.goldendragon.casino/sidebar/balance-vault.webp';
+const GC_COIN_SRC = 'https://www.goldendragon.casino/sidebar/gold-coin.webp';
+const SC_COIN_SRC = 'https://www.goldendragon.casino/sidebar/sweep-coin.webp';
 const VIP_TIER_SRC = '/df-online/dragons/tier-hatchling.webp';
+const REFER_BOX_SRC = '/df-online/referral-invite.webp';
 
 function formatBalance(n) {
   const v = Number(n || 0);
@@ -177,20 +179,20 @@ const GAME_ITEMS = [
 /* Flat icon-rail list (collapsed sidebar for logged-in users). Reuses the
    same icons; dividers mirror the drawer's groups. */
 export const RAIL_ITEMS = [
-  { id: 'promotions', label: 'Promotions', icon: ICON.promotions, to: '/promotions' },
+  { id: 'promotions', label: 'Promotions', icon: ICON.promotions, to: '/promotions', authRequired: true },
   { id: 'install', label: 'Install App', icon: ICON.install, to: '/install' },
-  { id: 'referral', label: 'Referral', icon: ICON.referral, to: '/account/affiliate' },
+  { id: 'referral', label: 'Referral', icon: ICON.referral, to: '/account/affiliate', authRequired: true },
   { divider: true },
-  { id: 'vip', label: 'VIP', icon: ICON.vip, to: '/account/vip' },
-  { id: 'favorites', label: 'Favorites', icon: ICON.favorites, to: '/favorites' },
+  { id: 'vip', label: 'VIP', icon: ICON.vip, to: '/account/vip', authRequired: true },
+  { id: 'favorites', label: 'Favorites', icon: ICON.favorites, to: '/favorites', authRequired: true },
   { id: 'tasks', label: 'Task List', icon: ICON.tasks, action: 'tasks', badge: '1' },
   { id: 'faq', label: 'FAQ', icon: ICON.faq, to: '/faq' },
   { divider: true },
-  ...GAME_ITEMS.map((g) => ({ id: g.id, label: g.label, icon: g.icon, to: `/casino/${g.id}` })),
+  ...GAME_ITEMS.map((g) => ({ id: g.id, label: g.label, icon: g.icon, to: getGameCategoryPath(g.id) })),
   { divider: true },
-  { id: 'spin', label: 'Spin the Wheel', icon: ICON.spin, to: '/spinwheel' },
-  { id: 'daily', label: 'Daily Rewards', icon: ICON.promotions, to: '/daily-bonus' },
-  { id: 'missions', label: 'Weekly Missions', icon: ICON.bonuses, to: '/promotions' },
+  { id: 'spin', label: 'Spin the Wheel', icon: ICON.spin, to: '/spinwheel', authRequired: true },
+  { id: 'daily', label: 'Daily Rewards', icon: ICON.promotions, to: '/daily-bonus', authRequired: true },
+  { id: 'missions', label: 'Weekly Missions', icon: ICON.bonuses, to: '/promotions', authRequired: true },
   { divider: true },
   { id: 'providers', label: 'Providers', icon: ICON.providers, to: '/providers' },
   { id: 'responsible', label: 'Responsible Gaming Policy', icon: ICON.responsible, to: '/responsible-gaming' },
@@ -237,54 +239,67 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
       </Link>
 
       <div className="dgs__scroll">
-        {/* ---- balance card ---- */}
-        <div className="dgs__card dgs__balance">
-          <span className="dgs__balance-ribbon">Your Balance</span>
-          <div className="dgs__balance-body">
-            <img className="dgs__balance-vault" src={VAULT_SRC} alt="" aria-hidden draggable="false" />
-            <div className="dgs__pills">
-              <div className="dgs__pill dgs__pill--gc">
-                <img src={GC_COIN_SRC} alt="Gold Coins" />
-                <span>{formatBalance(0)}</span>
-              </div>
-              <div className="dgs__pill dgs__pill--sc">
-                <img src={SC_COIN_SRC} alt="Sweep Coins" />
-                <span>{formatBalance(balanceSc)}</span>
+        {isAuthenticated ? (
+          <>
+          {/* ---- balance card ---- */}
+          <div className="dgs__card dgs__balance">
+            <span className="dgs__balance-ribbon">Your Balance</span>
+            <div className="dgs__balance-body">
+              <img className="dgs__balance-vault" src={VAULT_SRC} alt="" aria-hidden draggable="false" />
+              <div className="dgs__pills">
+                <div className="dgs__pill dgs__pill--gc">
+                  <img src={GC_COIN_SRC} alt="Gold Coins" />
+                  <span>{formatBalance(0)}</span>
+                </div>
+                <div className="dgs__pill dgs__pill--sc">
+                  <img src={SC_COIN_SRC} alt="Sweep Coins" />
+                  <span>{formatBalance(balanceSc)}</span>
+                </div>
               </div>
             </div>
+            <div className="dgs__balance-actions">
+              <Link to={isAuthenticated ? '/store' : '/register'} className="dgs__rim dgs__rim--buy" onClick={onNavigate}>
+                <span className="dgs__store-btn dgs__store-btn--buy">Buy</span>
+              </Link>
+              <Link to={isAuthenticated ? '/redeem' : '/register'} className="dgs__rim dgs__rim--redeem" onClick={onNavigate}>
+                <span className="dgs__store-btn dgs__store-btn--redeem">Redeem</span>
+              </Link>
+            </div>
           </div>
-          <div className="dgs__balance-actions">
-            <Link to={isAuthenticated ? '/store' : '/register'} className="dgs__store-btn dgs__store-btn--buy" onClick={onNavigate}>
-              Buy
-            </Link>
-            <Link to={isAuthenticated ? '/redeem' : '/register'} className="dgs__store-btn dgs__store-btn--redeem" onClick={onNavigate}>
-              Redeem
-            </Link>
-          </div>
-        </div>
 
-        {/* ---- vip card ---- */}
-        <div className="dgs__card dgs__vip">
-          <Link to="/account/vip" className="dgs__vip-link" onClick={onNavigate}>
-            <img className="dgs__vip-tier" src={VIP_TIER_SRC} alt="" aria-hidden draggable="false" />
-            <div className="dgs__vip-meta">
-              <div className="dgs__vip-row">
-                <b>VIP Level</b>
-                <span>Iron</span>
+          {/* ---- vip card ---- */}
+          <div className="dgs__card dgs__vip">
+            <Link to="/account/vip" className="dgs__vip-link" onClick={onNavigate}>
+              <img className="dgs__vip-tier" src={VIP_TIER_SRC} alt="" aria-hidden draggable="false" />
+              <div className="dgs__vip-meta">
+                <div className="dgs__vip-row">
+                  <b>VIP Level</b>
+                  <span>Iron</span>
+                </div>
+                <div className="dgs__vip-track">
+                  <div className="dgs__vip-fill" style={{ width: '0%' }} />
+                </div>
+                <div className="dgs__vip-next">
+                  <span>Next Level</span>
+                  <b>Bronze 500</b>
+                </div>
               </div>
-              <div className="dgs__vip-track">
-                <div className="dgs__vip-fill" style={{ width: '0%' }} />
-              </div>
-              <div className="dgs__vip-next">
-                <span>Next Level</span>
-                <b>Bronze 500</b>
-              </div>
-            </div>
+            </Link>
+            <button type="button" className="dgs__vip-info" aria-label="VIP info" onClick={() => go('/account/vip')}>
+              {ICON.info}
+            </button>
+          </div>
+          </>
+        ) : (
+          /* ---- guest: referral banner instead of balance / VIP points ---- */
+          <Link to="/register" className="dgs__refer" onClick={onNavigate}>
+            <span className="dgs__refer-text">
+              <b>Refer a Friend</b>
+              <span>Earn free coins</span>
+            </span>
+            <img className="dgs__refer-img" src={REFER_BOX_SRC} alt="" aria-hidden draggable="false" />
           </Link>
-          <button type="button" className="dgs__vip-info" aria-label="VIP info" onClick={() => go('/account/vip')}>
-            {ICON.info}
-          </button>
-        </div>
+        )}
 
         <div className="dgs__divider" aria-hidden />
 
@@ -321,10 +336,10 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
                 <button
                   key={g.id}
                   type="button"
-                  className={`dgs__row${isActive(`/casino/${g.id}`) ? ' is-active' : ''}`}
+                  className={`dgs__row${isActive(getGameCategoryPath(g.id)) ? ' is-active' : ''}`}
                   onClick={() => {
                     warmupCasino();
-                    go(`/casino/${g.id}`);
+                    go(getGameCategoryPath(g.id));
                   }}
                 >
                   <span className="dgs__row-ico">{g.icon}</span>

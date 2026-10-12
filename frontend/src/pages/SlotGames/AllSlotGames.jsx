@@ -4,6 +4,7 @@ import { Navigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { CasinoLobby } from '../../components/Casino/CasinoLobby';
 import { isHiddenSlotCategoryId } from '../../utils/gitslotparkLandingGames';
+import { getGameCategory } from '../../config/gameCategories';
 
 const GamesSection = lazy(() =>
   import('../../components/Home/GamesSection').then((m) => ({ default: m.GamesSection }))
@@ -33,6 +34,12 @@ export function AllSlotGames() {
   useEffect(() => {
     resetGamesPageScroll();
   }, [categoryId]);
+
+  // The twelve public categories live at /category/:slug.
+  const category = getGameCategory(categoryId);
+  if (category) {
+    return <Navigate to={`/category/${category.slug}`} replace />;
+  }
 
   if (isHiddenSlotCategoryId(categoryId)) {
     return <Navigate to="/casino" replace />;
