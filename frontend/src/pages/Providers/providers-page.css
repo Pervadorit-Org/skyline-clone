@@ -1,0 +1,20 @@
+.pv-page{width:100%;max-width:90rem;margin:0 auto;padding:.75rem .5rem;color:#fff;font-family:Montserrat,system-ui,sans-serif}
+.pv-head{position:relative}
+.pv-head h1{margin:0;padding-bottom:.65rem;text-align:center;font-size:1.5rem;font-weight:700;text-transform:uppercase;background:linear-gradient(180deg,#FFE9A0,#F5C542 55%,#D9A21B);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pv-close{position:absolute;top:0;right:0;display:flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border:0;border-radius:.25rem;background:transparent;color:#fff;cursor:pointer}
+.pv-close:hover{background:rgba(255,255,255,.1)}
+.pv-search{position:relative;display:flex;align-items:center;height:2.25rem}
+.pv-search input{display:block;width:100%;height:3rem;padding:0 2.5rem 0 .75rem;border:1px solid rgba(235,197,103,.55);border-radius:1.5rem;background:#0b0e1a;color:#fff;font-size:1.25rem;box-shadow:inset 0 0 6px rgba(235,197,103,.25);outline:none;font-family:inherit;transition:border-color .2s}
+.pv-search input::placeholder{color:#fff;font-size:1.25rem}
+.pv-search input:focus{border-color:#F5C542;box-shadow:inset 0 0 6px rgba(235,197,103,.25),0 0 0 1px rgba(245,197,66,.5)}
+.pv-search label{position:absolute;right:.75rem;cursor:pointer;display:flex}
+.pv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;min-height:24rem;margin-top:.75rem;padding-top:.65rem}
+.pv-tile{display:flex;align-items:center;justify-content:center;height:5.5rem;max-width:12rem;padding:.5rem 1rem;border-radius:1rem;background:#0b0c12;box-shadow:0 4px 6px rgba(0,0,0,.4);text-decoration:none;transition:box-shadow .3s,transform .2s}
+.pv-tile:hover{box-shadow:0 10px 20px rgba(0,0,0,.6),0 0 0 1px rgba(235,197,103,.35);transform:translateY(-2px)}
+.pv-tile img{max-width:100%;max-height:100%;object-fit:contain}
+.pv-wordmark{font-size:1.05rem;font-weight:800;line-height:1.1;text-align:center;letter-spacing:.02em;color:#fff}
+.pv-empty{grid-column:1/-1;margin:2rem 0;text-align:center;color:rgba(255,255,255,.6)}
+@media(min-width:640px){.pv-head h1{font-size:1.875rem}.pv-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:768px){.pv-grid{grid-template-columns:repeat(4,1fr)}.pv-search input{font-size:.875rem}}
+@media(min-width:1024px){.pv-head h1{font-size:2.25rem}.pv-grid{grid-template-columns:repeat(5,1fr)}}
+@media(min-width:1280px){.pv-grid{gap:2.25rem}}

@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { AppLoader } from '../../components/AppLoader';
 import { Navigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { CasinoLobby } from '../../components/Casino/CasinoLobby';
 import { isHiddenSlotCategoryId } from '../../utils/gitslotparkLandingGames';
 
 const GamesSection = lazy(() =>
@@ -35,6 +36,16 @@ export function AllSlotGames() {
 
   if (isHiddenSlotCategoryId(categoryId)) {
     return <Navigate to="/casino" replace />;
+  }
+
+  if (!categoryId) {
+    return (
+      <div className="dashboard dash-page df-games-page">
+        <div className="dash-layout">
+          <div className="dash-main">{!loading ? <CasinoLobby /> : null}</div>
+        </div>
+      </div>
+    );
   }
 
   const initialFilter = (() => {

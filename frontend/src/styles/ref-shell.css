@@ -1,0 +1,756 @@
+/* ==========================================================================
+   Signed-in shell restyle (body.df-ref-shell): single-row dark header with
+   hamburger / logo / centered balance + STORE pill / bell + profile, and a
+   slim icon-only left rail. Loaded last so it wins over the older shell CSS.
+   ========================================================================== */
+html body.df-ref-shell {
+  background-image: none !important;
+  --ref-bg: #0f0f19;
+  --ref-line: rgba(255, 255, 255, 0.08);
+  --ref-gold: #ebc567;
+  --dash-nav-h: 64px;
+  background: var(--ref-bg);
+}
+html body.df-ref-shell #root .dash-root {
+  --dash-nav-h: 64px;
+  background: var(--ref-bg);
+}
+/* drop the purple animated backdrop */
+html body.df-ref-shell #root .dash-bg-canvas,
+html body.df-ref-shell #root .dash-lightning,
+html body.df-ref-shell #root .dash-root > canvas,
+html body.df-ref-shell #root .dash-bg,
+html body.df-ref-shell #root .dash-bg-layer {
+  display: none !important;
+}
+
+/* ---------- header ---------- */
+html body.df-ref-shell #root .dash-nav {
+  height: 64px !important;
+  min-height: 64px;
+  background: var(--ref-bg) !important;
+  border-bottom: 1px solid var(--ref-line);
+  box-shadow: none !important;
+}
+html body.df-ref-shell #root .dash-nav-inner,
+html body.df-ref-shell #root .dash-nav-inner--auth {
+  height: 64px !important;
+  min-height: 64px;
+  max-width: none;
+  width: 100%;
+  padding: 0 14px !important;
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+html body.df-ref-shell #root .df-desktop-auth-nav,
+html body.df-ref-shell #root .df-tour-btn,
+html body.df-ref-shell #root .df-header-logout,
+html body.df-ref-shell #root .df-menu-btn {
+  display: none !important;
+}
+html body.df-ref-shell #root .df-rail-burger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.df-rail-burger {
+  display: none;
+}
+html body.df-ref-shell #root .dash-nav-auth-logo {
+  flex: 0 0 auto;
+}
+html body.df-ref-shell #root .dash-nav-auth-logo img {
+  height: 32px !important;
+  width: auto !important;
+  max-height: 32px;
+}
+
+/* centered balance + STORE pill */
+html body.df-ref-shell #root .df-auth-balances {
+  position: absolute !important;
+  left: 50% !important;
+  right: auto !important;
+  top: 50% !important;
+  margin: 0 !important;
+  transform: translate(-50%, -50%) !important;
+  width: auto !important;
+  height: auto !important;
+  inset-inline: auto;
+  display: flex;
+  justify-content: center;
+}
+html body.df-ref-shell #root .df-wallet-hud {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 4px 0 6px;
+  border: 1px solid var(--ref-gold);
+  border-radius: 999px;
+  background: #07070d;
+  position: relative;
+}
+html body.df-ref-shell #root .df-wallet-hud__bar {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: auto !important;
+  position: static;
+}
+html body.df-ref-shell #root .df-wallet-hud__holder {
+  display: none !important;
+}
+html body.df-ref-shell #root .df-wallet-hud__amount {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 6px !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: #fff;
+  font: 800 13px 'Outfit', sans-serif;
+  cursor: pointer;
+}
+html body.df-ref-shell #root .df-wallet-hud__amount small {
+  font: 800 13px 'Outfit', sans-serif;
+  color: #fff;
+}
+html body.df-ref-shell #root .df-wallet-hud__add {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  height: 22px !important;
+  padding: 0 12px !important;
+  margin: 0 !important;
+  border-radius: 999px;
+  background: transparent !important;
+  border: 1px solid var(--ref-gold);
+  color: #fff;
+  text-decoration: none;
+  font: 800 12px 'Outfit', sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transform: none !important;
+}
+html body.df-ref-shell #root .df-wallet-hud__add img {
+  display: none;
+}
+html body.df-ref-shell #root .df-wallet-hud__sheet {
+  top: calc(100% + 8px);
+}
+
+/* right cluster: bell + profile */
+html body.df-ref-shell #root .df-lobby-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: auto;
+  order: 5;
+}
+html body.df-ref-shell #root .df-notif-wrap {
+  order: 1;
+}
+html body.df-ref-shell #root .df-profile-trigger-wrap {
+  order: 2;
+}
+html body.df-ref-shell #root .df-header-bell {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+html body.df-ref-shell #root .df-profile-trigger,
+html body.df-ref-shell #root .df-header-bell {
+  width: 30px !important;
+  height: 30px !important;
+  padding: 0;
+  border-radius: 999px;
+  background: transparent !important;
+  border: 0 !important;
+}
+html body.df-ref-shell #root .df-profile-trigger img {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 999px;
+  object-fit: cover;
+}
+html body.df-ref-shell #root .df-header-bell img {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* ---------- slim icon rail ---------- */
+@media (min-width: 768px) {
+  body.df-ref-shell #root .spz-rail {
+    top: 64px !important;
+    background: var(--ref-bg) !important;
+    border-right: 1px solid var(--ref-line);
+    padding-top: 10px;
+  }
+  html[data-rail='closed'] body.df-ref-shell #root .spz-rail,
+  html:not([data-rail='open']) body.df-ref-shell #root .spz-rail {
+    width: 52px !important;
+  }
+  html[data-rail='closed'] body.df-ref-shell #root .dash-root,
+  html:not([data-rail='open']) body.df-ref-shell #root .dash-root {
+    padding-left: 52px;
+  }
+  html[data-rail='closed'] body.df-ref-shell #root .spz-rail__toggle,
+  html[data-rail='closed'] body.df-ref-shell #root .spz-rail__avatar,
+  html[data-rail='closed'] body.df-ref-shell #root .spz-rail__vip {
+    display: none !important;
+  }
+  html[data-rail='closed'] body.df-ref-shell #root .spz-rail__item {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  html[data-rail='closed'] body.df-ref-shell #root .spz-rail__icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  body.df-ref-shell #root .spz-rail__item--active {
+    background: rgba(235, 197, 103, 0.14) !important;
+    color: var(--ref-gold) !important;
+  }
+}
+
+html body.df-ref-shell #root .df-header-bell {
+  position: relative;
+}
+html body.df-ref-shell #root .df-header-bell:not(.df-header-bell--alert) .df-header-bell__dot {
+  display: none;
+}
+html body.df-ref-shell #root .df-header-bell__dot {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #ef4444;
+}
+html body.df-ref-shell #root .df-lobby-header-actions .df-notif-wrap {
+  display: inline-grid !important;
+  place-items: center;
+}
+html body.df-ref-shell #root .dash-root::before,
+html body.df-ref-shell #root .dash-root::after {
+  background: none !important;
+  content: none !important;
+}
+
+@media (max-width: 767px) {
+  html body.df-ref-shell #root .df-lobby-header-actions .df-notif-wrap {
+    display: none !important;
+  }
+  html body.df-ref-shell #root .dash-nav-auth-logo img {
+    height: 28px !important;
+  }
+  html body.df-ref-shell #root .df-auth-balances {
+    position: static !important;
+    transform: none !important;
+    margin-left: auto !important;
+  }
+  html body.df-ref-shell #root .df-lobby-header-actions {
+    margin-left: 0;
+  }
+}
+@media (max-width: 767px) {
+  html body.df-ref-shell #root .df-auth-balances {
+    order: 3 !important;
+    margin-right: 10px !important;
+  }
+  html body.df-ref-shell #root .df-lobby-header-actions {
+    order: 5 !important;
+  }
+}
+
+/* ---------- burger pinned to the far left; calmer header spacing ---------- */
+html body.df-ref-shell #root .dash-nav-inner,
+html body.df-ref-shell #root .dash-nav-inner--auth {
+  padding-left: 8px !important;
+  gap: 14px;
+}
+html body.df-ref-shell #root .df-rail-burger {
+  order: -1 !important;
+  display: inline-flex !important;
+  margin: 0 4px 0 0;
+  position: relative;
+  z-index: 2;
+}
+@media (max-width: 767px) {
+  html body.df-ref-shell #root .dash-nav-inner,
+  html body.df-ref-shell #root .dash-nav-inner--auth {
+    gap: 8px !important;
+    padding-right: 10px !important;
+  }
+  html body.df-ref-shell #root .dash-nav-auth-logo {
+    order: 0;
+    min-width: 0;
+    flex: 0 1 auto;
+    overflow: hidden;
+  }
+  html body.df-ref-shell #root .dash-nav-auth-logo img {
+    height: 24px !important;
+    max-width: 64px !important;
+    object-fit: contain;
+  }
+  html body.df-ref-shell #root .df-auth-balances {
+    margin-right: 6px !important;
+    min-width: 0;
+  }
+  html body.df-ref-shell #root .df-wallet-hud {
+    gap: 4px;
+    height: 28px;
+    padding: 0 3px 0 4px;
+  }
+  html body.df-ref-shell #root .df-wallet-hud__amount,
+  html body.df-ref-shell #root .df-wallet-hud__amount small {
+    font-size: 12px;
+  }
+  html body.df-ref-shell #root .df-wallet-hud__add {
+    padding: 0 9px !important;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+}
+
+/* ---------- reference header look: tier badge + balance pill + STORE pill ---------- */
+.df-wallet-hud__tier {
+  display: none;
+}
+html body.df-ref-shell #root .df-wallet-hud {
+  height: 38px;
+  padding: 0;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+}
+html body.df-ref-shell #root .df-wallet-hud__tier {
+  display: block;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 2px solid var(--ref-gold);
+  background: #0b0b14;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+html body.df-ref-shell #root .df-wallet-hud__bar {
+  position: relative;
+  min-width: 210px;
+  height: 38px;
+  border: 2px solid var(--ref-gold);
+  border-radius: 999px;
+  background: #0b0b14;
+  box-shadow: inset 0 0 10px rgba(235, 197, 103, 0.22), 0 0 8px rgba(235, 197, 103, 0.18);
+}
+html body.df-ref-shell #root .df-wallet-hud__bar::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  top: 50%;
+  width: 40px;
+  height: 26px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: #f5c431 url('/df-online/sc-coin.webp') left 2px center / 22px 22px no-repeat;
+  pointer-events: none;
+}
+html body.df-ref-shell #root .df-wallet-hud__amount {
+  width: 100%;
+  padding: 0 52px 0 14px !important;
+  gap: 10px;
+  font-size: 17px;
+  letter-spacing: 0.01em;
+}
+html body.df-ref-shell #root .df-wallet-hud__amount small {
+  font-size: 17px;
+}
+html body.df-ref-shell #root .df-wallet-hud__add {
+  height: 38px !important;
+  padding: 0 20px !important;
+  border: 2px solid var(--ref-gold);
+  background: #0b0b14 !important;
+  box-shadow: inset 0 0 10px rgba(235, 197, 103, 0.22), 0 0 8px rgba(235, 197, 103, 0.18);
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+/* logo framed by thin vertical dividers */
+html body.df-ref-shell #root .dash-nav-auth-logo {
+  align-self: stretch;
+  align-items: center;
+  padding: 0 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+@media (max-width: 767px) {
+  html body.df-ref-shell #root .df-wallet-hud__tier {
+    display: none;
+  }
+  html body.df-ref-shell #root .df-wallet-hud,
+  html body.df-ref-shell #root .df-wallet-hud__bar,
+  html body.df-ref-shell #root .df-wallet-hud__add {
+    height: 30px !important;
+  }
+  html body.df-ref-shell #root .df-wallet-hud__bar {
+    min-width: 108px;
+  }
+  html body.df-ref-shell #root .df-wallet-hud__bar::after {
+    width: 30px;
+    height: 20px;
+    background-size: 16px 16px;
+  }
+  html body.df-ref-shell #root .df-wallet-hud__amount {
+    padding: 0 36px 0 10px !important;
+    font-size: 13px;
+  }
+  html body.df-ref-shell #root .df-wallet-hud__amount small {
+    font-size: 13px;
+  }
+  html body.df-ref-shell #root .df-wallet-hud__add {
+    padding: 0 12px !important;
+    font-size: 13px;
+  }
+  html body.df-ref-shell #root .dash-nav-auth-logo {
+    padding: 0 8px;
+  }
+}
+
+/* ---------- pin hamburger + logo to the far left, whatever the rail/layout does ---------- */
+html body.df-ref-shell #root .dash-nav.dash-nav--authenticated {
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  padding: 0 !important;
+  transform: none !important;
+  z-index: 60;
+}
+html body.df-ref-shell #root .dash-nav-inner--auth {
+  justify-content: flex-start !important;
+  margin: 0 !important;
+  padding-left: 0 !important;
+  gap: 0 !important;
+}
+html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger {
+  position: static;
+  order: -2 !important;
+  width: 44px;
+  height: 100%;
+  margin: 0 !important;
+  flex: 0 0 44px;
+}
+html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo {
+  order: -1 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  margin: 0 12px 0 0 !important;
+  padding: 0 12px !important;
+}
+html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo .site-logo--nav,
+html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo img {
+  height: 34px !important;
+  max-height: 34px !important;
+  width: auto !important;
+  max-width: 96px !important;
+  object-fit: contain;
+}
+@media (max-width: 767px) {
+  html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo {
+    margin-right: 6px !important;
+    padding: 0 8px !important;
+  }
+  html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo .site-logo--nav,
+  html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo img {
+    height: 28px !important;
+    max-width: 72px !important;
+  }
+}
+
+/* ---------- polish: burger column lines up with the 52px rail, logo cell snug beside it ---------- */
+html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger {
+  width: 52px;
+  flex: 0 0 52px;
+  height: 100%;
+  border-radius: 0;
+  color: #fff;
+}
+html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo {
+  height: 100%;
+  margin: 0 16px 0 0 !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--ref-line);
+  border-right: 1px solid var(--ref-line);
+}
+html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo .site-logo--nav,
+html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo img {
+  height: 32px !important;
+  max-width: 88px !important;
+}
+@media (max-width: 767px) {
+  html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger {
+    width: 44px;
+    flex-basis: 44px;
+  }
+  html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo {
+    margin-right: 8px !important;
+    padding: 0 10px !important;
+  }
+  html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo .site-logo--nav,
+  html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo img {
+    height: 28px !important;
+    max-width: 64px !important;
+  }
+}
+
+/* ---------- navbar parity with reference: big logo (no divider boxes), plain user icon ---------- */
+html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger {
+  width: 56px;
+  flex: 0 0 56px;
+  color: #fff;
+}
+html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo {
+  margin: 0 !important;
+  padding: 0 10px !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+}
+html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo .site-logo--nav,
+html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo img {
+  height: 50px !important;
+  max-height: 50px !important;
+  max-width: 140px !important;
+  width: auto !important;
+  object-fit: contain;
+}
+html body.df-ref-shell #root .pm-wrap .df-profile-trigger {
+  width: 34px !important;
+  height: 34px !important;
+  color: #fff;
+}
+html body.df-ref-shell #root .pm-wrap .df-profile-trigger svg {
+  width: 26px;
+  height: 26px;
+}
+@media (max-width: 767px) {
+  html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo .site-logo--nav,
+  html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo img {
+    height: 38px !important;
+    max-width: 96px !important;
+  }
+}
+
+/* ---------- guest (logged-out) navbar parity: hamburger hugs the left edge, buttons the right ---------- */
+html body.guest-landing-active .dash-root .dash-nav,
+html body.guest-landing-active .dash-nav {
+  min-height: 60px !important;
+  padding: 8px 24px 8px 12px !important;
+}
+html body.guest-landing-active .dash-nav-inner--guest,
+html body.guest-landing-active .dash-nav-inner--guest-landing {
+  max-width: none !important;
+  margin: 0 !important;
+  width: 100%;
+}
+html body.guest-landing-active .dash-nav-inner--guest button[aria-label="Open menu"] {
+  color: #fff;
+}
+html body.guest-landing-active .dash-nav-inner--guest button[aria-label="Open menu"] svg {
+  width: 26px;
+  height: 20px;
+}
+@media (max-width: 480px) {
+  html body.guest-landing-active #root .dash-nav-inner--guest-landing .dash-btn-login,
+  html body.guest-landing-active #root .dash-nav-inner--guest-landing .dash-btn-signup,
+  html body.guest-landing-active #root .dash-nav-inner--guest .dash-btn-login,
+  html body.guest-landing-active #root .dash-nav-inner--guest .dash-btn-signup {
+    width: auto !important;
+    min-width: 0 !important;
+    height: 38px !important;
+    padding: 0 16px !important;
+    font-size: 0.9rem;
+  }
+  html body.guest-landing-active .dash-nav-inner--guest .dash-nav-auth {
+    gap: 8px;
+  }
+  html body.guest-landing-active .dash-nav { padding-right: 12px !important; }
+}
+
+/* ---------- logged-in navbar (tablet + desktop): one consistent layout at every width >= 768px ---------- */
+@media (min-width: 768px) {
+  html body.df-ref-shell #root .dash-nav-inner--auth .df-lobby-header-actions {
+    display: flex !important;
+    margin-left: auto !important;
+    order: 5 !important;
+    gap: 14px;
+  }
+  html body.df-ref-shell #root .df-lobby-header-actions .df-notif-wrap {
+    display: inline-grid !important;
+    order: 1;
+  }
+  html body.df-ref-shell #root .df-lobby-header-actions .df-profile-trigger-wrap {
+    display: grid !important;
+    order: 2;
+    height: auto !important;
+  }
+  html body.df-ref-shell #root .df-header-bell,
+  html body.df-ref-shell #root .df-lobby-header-actions .df-profile-trigger {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 0 !important;
+    border: 0 !important;
+  }
+  html body.df-ref-shell #root .df-header-bell svg,
+  html body.df-ref-shell #root .df-header-bell img {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  html body.df-ref-shell #root .pm-wrap .df-profile-trigger svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  html body.df-ref-shell #root .df-auth-balances {
+    order: 3 !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    gap: 10px;
+    display: flex;
+    align-items: center;
+  }
+  html body.df-ref-shell #root .df-wallet-hud {
+    height: 40px;
+    gap: 8px;
+    padding: 0 6px 0 8px;
+  }
+  html body.df-ref-shell #root .df-wallet-hud__amount {
+    font: 800 18px 'Outfit', sans-serif;
+    padding: 0 10px !important;
+  }
+  html body.df-ref-shell #root .df-wallet-hud__amount small {
+    font: 800 18px 'Outfit', sans-serif;
+  }
+  html body.df-ref-shell #root .df-wallet-hud__add {
+    min-width: 0 !important;
+    max-width: none !important;
+    width: auto !important;
+    flex: 0 0 auto !important;
+    height: 40px !important;
+    aspect-ratio: auto !important;
+    padding: 0 22px !important;
+    border-radius: 999px !important;
+    border: 2px solid var(--ref-gold) !important;
+    background: #0b0b14 !important;
+    box-shadow: inset 0 0 10px rgba(235, 197, 103, 0.22), 0 0 8px rgba(235, 197, 103, 0.18) !important;
+    font: 800 17px 'Outfit', sans-serif !important;
+    letter-spacing: 0.04em;
+    color: #fff;
+  }
+  html body.df-ref-shell #root .df-wallet-hud__add::before {
+    content: "STORE" !important;
+    width: auto !important;
+    height: auto !important;
+    background: none !important;
+    font: 800 17px 'Outfit', sans-serif !important;
+    letter-spacing: 0.04em;
+    color: #fff !important;
+  }
+}
+@media (min-width: 768px) {
+  html body.df-ref-shell #root .df-wallet-hud__add .df-wallet-hud__add-label {
+    display: none !important;
+  }
+}
+
+/* ---------- placement fix: full-width header row (the 1560px cap pulled the right icons in on wide screens) ---------- */
+html body.df-ref-shell #root .dash-nav .dash-nav-inner--auth {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding-right: 10px !important;
+}
+html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger {
+  width: 70px;
+  flex: 0 0 70px;
+}
+html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo {
+  padding: 0 15px 0 0 !important;
+}
+@media (min-width: 768px) {
+  html body.df-ref-shell #root .dash-nav-inner--auth .df-lobby-header-actions {
+    gap: 8px;
+    margin-right: 0;
+  }
+}
+@media (max-width: 767px) {
+  html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger {
+    width: 48px;
+    flex: 0 0 48px;
+  }
+  html body.df-ref-shell #root .dash-nav-inner--auth .dash-nav-auth-logo {
+    padding: 0 8px 0 0 !important;
+  }
+}
+
+/* ---------- nudge hamburger + logo to the right ---------- */
+html body.df-ref-shell #root .dash-nav .dash-nav-inner--auth {
+  padding-left: 18px !important;
+}
+html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger {
+  width: 78px;
+  flex: 0 0 78px;
+}
+@media (max-width: 767px) {
+  html body.df-ref-shell #root .dash-nav .dash-nav-inner--auth {
+    padding-left: 8px !important;
+  }
+  html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger {
+    width: 52px;
+    flex: 0 0 52px;
+  }
+}
+
+/* ---------- bigger hamburger icon, sitting a bit further left (logo stays put) ---------- */
+html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger {
+  justify-content: flex-start !important;
+  padding: 0 0 0 6px !important;
+}
+html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger svg {
+  width: 30px !important;
+  height: 30px !important;
+}
+@media (max-width: 767px) {
+  html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger {
+    padding-left: 2px !important;
+  }
+  html body.df-ref-shell #root .dash-nav-inner--auth .df-rail-burger svg {
+    width: 26px !important;
+    height: 26px !important;
+  }
+}

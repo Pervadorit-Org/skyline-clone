@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Formik } from 'formik';
-import { DragonFuryAuthOverlay } from './DragonFuryAuthOverlay';
+import { AuthModalShell } from './AuthModalShell';
+import { site } from '../../config/site';
 import { DragonFurySignupForm } from './DragonFurySignupForm';
 import { DragonFurySSOButtons } from './DragonFurySSOButtons';
 import { EmailVerificationModal } from './EmailVerificationModal';
 import { SIGNUP_VALIDATION } from './constants/validation';
-import './auth-dragonfury.css';
-import './auth-df-modal.css';
 
 const SIGNUP_FORM_INITIAL = {
   firstName: '',
@@ -16,7 +15,8 @@ const SIGNUP_FORM_INITIAL = {
   username: '',
   password: '',
   referral: '',
-  terms: false
+  terms: false,
+  ageConfirm: false
 };
 
 export function DragonFurySignupPage({
@@ -42,7 +42,22 @@ export function DragonFurySignupPage({
 
   return (
     <>
-      <DragonFuryAuthOverlay title="Create Your Account" intro="Get started in just a few steps." mode="signup">
+      <AuthModalShell title="Welcome To">
+        <img className="am2-logo" src={site.logoUrl} alt={site.platformName} width={290} height={108} decoding="async" />
+        <div className="am2-tagline">
+          <p>Register Now and collect</p>
+          <p className="am2-coin"><img src="/icons/coin.png" alt="" width={32} height={32} />150,000</p>
+        </div>
+        <div className="am2-sso">
+          <DragonFurySSOButtons
+            onGoogleSuccess={onGoogleSuccess}
+            onFacebookSuccess={onFacebookSuccess}
+            googleAuthOptions={googleAuthOptions}
+            disabled={ssoLoading}
+            googleLabel="Google"
+          />
+        </div>
+        <div className="am2-or"><span>or</span></div>
         <Formik
           initialValues={{ ...SIGNUP_FORM_INITIAL, referral: initialReferral }}
           validationSchema={SIGNUP_VALIDATION}
@@ -56,24 +71,14 @@ export function DragonFurySignupPage({
               isSubmitting={formik.isSubmitting}
               shakeBtn={shakeBtn}
               onEmptySubmit={triggerShake}
-              ssoSlot={
-                <DragonFurySSOButtons
-                  onGoogleSuccess={onGoogleSuccess}
-                  onFacebookSuccess={onFacebookSuccess}
-                  googleAuthOptions={googleAuthOptions}
-                  disabled={ssoLoading}
-                  googleLabel="Continue with Google"
-                />
-              }
-              loginLink={
-                <Link to={`/login${querySuffix}`} className="pj-forgot-lnk">
-                  Already have an account? Sign In
-                </Link>
-              }
             />
           )}
         </Formik>
-      </DragonFuryAuthOverlay>
+        <p className="am2-switch">
+          <span>Already have an account?</span>
+          <Link to={`/login${querySuffix}`}>Login</Link>
+        </p>
+      </AuthModalShell>
 
       <EmailVerificationModal
         open={!!unverifiedEmail}

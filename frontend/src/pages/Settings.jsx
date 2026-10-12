@@ -11,6 +11,7 @@ import * as kycApi from '../api/kyc';
 import * as phoneApi from '../api/phone';
 import { usePageContentReady, usePageReady } from '../context/PageReadyContext';
 import { LockIcon, EnvelopeIcon, CameraIcon, EyeIcon, EyeOffIcon } from '../assets/icons';
+import { openIntercomChat } from '../components/intercomApi';
 import { PaymentAccountSection } from '../components/PaymentAccount/PaymentAccountSection';
 import { KycVerificationModal } from '../components/withdraw/KycVerificationModal';
 import { PhoneNumberField } from '../components/Auth/PhoneNumberField';
@@ -19,10 +20,10 @@ import {
   isPurchaseProfileComplete,
   storeRequiresPhoneVerification
 } from '../utils/purchaseProfile';
-import { ProfilePlayerTiers } from '../components/Vip/ProfilePlayerTiers';
 import { phoneOtpErrorMessage } from '../utils/phoneOtpErrors';
 import '../components/Auth/PhoneNumberField.css';
 import '../components/profile/df-profile.css';
+import './account-page.css';
 
 const inputClass = 'df-profile-input';
 const inputClassError = 'df-profile-input df-profile-input--error';
@@ -234,6 +235,17 @@ const initialProfileValues = (user) => ({
   zipCode: user?.zipCode ?? ''
 });
 
+const tabIcon = (d) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{d}</svg>
+);
+const ACCOUNT_TABS = [
+  { id: 'profile', label: 'Profile', icon: tabIcon(<><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></>) },
+  { id: 'verification', label: 'Verification', icon: tabIcon(<><path d="M20 13c0 5-3.500 7.500-7.660 8.950a1 1 0 0 1-.670-.010C7.500 20.500 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.500-1.200 6.240-2.720a1.170 1.170 0 0 1 1.520 0C14.510 3.810 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></>) },
+  { id: 'security', label: 'Security', icon: tabIcon(<><rect width="18" height="11" x="3" y="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></>) },
+  { id: 'communication', label: 'Communication', icon: tabIcon(<><path d="M10.270 21a2 2 0 0 0 3.460 0" /><path d="M6 8a6 6 0 0 1 12 0c0 4.500 1.400 6 2.740 7.330A1 1 0 0 1 20 17H4a1 1 0 0 1-.740-1.670C4.590 14 6 12.500 6 8" /></>) },
+  { id: 'responsible-gaming', label: 'Responsible gaming', icon: tabIcon(<path d="M19 14c1.500-1.500 3-3.200 3-5.500a5.500 5.500 0 0 0-10-3.200A5.500 5.500 0 0 0 2 8.500c0 2.300 1.500 4 3 5.500l7 7z" />) },
+];
+
 export function Settings() {
   const { user, refreshUser } = useAuth();
   const { vipStatus } = useVipStatus();
@@ -256,6 +268,14 @@ export function Settings() {
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [avatarFailed, setAvatarFailed] = useState(false);
+  const [limitAmounts, setLimitAmounts] = useState({ daily: '', weekly: '', monthly: '' });
+  const [breakMode, setBreakMode] = useState('cooloff');
+  const [breakLength, setBreakLength] = useState('1 day');
+  const [tab, setTab] = useState(() => {
+    const hash = typeof window !== 'undefined' ? window.location.hash.replace('#', '') : '';
+    if (['verification', 'security', 'communication', 'responsible-gaming'].includes(hash)) return hash;
+    return searchParams.get('returnTo') ? 'verification' : 'profile';
+  });
 
   usePageContentReady(!loading);
   const { showLoader } = usePageReady();
@@ -308,6 +328,7 @@ export function Settings() {
   const phoneAlreadyVerified = Boolean(user?.isPhoneVerified);
   const storeRequiresPhoneOtp = storeRequiresPhoneVerification(user);
   const displayName = getDisplayName(user);
+  const profileComplete = Boolean(isPurchaseProfileComplete(user) && user?.firstName && user?.lastName);
   const avatarInitials = getAvatarInitials(user);
   const avatarSrc = user?.profileImageUrl || getDefaultAvatarUrl(user);
 
@@ -421,9 +442,43 @@ export function Settings() {
     [toast]
   );
 
+  const requestSupport = (what) => {
+    toast.info(`${what} is applied by Customer Support. Opening live chat…`);
+    openIntercomChat();
+  };
+  const missingProfile = [
+    ['Date of birth', user?.dateOfBirth],
+    ['Street address', user?.streetAddress],
+    ['City', user?.city],
+    ['State', user?.state],
+    ['ZIP code', user?.zipCode],
+    ['Country', user?.country],
+    ['Verified phone number', user?.isPhoneVerified]
+  ].filter(([, v]) => !v).map(([label]) => label);
+  const kycApproved = Boolean(kyc?.approved);
+  const googleLinked = Boolean(user?.googleId || user?.authProvider === 'google' || user?.provider === 'google');
+
   return (
-    <div className="dash-page dash-settings-page dragonfury-profile-page w-full min-w-0 max-w-full">
+    <div className="dash-page dash-settings-page dragonfury-profile-page acct-page w-full min-w-0 max-w-full">
+      <h1 className="acct-title">My Account</h1>
+      <div className="acct-layout">
+        <nav className="acct-nav" aria-label="Account sections">
+          {ACCOUNT_TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className={`acct-nav-item${tab === t.id ? ' is-active' : ''}`}
+              aria-current={tab === t.id ? 'page' : undefined}
+              onClick={() => setTab(t.id)}
+            >
+              {t.icon}
+              <span>{t.label}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="acct-panel">
       <section className="dragonfury-profile-experience">
+        {tab === 'profile' && (
         <header className="dragonfury-profile-identity" data-tour="profile">
           <div className="dragonfury-profile-avatar-wrap">
             {avatarSrc && !avatarFailed ? (
@@ -442,14 +497,44 @@ export function Settings() {
               <CameraIcon />
             </span>
           </div>
+          <div className="acct-identity-divider" aria-hidden="true" />
           <div className="dragonfury-profile-identity-copy">
-            <p className="dragonfury-profile-kicker">Player Profile</p>
-            <h1 className="dragonfury-profile-name">{displayName}</h1>
-            {user?.email ? <span className="dragonfury-profile-email">{user.email}</span> : null}
+            {user?.userId != null ? <p className="acct-userid">USER ID: {String(user.userId)}</p> : null}
+            <p className="acct-username-label">Username</p>
+            <p className="acct-username">{user?.username || displayName}</p>
           </div>
         </header>
+        )}
 
-        {(!isVerified || kyc || storeRequiresPhoneOtp) && (
+        {tab === 'verification' && (
+          <section className="acct-block">
+            <header className="acct-sec-head">
+              <div className="acct-sec-title">
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17 8c0-2.800-2.200-5-5-5S7 5.200 7 8l-2 .5h14zM3 9h18" /><circle cx="7" cy="16" r="3" /><circle cx="17" cy="16" r="3" /><path d="M10 16h4" /></svg>
+                <h2>Identity</h2>
+              </div>
+              <span className={`acct-badge ${kycApproved ? 'is-ok' : ''}`}>
+                <span className="acct-badge-ic" aria-hidden="true">{kycApproved ? '✓' : 'i'}</span>
+                {kycApproved ? 'Verified' : 'Not verified'}
+              </span>
+            </header>
+            <p className="acct-sec-copy">Verify your identity before your first redemption.</p>
+            {missingProfile.length > 0 ? (
+              <>
+                <p className="acct-lead">Complete these profile details first — we match them against your ID:</p>
+                <ul className="acct-checklist">
+                  {missingProfile.map((label) => (
+                    <li key={label}><span className="acct-warn" aria-hidden="true">!</span>{label}</li>
+                  ))}
+                </ul>
+                <button type="button" className="acct-gold-btn" onClick={() => setTab('profile')}>Complete profile</button>
+              </>
+            ) : (
+              <p className="acct-lead">Your profile details are complete.</p>
+            )}
+          </section>
+        )}
+        {tab === 'verification' && (!isVerified || kyc || storeRequiresPhoneOtp) && (
           <section className="dragonfury-profile-verification-center">
             <header className="dragonfury-profile-section-head">
               <div>
@@ -597,22 +682,29 @@ export function Settings() {
           </section>
         )}
 
-        <ProfilePlayerTiers levels={vipStatus?.levels} />
-
         {/* Profile details */}
+        {tab === 'profile' && (
+        <>
         <section className="dragonfury-profile-form">
-          <header className="dragonfury-profile-section-head">
-            <p className="dragonfury-profile-kicker">Profile Details</p>
-            <h2>Your Information</h2>
-            <p className="dragonfury-profile-section-desc">
-              Keep your details current so deposits and redeems can be processed without delays.
-            </p>
+          <header className="acct-sec-head">
+            <div className="acct-sec-title">
+              <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" aria-hidden="true"><ellipse cx="12" cy="6" rx="6" ry="6" /><path d="M2.650 17.750C3.570 15.030 6.270 13.500 9.140 13.500h5.720c2.870 0 5.570 1.530 6.490 4.250.520 1.550.990 3.380 1.110 5.250.040.550-.410 1-.960 1H2.500c-.550 0-1-.450-.960-1 .120-1.870.590-3.700 1.110-5.250z" /></svg>
+              <h2>Profile</h2>
+            </div>
+            <span className={`acct-badge ${profileComplete ? 'is-ok' : ''}`}>
+              <span className="acct-badge-ic" aria-hidden="true">{profileComplete ? '✓' : 'i'}</span>
+              {profileComplete ? 'Complete' : 'Incomplete'}
+            </span>
           </header>
+          <p className="acct-sec-copy">
+            Your Identity Verification is necessary in order to provide you with all services and functions of the platform.
+          </p>
+          <p className="acct-gold-note">Please ensure the following information is correct and matches your official ID document.</p>
 
           {!isVerified && (
             <div className="dragonfury-profile-notice">
               <LockIcon className="dragonfury-profile-notice-icon" />
-              <span>Email verification is needed for profile update. Verify your email above to enable the Update Profile button.</span>
+              <span>Email verification is needed for profile update. Verify your email in the Verification tab to enable the Update Profile button.</span>
             </div>
           )}
 
@@ -1043,7 +1135,43 @@ export function Settings() {
         </Formik>
         </section>
 
+        <section className="acct-email" id="email">
+          <div className="acct-divider" />
+          <header className="acct-sec-head">
+            <div className="acct-sec-title">
+              <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path fill="currentColor" d="M4 20q-.825 0-1.412-.587T2 18V6q0-.825.588-1.412T4 4h16q.825 0 1.413.588T22 6v12q0 .825-.587 1.413T20 20zm8-7l8-5V6l-8 5l-8-5v2z" /></svg>
+              <h2>Email</h2>
+            </div>
+            <span className={`acct-badge ${isVerified ? 'is-ok' : ''}`}>
+              <span className="acct-badge-ic" aria-hidden="true">{isVerified ? '✓' : 'i'}</span>
+              {isVerified ? 'Verified' : 'Not verified'}
+            </span>
+          </header>
+          <p className="acct-email-box">{user?.email}</p>
+        </section>
+
+        <section className="dragonfury-profile-form df-profile-payment">
+          <header className="dragonfury-profile-section-head">
+            <p className="dragonfury-profile-kicker">Payments</p>
+            <h2>Payment Account</h2>
+            <p className="dragonfury-profile-section-desc">
+              Your payment account is used for deposits and redeems.
+            </p>
+          </header>
+
+          <PaymentAccountSection
+            user={user}
+            refreshUser={refreshUser}
+            toast={toast}
+            returnTo={returnTo}
+          />
+        </section>
+        </>
+        )}
+
         {/* Password – change + reset */}
+        {tab === 'security' && (
+        <>
         <section className="dragonfury-profile-form dragonfury-profile-password">
           <header className="dragonfury-profile-section-head">
             <p className="dragonfury-profile-kicker">Account Access</p>
@@ -1128,23 +1256,113 @@ export function Settings() {
           </div>
         </section>
 
-        <section className="dragonfury-profile-form df-profile-payment">
-          <header className="dragonfury-profile-section-head">
-            <p className="dragonfury-profile-kicker">Payments</p>
-            <h2>Payment Account</h2>
-            <p className="dragonfury-profile-section-desc">
-              Your payment account is used for deposits and redeems.
-            </p>
+        <section className="acct-block acct-block--div">
+          <header className="acct-sec-head">
+            <div className="acct-sec-title">
+              <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.540.540l3-3a5 5 0 0 0-7.070-7.070l-1.720 1.710" /><path d="M14 11a5 5 0 0 0-7.540-.540l-3 3a5 5 0 0 0 7.070 7.070l1.710-1.710" /></svg>
+              <h2>Connected accounts</h2>
+            </div>
           </header>
-
-          <PaymentAccountSection
-            user={user}
-            refreshUser={refreshUser}
-            toast={toast}
-            returnTo={returnTo}
-          />
+          <p className="acct-sec-copy">Sign-in providers linked to this account.</p>
+          <ul className="acct-providers">
+            {[['Google', googleLinked], ['Facebook', false], ['Apple', false]].map(([name, on]) => (
+              <li key={name}>
+                <span>{name}</span>
+                <span className={`acct-pill${on ? ' is-on' : ''}`}>{on ? 'Connected' : 'Not connected'}</span>
+              </li>
+            ))}
+          </ul>
         </section>
+
+        <section className="acct-block acct-block--div">
+          <header className="acct-sec-head">
+            <div className="acct-sec-title">
+              <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" aria-hidden="true"><path d="M17 9V7A5 5 0 0 0 7 7v2H5v13h14V9zm-8-2a3 3 0 0 1 6 0v2H9zm4 11h-2v-4h2z" /></svg>
+              <h2>Delete Account</h2>
+            </div>
+          </header>
+          <p className="acct-sec-copy acct-sec-copy--w">If desired, you can delete your account here.</p>
+          <button type="button" className="acct-danger-btn" onClick={() => requestSupport('Account deletion')}>Delete account</button>
+        </section>
+        </>
+        )}
+
+        {tab === 'communication' && (
+          <section className="acct-block">
+            <header className="acct-sec-head">
+              <div className="acct-sec-title">
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z" /><path d="M11.600 16.800a3 3 0 1 1-5.800-1.600" /></svg>
+                <h2>Marketing</h2>
+              </div>
+            </header>
+            <p className="acct-sec-copy">Promotions and rewards news. Account and security messages are always sent.</p>
+            <ul className="acct-toggles">
+              {[['Email', 'Offers, bonuses and new game announcements by email.'], ['SMS', 'Time-limited offers and reminders by text message.']].map(([name, desc]) => (
+                <li key={name}>
+                  <div>
+                    <p className="acct-toggle-name">{name}</p>
+                    <p className="acct-toggle-desc">{desc}</p>
+                  </div>
+                  <button type="button" role="switch" aria-checked="false" aria-label={`${name} marketing`} className="acct-switch" onClick={() => requestSupport('Marketing preferences')}><span /></button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {tab === 'responsible-gaming' && (
+          <section className="acct-block">
+            <header className="acct-sec-head">
+              <div className="acct-sec-title">
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19.400 14.400C21 12.800 22 11.500 22 9.500a5.500 5.500 0 0 0-9.590-3.680.600.600 0 0 1-.820 0A5.500 5.500 0 0 0 2 9.500c0 2.300 1.500 4 3 5.500l5.540 5.360a2 2 0 0 0 2.880.050 2.120 2.120 0 0 0 0-3 2.120 2.120 0 1 0 3-3 2.120 2.120 0 0 0 3 0 2 2 0 0 0 0-2.830l-1.880-1.880a2.410 2.410 0 0 0-3.400 0l-1.710 1.710a2 2 0 0 1-2.830 0 2 2 0 0 1 0-2.830l2.820-2.760" /></svg>
+                <h2>Responsible gameplay</h2>
+              </div>
+            </header>
+            <p className="acct-sec-copy">Cap what you can spend, or take a break from playing.</p>
+            <div className="acct-limits">
+              {[['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly']].map(([key, label]) => (
+                <div key={key} className="acct-limit">
+                  <h3>{label}</h3>
+                  <p className="acct-limit-state">No limit set.</p>
+                  <div className="acct-limit-form">
+                    <label>
+                      <span>Amount (USD)<b>*</b></span>
+                      <input
+                        inputMode="decimal"
+                        value={limitAmounts[key]}
+                        onChange={(e) => setLimitAmounts((v) => ({ ...v, [key]: e.target.value.replace(/[^0-9.]/g, '') }))}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      className="acct-gold-btn"
+                      disabled={!limitAmounts[key]}
+                      onClick={() => requestSupport(`A ${label.toLowerCase()} limit of $${limitAmounts[key]}`)}
+                    >
+                      Set limit
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="acct-seg" role="tablist">
+              {[['cooloff', 'Cool-off'], ['exclusion', 'Self-exclusion']].map(([id, label]) => (
+                <button key={id} type="button" role="tab" aria-selected={breakMode === id} className={breakMode === id ? 'is-on' : ''} onClick={() => { setBreakMode(id); setBreakLength(id === 'cooloff' ? '1 day' : '6 months'); }}>{label}</button>
+              ))}
+            </div>
+            <div className="acct-chips">
+              {(breakMode === 'cooloff' ? ['1 day', '3 days', '1 week', '2 weeks', '1 month'] : ['6 months', '1 year', '5 years', 'Permanent']).map((len) => (
+                <button key={len} type="button" className={`acct-chip${breakLength === len ? ' is-on' : ''}`} onClick={() => setBreakLength(len)}>{len}</button>
+              ))}
+            </div>
+            <button type="button" className="acct-outline-danger" onClick={() => requestSupport(breakMode === 'cooloff' ? `A ${breakLength} break` : `Self-exclusion (${breakLength})`)}>
+              {breakMode === 'cooloff' ? 'Start break' : 'Start self-exclusion'}
+            </button>
+          </section>
+        )}
       </section>
+        </div>
+      </div>
 
       <KycVerificationModal
         open={kycModalOpen}

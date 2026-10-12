@@ -3,8 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { scrollToGamesSection } from '../../utils/scrollToGames';
 import { useAuth } from '../../context/AuthContext';
 import * as welcomeSignupBonusApi from '../../api/welcomeSignupBonus';
-import { DashboardSidebar } from '../../components/Home/DashboardSidebar';
-import { SpinzyHero } from '../../components/Home/SpinzyHero';
 import '../../styles/spinzy-layout.css';
 import { AppLoader } from '../../components/AppLoader';
 import { HomeV2 } from '../../components/Home/Home2/HomeV2';
@@ -19,8 +17,8 @@ const LandingFooter = lazy(() =>
   import('../../components/LandingFooter').then((m) => ({ default: m.LandingFooter }))
 );
 
-const GamesSection = lazy(() =>
-  import('../../components/Home/GamesSection').then((m) => ({ default: m.GamesSection }))
+const CasinoLobby = lazy(() =>
+  import('../../components/Casino/CasinoLobby').then((m) => ({ default: m.CasinoLobby }))
 );
 
 function GamesLoading() {
@@ -28,7 +26,7 @@ function GamesLoading() {
 }
 
 export function Home() {
-  const { isAuthenticated, loading, user } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const { hash } = useLocation();
   usePageContentReady(true);
   // While the initial auth check is in-flight (e.g. on refresh), `isAuthenticated`
@@ -113,16 +111,7 @@ export function Home() {
         />
       )}
 
-      <div className="dash-layout dash-layout--sided">
-        {!showGuestSections ? (
-          <DashboardSidebar
-            activeView={activeView}
-            onSelectView={setActiveView}
-            hasSlots
-            isAuthenticated={isAuthenticated}
-          />
-        ) : null}
-
+      <div className="dash-layout">
         <div className="dash-main">
           {showGuestSections ? (
             <>
@@ -131,25 +120,12 @@ export function Home() {
             </>
           ) : isAuthenticated ? (
             <>
-              <div className="df-auth-welcome df-auth-welcome--compact">
-                <h1>
-                  <span className="df-welcome-kick">Welcome back</span>
-                  <span className="sr-only">,</span>
-                  {user?.username || user?.firstName ? (
-                    <span className="df-welcome-name">{user.username || user.firstName}</span>
-                  ) : null}
-                </h1>
-                <h2 className="dash-home-h1 sr-only">{site.seoTitle || site.platformName}</h2>
-              </div>
-              <SpinzyHero />
+              <h1 className="dash-home-h1 sr-only">{site.seoTitle || site.platformName}</h1>
+              <Suspense fallback={<GamesLoading />}>
+                <CasinoLobby />
+              </Suspense>
             </>
-          ) : null}
-
-          {!loading && isAuthenticated ? (
-            <Suspense fallback={<GamesLoading />}>
-              <GamesSection />
-            </Suspense>
-          ) : !loading && !isAuthenticated ? null : (
+          ) : (
             <GamesLoading />
           )}
 

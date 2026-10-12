@@ -1,0 +1,821 @@
+/* /casino lobby — scoped under .df-lobby. Theme matches the home page
+   (dark navy surfaces, gold accents). */
+.df-lobby {
+  --lb-bg: #0f0f19;
+  --lb-card: #161b2e;
+  --lb-line: rgba(255, 255, 255, 0.08);
+  --lb-gold: #ebc567;
+  --lb-gold-from: #fce981;
+  --lb-gold-to: #d89829;
+  --lb-green: #4ade80;
+  --lb-tile: clamp(96px, 11vw, 150px);
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 12px 40px;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: var(--lb-bg);
+}
+.df-lobby h2,
+.df-lobby h3,
+.df-lobby h4 {
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+  text-transform: none;
+}
+
+/* ---- buttons ---- */
+.df-lobby__cta,
+.df-lobby__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
+  font: 800 16px 'Outfit', sans-serif;
+  text-transform: uppercase;
+  color: #01113e;
+  background: linear-gradient(135deg, var(--lb-gold-from), var(--lb-gold-to));
+  border-radius: 10px;
+  padding: 0 26px;
+  height: 44px;
+  box-shadow: 0 0 14px rgba(235, 197, 103, 0.35);
+}
+.df-lobby__cta--sm {
+  height: 30px;
+  padding: 0 18px;
+  font-size: 12px;
+  border-radius: 999px;
+}
+.df-lobby__chip {
+  height: 28px;
+  padding: 0 16px;
+  font-size: 12px;
+  border-radius: 999px;
+  box-shadow: none;
+}
+.df-lobby__chip--lg {
+  height: 34px;
+  padding: 0 32px;
+  font-size: 14px;
+}
+
+/* ---- banner carousel ---- */
+.df-lobby__banner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--lb-line);
+}
+.df-lobby__banner-track {
+  display: flex;
+  transition: transform 0.6s ease;
+}
+.df-lobby__banner-slide {
+  position: relative;
+  flex: 0 0 100%;
+  min-height: clamp(150px, 22vw, 280px);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 20px clamp(16px, 5vw, 64px);
+  overflow: hidden;
+}
+.df-lobby__banner-art {
+  position: absolute;
+  left: clamp(0px, 3vw, 48px);
+  bottom: 0;
+  height: 96%;
+  width: auto;
+  max-width: 45%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.5));
+}
+.df-lobby__banner-copy {
+  position: relative;
+  width: min(54%, 520px);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.df-lobby__banner-kicker {
+  margin: 0;
+  font: 800 clamp(16px, 2.4vw, 32px) 'Outfit', sans-serif;
+  color: #fff;
+}
+.df-lobby__banner-title {
+  font-weight: 800;
+  font-size: clamp(24px, 4.2vw, 56px);
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 22px rgba(235, 197, 103, 0.7);
+}
+.df-lobby__banner-body {
+  margin: 0 0 6px;
+  font: 700 clamp(11px, 1.3vw, 16px) 'Montserrat', sans-serif;
+  color: rgba(255, 255, 255, 0.9);
+}
+.df-lobby__dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.df-lobby__dots button {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+}
+.df-lobby__dots button.is-active {
+  width: 22px;
+  background: #fff;
+}
+
+/* ---- promo cards ---- */
+.df-lobby__promos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.df-lobby__promo {
+  position: relative;
+  overflow: hidden;
+  min-height: clamp(96px, 12vw, 150px);
+  border-radius: 12px;
+  border: 1px solid var(--lb-line);
+  display: flex;
+  align-items: center;
+  padding: 14px clamp(12px, 2.5vw, 28px);
+}
+.df-lobby__promo--daily {
+  background: linear-gradient(100deg, #5a3a06, #1b1307 70%);
+}
+.df-lobby__promo--spin {
+  background: linear-gradient(100deg, #23160a, #0c0a12 70%);
+}
+.df-lobby__promo-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.df-lobby__promo-copy h3 {
+  font: 800 clamp(13px, 1.6vw, 20px) 'Outfit', sans-serif;
+  color: var(--lb-gold);
+}
+.df-lobby__promo--spin h3 {
+  color: #fff;
+}
+.df-lobby__promo-sub {
+  margin: 0;
+  font: 700 clamp(11px, 1.2vw, 15px) 'Montserrat', sans-serif;
+  color: var(--lb-gold);
+}
+.df-lobby__promo-note {
+  margin: 0;
+  font: 500 10px 'Montserrat', sans-serif;
+  color: rgba(255, 255, 255, 0.6);
+}
+.df-lobby__promo-art {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 130%;
+  width: auto;
+  max-width: 50%;
+  object-fit: contain;
+  opacity: 0.95;
+}
+
+/* ---- category tabs ---- */
+.df-lobby__tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0;
+  scrollbar-width: none;
+}
+.df-lobby__tabs::-webkit-scrollbar {
+  display: none;
+}
+.df-lobby__tabs-search,
+.df-lobby__tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font: 700 12px 'Montserrat', sans-serif;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+  background: transparent;
+}
+.df-lobby__tabs-search {
+  padding: 0 6px;
+}
+.df-lobby__tab img {
+  object-fit: contain;
+}
+.df-lobby__tab.is-active {
+  color: #01113e;
+  background: linear-gradient(135deg, var(--lb-gold-from), var(--lb-gold-to));
+}
+
+/* ---- section head ---- */
+.df-lobby__section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.df-lobby__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.df-lobby__head h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 700 14px 'Outfit', sans-serif;
+  color: #fff;
+}
+.df-lobby__head-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--lb-green);
+}
+.df-lobby__viewall {
+  font: 600 10px 'Montserrat', sans-serif;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+}
+
+/* ---- scrollers & tiles ---- */
+.df-lobby__scroller {
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.df-lobby__scroller::-webkit-scrollbar {
+  display: none;
+}
+.df-lobby__tile {
+  position: relative;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  overflow: hidden;
+  background: var(--lb-card);
+  border-radius: 8px;
+  aspect-ratio: 1 / 1;
+  transition: transform 0.15s ease;
+}
+.df-lobby__tile:hover {
+  transform: translateY(-2px);
+}
+.df-lobby__tile.is-playing {
+  opacity: 0.6;
+}
+.df-lobby__tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.df-lobby__row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--lb-tile);
+  gap: 8px;
+}
+.df-lobby__grid3 {
+  display: grid;
+  grid-auto-flow: column dense;
+  grid-template-rows: repeat(3, var(--lb-tile));
+  grid-auto-columns: var(--lb-tile);
+  gap: 8px;
+}
+.df-lobby__grid3 .df-lobby__tile--feature {
+  grid-row: span 2;
+  grid-column: span 2;
+}
+.df-lobby__bannerrow {
+  display: grid;
+  grid-template-columns: minmax(120px, 28%) 1fr;
+  gap: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(90deg, #4a3a10, #14110a 60%);
+  border: 1px solid var(--lb-line);
+  padding: 8px;
+}
+.df-lobby__bannerrow-panel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 8px;
+  font: 800 clamp(14px, 2vw, 24px) 'Outfit', sans-serif;
+  color: var(--lb-gold);
+  text-align: center;
+  padding: 8px;
+}
+.df-lobby__bannerrow-panel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.df-lobby__grid2 {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, var(--lb-tile));
+  grid-auto-columns: var(--lb-tile);
+  gap: 8px;
+}
+.df-lobby__top10 {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc(var(--lb-tile) * 1.55);
+  gap: 4px;
+}
+.df-lobby__rank {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+.df-lobby__rank-num {
+  font: 900 calc(var(--lb-tile) * 1.1) / 0.8 'Outfit', sans-serif;
+  color: #0f0f19;
+  -webkit-text-stroke: 3px var(--lb-gold);
+  margin-right: -14px;
+  z-index: 0;
+}
+.df-lobby__rank .df-lobby__tile {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 calc(var(--lb-tile) * 0.8);
+}
+
+/* ---- packages ---- */
+.df-lobby__packages {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(130px, 150px);
+  gap: 8px;
+}
+.df-lobby__pkg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(235, 197, 103, 0.5);
+  background: var(--lb-card);
+  text-decoration: none;
+  color: #fff;
+}
+.df-lobby__pkg-coins {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 800 12px 'Outfit', sans-serif;
+}
+.df-lobby__pkg-badge {
+  position: absolute;
+  top: -8px;
+  right: 8px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font: 800 8px 'Outfit', sans-serif;
+  text-transform: uppercase;
+  background: var(--lb-gold);
+  color: #01113e;
+}
+.df-lobby__pkg-price {
+  width: 100%;
+  text-align: center;
+  padding: 3px 0;
+  border-radius: 6px;
+  font: 800 12px 'Outfit', sans-serif;
+  background: #22a54a;
+}
+
+/* ---- providers ---- */
+.df-lobby__providers-title {
+  text-align: center;
+  font: 700 18px 'Outfit', sans-serif;
+  text-transform: uppercase;
+}
+.df-lobby__providers-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 130px;
+  gap: 8px;
+}
+.df-lobby__provider {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #0b0b12;
+  border: 1px solid var(--lb-line);
+  padding: 6px 10px;
+}
+.df-lobby__provider img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* ---- invite + deals ---- */
+.df-lobby__invite-deals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.df-lobby__invite {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 120px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: linear-gradient(100deg, #9a4a22, #3a1d12);
+}
+.df-lobby__invite > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  position: relative;
+  z-index: 1;
+}
+.df-lobby__invite-kicker {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font: 800 8px 'Outfit', sans-serif;
+  background: var(--lb-gold);
+  color: #01113e;
+}
+.df-lobby__invite h3 {
+  font: 700 12px 'Outfit', sans-serif;
+}
+.df-lobby__invite p {
+  margin: 0;
+  font: 600 10px 'Montserrat', sans-serif;
+}
+.df-lobby__invite strong {
+  font: 800 22px 'Outfit', sans-serif;
+}
+.df-lobby__invite-note {
+  font-size: 8px !important;
+}
+.df-lobby__invite img {
+  height: 120%;
+  width: auto;
+  max-width: 45%;
+  object-fit: contain;
+}
+.df-lobby__deals {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--lb-card);
+  border: 1px solid var(--lb-gold);
+}
+.df-lobby__deals header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.df-lobby__deals h3 {
+  font: 700 12px 'Outfit', sans-serif;
+}
+.df-lobby__deals header a {
+  font: 700 9px 'Montserrat', sans-serif;
+  color: var(--lb-green);
+  text-decoration: none;
+}
+.df-lobby__deal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px;
+  border-radius: 10px;
+  background: linear-gradient(110deg, #1d6fd6, #1ed0d0);
+}
+.df-lobby__deal-amount {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 800 18px 'Outfit', sans-serif;
+}
+.df-lobby__deal-bonus {
+  margin: 4px 0 0;
+  font: 700 9px 'Montserrat', sans-serif;
+}
+.df-lobby__deal-price {
+  padding: 6px 18px;
+  border-radius: 8px;
+  background: #22a54a;
+  color: #fff;
+  text-decoration: none;
+  font: 800 14px 'Outfit', sans-serif;
+}
+
+/* ---- exclusive banner ---- */
+.df-lobby__exclusive {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  min-height: clamp(90px, 12vw, 150px);
+  padding: 12px clamp(16px, 4vw, 40px);
+  border-radius: 12px;
+  background: linear-gradient(100deg, #1a1208, #3a2410 70%);
+  color: #fff;
+  text-decoration: none;
+}
+.df-lobby__exclusive p {
+  margin: 0;
+  font: 800 clamp(14px, 2vw, 24px) / 1.15 'Outfit', sans-serif;
+}
+.df-lobby__exclusive strong {
+  font-size: 1.3em;
+  color: var(--lb-green);
+}
+.df-lobby__exclusive img {
+  position: absolute;
+  right: 4%;
+  bottom: 0;
+  height: 110%;
+  width: auto;
+  object-fit: contain;
+}
+
+/* ---- pick for me ---- */
+.df-lobby__pick {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 36px 12px;
+  border-radius: 12px;
+  background: radial-gradient(circle at 50% 70%, rgba(235, 197, 103, 0.28), transparent 60%), #0b0b12;
+}
+.df-lobby__pick h3 {
+  font: 700 20px 'Outfit', sans-serif;
+}
+.df-lobby__pick p {
+  margin: 0 0 14px;
+  font: 500 11px 'Montserrat', sans-serif;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ---- top winners ---- */
+.df-lobby__winners {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 8px 0;
+}
+.df-lobby__winners h2 {
+  font: 700 clamp(22px, 3vw, 32px) 'Outfit', sans-serif;
+}
+.df-lobby__winners h2 span {
+  color: var(--lb-gold);
+}
+.df-lobby__winners-cols {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.df-lobby__winners h4 {
+  margin-bottom: 8px;
+  font: 600 clamp(13px, 1.6vw, 18px) 'Outfit', sans-serif;
+}
+.df-lobby__winners ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.df-lobby__winner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--lb-card);
+  border: 1px solid rgba(235, 197, 103, 0.5);
+}
+.df-lobby__winner-avatar {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: #0b0b12;
+  font-size: 20px;
+}
+.df-lobby__winner-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.df-lobby__winner-meta b {
+  font: 700 11px 'Montserrat', sans-serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.df-lobby__winner-meta small {
+  font: 700 10px 'Montserrat', sans-serif;
+  color: var(--lb-green);
+}
+.df-lobby__winner-play {
+  font: 700 10px 'Montserrat', sans-serif;
+  color: #fff;
+  text-decoration: none;
+}
+
+.df-lobby__gate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--lb-card);
+  font: 600 13px 'Montserrat', sans-serif;
+}
+.df-lobby__gate p {
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .df-lobby__banner-art {
+    max-width: 38%;
+  }
+  .df-lobby__banner-copy {
+    width: 58%;
+  }
+  .df-lobby__invite-deals,
+  .df-lobby__winners-cols {
+    grid-template-columns: 1fr;
+  }
+  .df-lobby__promos {
+    gap: 8px;
+  }
+}
+
+/* ---- recent big wins ---- */
+.df-lobby__wins {
+  overflow: hidden;
+  border-radius: 10px;
+  background: #0b0b12;
+  padding: 8px 0;
+}
+.df-lobby__wins-track {
+  display: flex;
+  gap: 8px;
+  width: max-content;
+  animation: df-lobby-marquee 45s linear infinite;
+}
+.df-lobby__wins:hover .df-lobby__wins-track {
+  animation-play-state: paused;
+}
+.df-lobby__win {
+  flex: 0 0 auto;
+  width: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.df-lobby__win img {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.df-lobby__win span {
+  font: 600 8px 'Montserrat', sans-serif;
+  color: rgba(255, 255, 255, 0.7);
+}
+@keyframes df-lobby-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .df-lobby__wins-track {
+    animation: none;
+  }
+}
+
+/* ---- featured provider showcase ---- */
+.df-lobby__featured {
+  position: relative;
+  min-height: 34rem;
+  overflow: clip;
+  border-radius: 16px;
+  border: 1px solid var(--lb-line);
+  background: var(--lb-card);
+}
+.df-lobby__featured-bg,
+.df-lobby__featured-fade {
+  position: absolute;
+  inset: 0;
+}
+.df-lobby__featured-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: left top;
+  padding: 24px;
+}
+.df-lobby__featured-fade {
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba(15, 15, 25, 0.95) 0%, rgba(15, 15, 25, 0) 70%);
+}
+.df-lobby__featured-games {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+}
+.df-lobby__featured-scroller {
+  width: 100%;
+  overflow-x: auto;
+  padding: 12px 0;
+  margin: -12px 0;
+  scrollbar-width: none;
+  user-select: none;
+  cursor: grab;
+}
+.df-lobby__featured-scroller::-webkit-scrollbar {
+  display: none;
+}
+.df-lobby__featured-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  grid-auto-columns: clamp(96px, 28vw, 140px);
+  gap: 8px;
+  justify-content: start;
+}
+.df-lobby__featured-tile:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 22px rgba(235, 197, 103, 0.35);
+}
+@media (min-width: 768px) {
+  .df-lobby__featured {
+    min-height: 26rem;
+  }
+  .df-lobby__featured-fade {
+    background: linear-gradient(270deg, rgba(15, 15, 25, 0.9) 0%, rgba(15, 15, 25, 0) 70%);
+  }
+  .df-lobby__featured-games {
+    inset: 0 0 0 auto;
+    width: 60%;
+  }
+}

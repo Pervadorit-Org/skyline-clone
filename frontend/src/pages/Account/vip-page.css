@@ -1,0 +1,140 @@
+/* VIP page — dark gold-dragon design system */
+.vipTier-wrapper{
+ --bg:#0F0F19;--card-a:#161B2E;--card-b:#121421;
+ --card-grad:radial-gradient(84% 80% at 50% 6%,#243B55 0%,#161B2E 62%,#121421 100%);
+ --bar-grad:linear-gradient(#191D35,#0C0E1A);
+ --gold:#EBC567;--gold-b:#FEC602;
+ --btn-grad:linear-gradient(180deg,#F8D36F 0%,#FCEF85 25%,#FFF79C 48%,#E1AD44 75%,#77511A 100%);
+ --prog-grad:linear-gradient(90deg,#E69C21,#EBC567,#FFDF8A);
+ --txt2:#BEBEBE;--muted:#9AA0B5;--on-gold:#4C2C00;--hair:rgba(255,255,255,.08);
+ margin:0 auto;width:100%;min-width:0;max-width:90rem;color:rgba(255,255,255,.95);font-family:Inter,"Montserrat",system-ui,sans-serif;background:var(--bg)}
+.vipTier-wrapper *{box-sizing:border-box}
+.vipTier__wrapper_main{display:flex;flex-direction:column;gap:1.75rem;padding:1.5rem 1rem 4rem}
+.vipTier__hl{color:var(--gold);font-weight:700}
+.vipTier__section{width:100%;max-width:62rem;margin:0 auto;scroll-margin-top:5rem}
+.vipTier__section--narrow{max-width:66rem}.vipTier__section--wide{max-width:72rem}
+
+/* A) hero */
+.vipTier__hero{display:flex;flex-direction:column;align-items:center;gap:1.5rem;max-width:62rem;margin:0 auto;width:100%}
+.vipTier__heroGraphic{position:relative;flex-shrink:0;width:19rem;height:17rem}
+.vipTier__medal{position:absolute;width:42%;height:auto;object-fit:contain;filter:drop-shadow(0 6px 16px rgba(0,0,0,.65))}
+.vipTier__medal--bronze{left:0;top:2%}.vipTier__medal--gold{left:29%;top:0;width:46%}.vipTier__medal--silver{right:0;top:4%}
+.vipTier__medal--platinum{left:0;bottom:2%}.vipTier__medal--emerald{left:29%;bottom:0;width:46%}.vipTier__medal--diamond{right:0;bottom:4%}
+.vipTier__heroContent{text-align:center;min-width:0}
+.vipTier__heroTitle{margin:0 0 .75rem;font-family:Montserrat,sans-serif;font-size:2.5rem;line-height:1.05;font-weight:800;text-transform:uppercase;color:#fff;text-shadow:0 0 24px rgba(255,220,140,.5)}
+.vipTier__heroSubtitle{margin:0 0 1.25rem;max-width:30rem;font-size:1rem;line-height:1.4;color:#fff}
+.vipTier__heroActions{display:flex;gap:.75rem;justify-content:center}
+.vipTier__btn{display:inline-flex;align-items:center;justify-content:center;padding:.5rem 1.5rem;border-radius:1.5rem;font-size:.9rem;font-weight:800;cursor:pointer;text-decoration:none;font-family:inherit;transition:filter .2s,box-shadow .2s,transform .1s}
+.vipTier__btn:active{transform:scale(.98)}
+.vipTier__btn--gold{border:1px solid #FFF3B8;background:var(--btn-grad);color:var(--on-gold);box-shadow:0 0 14px rgba(235,197,103,.35)}
+.vipTier__btn--gold:hover{filter:brightness(1.08);box-shadow:0 0 22px rgba(235,197,103,.6)}
+.vipTier__btn--outline{border:1px solid var(--gold);background:transparent;color:#fff}
+.vipTier__btn--outline:hover{box-shadow:0 0 14px rgba(235,197,103,.35)}
+
+/* B) perks */
+.vipTier__sectionBanner{padding:.6rem;text-align:center;border-radius:1rem 1rem 0 0;background:var(--bar-grad);border:1px solid var(--hair);border-bottom:0}
+.vipTier__sectionBanner h3{margin:0;font-family:Montserrat,sans-serif;font-size:1.05rem;font-weight:700}
+.vipTier__perksContainer{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1rem}
+.vipTier__perkCard{padding:1.25rem 1rem;text-align:center;border:1px solid var(--hair);border-radius:1rem;background:var(--card-grad);box-shadow:inset 0 1px 0 rgba(235,197,103,.06);transition:transform .2s,border-color .2s}
+.vipTier__perkCard:hover{transform:translateY(-2px);border-color:rgba(235,197,103,.6)}
+.vipTier__perkIcon{display:flex;align-items:center;justify-content:center;height:5.6rem;font-size:3.4rem}
+.vipTier__perkTitle{margin:.5rem 0 .4rem;font-family:Montserrat,sans-serif;font-size:1.25rem;font-weight:700;color:#fff}
+.vipTier__perkText{margin:0;font-size:.875rem;line-height:1.45;color:var(--txt2)}
+
+/* C) current rank */
+.vipTier__levelRow{display:flex;flex-direction:column;gap:1.25rem}
+.vipTier__currentCard{position:relative;overflow:hidden;padding:1.5rem;border:1px solid var(--gold);border-radius:1rem;min-height:11rem}
+.vipTier__currentCardBg{position:absolute;inset:0;background:
+ radial-gradient(circle at 85% 30%,rgba(255,200,90,.35) 0 1px,transparent 2px) 0 0/14px 14px,
+ linear-gradient(115deg,transparent 40%,rgba(255,200,90,.22) 48%,transparent 56%),
+ linear-gradient(105deg,transparent 58%,rgba(255,200,90,.12) 64%,transparent 70%),
+ radial-gradient(ellipse at 40% 15%,rgba(255,170,40,.35),transparent 55%),
+ linear-gradient(115deg,#120d05,#3a280d 55%,#0f0b05)}
+.vipTier__currentTop{position:relative;display:flex;align-items:center;gap:1rem}
+.vipTier__currentMedal img{width:6rem;height:6rem;object-fit:contain}
+.vipTier__currentInfo{flex:1}
+.vipTier__currentName{margin:0;font-family:Montserrat,sans-serif;font-size:2.25rem;font-weight:700;color:#fff}
+.vipTier__currentLabel{font-size:.8rem;color:var(--muted)}
+.vipTier__currentBadge img{width:3rem;height:3rem;object-fit:contain}
+.vipTier__progress{position:relative;margin-top:1rem}
+.vipTier__progressTrack{height:.6rem;border-radius:99px;background:#0b0c14;border:1px solid rgba(255,255,255,.06)}
+.vipTier__progressFill{position:relative;height:100%;border-radius:99px;background:var(--prog-grad);animation:vip-fill 1.2s ease-out;box-shadow:0 0 10px rgba(235,197,103,.5)}
+@keyframes vip-fill{from{width:0!important}}
+.vipTier__progressKnob{position:absolute;right:-.55rem;top:50%;width:1.1rem;height:1.1rem;transform:translateY(-50%);border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3b8,#e1ad44);border:2px solid #fff3b8;animation:vip-pulse 2s ease-in-out infinite}
+@keyframes vip-pulse{0%,100%{box-shadow:0 0 0 0 rgba(235,197,103,.6)}50%{box-shadow:0 0 0 6px rgba(235,197,103,0)}}
+.vipTier__progressMeta{display:flex;justify-content:space-between;margin-top:.55rem;font-size:.8rem}
+.vipTier__progressXp b{font-size:.95rem;color:#fff}.vipTier__progressXp--muted{color:var(--muted)}
+.vipTier__progressNext{color:var(--txt2)}.vipTier__progressNext b{color:#fff}
+.vipTier__earnCard{text-align:center}
+.vipTier__earnTitle{margin:0 0 .9rem;font-family:Montserrat,sans-serif;font-size:1rem;font-weight:700;line-height:1.35;color:#fff}
+.vipTier__earnGrid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.vipTier__earnItem{padding:.9rem .6rem;border:1px solid var(--hair);border-radius:1rem;background:var(--card-grad)}
+.vipTier__earnItem img{width:4.6rem;height:4.6rem;object-fit:contain}
+.vipTier__earnItem p{margin:.5rem 0 0;font-size:.75rem;line-height:1.35;color:var(--txt2)}
+
+/* D) tier table */
+.vipTier__tierLevelPanel{overflow:hidden;border:1px solid rgba(235,197,103,.3);border-radius:1rem;background:linear-gradient(180deg,#1b1a22 0,#14172a 14%,#0f1120 100%)}
+.vipTier__tierLevelTitle{margin:0;padding:1rem;text-align:center;font-family:Montserrat,sans-serif;font-size:1.25rem;font-weight:800;color:var(--gold)}
+.vipTier__tableScroll{overflow-x:auto;padding-bottom:.5rem}
+.vipTier__table{width:100%;min-width:46rem;border-collapse:separate;border-spacing:0}
+.vipTier__table th,.vipTier__table td{padding:.6rem .5rem;text-align:center;font-size:.75rem;font-weight:600;border-top:1px solid var(--hair);white-space:nowrap}
+.vipTier__table thead th{border-top:0;vertical-align:bottom;color:var(--muted)}
+.vipTier__table thead th.is-current,.vipTier__table td.is-current{background:rgba(235,197,103,.07);box-shadow:inset 1px 0 rgba(235,197,103,.6),inset -1px 0 rgba(235,197,103,.6)}
+.vipTier__table thead th.is-current{box-shadow:inset 1px 0 var(--gold),inset -1px 0 var(--gold),inset 0 1px var(--gold);border-radius:.5rem .5rem 0 0;color:#fff}
+.vipTier__table tbody tr:nth-child(odd){background:rgba(36,59,85,.14)}
+.vipTier__stickyCol{position:sticky;left:0;z-index:2;min-width:9.5rem;text-align:left!important;background:#14172a;color:#fff;font-weight:700}
+.vipTier__table tbody tr:nth-child(odd) .vipTier__stickyCol{background:#161c30}
+.vipTier__selectorBadgeImg{display:block}
+.vipTier__selectorBadgeImg img{width:3.2rem;height:3.2rem;object-fit:contain;margin:0 auto;filter:drop-shadow(0 0 8px rgba(235,170,60,.4))}
+.vipTier__selectorBadgeName{display:block;margin-top:.2rem;font-size:.65rem;font-weight:700}
+.vipTier__rowIcon{display:inline-block;width:1.2rem;margin-right:.35rem;text-align:center;filter:grayscale(1) brightness(2)}
+.vipTier__rowCoins{display:inline-flex;gap:.25rem;color:var(--gold);font-weight:700}
+.vipTier__rowText{font-weight:700}
+.vipTier__lock{color:#6b7280;display:inline-flex}.vipTier__check{display:inline-flex}
+
+/* E) faq */
+.vipTier__faqTitle{margin:0 0 .75rem;font-family:Montserrat,sans-serif;font-size:1.5rem;font-weight:800}
+.vipTier__faqList{display:flex;flex-direction:column;gap:.5rem}
+.vipTier__faqItem{border:1px solid var(--hair);border-radius:.75rem;background:var(--card-b);overflow:hidden}
+.vipTier__faqItem[open]{border-left:3px solid var(--gold)}
+.vipTier__faqItem summary{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 1rem;font-size:.9rem;font-weight:700;color:var(--gold);cursor:pointer;list-style:none}
+.vipTier__faqItem summary::-webkit-details-marker{display:none}
+.vipTier__faqItem summary::after{content:"";flex-shrink:0;width:.5rem;height:.5rem;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .22s}
+.vipTier__faqItem[open] summary::after{transform:rotate(-135deg);border-color:var(--gold)}
+.vipTier__faqBody{padding:0 1rem 1rem;animation:vip-open .22s ease-out}
+@keyframes vip-open{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.vipTier__faqBody p{margin:0;font-size:.85rem;line-height:1.55;color:var(--txt2);white-space:pre-line}
+
+/* F) exclusive platforms */
+.vipTier__platformsTitle{margin:1rem 0 1.25rem;text-align:center;font-family:Montserrat,sans-serif;font-size:1.75rem;font-weight:800;background:linear-gradient(180deg,#FFF3B0,#F5C542 55%,#C98A12);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+.vipTier__sweepBanner{display:flex;align-items:center;min-height:14rem;padding:2rem;border-radius:1rem;border:1px solid var(--hair);background:radial-gradient(ellipse at 80% 40%,rgba(235,197,103,.18),transparent 55%),radial-gradient(ellipse at center,#2a1f3a 0%,#0d0c14 80%)}
+.vipTier__sweepText{display:flex;flex-direction:column;gap:.25rem}
+.vipTier__sweepSmall{font-size:.85rem;font-weight:700;letter-spacing:.12em;color:#fff}
+.vipTier__sweepBig{font-family:Montserrat,sans-serif;font-size:2.4rem;line-height:1;font-weight:900;background:linear-gradient(180deg,#62EA67,#00780f);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 3px rgba(0,0,0,.7))}
+.vipTier__marquee{overflow:hidden;margin:2.2rem 0 1.5rem;padding-top:1.6rem}
+.vipTier__marqueeTrack{display:flex;gap:1rem;width:max-content;animation:vip-marquee 40s linear infinite}
+.vipTier__marquee:hover .vipTier__marqueeTrack{animation-play-state:paused}
+@keyframes vip-marquee{to{transform:translateX(-50%)}}
+.vipTier__redeem{position:relative;flex:0 0 15rem;padding:2rem 1rem 1rem;text-align:center;border:1px solid var(--hair);border-radius:1rem;background:var(--card-grad)}
+.vipTier__redeemLogo{position:absolute;top:-1.5rem;left:50%;width:3.2rem;height:3.2rem;transform:translateX(-50%);border-radius:.8rem;object-fit:cover}
+.vipTier__redeemMail{margin:0;font-size:.8rem;color:var(--txt2)}
+.vipTier__redeemAmt{margin:.15rem 0 .35rem;font-size:.9rem;font-weight:600}
+.vipTier__redeemName{margin:0;font-family:Montserrat,sans-serif;font-size:1.1rem;font-weight:800;color:var(--gold)}
+.vipTier__platformGrid{display:grid;grid-template-columns:1fr;gap:1rem}
+.vipTier__platformTile{position:relative;display:block;height:15rem;overflow:hidden;border-radius:1rem;background:var(--card-grad);text-decoration:none}
+.vipTier__platformTile img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.vipTier__platformTile:hover img{transform:scale(1.04)}
+.vipTier__signup{position:absolute;left:1rem;right:1rem;bottom:1rem;display:flex;align-items:center;justify-content:center;padding:.5rem;border:3px solid transparent;border-radius:1.5rem;background:linear-gradient(#000,#000) padding-box,linear-gradient(90deg,#F8D36F,#ff7ad9) border-box;color:#fff;font-size:1.5rem;font-weight:800;box-shadow:0 0 8px #983F9F}
+
+@media(min-width:768px){
+ .vipTier__wrapper_main{gap:2.5rem;padding:2rem 1.5rem 5rem}
+ .vipTier__hero{flex-direction:row;justify-content:center;gap:2rem}
+ .vipTier__heroContent{text-align:left}.vipTier__heroActions{justify-content:flex-start}
+ .vipTier__heroGraphic{width:clamp(16rem,40%,24rem);height:auto;aspect-ratio:12/11}
+ .vipTier__heroTitle{font-size:clamp(2.25rem,5.5vw,4rem)}.vipTier__heroSubtitle{font-size:1.25rem}
+ .vipTier__perksContainer{grid-template-columns:repeat(3,1fr)}
+ .vipTier__levelRow{display:grid;grid-template-columns:1.5fr 1fr;align-items:center}
+ .vipTier__platformGrid{grid-template-columns:1fr 1fr}
+ .vipTier__sweepBig{font-size:4rem}.vipTier__sweepBanner{min-height:20rem;padding:3rem}
+ .vipTier__platformsTitle{font-size:2.25rem}
+}

@@ -5,6 +5,7 @@ import { DragonFuryHelpLauncher } from './Home/DragonFuryHelpLauncher';
 import { WebsiteTour } from './WebsiteTour/WebsiteTour';
 import { Navbar } from './Navbar';
 import { SpinzySidebar } from './SpinzySidebar';
+import { TaskListModal } from './Tasks/TaskListModal';
 import '../styles/spinzy-layout.css';
 import '../styles/site-pages.css';
 import '../styles/site-header.css';
@@ -16,6 +17,7 @@ import { useToast } from '../context/ToastContext';
 import '../styles/dashboard-critical.css';
 import '../styles/dashboard-df-online.css';
 import '../styles/club-promo-modals.css';
+import '../styles/ref-shell.css';
 import './Auth/auth-df-modal.css';
 import { loadDashboardStyles, scheduleDashboardStyles } from '../styles/loadDashboardStyles';
 import { warmupDeposit } from '../utils/preloadDeposit';
@@ -151,7 +153,10 @@ export function Layout({ children }) {
     layoutPath === '/bonus';
   // Dashboard-layout pages that don't render their own footer
   const needsLayoutFooter =
-    layoutPath === '/bonus' || layoutPath === '/casino' || layoutPath.startsWith('/casino/');
+    layoutPath === '/bonus' ||
+    layoutPath === '/platform' ||
+    layoutPath === '/casino' ||
+    layoutPath.startsWith('/casino/');
   const isGuestLanding = !authLoading && !isAuthenticated && !isAuthPage;
   const hideGuestBuyWithdraw = !authLoading && !isAuthenticated;
   const isBottomNavOnly =
@@ -187,6 +192,13 @@ export function Layout({ children }) {
     loadDashboardStyles();
     return undefined;
   }, [pathname, isAuthenticated]);
+
+  useEffect(() => {
+    // Slim icon rail + single-row header shell for signed-in players.
+    const on = isAuthenticated && !isAuthPage;
+    document.body.classList.toggle('df-ref-shell', on);
+    return () => document.body.classList.remove('df-ref-shell');
+  }, [isAuthenticated, isAuthPage]);
 
   useEffect(() => {
     if (!isGuestLanding) {
@@ -232,7 +244,8 @@ export function Layout({ children }) {
       ) : null}
       {/* <a href="#main-content" className="skip-link">Skip to main content</a> */}
       <Navbar />
-      {!isGuestLanding ? <SpinzySidebar /> : null}
+      <SpinzySidebar />
+      <TaskListModal />
       <main
         id="main-content"
         tabIndex={-1}

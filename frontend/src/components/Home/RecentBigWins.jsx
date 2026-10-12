@@ -7,7 +7,7 @@ import { createPrefixDeck } from '../../utils/storeWinnerNames';
    Each entry maps to an actual .webp file already in the project.
    Win amounts are realistic-looking values seeded per game.
 ────────────────────────────────────────────────────────────────────────────── */
-const BIG_WIN_ENTRIES = [
+export const BIG_WIN_ENTRIES = [
   { id: 'mw1',  name: 'Milky Way',     image: '/optimized/games/milkyway.webp',      amount: '243' },
   { id: 'os1',  name: 'Orion Stars',   image: '/optimized/games/orionstars.webp',    amount: '472' },
   { id: 'pm1',  name: 'Panda Master',  image: '/optimized/games/pandamaster.webp',   amount: '136' },

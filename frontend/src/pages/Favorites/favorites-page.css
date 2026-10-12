@@ -1,0 +1,16 @@
+.fav-page{flex:1;color:#fff;font-family:"Montserrat",system-ui,sans-serif}
+.fav-section{margin:0 auto;max-width:72rem;padding:2.5rem 1rem}
+.fav-title{margin:0 0 1.5rem;text-align:center;font-size:1.5rem;font-weight:700;text-transform:uppercase;background:linear-gradient(180deg,#fff3b0,#f5b52b 60%,#c98a12);-webkit-background-clip:text;background-clip:text;color:transparent}
+.fav-search{position:relative;margin-bottom:1.5rem;max-width:28rem}
+.fav-search svg{position:absolute;top:50%;left:.75rem;transform:translateY(-50%);width:1rem;height:1rem;color:rgba(255,255,255,.5);pointer-events:none}
+.fav-search input{width:100%;padding:.5rem 2.5rem .5rem 2.25rem;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.05);color:#fff;font-size:.875rem;outline:none;font-family:inherit}
+.fav-search input::placeholder{color:rgba(255,255,255,.5)}
+.fav-search input:focus{border-color:rgba(245,197,66,.4)}
+.fav-empty{padding:3rem 0;text-align:center;font-size:.875rem;color:rgba(255,255,255,.6);margin:0}
+.fav-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem}
+.fav-card{position:relative}
+.fav-card-btn{display:flex;flex-direction:column;align-items:center;gap:.4rem;width:100%;padding:.5rem;border:1px solid rgba(255,255,255,.1);border-radius:.9rem;background:rgba(255,255,255,.04);color:#fff;font-size:.75rem;font-weight:600;text-align:center;text-decoration:none;cursor:pointer;font-family:inherit}
+.fav-card-btn:hover{border-color:rgba(245,197,66,.5)}
+.fav-card-btn img,.fav-card-img{width:100%;aspect-ratio:1;border-radius:.7rem;object-fit:cover}
+@media(min-width:640px){.fav-title{font-size:1.875rem}.fav-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1024px){.fav-title{font-size:2.25rem}.fav-grid{grid-template-columns:repeat(5,1fr)}}

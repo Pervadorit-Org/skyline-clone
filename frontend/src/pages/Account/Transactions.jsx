@@ -1,16 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import * as transactionsApi from '../../api/transactions';
-import * as gamesApi from '../../api/games';
 import { usePageContentReady } from '../../context/PageReadyContext';
 import { formatSc } from '../../utils/currency';
-import { getGameDisplayName } from '../../utils/gameDisplay';
-import { ArrowUpIcon, ArrowDownIcon, DollarIcon } from '../../assets/icons';
-import '../../components/transactions/df-transactions.css';
+import './transactions-page.css';
 
-const PAGE_SIZES = [10, 20, 50];
 const DEFAULT_LIMIT = 20;
 
 function formatDate(d) {
@@ -71,372 +65,180 @@ function toneForType(type) {
   return 'out';
 }
 
-function TransactionTypeCell({ type }) {
-  const label = typeLabel(type);
-  const tone = toneForType(type);
-  const showArrowUp = ['deposit', 'game_withdraw', 'admin_add'].includes(type);
-  const showArrowDown = ['withdraw', 'game_deposit', 'admin_remove', 'admin_deduct'].includes(type);
-  const isBonus = tone === 'bonus';
-
+function CoinAmount({ icon, value }) {
+  if (value == null || value === '') return <span className="tx-dash">-</span>;
   return (
-    <span className={`df-tx-type-pill df-tx-type-pill--${tone}`}>
-      {showArrowUp ? <ArrowUpIcon className="shrink-0 w-3.5 h-3.5" /> : null}
-      {showArrowDown ? <ArrowDownIcon className="shrink-0 w-3.5 h-3.5" /> : null}
-      {isBonus ? <DollarIcon className="shrink-0 w-3.5 h-3.5" /> : null}
-      {label}
+    <span className="tx-coin">
+      <img src={icon} alt="" aria-hidden="true" width="24" height="24" loading="lazy" />
+      {value}
     </span>
   );
 }
 
-function WalletAmount({ type, amount }) {
-  const tone = toneForType(type);
-  const walletGains = tone === 'in' || tone === 'bonus';
-  const value = Math.abs(Number(amount));
-  const sign = walletGains ? '+' : '-';
+function gcValue(tx) {
+  const raw = tx.gc_amount ?? tx.gcAmount ?? tx.gold_amount ?? tx.goldCoins ?? tx.gc;
+  if (raw == null || raw === '') return null;
+  return Math.abs(Number(raw)).toLocaleString('en-US');
+}
+
+function scValue(tx) {
+  if (tx.amount == null || tx.amount === '') return null;
+  return formatSc(Math.abs(Number(tx.amount)));
+}
+
+function TxId({ id }) {
+  if (!id) return <span className="tx-dash">-</span>;
+  const text = String(id);
   return (
-    <strong className={`df-tx-amount--${tone}`}>
-      {sign}
-      {formatSc(value)}
-    </strong>
+    <span className="tx-id" title={text}>
+      {text.length > 16 ? `${text.slice(0, 16)}...` : text}
+    </span>
   );
 }
 
-function MarkForType({ type }) {
-  const tone = toneForType(type);
-  if (tone === 'bonus') return <div className="df-tx-row__mark df-tx-row__mark--bonus" aria-hidden>$</div>;
-  if (tone === 'out') return <div className="df-tx-row__mark df-tx-row__mark--out" aria-hidden>↓</div>;
-  return <div className="df-tx-row__mark" aria-hidden>↑</div>;
+function actionLabel(type) {
+  return toneForType(type) === 'out' ? 'Debit' : 'Credit';
 }
 
 export function AccountTransactions() {
   const { toast } = useToast();
-  const [data, setData] = useState({ transactions: [], total: 0, page: 1, limit: DEFAULT_LIMIT, total_pages: 0 });
+  const [data, setData] = useState({ transactions: [], total: 0, page: 1, limit: DEFAULT_LIMIT, total_pages: 1 });
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    dateFrom: '',
-    dateTo: '',
-    category: '',
-    gameName: ''
-  });
+  const [filters, setFilters] = useState({ dateFrom: '', dateTo: '', category: '' });
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(DEFAULT_LIMIT);
-  const [registeredGames, setRegisteredGames] = useState([]);
 
   usePageContentReady(!loading);
 
-  useEffect(() => {
-    let cancelled = false;
-    gamesApi
-      .listGames()
-      .then((list) => {
-        if (cancelled) return;
-        const games = list.games || list || [];
-        const registered = games.filter((g) => g.has_account && g.account_status === 'approved');
-        setRegisteredGames(registered);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const fetchTransactions = useCallback(
-    async (pageNum, limitNum, filterOverrides = {}) => {
-      setLoading(true);
-      try {
-        const params = {
-          page: pageNum,
-          limit: limitNum,
-          ...filters,
-          ...filterOverrides
-        };
-        if (!params.dateFrom) delete params.dateFrom;
-        if (!params.dateTo) delete params.dateTo;
-        if (!params.category) delete params.category;
-        if (!params.gameName) delete params.gameName;
-        const res = await transactionsApi.getTransactions(params);
-        const total = res.total ?? 0;
-        const totalPages = Math.max(1, res.total_pages ?? Math.ceil(total / (res.limit ?? limitNum)));
-        setData({
-          transactions: res.transactions || [],
-          total,
-          page: res.page ?? pageNum,
-          limit: res.limit ?? limitNum,
-          total_pages: totalPages
-        });
-      } catch (err) {
-        toast.error(err.message || 'Failed to load transactions.');
-        setData((prev) => ({ ...prev, transactions: [] }));
-      } finally {
-        setLoading(false);
-      }
-    },
-    [filters, toast]
-  );
+  const fetchTransactions = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = { page, limit: DEFAULT_LIMIT };
+      if (filters.dateFrom) params.dateFrom = filters.dateFrom;
+      if (filters.dateTo) params.dateTo = filters.dateTo;
+      if (filters.category) params.category = filters.category;
+      const res = await transactionsApi.getTransactions(params);
+      const total = res.total ?? 0;
+      setData({
+        transactions: res.transactions || [],
+        total,
+        page: res.page ?? page,
+        limit: res.limit ?? DEFAULT_LIMIT,
+        total_pages: Math.max(1, res.total_pages ?? Math.ceil(total / (res.limit ?? DEFAULT_LIMIT)))
+      });
+    } catch (err) {
+      toast.error(err.message || 'Failed to load transactions.');
+      setData((prev) => ({ ...prev, transactions: [] }));
+    } finally {
+      setLoading(false);
+    }
+  }, [page, filters, toast]);
 
   useEffect(() => {
-    fetchTransactions(page, limit);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only refetch when page/limit change, not when filters change
-  }, [page, limit]);
+    fetchTransactions();
+  }, [fetchTransactions]);
 
-  function handleApplyFilters() {
+  const setFilter = (key, value) => {
     setPage(1);
-    fetchTransactions(1, limit, filters);
-  }
+    setFilters((f) => ({ ...f, [key]: value }));
+  };
 
-  function handleClearFilters() {
-    setFilters({ dateFrom: '', dateTo: '', category: '', gameName: '' });
-    setPage(1);
-    fetchTransactions(1, limit, { dateFrom: '', dateTo: '', category: '', gameName: '' });
-  }
-
-  function handleRefresh() {
-    fetchTransactions(page, limit);
-  }
-
-  function goToPage(nextPage) {
-    const p = Math.max(1, Math.min(data.total_pages || 1, nextPage));
-    setPage(p);
-  }
-
-  const { transactions, total, total_pages } = data;
-  const hasFilters = filters.dateFrom || filters.dateTo || filters.category || filters.gameName;
+  const { transactions, total_pages } = data;
 
   return (
-    <div className="dash-page dash-tx-page df-tx-page w-full min-w-0">
-      <header className="df-tx-hero">
-        <div className="df-tx-hero-copy">
-          <p className="df-tx-kicker">Wallet activity</p>
-          <h1 className="df-tx-title">Transaction history</h1>
-          <p className="df-tx-sub">
-            Track deposits, withdrawals, bonuses, VIP rewards, game moves, and payouts — filter by date,
-            category, or game.
-          </p>
-        </div>
-        <button type="button" className="df-tx-refresh" onClick={handleRefresh} disabled={loading}>
-          {loading ? 'Refreshing…' : 'Refresh'}
-        </button>
-      </header>
+    <main className="tx-page">
+      <h1 className="tx-title">Transactions</h1>
 
-      <section className="df-tx-card" aria-label="Filters">
-        <div className="df-tx-card-head">
-          <div>
-            <h2 className="df-tx-card-title">Filters</h2>
-            <p className="df-tx-card-desc">Narrow your ledger by date, category, or game.</p>
-          </div>
-        </div>
-        <div className="df-tx-filters-grid">
-          <label className="df-tx-field">
-            <span className="df-tx-field-label">From date</span>
-            <input
-              type="date"
-              value={filters.dateFrom}
-              onChange={(e) => setFilters((f) => ({ ...f, dateFrom: e.target.value }))}
-              className="df-tx-input"
-            />
+      <div className="tx-card">
+        <div className="tx-filters">
+          <label className="tx-field">
+            <span>Activity Type</span>
+            <span className="tx-select-wrap">
+              <select value={filters.category} onChange={(e) => setFilter('category', e.target.value)}>
+                {transactionsApi.TRANSACTION_CATEGORIES.map((opt) => (
+                  <option key={opt.value || 'all'} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            </span>
           </label>
-          <label className="df-tx-field">
-            <span className="df-tx-field-label">To date</span>
-            <input
-              type="date"
-              value={filters.dateTo}
-              onChange={(e) => setFilters((f) => ({ ...f, dateTo: e.target.value }))}
-              className="df-tx-input"
-            />
+          <label className="tx-field">
+            <span>From Date</span>
+            <input type="date" value={filters.dateFrom} max={filters.dateTo || undefined} onChange={(e) => setFilter('dateFrom', e.target.value)} />
           </label>
-          <label className="df-tx-field">
-            <span className="df-tx-field-label">Category</span>
-            <select
-              value={filters.category}
-              onChange={(e) => setFilters((f) => ({ ...f, category: e.target.value }))}
-              className="df-tx-select"
-            >
-              {transactionsApi.TRANSACTION_CATEGORIES.map((opt) => (
-                <option key={opt.value || 'all'} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+          <label className="tx-field">
+            <span>To Date</span>
+            <input type="date" value={filters.dateTo} min={filters.dateFrom || undefined} onChange={(e) => setFilter('dateTo', e.target.value)} />
           </label>
-          <label className="df-tx-field">
-            <span className="df-tx-field-label">Game</span>
-            <select
-              value={filters.gameName}
-              onChange={(e) => setFilters((f) => ({ ...f, gameName: e.target.value }))}
-              className="df-tx-select"
-            >
-              <option value="">All games</option>
-              {registeredGames.map((g) => (
-                <option key={g.id} value={g.name}>
-                  {getGameDisplayName(g.name)}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <div className="df-tx-actions">
-          <button type="button" onClick={handleApplyFilters} className="df-tx-btn-primary">
-            Apply filters
-          </button>
-          {hasFilters ? (
-            <button type="button" onClick={handleClearFilters} className="df-tx-btn-ghost">
-              Clear
-            </button>
-          ) : null}
-        </div>
-      </section>
-
-      <section className="df-tx-card" aria-label="Transaction history">
-        <div className="df-tx-card-head">
-          <div>
-            <h2 className="df-tx-card-title">Ledger</h2>
-            <p className="df-tx-card-desc">Date, type, description, game, and SC amount</p>
-          </div>
-          <div className="df-tx-limit">
-            <span>Show</span>
-            <select
-              value={limit}
-              onChange={(e) => {
-                const newLimit = Number(e.target.value);
-                setLimit(newLimit);
-                setPage(1);
-              }}
-              className="df-tx-limit-select"
-              aria-label="Transactions per page"
-            >
-              {PAGE_SIZES.map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-            <span>per page</span>
-          </div>
         </div>
 
         {loading ? (
-          <div className="df-tx-loading">Loading transactions…</div>
+          <p className="tx-empty">Loading transactions…</p>
         ) : transactions.length === 0 ? (
-          <div className="df-tx-empty">
-            <p>No transactions found.</p>
-            <small>Try adjusting filters or make your first move.</small>
-            <Link to="/deposit" className="df-tx-btn-primary">
-              Go to Deposit
-            </Link>
-          </div>
+          <p className="tx-empty">No transactions found.</p>
         ) : (
           <>
-            <div className="df-tx-list df-tx-list--mobile">
-              {transactions.map((tx, i) => (
-                <motion.article
-                  key={tx.id}
-                  className="df-tx-row"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03, duration: 0.28 }}
-                >
-                  <MarkForType type={tx.type} />
-                  <div className="df-tx-row__details">
-                    <strong>{typeLabel(tx.type)}</strong>
-                    <span>{formatDate(getTransactionDate(tx))}</span>
-                    <small>
-                      {[tx.description, tx.game_name ? getGameDisplayName(tx.game_name) : null]
-                        .filter(Boolean)
-                        .join(' · ') || '—'}
-                    </small>
-                  </div>
-                  <div className="df-tx-row__amount">
-                    <WalletAmount type={tx.type} amount={tx.amount} />
-                    <span>SC</span>
-                    <em className={`df-tx-type-pill df-tx-type-pill--${toneForType(tx.type)}`}>
-                      {typeLabel(tx.type)}
-                    </em>
-                  </div>
-                </motion.article>
-              ))}
-            </div>
-
-            <div className="df-tx-table-wrap">
-              <table className="df-tx-table">
+            <div className="tx-table-wrap">
+              <table className="tx-table">
                 <thead>
                   <tr>
                     <th>Date</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                    <th>Game</th>
-                    <th className="text-right">Amount (SC)</th>
+                    <th>Reason</th>
+                    <th>Action Type</th>
+                    <th>GC</th>
+                    <th>SC</th>
+                    <th>TX ID</th>
+                    <th>Status</th>
+                    <th>Details</th>
                   </tr>
                 </thead>
                 <tbody>
                   {transactions.map((tx) => (
                     <tr key={tx.id}>
-                      <td>{formatDate(getTransactionDate(tx))}</td>
-                      <td>
-                        <TransactionTypeCell type={tx.type} />
-                      </td>
-                      <td>{tx.description || '—'}</td>
-                      <td>{tx.game_name ? getGameDisplayName(tx.game_name) : '—'}</td>
-                      <td className="text-right">
-                        <WalletAmount type={tx.type} amount={tx.amount} />
-                      </td>
+                      <td><time className="tx-muted">{formatDate(getTransactionDate(tx))}</time></td>
+                      <td><span className="tx-reason">{typeLabel(tx.type)}</span></td>
+                      <td><span className={actionLabel(tx.type) === 'Credit' ? 'tx-credit' : 'tx-debit'}>{actionLabel(tx.type)}</span></td>
+                      <td><CoinAmount icon="/icons/coin.png" value={gcValue(tx)} /></td>
+                      <td><CoinAmount icon="/df-online/sc-coin.webp" value={scValue(tx)} /></td>
+                      <td><TxId id={tx.id} /></td>
+                      <td><span className="tx-muted">{tx.status || '-'}</span></td>
+                      <td><span className="tx-muted">{tx.description || '-'}</span></td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            {(total > 0 || data.transactions.length > 0) && (
-              <div className="df-tx-pager">
-                <p className="df-tx-pager-info">
-                  Showing {total === 0 ? 0 : (data.page - 1) * data.limit + 1}–
-                  {total === 0 ? 0 : Math.min(data.page * data.limit, total)} of {total}
-                </p>
-                <div className="df-tx-pager-actions">
-                  <button
-                    type="button"
-                    onClick={() => goToPage(1)}
-                    disabled={data.page <= 1}
-                    className="df-tx-pager-btn"
-                    aria-label="First page"
-                  >
-                    First
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => goToPage(data.page - 1)}
-                    disabled={data.page <= 1}
-                    className="df-tx-pager-btn"
-                    aria-label="Previous page"
-                  >
-                    Previous
-                  </button>
-                  <span className="df-tx-pager-page">
-                    Page {data.page} of {total_pages}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => goToPage(data.page + 1)}
-                    disabled={data.page >= total_pages}
-                    className="df-tx-pager-btn"
-                    aria-label="Next page"
-                  >
-                    Next
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => goToPage(total_pages)}
-                    disabled={data.page >= total_pages}
-                    className="df-tx-pager-btn"
-                    aria-label="Last page"
-                  >
-                    Last
-                  </button>
+            <div className="tx-cards">
+              {transactions.map((tx) => (
+                <div key={tx.id} className="tx-mcard">
+                  <div className="tx-mcard-l">
+                    <span className="tx-reason tx-mcard-title">{typeLabel(tx.type)}</span>
+                    <span className="tx-muted tx-trunc">TXN: {tx.id}</span>
+                    <time className="tx-muted">{formatDate(getTransactionDate(tx))}</time>
+                    <span className={actionLabel(tx.type) === 'Credit' ? 'tx-credit' : 'tx-debit'}>{actionLabel(tx.type)}</span>
+                  </div>
+                  <div className="tx-mcard-r">
+                    <CoinAmount icon="/df-online/sc-coin.webp" value={scValue(tx)} />
+                    <CoinAmount icon="/icons/coin.png" value={gcValue(tx)} />
+                  </div>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
           </>
         )}
-      </section>
-    </div>
+
+        <div className="tx-pager">
+          <button type="button" aria-label="Previous page" disabled={page <= 1 || loading} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+          </button>
+          <span>Page {page}</span>
+          <button type="button" aria-label="Next page" disabled={page >= total_pages || loading} onClick={() => setPage((p) => p + 1)}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+          </button>
+        </div>
+      </div>
+    </main>
   );
 }

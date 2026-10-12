@@ -195,3 +195,8 @@ export function shouldMixHomeCasinoCategories({
       (categories?.length || 0) > 0
   );
 }
+
+/** Store-agnostic variant used by the /casino lobby page. */
+export function useCasinoLobbyCategories({ enabled = false } = {}) {
+  return useHomeCasinoCategories({ enabled, allowed: true });
+}

@@ -7,6 +7,7 @@ import { PhoneVerifyGateModal } from './Auth/PhoneVerifyGateModal';
 import { DfWalletHud } from './DfWalletHud';
 import { DfQuickMenu } from './DfQuickMenu';
 import { DfProfilePopup } from './DfProfilePopup';
+import { ProfileMenu } from './ProfileMenu';
 import * as notificationsApi from '../api/notifications';
 import { OPEN_MOBILE_MENU_EVENT } from '../utils/navEvents';
 import { AUTH_LOBBY_LINKS } from '../constants/authLobbyLinks';
@@ -284,6 +285,16 @@ export function Navbar() {
       >
         {isAuthenticated ? (
           <>
+            <button
+              type="button"
+              className="df-rail-burger"
+              aria-label="Toggle sidebar"
+              onClick={() => window.dispatchEvent(new CustomEvent('df-rail-toggle'))}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             <Link to="/" className="dash-logo dash-nav-auth-logo min-w-0" aria-label="Go to lobby">
               <SiteLogo variant="nav" />
             </Link>
@@ -314,26 +325,7 @@ export function Navbar() {
             <DesktopAuthNav pathname={location.pathname} />
 
             <div className="dash-nav-end df-lobby-header-actions">
-              <div className="relative df-profile-trigger-wrap">
-                <button
-                  type="button"
-                  onClick={() => setProfileOpen((o) => !o)}
-                  className="df-profile-trigger"
-                  aria-expanded={profileOpen}
-                  aria-haspopup="dialog"
-                  aria-label="Open profile picture and account"
-                >
-                  <img
-                    src={user?.profileImageUrl || '/df-online/tier-hatchling.webp'}
-                    alt=""
-                    width={44}
-                    height={44}
-                    onError={(e) => {
-                      e.currentTarget.src = '/df-online/tier-hatchling.webp';
-                    }}
-                  />
-                </button>
-              </div>
+              <ProfileMenu user={user} onLogout={handleLogout} />
 
               <button
                 type="button"
@@ -358,6 +350,9 @@ export function Navbar() {
                     unreadCount > 0 ? `${unreadCount} unread notifications` : 'Open notifications'
                   }
                 >
+                  <svg className="df-header-bell__icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 22a2.5 2.5 0 0 0 2.4-1.8h-4.8A2.5 2.5 0 0 0 12 22Zm7-6.5V11a7 7 0 0 0-5.5-6.8V3.5a1.5 1.5 0 0 0-3 0v.7A7 7 0 0 0 5 11v4.5L3.5 17v1h17v-1L19 15.5Z" />
+                  </svg>
                   <span className="df-header-bell__dot" aria-hidden />
                 </button>
                 {notifOpen && (
@@ -442,20 +437,13 @@ export function Navbar() {
               <button
                 type="button"
                 className="df-guest-menu-btn"
-                aria-label={guestMenuOpen ? 'Close menu' : 'Open menu'}
-                aria-haspopup="menu"
-                aria-expanded={guestMenuOpen}
-                onClick={() => setGuestMenuOpen((o) => !o)}
+                aria-label="Open menu"
+                onClick={() => window.dispatchEvent(new CustomEvent('df-rail-toggle'))}
               >
                 <svg width="22" height="18" viewBox="0 0 22 18" fill="none" aria-hidden="true">
                   <path d="M1 1h20M1 9h20M1 17h20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               </button>
-              {guestMenuOpen ? (
-                <div className="dash-dropdown df-guest-menu-panel" role="menu">
-                  <HeaderPageLinks pathname={location.pathname} />
-                </div>
-              ) : null}
             </div>
             <div className="dash-nav-actions">
               {/* Tutorial hidden

@@ -1,103 +1,252 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
-import * as promotionsApi from '../../api/promotions';
-import { PromotionCard } from '../../components/Promotions/PromotionCard';
-import { PromotionsHero, PromotionsQuestStrip } from '../../components/Promotions/PromotionsHero';
 import { usePageContentReady } from '../../context/PageReadyContext';
-import '../../components/Promotions/df-promotions.css';
+import { getAffiliateStats } from '../../api/affiliate';
+import { buildReferralLink } from '../../utils/referralLink';
+import './promotions-page.css';
+
+const GOLD_COIN = '/icons/coin.png';
+const SWEEP_COIN = '/df-online/sc-coin.webp';
+const DRAGON = '/df-online/dragons/tier-hatchling.webp';
+
+function formatTimeLeft(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  return `${h}h ${m}m ${s}s`;
+}
+
+function CtaLink({ to, children }) {
+  return (
+    <Link to={to} className="promotion-card-cta gold-gradient">
+      {children}
+    </Link>
+  );
+}
+
+function CtaButton({ onClick, children }) {
+  return (
+    <button type="button" onClick={onClick} className="promotion-card-cta gold-gradient">
+      {children}
+    </button>
+  );
+}
+
+function Coins({ gold, sweep }) {
+  return (
+    <div className="promotion-card-coins">
+      <div className="promo-flex">
+        <img src={GOLD_COIN} alt="" aria-hidden="true" className="promotion-card-coin-icon" />
+        <span className="promotion-card-coin-amount">{gold}</span>
+      </div>
+      <div className="promo-flex">
+        <img src={SWEEP_COIN} alt="" aria-hidden="true" className="promotion-card-coin-icon" />
+        <div className="promo-flex promo-gap">
+          <span className="promotion-card-coin-amount">{sweep}</span>
+          <div className="promotion-card-coin-label">
+            <p>Free</p>
+            <p>Sweep Coins</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Badge({ children, plain }) {
+  return (
+    <h3 className={`promotion-card-badge${plain ? ' promotion-card-badge-plain' : ''}`}>
+      {children}
+    </h3>
+  );
+}
 
 export function Promotions() {
   const { toast } = useToast();
-  const [promotions, setPromotions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [countdownSeconds, setCountdownSeconds] = useState(null);
+  const [referralLink, setReferralLink] = useState('');
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const now = new Date();
+    const end = new Date(now);
+    end.setHours(24, 0, 0, 0);
+    return end - now;
+  });
 
-  usePageContentReady(!loading);
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const res = await promotionsApi.getPromotions();
-        const list = res.promotions ?? [];
-        setPromotions(Array.isArray(list) ? list : []);
-      } catch (e) {
-        toast.error(e.message || 'Unable to load promotions. Please try again later.');
-        setPromotions([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [toast]);
-
-  const firstPromoWithEnd = promotions.find((p) => p.end_date);
-  const firstPromotion = promotions[0];
+  usePageContentReady(true);
 
   useEffect(() => {
-    if (!firstPromoWithEnd?.end_date) {
-      setCountdownSeconds(null);
+    let cancelled = false;
+    getAffiliateStats()
+      .then((stats) => {
+        if (!cancelled) setReferralLink(stats?.referral_link || buildReferralLink(stats?.referral_code));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      const now = new Date();
+      const end = new Date(now);
+      end.setHours(24, 0, 0, 0);
+      setTimeLeft(end - now);
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const copyLink = async () => {
+    if (!referralLink) {
+      toast.error('Referral link is not ready yet.');
       return;
     }
-    const end = new Date(firstPromoWithEnd.end_date).getTime();
-    const tick = () => {
-      const left = Math.max(0, Math.floor((end - Date.now()) / 1000));
-      setCountdownSeconds(left);
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [firstPromoWithEnd?.id, firstPromoWithEnd?.end_date]);
-
-  const bonusCount = useMemo(
-    () => promotions.filter((p) => p.bonus_value != null && p.bonus_trigger_type).length,
-    [promotions]
-  );
+    try {
+      await navigator.clipboard.writeText(referralLink);
+      toast.success('Referral link copied!');
+    } catch {
+      toast.error('Could not copy link.');
+    }
+  };
 
   return (
-    <div className="dash-page dash-promotions-page df-promo-page w-full min-w-0">
-      <header className="dash-deposit-header dash-animate-in">
-        <p className="df-promo-kicker">Rewards</p>
-        <h1 className="dash-deposit-title">Promotions</h1>
-        <p className="dash-deposit-sub">
-          Bonuses and special offers. Claim rewards and unlock exclusive deals.
-        </p>
-      </header>
+    <main className="promotions-page">
+      <h1 className="promotions-title">Promotions</h1>
+      <img src="/df-online/tour-mascot.webp" alt="" aria-hidden="true" className="promotions-title-image" />
 
-      <PromotionsHero
-        offerCount={promotions.length}
-        bonusCount={bonusCount}
-        countdownSeconds={countdownSeconds}
-        featuredTitle={firstPromotion?.title}
-      />
+      <section>
+        <h2 className="promotions-subtitle">Latest Promotions</h2>
+        <div className="promotions-grid">
+          {/* 1. VIP */}
+          <article className="promotion-card vip-card">
+            <span className="promo-ribbon">Free</span>
+            <div className="promo-art promo-art-vip" aria-hidden="true">
+              <svg viewBox="0 0 120 140" width="100%" height="100%">
+                <polygon points="60,4 76,28 104,22 98,52 118,70 94,86 96,116 66,108 60,136 48,108 20,116 24,86 2,70 22,52 16,22 44,28" fill="#f5b52b" />
+                <circle cx="60" cy="70" r="40" fill="#b96b1c" />
+                <circle cx="60" cy="70" r="34" fill="#8a4a12" />
+                <path d="M36 62l12 14 12-22 12 22 12-14-4 28H40z" fill="#ffe28a" />
+                <text x="60" y="108" textAnchor="middle" fontSize="14" fontWeight="800" fill="#fff">VIP</text>
+              </svg>
+            </div>
+            <div className="promotion-card-body">
+              <div className="promotion-card-head">
+                <Badge>VIP CLUB MEMBERS ONLY</Badge>
+                <div className="promotion-card-description"><p>Get max rewards.</p></div>
+              </div>
+              <Coins gold="200,000" sweep="20" />
+              <div className="promotion-card-actions">
+                <CtaLink to="/store">Get NOW $19.99</CtaLink>
+              </div>
+            </div>
+          </article>
 
-      <PromotionsQuestStrip />
+          {/* 2. Welcome bundle */}
+          <article className="promotion-card welcome-card">
+            <div className="promo-art promo-art-wheel" aria-hidden="true">
+              <span>67%</span>
+            </div>
+            <div className="promotion-card-body">
+              <div className="promotion-card-head">
+                <Badge>EXCLUSIVE WELCOME BUNDLE</Badge>
+                <div className="promotion-card-description"><p>UP TO</p></div>
+              </div>
+              <Coins gold="900,000" sweep="30" />
+              <div className="promotion-card-actions">
+                <CtaLink to="/store">SHOW MORE</CtaLink>
+                <p className="promotion-card-price">was $30.00</p>
+              </div>
+            </div>
+          </article>
 
-      {promotions.length === 0 ? (
-        <section className="dash-promo-empty dash-panel dash-animate-in dash-delay-2" aria-label="No promotions">
-          <span className="dash-promo-empty-icon" aria-hidden>
-            🎁
-          </span>
-          <h2 className="dash-panel-title">No offers right now</h2>
-          <p className="dash-panel-desc dash-promo-empty-desc">
-            Check back soon — new bonuses and power-ups drop regularly.
-          </p>
-        </section>
-      ) : (
-        <section className="dash-promo-grid-section dash-animate-in dash-delay-2" aria-label="Available promotions">
-          <div className="dash-section-head">
-            <h2 className="dash-section-title">Available Offers</h2>
-            <p className="dash-section-sub">
-              {promotions.length} {promotions.length === 1 ? 'offer' : 'offers'} ready to claim
-            </p>
-          </div>
-          <div className="dash-promo-grid">
-            {promotions.map((promo, index) => (
-              <PromotionCard key={promo.id} promotion={promo} index={index} />
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
+          {/* 3. Key to the city */}
+          <article className="promotion-card special-offer-card">
+            <div className="promo-art promo-art-statue" aria-hidden="true">
+              <span className="promo-sparkle">✦</span>
+              <svg viewBox="0 0 100 160" width="100%" height="100%">
+                <path d="M62 8l4 16-8-2z" fill="#ffd54a" />
+                <rect x="58" y="22" width="6" height="40" fill="#6d93f2" />
+                <circle cx="52" cy="58" r="12" fill="#6d93f2" />
+                <path d="M34 70h36l10 80H24z" fill="#5b82e8" />
+                <rect x="14" y="96" width="22" height="30" rx="3" fill="#7da3ff" />
+              </svg>
+            </div>
+            <div className="promotion-card-body">
+              <div className="promotion-card-head">
+                <Badge>BEST DEAL - 200% EXTRA COINS</Badge>
+                <div className="promotion-card-description promotion-card-description-lg"><p>KEY TO THE CITY</p></div>
+              </div>
+              <div className="promotion-card-actions">
+                <CtaLink to="/store">BUY NOW $24.99</CtaLink>
+              </div>
+            </div>
+          </article>
+
+          {/* 4. Special offer */}
+          <article className="promotion-card daily-express-card">
+            <div className="promo-art promo-art-disco" aria-hidden="true" />
+            <span className="promo-sparkle promo-sparkle-a" aria-hidden="true">✦</span>
+            <span className="promo-sparkle promo-sparkle-b" aria-hidden="true">✦</span>
+            <div className="promotion-card-body">
+              <div className="promotion-card-head">
+                <Badge>MOST POPULAR - 350% EXTRA COINS</Badge>
+                <div className="promotion-card-description promotion-card-description-lg"><p>Your Special Offer</p></div>
+              </div>
+              <div className="promotion-card-actions">
+                <CtaLink to="/store">BUY NOW $7.99</CtaLink>
+              </div>
+            </div>
+          </article>
+
+          {/* 5. Invite friends */}
+          <article className="promotion-card invite-card">
+            <img src={DRAGON} alt="" aria-hidden="true" className="promo-art promo-art-dragon" />
+            <div className="promotion-card-body">
+              <div className="promotion-card-head">
+                <Badge>INVITE FRIENDS PROGRAM</Badge>
+                <div className="promo-referral">
+                  <p className="promotion-card-description">Share the Rewards!</p>
+                  <p className="promotion-card-referral-up-to">Up to</p>
+                  <div className="promo-flex promo-gap">
+                    <span className="promotion-card-referral-amount">10%</span>
+                    <div className="promotion-card-referral-label">
+                      <p>Of their first</p>
+                      <p>3 purchases</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="promotion-card-actions">
+                <CtaButton onClick={copyLink}>Copy Link</CtaButton>
+              </div>
+            </div>
+          </article>
+
+          {/* 6. Daily express */}
+          <article className="promotion-card city-card">
+            <span className="promo-ribbon">Free</span>
+            <div className="promo-art promo-art-calendar" aria-hidden="true">
+              <span>30</span>
+            </div>
+            <div className="promotion-card-body">
+              <div className="promotion-card-head">
+                <Badge plain>DAILY EXPRESS</Badge>
+                <div className="promotion-card-description promotion-card-description-daily"><p>Claim Rewards Every Day!</p></div>
+              </div>
+              <div className="promotion-card-streak">
+                <p id="promo-streak-days" className="promotion-card-streak-days">0 / 7 days in a row</p>
+                <progress className="promotion-card-streak-bar" aria-labelledby="promo-streak-days" value="0" max="7" />
+                <p className="promotion-card-streak-label">Don&apos;t miss out - time left:</p>
+                <p className="promotion-card-streak-timer">{formatTimeLeft(timeLeft)}</p>
+              </div>
+              <div className="promotion-card-actions">
+                <CtaLink to="/daily-bonus">CLAIM REWARD</CtaLink>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
   );
 }

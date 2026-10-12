@@ -1,157 +1,87 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { usePageContentReady } from '../../context/PageReadyContext';
-import { STORE_CODE } from '../../config/site';
-import * as gamesApi from '../../api/games';
-import * as promotionsApi from '../../api/promotions';
-import * as affiliateApi from '../../api/affiliate';
-import { dedupeGamesForListing } from '../../utils/dedupeGames';
-import { DashboardSidebar } from '../../components/Home/DashboardSidebar';
-import { DashboardFx } from '../../components/Home/DashboardFx';
-import { SpinzyHero } from '../../components/Home/SpinzyHero';
-import { GuestHomePlatforms } from '../../components/Home/GuestHomePlatforms';
-import { HomePromoTicker } from '../../components/Home/HomePromoTicker';
-import { LandingFooter } from '../../components/LandingFooter';
-import {
-  LockedPlatformGameCard,
-  LockedPlatformGameCardSkeleton,
-} from '../../components/Games/LockedPlatformGameCard';
+import './off-market.css';
 
-/**
- * Guest Platforms lobby — real store games with locked dummy credentials UI.
- * Authenticated users are sent to the live games section on Home.
- */
+const IMG = '/df-online/platforms';
+
+/* Platform tiles — art from public/df-online/platforms */
+const PLATFORMS = [
+  ['Orion Stars', 'orion-stars'],
+  ['Fire Kirin', 'fire-kirin'],
+  ['Game Vault', 'game-vault'],
+  ['Juwa', 'juwa'],
+  ['Cash Machine', 'cash-machine'],
+  ['Mafia', 'mafia'],
+  ['Panda Master', 'panda-master'],
+  ['Milky Way', 'milky-way'],
+  ['Joker', 'joker'],
+  ['Ultra Panda', 'ultra-panda'],
+  ['Mega Spin', 'mega-spin'],
+  ['Dragon Fury', 'dragon-fury'],
+];
+
+/* Placeholder redemption feed — replace with real data when an endpoint exists */
+const WINNERS = [
+  ['yifn*****@gmail.com', '193.94', 'Milky Way', 'milky-way'],
+  ['rzuyf*****@gmail.com', '271.42', 'Orion Stars', 'orion-stars'],
+  ['rwdhg*****@gmail.com', '271.42', 'Fire Kirin', 'fire-kirin'],
+  ['jac*****@gmail.com', '436.03', 'Juwa', 'juwa'],
+  ['coty.*****@gmail.com', '339.83', 'Game Vault', 'game-vault'],
+];
+
 export function PlatformGames() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const location = useLocation();
-  const [games, setGames] = useState([]);
-  const [gamesLoading, setGamesLoading] = useState(true);
-  const [promotions, setPromotions] = useState([]);
-  const [affiliateSettings, setAffiliateSettings] = useState(null);
+  const { isAuthenticated } = useAuth();
+  usePageContentReady(true);
 
-  usePageContentReady(!gamesLoading);
-
-  useEffect(() => {
-    if (authLoading || isAuthenticated) return undefined;
-    let cancelled = false;
-    setGamesLoading(true);
-    gamesApi
-      .listGames({ store_code: STORE_CODE })
-      .then((res) => {
-        if (cancelled) return;
-        const list = res?.games ?? [];
-        setGames(dedupeGamesForListing(list));
-      })
-      .catch(() => {
-        if (!cancelled) setGames([]);
-      })
-      .finally(() => {
-        if (!cancelled) setGamesLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [authLoading, isAuthenticated]);
-
-  useEffect(() => {
-    if (authLoading || isAuthenticated) return undefined;
-    let cancelled = false;
-    promotionsApi
-      .getPromotions()
-      .then((res) => {
-        if (cancelled) return;
-        const list = res?.promotions ?? [];
-        setPromotions(Array.isArray(list) ? list : []);
-      })
-      .catch(() => {
-        if (!cancelled) setPromotions([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [authLoading, isAuthenticated]);
-
-  useEffect(() => {
-    if (authLoading || isAuthenticated) return undefined;
-    let cancelled = false;
-    affiliateApi
-      .getAffiliateSettings()
-      .then((res) => {
-        if (!cancelled) setAffiliateSettings(res || null);
-      })
-      .catch(() => {
-        if (!cancelled) setAffiliateSettings(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [authLoading, isAuthenticated]);
-
-  const sortedGames = useMemo(
-    () =>
-      [...games].sort((a, b) => {
-        const nameA = String(a?.name || '').toLowerCase();
-        const nameB = String(b?.name || '').toLowerCase();
-        return nameA.localeCompare(nameB) || (a?.id || 0) - (b?.id || 0);
-      }),
-    [games]
-  );
-
-  if (authLoading) {
-    return <div className="dash-page" style={{ minHeight: '40vh' }} aria-busy="true" />;
-  }
-
-  if (isAuthenticated) {
-    return <Navigate to={{ pathname: '/', hash: '#games' }} state={{ from: location }} replace />;
-  }
+  const actionTo = isAuthenticated ? { pathname: '/', hash: '#games' } : '/register';
+  const actionLabel = isAuthenticated ? 'Play' : 'Sign up';
 
   return (
-    <div className="dashboard dash-page dash-platform-page">
-      <DashboardFx />
-      <HomePromoTicker promotions={promotions} affiliateSettings={affiliateSettings} />
+    <main className="om-page">
+      <h1 className="om-title">Exclusive platforms</h1>
 
-      <div className="dash-layout dash-layout--sided">
-        <DashboardSidebar activeView="platforms" hasSlots isAuthenticated={false} />
-
-        <div className="dash-main">
-          <SpinzyHero />
-
-          {!gamesLoading && sortedGames.length === 0 ? (
-            /* Backend has no store games yet: show the same platform tiles as the home page */
-            <GuestHomePlatforms />
-          ) : (
-          <section className="dash-games-section dash-games-section--guest dash-platform-locked-section" aria-labelledby="platform-locked-title">
-            <div className="dash-section-head">
-              <h2 id="platform-locked-title" className="dash-section-title dash-platforms-title">
-                Game <span className="dash-platforms-title-accent">Platforms</span>
-              </h2>
-              <p className="dash-platform-locked-lead">
-                Explore every platform we offer. Sign up free to unlock credentials and play.
-              </p>
-            </div>
-
-            {gamesLoading ? (
-              <LockedPlatformGameCardSkeleton />
-            ) : (
-              <div className="dash-locked-list" role="list" aria-label="Locked platform games">
-                {sortedGames.map((game, i) => (
-                  <div
-                    key={game.id ?? `locked-platform-${i}`}
-                    className={`dash-animate-in dash-delay-${Math.min((i % 6) + 1, 6)}`}
-                    role="listitem"
-                  >
-                    <LockedPlatformGameCard game={game} />
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-          )}
-
-          <LandingFooter />
+      <div className="om-banner">
+        <div className="om-banner-text">
+          <p className="om-banner-lead">Play &amp; win with</p>
+          <p className="om-banner-accent">sweep coins</p>
         </div>
+        <div className="om-banner-man" aria-hidden="true" />
       </div>
-    </div>
+
+      <section className="om-winners-wrap">
+        <div className="om-winners" aria-label="Recent redemptions">
+          <div className="om-winners-track" role="list">
+          {[...WINNERS, ...WINNERS].map(([mail, amt, name, slug], i) => (
+            <div key={i} className="om-winner-slot" role="listitem">
+              <div className="om-ring om-winner">
+                <div className="om-winner-gap" />
+                <img src={`${IMG}/${slug}.webp`} alt={name} draggable="false" loading="lazy" className="om-winner-logo" />
+                <div className="om-winner-body">
+                  <p className="om-winner-mail">{mail}</p>
+                  <p className="om-winner-amt">Redeemed {amt}</p>
+                  <p className="om-winner-name">In {name}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="om-grid">
+        {PLATFORMS.map(([name, slug]) => (
+          <div key={slug} className="om-ring om-card">
+            <img src={`${IMG}/${slug}.webp`} alt={name} loading="lazy" className="om-card-img" />
+            <div className="om-card-fade" />
+            <div className="om-card-cta">
+              <Link to={actionTo} className="om-ring om-play" aria-label={`${actionLabel} — ${name}`}>
+                <span>{actionLabel}</span>
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
   );
 }

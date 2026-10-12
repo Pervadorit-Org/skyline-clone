@@ -29,6 +29,7 @@ export function DfWalletHud({
 
   return (
     <div className="df-wallet-hud" data-open={open ? 'true' : 'false'} data-tour="balances">
+      <img className="df-wallet-hud__tier" src="/df-online/dragons/tier-elder-dragon.webp" alt="" width={34} height={34} aria-hidden />
       <div className="df-wallet-hud__bar">
         <img
           className="df-wallet-hud__holder"
@@ -96,7 +97,7 @@ export function DfWalletHud({
         aria-label="Add money — go to the store"
         onPointerEnter={() => warmupDeposit()}
       >
-        <img src="/df-online/balance-plus.webp" alt="" width={200} height={191} decoding="async" />
+        <span className="df-wallet-hud__add-label">Store</span>
       </Link>
     </div>
   );

@@ -88,6 +88,12 @@ const KycCallback = lazy(() =>
 const Promotions = lazy(() =>
   import('./pages/Promotions').then((m) => ({ default: m.Promotions }))
 );
+const Providers = lazy(() =>
+  import('./pages/Providers').then((m) => ({ default: m.Providers }))
+);
+const Favorites = lazy(() =>
+  import('./pages/Favorites').then((m) => ({ default: m.Favorites }))
+);
 const SpinWheel = lazy(() =>
   import('./pages/SpinWheel').then((m) => ({ default: m.SpinWheel }))
 );
@@ -105,6 +111,9 @@ const AccountProfile = lazy(() =>
 );
 const AccountTransactions = lazy(() =>
   import('./pages/Account').then((m) => ({ default: m.AccountTransactions }))
+);
+const AccountVip = lazy(() =>
+  import('./pages/Account').then((m) => ({ default: m.AccountVip }))
 );
 const AccountAffiliate = lazy(() =>
   import('./pages/Account').then((m) => ({ default: m.AccountAffiliate }))
@@ -282,6 +291,8 @@ function RouteTitleManager() {
       ['/withdraw', 'Redeem'],
       ['/redeem', 'Redeem'],
       ['/promotions', 'Promotions'],
+      ['/favorites', 'Favorites'],
+      ['/providers', 'Providers'],
       ['/spinwheel', 'Spin Wheel'],
       ['/daily-bonus', 'Daily Bonus'],
       ['/bonus', 'Bonus'],
@@ -458,6 +469,8 @@ function App() {
                 <Route path="/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />
                 <Route path="/redeem" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />
                 <Route path="/kyc/callback" element={<ProtectedRoute><KycCallback /></ProtectedRoute>} />
+                <Route path="/providers" element={<Providers />} />
+                <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
                 <Route path="/promotions" element={<ProtectedRoute><Promotions /></ProtectedRoute>} />
                 <Route path="/spinwheel" element={<ProtectedRoute><SpinWheel /></ProtectedRoute>} />
                 <Route path="/daily-bonus" element={<ProtectedRoute><DailyBonus /></ProtectedRoute>} />
@@ -467,7 +480,7 @@ function App() {
                 {/* Account: profile redirects to settings; rest placeholders */}
                 <Route path="/account" element={<Navigate to="/settings" replace />} />
                 <Route path="/account/profile" element={<ProtectedRoute><AccountProfile /></ProtectedRoute>} />
-                <Route path="/account/vip" element={<Navigate to="/settings" replace />} />
+                <Route path="/account/vip" element={<ProtectedRoute><AccountVip /></ProtectedRoute>} />
                 <Route path="/account/transactions" element={<ProtectedRoute><AccountTransactions /></ProtectedRoute>} />
                 <Route path="/account/affiliate" element={<ProtectedRoute><AccountAffiliate /></ProtectedRoute>} />
 

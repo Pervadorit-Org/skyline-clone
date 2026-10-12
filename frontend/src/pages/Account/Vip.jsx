@@ -1,296 +1,89 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import * as vipApi from '../../api/vip';
 import { usePageContentReady } from '../../context/PageReadyContext';
-import { getVipTierStyle, getVipTierImage } from '../../utils/vipTierColors';
-import {
-  useCountUp,
-  VipGfxParticles,
-  VipXpRing,
-  VipXpBursts,
-  VipStatsRow,
-  VipQuestGrid,
-  VipConfetti,
-} from '../../components/Vip/VipGamification';
-import '../../components/Vip/df-vip.css';
+import { getVipTierImage } from '../../utils/vipTierColors';
+import './vip-page.css';
 
-function formatXp(n) {
-  return (Number(n) || 0).toLocaleString();
-}
+const TIER_NAMES = ['Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Sapphire', 'Emerald', 'Diamond'];
+const HERO_TIERS = ['Bronze', 'Gold', 'Silver', 'Platinum', 'Emerald', 'Diamond'];
 
-function VipHero({ status, lastTierFilled }) {
-  const currentLevel = status?.levels?.find((l) => l.is_current) ?? status?.levels?.[status?.level_index ?? 0];
-  const tierName = status?.level_name || currentLevel?.name || 'Iron';
-  const tierStyle = getVipTierStyle(tierName, currentLevel?.color);
-  const currentXp = Number(status?.current_xp) || 0;
-  const nextXp = Math.max(0, Number(status?.next_level_xp) || 0);
-  const progressPct = lastTierFilled ? 100 : nextXp > 0 ? Math.min(100, (100 * currentXp) / nextXp) : 0;
-  const xpToNext = lastTierFilled ? 0 : Math.max(0, nextXp - currentXp);
-  const levelNum = (status?.level_index ?? 0) + 1;
-  const xpDisplay = useCountUp(currentXp);
-  const pctDisplay = useCountUp(Math.round(progressPct), 1000);
+const FALLBACK_FAQ = [
+  { id: 1, question: 'Why should I become a VIP Club member?', answer: 'Once you join, your gaming experience will soar to new heights. You will benefit from weekly Coins Back, rewards for each level-up, and special privileges that unlock as you progress in VIP Club.' },
+  { id: 2, question: 'How do I join VIP Club?', answer: "You don't need to sign up separately — every player is automatically part of the VIP Club. Play your favorite games to earn VIP Points (XP); as your XP grows you move up the ranks and unlock bigger rewards." },
+  { id: 3, question: 'How do I benefit from leveling up?', answer: 'Every new level brings instant level-up rewards, and higher tiers unlock larger recurring bonuses, higher withdrawal limits, wheel rewards, priority payouts and more.' },
+  { id: 4, question: 'What are Exclusive Offers?', answer: 'Exclusive Offers are special promotions, packages and bonuses available only to VIP members at qualifying tiers.' },
+  { id: 5, question: 'What does having a VIP Manager mean?', answer: 'At the highest tiers you get a dedicated VIP Manager — a personal point of contact who helps with anything you need and keeps you up to date with offers tailored to you.' },
+  { id: 6, question: 'What is Early access?', answer: 'Early access lets high-tier VIP members try new games and features before they are released to everyone else.' },
+  { id: 7, question: 'How long will I keep my level?', answer: 'Your level stays with you as long as you stay active. Earn at least one level every two months to keep your current rank and its benefits.' },
+];
 
-  return (
-    <section className="dash-vip-hero dash-animate-in">
-      <div className="dash-vip-hero-bg" aria-hidden />
-      <VipGfxParticles />
-      <VipXpBursts color={tierStyle.color} />
+const fmt = (n) => (Number(n) || 0).toLocaleString();
 
-      <div className="dash-vip-hero-inner">
-        <div className="dash-vip-hero-badges">
-          <span className="dash-vip-live-badge">⚡ Live XP</span>
-          <motion.span
-            className="dash-vip-level-pill"
-            animate={{ scale: [1, 1.06, 1] }}
-            transition={{ duration: 1.6, repeat: Infinity }}
-          >
-            Level {levelNum}
-          </motion.span>
-        </div>
+const PERKS = [
+  { icon: '📱', title: 'Create an Account', text: (<><span className="vipTier__hl">Join the Club</span> and become part of the VIP Rank Program</>) },
+  { icon: '🏅', title: 'Engage & Play', text: (<>All play and engagement earn <span className="vipTier__hl">VIP Points</span> and boost your Rank</>) },
+  { icon: '🎁', title: 'Earn Ranks, Get Rewards', text: 'Each Rank has its own rewards that are simple and easy to claim' },
+];
 
-        <div className="dash-vip-hero-main">
-          <div className="dash-vip-hero-ring-col">
-            <VipXpRing percent={progressPct} color={tierStyle.color}>
-              <motion.span
-                className="dash-vip-hero-crown"
-                animate={{ y: [0, -10, 0], rotate: [-5, 5, -5] }}
-                transition={{ duration: 2.5, repeat: Infinity }}
-              >
-                👑
-              </motion.span>
-            </VipXpRing>
-            <motion.span
-              className="dash-vip-hero-pct"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.6, type: 'spring' }}
-            >
-              {pctDisplay}%
-            </motion.span>
-          </div>
+const PLATFORMS = [
+  ['Orion Stars', 'orion-stars'], ['Fire Kirin', 'fire-kirin'], ['Game Vault', 'game-vault'], ['Juwa 777', 'juwa'],
+  ['Cash Machine', 'cash-machine'], ['Mafia', 'mafia'], ['Panda Master', 'panda-master'], ['Milky Way', 'milky-way'],
+  ['Joker', 'joker'], ['Ultra Panda', 'ultra-panda'], ['Mega Spin', 'mega-spin'], ['Golden Dragon', 'golden-dragon'],
+];
+/* placeholder redemption feed — replace with real data when an endpoint exists */
+const REDEMPTIONS = [
+  ['rzuyf*****@gmail.com', '271.42', 'Orion Stars', 'orion-stars'],
+  ['mkaa7*****@yahoo.com', '120.00', 'Fire Kirin', 'fire-kirin'],
+  ['dj_ro*****@gmail.com', '540.75', 'Game Vault', 'game-vault'],
+  ['lucky*****@outlook.com', '89.10', 'Juwa 777', 'juwa'],
+  ['sam99*****@gmail.com', '312.00', 'Cash Machine', 'cash-machine'],
+  ['vegas*****@gmail.com', '205.55', 'Mafia', 'mafia'],
+];
 
-          <div className="dash-vip-hero-copy">
-            <p className="dash-vip-hero-kicker">Your VIP Rank</p>
-            <h2 className="dash-vip-hero-title" style={{ color: tierStyle.color }}>
-              {tierName} <span className="dash-vip-hero-vip">VIP</span>
-            </h2>
-            <p className="dash-vip-hero-sub">
-              {lastTierFilled
-                ? '🏆 Max tier — legendary member!'
-                : (
-                  <>
-                    <strong className="dash-vip-hero-xp-left">{xpToNext.toLocaleString()} XP</strong> to next rank
-                  </>
-                )}
-            </p>
-            <div className="dash-vip-hero-xp-box">
-              <span className="dash-vip-hero-xp-label">XP</span>
-              <motion.span key={xpDisplay} className="dash-vip-hero-xp-num" initial={{ scale: 1.2 }} animate={{ scale: 1 }}>
-                {xpDisplay.toLocaleString()}
-              </motion.span>
-              {!lastTierFilled && nextXp > 0 && (
-                <span className="dash-vip-hero-xp-max">/ {nextXp.toLocaleString()}</span>
-              )}
-            </div>
-            <div className="dash-vip-progress dash-vip-progress--hero">
-              <motion.div
-                className="dash-vip-progress-fill dash-vip-progress-fill--animated"
-                style={{
-                  width: `${progressPct}%`,
-                  background: `linear-gradient(90deg, ${tierStyle.color}, var(--vip-gold, #ffc94f), var(--vip-emerald, #35ef9a))`,
-                }}
-                initial={{ width: 0 }}
-                animate={{ width: `${progressPct}%` }}
-                transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+const Check = () => (
+  <span className="vipTier__check" aria-label="Included">
+    <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#34c759" /><path d="M4.5 8.2l2.4 2.4 4.6-4.8" stroke="#0b0d16" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  </span>
+);
+const Lock = () => (
+  <span className="vipTier__lock">
+    <svg viewBox="0 0 16 16" fill="none" role="img" aria-label="Not included" width="16" height="16">
+      <rect x="3" y="7" width="10" height="7" rx="1.5" fill="currentColor" />
+      <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" strokeWidth="1.6" fill="none" />
+    </svg>
+  </span>
+);
+const Coins = ({ gc, sc }) => (
+  <span className="vipTier__rowCoins">
+    <span className="vipTier__rowCoin">{gc} GC</span>
+    <span className="vipTier__rowPlus">+</span>
+    <span className="vipTier__rowCoin">{sc} SC</span>
+  </span>
+);
 
-function FaqItem({ item, isOpen, onToggle }) {
-  return (
-    <div className={`dash-vip-faq-item${isOpen ? ' dash-vip-faq-item--open' : ''}`}>
-      <button type="button" onClick={() => onToggle(item.id)} className="dash-vip-faq-trigger" aria-expanded={isOpen}>
-        <span className="dash-vip-faq-question">{item.question}</span>
-        <svg className="dash-vip-faq-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      {isOpen && <div className="dash-vip-faq-answer">{item.answer}</div>}
-    </div>
-  );
-}
-
-function VipPromoSection() {
-  return (
-    <section className="dash-vip-promo dash-animate-in dash-delay-2">
-      <div className="dash-vip-promo-glow" aria-hidden />
-      <div className="dash-vip-promo-icon" aria-hidden>
-        <motion.span
-          animate={{ y: [0, -12, 0], rotate: [-8, 8, -8], scale: [1, 1.1, 1] }}
-          transition={{ duration: 3, repeat: Infinity }}
-        >
-          👑
-        </motion.span>
-      </div>
-      <div className="dash-vip-promo-body">
-        <h2 className="dash-vip-promo-title">Earn Extra Rewards!</h2>
-        <p className="dash-vip-promo-desc">
-          Invite friends and level up for higher withdrawal limits and weekly Coins Back.
-        </p>
-        <Link to="/account/affiliate" className="dash-btn-cta dash-vip-promo-cta dash-vip-promo-cta--pulse">
-          Invite Friends Now
-        </Link>
-      </div>
-    </section>
-  );
-}
-
-/** Live Profile–style Player Tiers carousel + criteria panel */
-function VipTiersSection({ levels }) {
-  const trackRef = useRef(null);
-  const currentIdx = useMemo(() => {
-    const i = levels.findIndex((l) => l.is_current);
-    return i >= 0 ? i : 0;
-  }, [levels]);
-  const [selectedIdx, setSelectedIdx] = useState(currentIdx);
-
-  useEffect(() => {
-    setSelectedIdx(currentIdx);
-  }, [currentIdx]);
-
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const btn = track.children[selectedIdx];
-    if (btn?.scrollIntoView) {
-      btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
-  }, [selectedIdx]);
-
-  const selected = levels[selectedIdx] ?? levels[0];
-  const tierName = selected?.name || 'Iron';
-  const currentXp = Number(selected?.current_xp) || 0;
-  const nextXp = Math.max(0, Number(selected?.next_level_xp ?? selected?.xp_to_next_level) || 0);
-  const isCurrent = Boolean(selected?.is_current);
-  const isUnlocked = selected?.is_unlocked !== false;
-  const isMax = Boolean(selected?.is_max_level);
-  const lastFilled = isMax && nextXp > 0 && currentXp >= nextXp;
-  const displayXp = isUnlocked === false ? 0 : currentXp;
-  const progressMet = isCurrent || lastFilled || (isUnlocked && nextXp > 0 && displayXp >= nextXp);
-
-  const statusLabel = isCurrent
-    ? 'Current'
-    : !isUnlocked
-      ? 'Locked'
-      : lastFilled || progressMet
-        ? 'Eligible'
-        : 'Unlocked';
-
-  const criteria = [
-    {
-      label: 'XP Progress',
-      value: isMax && lastFilled ? `${formatXp(displayXp)} (Max)` : `${formatXp(displayXp)} / ${formatXp(nextXp)}`,
-      met: progressMet || isCurrent,
-    },
-    {
-      label: 'Level Up Reward',
-      value: `${formatXp(selected?.level_up_reward_sc)} SC`,
-      met: isUnlocked,
-    },
-    {
-      label: 'Withdrawal Limit',
-      value: `${formatXp(selected?.withdrawal_limit)} SC`,
-      met: isUnlocked,
-    },
-    {
-      label: 'Platform Games Withdrawal',
-      value: `${formatXp(selected?.platform_withdrawal_limit)} SC`,
-      met: isUnlocked,
-    },
+function buildRows(level, idx) {
+  const reward = level?.level_up_reward_sc;
+  const sc = reward != null ? reward : 0.25 * (idx + 1);
+  const gc = fmt(2500 * (idx + 1));
+  const wd = level?.withdrawal_limit != null ? fmt(level.withdrawal_limit) : fmt(300 * (idx + 1));
+  const pwd = level?.platform_withdrawal_limit != null ? fmt(level.platform_withdrawal_limit) : wd;
+  return [
+    { icon: '🏆', label: 'Level Up Bonus', value: <Coins gc={gc} sc={sc} /> },
+    { icon: '🎂', label: 'Birthday Bonus', value: <Coins gc={fmt(5000 * (idx + 1))} sc={0.5 * (idx + 1)} /> },
+    { icon: '💳', label: 'Daily Withdrawal', value: <span className="vipTier__rowText">{wd}</span> },
+    { icon: '🎮', label: 'Platform Daily WD', value: <span className="vipTier__rowText">{pwd}</span> },
+    { icon: '🎖️', label: 'Daily Reward', value: <Check /> },
+    { icon: '📅', label: 'Weekly Bonus', value: <Coins gc={gc} sc={sc} /> },
+    { icon: '🗓️', label: 'Monthly Bonus', value: <Coins gc={gc} sc={sc} /> },
+    { icon: '🕹️', label: 'Platform Bonus', value: idx >= 3 ? <Coins gc={gc} sc={sc} /> : <span className="vipTier__rowText">—</span> },
+    { icon: '👥', label: 'Referral Rewards', value: <Check /> },
+    { icon: '🎡', label: 'Wheel Rewards', value: <Check /> },
+    { icon: '💬', label: '24/7 Chat Support', value: <Check /> },
+    { icon: '⚡', label: 'Priority Payout', value: idx >= 2 ? <Check /> : <Lock /> },
+    { icon: '👑', label: 'VIP Manager', value: idx >= 6 ? <Check /> : <Lock /> },
   ];
-
-  const go = (dir) => {
-    setSelectedIdx((i) => Math.min(levels.length - 1, Math.max(0, i + dir)));
-  };
-
-  if (!levels.length) {
-    return (
-      <section className="df-vip-tiers dash-animate-in dash-delay-4" aria-label="VIP levels">
-        <div className="df-vip-tiers-empty">No VIP levels loaded. Please try again later.</div>
-      </section>
-    );
-  }
-
-  return (
-    <section className="df-vip-tiers dash-animate-in dash-delay-4" aria-labelledby="df-vip-tier-title">
-      <header>
-        <div>
-          <p className="df-vip-tiers-kicker">Progress</p>
-          <h2 id="df-vip-tier-title" className="df-vip-tiers-title">
-            Player Tiers
-          </h2>
-        </div>
-        <div className="df-vip-tier-arrows">
-          <button type="button" aria-label="Previous tier" disabled={selectedIdx <= 0} onClick={() => go(-1)}>
-            <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m15 18-6-6 6-6" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            aria-label="Next tier"
-            disabled={selectedIdx >= levels.length - 1}
-            onClick={() => go(1)}
-          >
-            <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m9 18 6-6-6-6" />
-            </svg>
-          </button>
-        </div>
-      </header>
-
-      <div className="df-vip-tier-track" ref={trackRef}>
-        {levels.map((level, i) => (
-          <button
-            key={level.level_index ?? level.name ?? i}
-            type="button"
-            className={i === selectedIdx ? 'is-selected' : ''}
-            aria-pressed={i === selectedIdx}
-            onClick={() => setSelectedIdx(i)}
-          >
-            <img src={getVipTierImage(level.name)} alt="" width={142} height={142} loading="lazy" decoding="async" />
-            <span>{level.name}</span>
-            {level.is_current ? <small>Current</small> : null}
-          </button>
-        ))}
-      </div>
-
-      {selected && (
-        <div className="df-vip-tier-criteria" aria-live="polite">
-          <header>
-            <h3>{tierName}</h3>
-            <span className={`df-vip-tier-status${!isUnlocked || statusLabel === 'Locked' ? ' is-locked' : ''}`}>
-              {statusLabel}
-            </span>
-          </header>
-          {criteria.map((row) => (
-            <div key={row.label} className="df-vip-tier-criteria-row">
-              <span>{row.label}</span>
-              <strong>{row.value}</strong>
-              <i className={`df-vip-tier-dot${row.met ? ' is-met' : ''}`} aria-hidden />
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
-  );
 }
 
 export function AccountVip() {
@@ -298,22 +91,17 @@ export function AccountVip() {
   const [status, setStatus] = useState(null);
   const [faq, setFaq] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [openFaqId, setOpenFaqId] = useState(null);
-  const [confetti, setConfetti] = useState(false);
 
   usePageContentReady(!loading);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [statusRes, faqRes] = await Promise.all([vipApi.getVipStatus(), vipApi.getVipFaq()]);
-      setStatus(statusRes);
-      setFaq(faqRes.faq || []);
-      setOpenFaqId((prev) => (prev != null ? prev : faqRes.faq?.[0]?.id ?? null));
+      const [s, f] = await Promise.all([vipApi.getVipStatus(), vipApi.getVipFaq()]);
+      setStatus(s);
+      setFaq(f.faq || []);
     } catch (e) {
       toast.error(e.message || 'Unable to load VIP. Please try again.');
-      setStatus(null);
-      setFaq([]);
     } finally {
       setLoading(false);
     }
@@ -321,103 +109,205 @@ export function AccountVip() {
 
   useEffect(() => {
     load();
-  }, [load]);
-
-  useEffect(() => {
     const onRefresh = () => load();
     window.addEventListener('vip:refresh', onRefresh);
     return () => window.removeEventListener('vip:refresh', onRefresh);
   }, [load]);
 
-  const levels = status?.levels ?? [];
-  const lastTierFilled = Boolean(
-    status?.is_max_level && status?.next_level_xp != null && (Number(status?.current_xp) || 0) >= Number(status.next_level_xp)
-  );
-  const topTierName = status?.level_name || 'Diamond';
-  const topLevel = levels.length > 0 ? levels[levels.length - 1] : null;
-  const topTierStyle = getVipTierStyle(topTierName, topLevel?.color);
-  const currentLevel = levels.find((l) => l.is_current);
-  const tierStyle = getVipTierStyle(status?.level_name, currentLevel?.color);
+  const levels = useMemo(() => {
+    const api = status?.levels;
+    if (Array.isArray(api) && api.length) return api;
+    return TIER_NAMES.map((name) => ({ name }));
+  }, [status]);
 
-  useEffect(() => {
-    if (!loading) {
-      setConfetti(true);
-      const t = setTimeout(() => setConfetti(false), 2800);
-      return () => clearTimeout(t);
-    }
-  }, [loading]);
+  const currentIdx = useMemo(() => {
+    const i = levels.findIndex((l) => l.is_current);
+    if (i >= 0) return i;
+    const byName = levels.findIndex((l) => String(l.name).toLowerCase() === String(status?.level_name || 'iron').toLowerCase());
+    return byName >= 0 ? byName : 0;
+  }, [levels, status]);
 
-  useEffect(() => {
-    if (!loading && lastTierFilled) {
-      setConfetti(true);
-      const t = setTimeout(() => setConfetti(false), 3200);
-      return () => clearTimeout(t);
-    }
-  }, [loading, lastTierFilled]);
+
+  const current = levels[currentIdx];
+  const nextLevel = levels[currentIdx + 1];
+  const curXp = Number(status?.current_xp) || 0;
+  const nextXp = Number(status?.next_level_xp) || 500;
+  const pct = Math.min(100, nextXp > 0 ? (100 * curXp) / nextXp : 0);
+  const faqItems = faq.length ? faq : FALLBACK_FAQ;
+  const perRow = levels.map((l, i) => buildRows(l, i));
+  const tableRows = perRow[0].map((r, idx) => ({
+    label: r.label,
+    icon: r.icon,
+    cells: perRow.map((rows) => rows[idx].value),
+  }));
 
   return (
-    <div className="dash-page dash-vip-page df-vip-page w-full min-w-0">
-      <VipConfetti show={confetti} />
-
-      <header className="dash-deposit-header dash-animate-in">
-        <motion.p
-          className="dash-vip-page-tag"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          Progress
-        </motion.p>
-        <h1 className="dash-deposit-title dash-vip-page-title">VIP Club</h1>
-        <p className="dash-deposit-sub">
-          Rank up, unlock tiers, and claim bigger rewards. Earn XP from deposits, gameplay, and referrals.
-        </p>
-      </header>
-
-      {status && <VipHero status={status} lastTierFilled={lastTierFilled} />}
-
-      <VipStatsRow status={status} tierStyle={tierStyle} />
-
-      <VipQuestGrid />
-
-      {lastTierFilled && (
-        <section
-          className="dash-vip-complete dash-animate-in dash-delay-1"
-          style={{ '--vip-tier-color': topTierStyle.color, '--vip-tier-glow': topTierStyle.colorLight }}
-        >
-          <motion.div
-            className="dash-vip-complete-badge"
-            style={{ backgroundColor: topTierStyle.color }}
-            animate={{ scale: [1, 1.08, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            🏆
-          </motion.div>
-          <div className="dash-vip-complete-body">
-            <h2 className="dash-vip-complete-title" style={{ color: topTierStyle.color }}>
-              {topTierName} VIP — Max Tier!
-            </h2>
-            <p className="dash-vip-complete-text">You conquered every VIP rank. Legendary status unlocked!</p>
+    <main className="vipTier-wrapper">
+      <div className="vipTier__wrapper_main">
+        <section className="vipTier__hero">
+          <div className="vipTier__heroGraphic" aria-hidden="true">
+            {HERO_TIERS.map((t) => (
+              <img key={t} src={getVipTierImage(t)} alt="" className={`vipTier__medal vipTier__medal--${t.toLowerCase()}`} />
+            ))}
+          </div>
+          <div className="vipTier__heroContent">
+            <h1 className="vipTier__heroTitle">VIP RANKS</h1>
+            <p className="vipTier__heroSubtitle">
+              Level up your rank, unlock exclusive perks, cashback, bonuses, and premium rewards.
+            </p>
+            <div className="vipTier__heroActions">
+              <Link to="/store" className="vipTier__btn vipTier__btn--gold">Visit Store</Link>
+              <button
+                type="button"
+                className="vipTier__btn vipTier__btn--outline"
+                onClick={() => document.getElementById('vip-tier-level')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                View Rank
+              </button>
+            </div>
           </div>
         </section>
-      )}
 
-      <VipPromoSection />
-
-      <VipTiersSection levels={levels} />
-
-      {faq.length > 0 && (
-        <section className="dash-animate-in dash-delay-5">
-          <div className="dash-section-head">
-            <h2 className="dash-section-title">FAQ</h2>
-            <p className="dash-section-sub">Common questions about VIP tiers and rewards.</p>
-          </div>
-          <div className="dash-panel dash-vip-faq">
-            {faq.map((item) => (
-              <FaqItem key={item.id} item={item} isOpen={openFaqId === item.id} onToggle={(id) => setOpenFaqId((p) => (p === id ? null : id))} />
+        <section className="vipTier__section">
+          <div className="vipTier__sectionBanner"><h3>VIP Perks</h3></div>
+          <div className="vipTier__perksContainer">
+            {PERKS.map((p) => (
+              <div key={p.title} className="vipTier__perkCard">
+                <div className="vipTier__perkIcon" aria-hidden="true">{p.icon}</div>
+                <h4 className="vipTier__perkTitle">{p.title}</h4>
+                <p className="vipTier__perkText">{p.text}</p>
+              </div>
             ))}
           </div>
         </section>
-      )}
-    </div>
+
+        <section className="vipTier__section vipTier__section--narrow">
+          <div className="vipTier__levelRow">
+            <div className="vipTier__currentCard">
+              <div className="vipTier__currentCardBg" />
+              <div className="vipTier__currentTop">
+                <div className="vipTier__currentMedal">
+                  <img src={getVipTierImage(current?.name)} alt="" />
+                </div>
+                <div className="vipTier__currentInfo">
+                  <h3 className="vipTier__currentName">{current?.name || 'Iron'}</h3>
+                  <span className="vipTier__currentLabel">Current level</span>
+                </div>
+                {nextLevel && (
+                  <div className="vipTier__currentBadge">
+                    <img src={getVipTierImage(nextLevel.name)} alt={nextLevel.name} />
+                  </div>
+                )}
+              </div>
+              <div className="vipTier__progress">
+                <div className="vipTier__progressTrack" role="progressbar" aria-label="VIP progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)}>
+                  <div className="vipTier__progressFill" style={{ width: `${pct}%` }}>
+                    <span className="vipTier__progressKnob" />
+                  </div>
+                </div>
+                <div className="vipTier__progressMeta">
+                  <span className="vipTier__progressXp">
+                    <b>{fmt(curXp)}</b>
+                    <span className="vipTier__progressXp--muted"> / {fmt(nextXp)}</span>
+                  </span>
+                  {nextLevel && <span className="vipTier__progressNext">Next Level: <b>{nextLevel.name}</b></span>}
+                </div>
+              </div>
+            </div>
+
+            <div className="vipTier__earnCard">
+              <h3 className="vipTier__earnTitle">Turn Every Spin Into VIP Points and Every Point Into Something Bigger.</h3>
+              <div className="vipTier__earnGrid">
+                <div className="vipTier__earnItem">
+                  <img src="/df-online/sc-coin.webp" alt="" />
+                  <p><span className="vipTier__hl">1 SC</span> Played in Games = 100 XP (VIP Points)</p>
+                </div>
+                <div className="vipTier__earnItem">
+                  <img src="/df-online/sc-coin.webp" alt="" />
+                  <p><span className="vipTier__hl">1 SC</span> Topped up in Platform Games = 100 XP (VIP Points)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="vipTier__section" id="vip-tier-level">
+          <div className="vipTier__tierLevelPanel">
+            <h3 className="vipTier__tierLevelTitle">Tier Level</h3>
+            <div className="vipTier__tableScroll">
+              <table className="vipTier__table">
+                <thead>
+                  <tr>
+                    <th className="vipTier__stickyCol" aria-label="Perk" />
+                    {levels.map((l, i) => (
+                      <th key={l.name} className={i === currentIdx ? 'is-current' : ''}>
+                        <span className="vipTier__selectorBadgeImg" data-tier={String(l.name).toLowerCase()}>
+                          <img src={getVipTierImage(l.name)} alt="" loading="lazy" />
+                        </span>
+                        <span className="vipTier__selectorBadgeName">{l.name}</span>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {tableRows.map((row, r) => (
+                    <tr key={row.label}>
+                      <th scope="row" className="vipTier__stickyCol">
+                        <span className="vipTier__rowIcon" aria-hidden="true">{row.icon}</span>
+                        {row.label}
+                      </th>
+                      {row.cells.map((cell, c) => (
+                        <td key={c} className={c === currentIdx ? 'is-current' : ''}>{cell}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section className="vipTier__section">
+          <h3 className="vipTier__faqTitle">FAQ</h3>
+          <div className="vipTier__faqList">
+            {faqItems.map((item, i) => (
+              <details key={item.id ?? i} className="vipTier__faqItem" open={i === 0}>
+                <summary>{item.question}</summary>
+                <div className="vipTier__faqBody"><p>{item.answer}</p></div>
+              </details>
+            ))}
+          </div>
+        </section>
+        {/* <section className="vipTier__section vipTier__section--wide">
+          <h3 className="vipTier__platformsTitle">EXCLUSIVE PLATFORMS</h3>
+          <div className="vipTier__sweepBanner">
+            <div className="vipTier__sweepText">
+              <span className="vipTier__sweepSmall">PLAY &amp; WIN WITH</span>
+              <span className="vipTier__sweepBig">SWEEP COINS</span>
+            </div>
+          </div>
+          <div className="vipTier__marquee">
+            <div className="vipTier__marqueeTrack">
+              {[...REDEMPTIONS, ...REDEMPTIONS].map(([mail, amt, name, slug], i) => (
+                <div key={i} className="vipTier__redeem">
+                  <img src={`/df-online/platforms/${slug}.webp`} alt="" className="vipTier__redeemLogo" loading="lazy" />
+                  <p className="vipTier__redeemMail">{mail}</p>
+                  <p className="vipTier__redeemAmt">Redeemed {amt}</p>
+                  <p className="vipTier__redeemName">In {name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="vipTier__platformGrid">
+            {PLATFORMS.map(([name, slug]) => (
+              <Link key={slug} to="/casino" className="vipTier__platformTile" aria-label={name}>
+                <img src={`/df-online/platforms/${slug}.webp`} alt={name} loading="lazy" />
+                <span className="vipTier__signup">SIGN UP</span>
+              </Link>
+            ))}
+          </div>
+        </section> */}
+      </div>
+    </main>
   );
 }

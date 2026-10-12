@@ -19,20 +19,7 @@ const passwordRule = Yup.string()
   .matches(PASSWORD_PATTERN, PASSWORD_MESSAGE);
 
 export const LOGIN_VALIDATION = Yup.object().shape({
-  email: Yup.string()
-    .trim()
-    .required('Email or phone number is required.')
-    .test('email-or-phone', 'Enter a valid email or 10-digit US phone number.', (value) => {
-      const s = String(value || '').trim();
-      if (!s) return false;
-      if (s.includes('@')) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
-      }
-      const digits = s.replace(/\D/g, '');
-      if (digits.length === 10) return true;
-      if (digits.length === 11 && digits.startsWith('1')) return true;
-      return /^\+1\d{10}$/.test(s.replace(/[^\d+]/g, ''));
-    }),
+  email: Yup.string().trim().required('Username or email is required.'),
   password: Yup.string().required('Password is required.')
 });
 
@@ -50,20 +37,20 @@ export const RESET_PASSWORD_VALIDATION = Yup.object().shape({
 export const SIGNUP_VALIDATION = Yup.object().shape({
   firstName: Yup.string()
     .trim()
-    .required('First name is required.')
-    .matches(NAME_LETTERS_ONLY, NAME_MESSAGE)
-    .min(1, 'First name is required.')
+    .matches(/^[a-zA-Z]*$/, NAME_MESSAGE)
     .max(100, 'First name must be at most 100 characters.'),
   lastName: Yup.string()
     .trim()
-    .required('Last name is required.')
-    .matches(NAME_LETTERS_ONLY, NAME_MESSAGE)
-    .min(1, 'Last name is required.')
+    .matches(/^[a-zA-Z]*$/, NAME_MESSAGE)
     .max(100, 'Last name must be at most 100 characters.'),
   email: emailRule,
   password: passwordRule,
-  username: Yup.string().trim().max(255, 'Username must be at most 255 characters.'),
+  username: Yup.string()
+    .trim()
+    .required('Username is required.')
+    .min(3, 'Username must be at least 3 characters.')
+    .max(255, 'Username must be at most 255 characters.'),
   referral: Yup.string().trim().max(64, 'Referral code must be at most 64 characters.'),
-  terms: Yup.boolean()
-    .oneOf([true], 'You must agree to the terms and conditions and privacy policy to sign up.')
+  ageConfirm: Yup.boolean().oneOf([true], 'You must confirm you are at least 21 and not in a restricted state.'),
+  terms: Yup.boolean().oneOf([true], 'You must accept the Terms of Use and Privacy Policy to sign up.')
 });

@@ -47,9 +47,9 @@
   #root .spz-rail .spz-rail__bottom {
     margin-top: auto;
   }
-  /* Push the whole app (nav + main + footer) right of the fixed rail */
+  /* Sidebar is now an overlay drawer — no reserved rail space. */
   #root .dash-root {
-    padding-left: 80px;
+    padding-left: 0;
   }
   /* Fit the main shell inside the space beside the rail (no side scroll) */
   #root .dash-root {

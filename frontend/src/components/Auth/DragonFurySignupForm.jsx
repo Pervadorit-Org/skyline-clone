@@ -1,35 +1,49 @@
 import { Link } from 'react-router-dom';
 import { Field } from 'formik';
+import { site } from '../../config/site';
 import { submitOrRevealErrors } from './submitOrRevealErrors';
 
 function EyeIcon({ show }) {
-  if (show) {
-    return (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-        <line x1="1" y1="1" x2="23" y2="23" />
-      </svg>
-    );
-  }
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+  return show ? (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M17.940 17.940A10.070 10.070 0 0 1 12 20c-7 0-11-8-11-8a18.450 18.450 0 0 1 5.060-5.940M9.900 4.240A9.120 9.120 0 0 1 12 4c7 0 11 8 11 8a18.500 18.500 0 0 1-2.160 3.190m-6.720-1.070a3 3 0 1 1-4.240-4.240" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  ) : (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.750 10.750 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.750 10.750 0 0 1-19.876 0" />
       <circle cx="12" cy="12" r="3" />
     </svg>
   );
 }
 
-export function DragonFurySignupForm({
-  formik,
-  showPassword,
-  togglePassword,
-  loginLink,
-  ssoSlot,
-  isSubmitting,
-  shakeBtn,
-  onEmptySubmit
-}) {
-  const { values, errors, touched, handleChange, handleBlur, setFieldValue } = formik;
+function TextField({ formik, id, name, label, required, type = 'text', placeholder, autoComplete, children }) {
+  const { values, errors, touched, handleChange, handleBlur } = formik;
+  const err = touched[name] && errors[name] ? errors[name] : '';
+  return (
+    <div className="am2-field">
+      <label htmlFor={id}>{label}{required ? <span className="am2-req">*</span> : null}</label>
+      {children || (
+        <Field
+          id={id}
+          name={name}
+          type={type}
+          className="am2-input"
+          value={values[name] ?? ''}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          aria-invalid={err ? 'true' : undefined}
+        />
+      )}
+      <p className="am2-err" role="alert">{err}</p>
+    </div>
+  );
+}
+
+export function DragonFurySignupForm({ formik, showPassword, togglePassword, isSubmitting, shakeBtn, onEmptySubmit }) {
+  const { values, errors, touched, handleBlur, handleChange, setFieldValue } = formik;
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -37,161 +51,59 @@ export function DragonFurySignupForm({
   };
 
   return (
-    <form className="dragonfury-auth-form" onSubmit={onSubmit} noValidate>
-      <label
-        className={`dragonfury-auth-check${touched.terms && errors.terms ? ' dragonfury-auth-check--err' : ''}`}
-        htmlFor="pj-terms"
-      >
-        <input
-          id="pj-terms"
-          name="terms"
-          type="checkbox"
-          checked={!!values.terms}
-          onChange={(e) => setFieldValue('terms', e.target.checked)}
-          onBlur={handleBlur}
-          aria-invalid={touched.terms && errors.terms ? 'true' : undefined}
-          aria-describedby={touched.terms && errors.terms ? 'pj-terms-err' : undefined}
-        />
-        <span>
-          I agree to the{' '}
-          <Link to="/terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-            Terms of Service
-          </Link>{' '}
-          and{' '}
-          <Link to="/privacy" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-            Privacy Policy
-          </Link>
-          .
-        </span>
-      </label>
-      {touched.terms && errors.terms && (
-        <p className="dragonfury-auth-consent-error" id="pj-terms-err" role="alert">
-          {errors.terms}
-        </p>
-      )}
+    <form className="am2-form" onSubmit={onSubmit} noValidate>
+      <TextField formik={formik} id="am2-username" name="username" label="Username" required placeholder="Choose a username" autoComplete="username" />
+      <TextField formik={formik} id="am2-su-email" name="email" label="Email" required type="email" placeholder="you@example.com" autoComplete="email" />
 
-      <div className="dragonfury-auth-name-row">
-        <div className="dragonfury-auth-field">
-          <label htmlFor="pj-firstName">First Name</label>
+      <div className="am2-field">
+        <label htmlFor="am2-su-password">Password<span className="am2-req">*</span></label>
+        <div className="am2-pass">
           <Field
-            id="pj-firstName"
-            name="firstName"
-            type="text"
-            value={values.firstName ?? ''}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder=" "
-            autoComplete="given-name"
-            aria-invalid={touched.firstName && errors.firstName ? 'true' : undefined}
-            aria-describedby={touched.firstName && errors.firstName ? 'pj-firstName-err' : undefined}
-          />
-          {touched.firstName && errors.firstName && (
-            <p className="dragonfury-auth-field-err" id="pj-firstName-err" role="alert">
-              {errors.firstName}
-            </p>
-          )}
-        </div>
-        <div className="dragonfury-auth-field">
-          <label htmlFor="pj-lastName">Last Name</label>
-          <Field
-            id="pj-lastName"
-            name="lastName"
-            type="text"
-            value={values.lastName ?? ''}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder=" "
-            autoComplete="family-name"
-            aria-invalid={touched.lastName && errors.lastName ? 'true' : undefined}
-            aria-describedby={touched.lastName && errors.lastName ? 'pj-lastName-err' : undefined}
-          />
-          {touched.lastName && errors.lastName && (
-            <p className="dragonfury-auth-field-err" id="pj-lastName-err" role="alert">
-              {errors.lastName}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="dragonfury-auth-field">
-        <label htmlFor="pj-email">Email</label>
-        <Field
-          id="pj-email"
-          name="email"
-          type="email"
-          value={values.email ?? ''}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          placeholder=" "
-          autoComplete="email"
-          aria-invalid={touched.email && errors.email ? 'true' : undefined}
-          aria-describedby={touched.email && errors.email ? 'pj-email-err' : undefined}
-        />
-        {touched.email && errors.email && (
-          <p className="dragonfury-auth-field-err" id="pj-email-err" role="alert">
-            {errors.email}
-          </p>
-        )}
-      </div>
-
-      <div className="dragonfury-auth-field">
-        <label htmlFor="pj-signup-password">Password</label>
-        <div className="dragonfury-auth-field-control">
-          <Field
-            id="pj-signup-password"
+            id="am2-su-password"
             name="password"
             type={showPassword ? 'text' : 'password'}
+            className="am2-input"
             value={values.password ?? ''}
             onChange={handleChange}
             onBlur={handleBlur}
-            placeholder=" "
+            placeholder="Enter your password"
             autoComplete="new-password"
             aria-invalid={touched.password && errors.password ? 'true' : undefined}
-            aria-describedby={touched.password && errors.password ? 'pj-signup-password-err' : undefined}
           />
-          <button
-            type="button"
-            className="dragonfury-auth-eye"
-            onClick={togglePassword}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
-          >
+          <button type="button" className="am2-eye" onClick={togglePassword} aria-label={showPassword ? 'Hide password' : 'Show password'}>
             <EyeIcon show={showPassword} />
           </button>
         </div>
-        {touched.password && errors.password && (
-          <p className="dragonfury-auth-field-err" id="pj-signup-password-err" role="alert">
-            {errors.password}
-          </p>
-        )}
+        <p className="am2-hint">Use 8 or more characters with a mix of letters, numbers &amp; symbols</p>
+        <p className="am2-err" role="alert">{touched.password && errors.password ? errors.password : ''}</p>
       </div>
 
-      <div className="dragonfury-auth-field">
-        <label htmlFor="pj-referral">Referral Code (Optional)</label>
-        <Field
-          id="pj-referral"
-          name="referral"
-          type="text"
-          value={values.referral ?? ''}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          placeholder=" "
-          autoComplete="off"
-        />
-      </div>
+      <TextField formik={formik} id="am2-referral" name="referral" label="Referral Code" placeholder="Enter referral code" autoComplete="off" />
 
-      {ssoSlot}
+      <label className="am2-check" htmlFor="am2-age">
+        <input id="am2-age" type="checkbox" checked={!!values.ageConfirm} onChange={(e) => setFieldValue('ageConfirm', e.target.checked)} onBlur={handleBlur} name="ageConfirm" />
+        <span>
+          I am at least 21 years old and I am not a resident of the{' '}
+          <Link to="/terms" target="_blank" rel="noopener noreferrer">Restricted states</Link>.<span className="am2-req">*</span>
+        </span>
+      </label>
+      {touched.ageConfirm && errors.ageConfirm ? <p className="am2-err am2-err--check" role="alert">{errors.ageConfirm}</p> : null}
 
-      <button
-        type="submit"
-        className={`dragonfury-auth-submit${isSubmitting ? ' ld' : ''}${shakeBtn ? ' shk' : ''}`}
-        disabled={isSubmitting}
-      >
-        <span>{isSubmitting ? 'Creating…' : 'Sign Up'}</span>
+      <label className="am2-check" htmlFor="am2-terms">
+        <input id="am2-terms" type="checkbox" checked={!!values.terms} onChange={(e) => setFieldValue('terms', e.target.checked)} onBlur={handleBlur} name="terms" />
+        <span>
+          I accept the {site.platformName}{' '}
+          <Link to="/terms" target="_blank" rel="noopener noreferrer">Terms of Use</Link> and{' '}
+          <Link to="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</Link>{' '}
+          (including, for the California residents the{' '}
+          <Link to="/privacy" target="_blank" rel="noopener noreferrer">California Privacy Notice</Link>).<span className="am2-req">*</span>
+        </span>
+      </label>
+      {touched.terms && errors.terms ? <p className="am2-err am2-err--check" role="alert">{errors.terms}</p> : null}
+
+      <button type="submit" className={`am2-submit${shakeBtn ? ' shk' : ''}`} disabled={isSubmitting}>
+        {isSubmitting ? 'Creating…' : 'Join Us'}
       </button>
-
-      <div className="dragonfury-auth-footer">
-        {loginLink}
-      </div>
     </form>
   );
 }

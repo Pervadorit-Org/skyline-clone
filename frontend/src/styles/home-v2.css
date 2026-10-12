@@ -790,3 +790,25 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- full-bleed banners: Hero 1 (welcome) + Hero 2 (play/win/redeem) break out of the
+   centered 1480px shell and span the whole viewport (scrollbars are hidden site-wide, so 100vw is exact) ---------- */
+body.guest-landing-active {
+  overflow-x: clip;
+}
+body.guest-landing-active .df-home2-hero1,
+body.guest-landing-active .df-home2-hero2 {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+body.guest-landing-active .df-home2-hero1 {
+  border-radius: 0 0 clamp(60px, 10.5vw, 140px) clamp(60px, 10.5vw, 140px);
+}
+body.guest-landing-active .df-home2-hero1__content {
+  padding-left: 20px;
+  padding-right: 20px;
+}

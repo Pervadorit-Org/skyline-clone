@@ -1,0 +1,78 @@
+.promotions-page{position:relative;margin:0 auto;width:100%;max-width:75rem;padding:1.5rem 1rem;font-family:"Montserrat",system-ui,sans-serif;color:#fff}
+.promotions-title{text-align:center;font-size:1.5rem;font-weight:700;text-transform:uppercase;background:linear-gradient(180deg,#fff3b0,#f5b52b 60%,#c98a12);-webkit-background-clip:text;background-clip:text;color:transparent;margin:0}
+.promotions-title-image{display:none;position:absolute;top:4rem;left:80%;width:6.25rem;height:4rem;object-fit:contain}
+.promotions-subtitle{padding:.75rem 0;font-size:1.125rem;font-weight:700;margin:0}
+.promotions-grid{display:grid;grid-template-columns:1fr;justify-items:center;gap:.5rem}
+.promo-flex{display:flex;align-items:center}.promo-gap{gap:.25rem}
+
+.promotion-card{position:relative;width:100%;max-width:24rem;aspect-ratio:378/246;overflow:hidden;border-radius:.75rem;container-type:inline-size}
+.promotion-card::before{content:"";position:absolute;inset:0}
+.vip-card::before{background:linear-gradient(135deg,#9333ea 0%,#6d28d9 45%,#1e1b6b 100%)}
+.welcome-card::before{background:linear-gradient(135deg,#a855f7 0%,#7c4fd8 55%,#5b3fd0 100%)}
+.special-offer-card::before{background:linear-gradient(135deg,#ff3d00 0%,#ff6a1a 60%,#ff4d00 100%)}
+.daily-express-card::before{background:linear-gradient(135deg,#38bdf8 0%,#7c8cf5 50%,#8b5cf6 100%)}
+.invite-card::before{background:linear-gradient(135deg,#a3262a 0%,#c8503a 50%,#e08a4a 100%)}
+.city-card::before{background:linear-gradient(135deg,#9333ea 0%,#c026d3 55%,#e8559a 100%)}
+
+.promo-art{position:absolute;pointer-events:none}
+.promo-art-vip{right:-4%;top:12%;width:36%;height:75%}
+.promo-art-wheel{right:-6%;top:12%;width:42%;aspect-ratio:1;border-radius:50%;border:5% solid #ff3fa4;background:radial-gradient(circle,#8a2be2 55%,#ff3fa4 58%,#ff3fa4 70%,#c77dff 72%);display:flex;align-items:center;justify-content:center}
+.promo-art-wheel span{font-size:11cqw;font-weight:900;color:#ffd83a;font-style:italic}
+.promo-art-statue{right:2%;top:2%;width:26%;height:92%}
+.promo-art-disco{right:-8%;top:8%;width:36%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f0abfc,#a21caf 55%,#4c1d95)}
+.promo-art-dragon{right:2%;bottom:0;width:46%;height:100%;object-fit:contain;object-position:bottom}
+.promo-art-calendar{right:2%;bottom:6%;width:30%;aspect-ratio:1;background:#fff;border-radius:.6rem;border-top:.8rem solid #e53935;transform:rotate(8deg);display:flex;align-items:center;justify-content:center}
+.promo-art-calendar span{font-size:12cqw;font-weight:900;color:#222;font-style:italic}
+.promo-sparkle{position:absolute;color:#fff;font-size:1.5rem;opacity:.9}
+.promo-art-statue .promo-sparkle{left:-60%;top:6%;color:#ffd54a}
+.promo-sparkle-a{right:34%;top:34%}.promo-sparkle-b{right:30%;top:68%;font-size:1.1rem}
+.promo-ribbon{position:absolute;top:0;right:7%;z-index:2;padding:.25rem .6rem .8rem;font-weight:900;font-size:5cqw;text-transform:uppercase;color:#fff;background:linear-gradient(180deg,#f5c542,#d9951b);clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%)}
+.promo-ribbon{background:linear-gradient(180deg,#f8d56b,#e0a52b)}
+
+.promotion-card-body{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:flex-start;padding:7% 6.6%;box-sizing:border-box}
+.promotion-card-head{width:100%}
+.promotion-card-badge{max-width:fit-content;margin:0;padding:.3rem .9rem;border-radius:.75rem;font-size:max(.6rem,3.7cqw);font-weight:700;text-transform:uppercase;color:#1a0f00;background:linear-gradient(180deg,#ffd84d,#f5a623)}
+.promotion-card-badge-plain{background:none;padding-left:0;color:#fff;font-weight:600}
+.promotion-card-description{padding-top:.5rem;font-weight:700;font-size:max(.7rem,4cqw)}
+.promotion-card-description p{margin:0}
+.promotion-card-description-lg{padding-top:0;margin-top:auto;font-size:max(1rem,7.4cqw)}
+.promotion-card-description-daily{padding-top:.6rem;font-size:max(1.1rem,7.4cqw);line-height:1.1;max-width:60%}
+.special-offer-card .promotion-card-head,.daily-express-card .promotion-card-head{display:flex;flex-direction:column;flex:1}
+.special-offer-card .promotion-card-description-lg,.daily-express-card .promotion-card-description-lg{margin:auto 0}
+.promotion-card-coins{margin-top:auto;display:flex;flex-direction:column;gap:.1rem;margin-bottom:.9rem}
+.promotion-card-coin-icon{width:1.9rem;height:1.9rem;object-fit:contain;flex-shrink:0}
+.promotion-card-coin-amount{margin-left:.25rem;font-size:max(1.4rem,9.5cqw);font-weight:800;line-height:1}
+.promotion-card-coin-label{font-size:max(.5rem,2.6cqw);font-weight:700;text-transform:uppercase;line-height:1.1}
+.promotion-card-coin-label p{margin:0}
+.promotion-card-actions{position:relative;display:flex;flex-direction:column;align-items:center;width:max-content;margin-top:auto}
+.promotion-card-coins + .promotion-card-actions{margin-top:0}
+.promotion-card-cta{display:inline-flex;align-items:center;justify-content:center;border:1px solid #fff3b8;border-radius:.75rem;padding:.55rem 2rem;min-width:14rem;font-size:max(.95rem,6cqw);font-weight:800;text-transform:none;color:#1a0f00;cursor:pointer;text-decoration:none;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.gold-gradient{background:linear-gradient(180deg,#fff0a8 0%,#f5c542 45%,#d9951b 100%)}
+.promotion-card-price{position:absolute;top:100%;margin:.2rem 0 0;font-size:max(.8rem,4.5cqw);font-weight:700;text-decoration:line-through;white-space:nowrap}
+.promo-referral{display:flex;flex-direction:column;gap:.4rem;padding-top:.5rem;font-weight:700}
+.promo-referral p{margin:0}
+.promotion-card-referral-up-to{font-size:max(1.1rem,6.4cqw)}
+.promotion-card-referral-amount{font-size:max(2.2rem,13cqw);font-weight:800;line-height:1}
+.promotion-card-referral-label{font-size:max(.55rem,3cqw);text-transform:uppercase}
+.promotion-card-streak{margin-top:.2rem}
+.promotion-card-streak p{margin:0}
+.promotion-card-streak-days{font-size:max(.65rem,3.4cqw);text-transform:uppercase;font-weight:700;margin-top:.4rem!important}
+.promotion-card-streak-bar{display:block;width:60%;height:.5rem;margin:.3rem 0;border:0;border-radius:99px;overflow:hidden;appearance:none;background:rgba(0,0,0,.45)}
+.promotion-card-streak-bar::-webkit-progress-bar{background:rgba(0,0,0,.45)}
+.promotion-card-streak-bar::-webkit-progress-value{background:#f5c542}
+.promotion-card-streak-label{font-size:max(.65rem,3.4cqw);font-weight:700}
+.promotion-card-streak-timer{font-size:max(.65rem,3.4cqw);font-weight:700;color:#ffd84d}
+
+@media(min-width:640px){
+ .promotions-title{font-size:1.875rem}
+ .promotions-subtitle{padding:1rem 0;font-size:1.25rem}
+ .promotions-grid{grid-template-columns:repeat(2,1fr)}
+ .promotion-card{border-radius:1rem}
+}
+@media(min-width:1024px){
+ .promotions-title{font-size:2.25rem}
+ .promotions-title-image{display:block}
+ .promotions-subtitle{margin-left:5rem;padding:2rem 0;font-size:1.5rem}
+ .promotions-grid{grid-template-columns:repeat(3,1fr);gap:.875rem}
+ .promotion-card{border-radius:1.5rem}
+}

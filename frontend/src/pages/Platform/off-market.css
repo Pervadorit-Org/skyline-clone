@@ -1,0 +1,48 @@
+.om-page{width:100%;min-width:0;padding:.75rem 1rem;color:#fff;font-family:Montserrat,system-ui,sans-serif}
+.om-title{margin:0;text-align:center;font-size:1.5rem;font-weight:700;text-transform:uppercase;background:linear-gradient(180deg,#FFE9A0,#F5C542 55%,#D9A21B);-webkit-background-clip:text;background-clip:text;color:transparent}
+.om-ring{border:2px solid transparent;background-clip:padding-box,border-box;background-origin:border-box}
+
+.om-banner{position:relative;display:flex;align-items:center;overflow:hidden;width:100%;aspect-ratio:16/9;margin:.75rem 0;padding:0 1rem;border-radius:1rem;
+ background:radial-gradient(ellipse at 20% 50%,rgba(120,70,20,.5),transparent 55%),radial-gradient(circle at 15% 20%,rgba(255,190,90,.25) 0 2px,transparent 3px) 0 0/90px 70px,linear-gradient(100deg,#2a170a 0%,#150c06 55%,#0b0706 100%)}
+.om-banner-text{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:center;gap:.75rem}
+.om-banner-lead{margin:0;font-size:1.1rem;font-weight:700;text-transform:uppercase;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.7)}
+.om-banner-accent{margin:0;width:8rem;font-size:1.9rem;font-weight:800;line-height:1.05;text-transform:uppercase;background:linear-gradient(180deg,#8bf05a,#2f9a1e);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 3px rgba(0,0,0,.7))}
+.om-banner-man{position:absolute;top:12%;right:-3rem;height:100%;aspect-ratio:1;background:radial-gradient(ellipse at 50% 35%,rgba(255,215,150,.28),transparent 60%),linear-gradient(180deg,transparent 40%,rgba(0,0,0,.5))}
+
+.om-winners-wrap{width:100%;padding:.75rem 0}
+.om-winners{overflow:hidden}
+.om-winners-track{display:flex;width:max-content;animation:om-marquee 35s linear infinite}
+.om-winners:hover .om-winners-track{animation-play-state:paused}
+@keyframes om-marquee{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.om-winners-track{animation:none}.om-winners{overflow-x:auto}}
+.om-winner-slot{flex:0 0 15rem;margin-right:.5rem;padding-top:3rem}
+.om-winner{position:relative;display:flex;flex-direction:column;align-items:center;padding-bottom:.75rem;border-radius:1rem;
+ background-image:linear-gradient(#171c33,#101426),linear-gradient(135deg,#a37a2a,#4a3a1a 50%,#c9a14a)}
+.om-winner-gap{height:3.5rem}
+.om-winner-logo{position:absolute;bottom:66.6%;z-index:10;height:7rem;width:auto;border-radius:.75rem}
+.om-winner-body{display:flex;flex-direction:column;align-items:center;gap:.125rem;padding-top:.75rem}
+.om-winner-body p{margin:0;font-weight:700}
+.om-winner-mail{font-size:.75rem}.om-winner-amt{font-size:.75rem}
+.om-winner-name{padding:.5rem .75rem;font-size:.75rem;color:#EBC567}
+
+.om-grid{display:grid;grid-template-columns:1fr;gap:.5rem;margin:0 auto;max-width:90rem;padding:1rem 0}
+.om-card{position:relative;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;min-height:15rem;padding:0 .875rem;border-radius:.75rem;background-image:linear-gradient(#101426,#101426),linear-gradient(135deg,rgba(235,197,103,.5),rgba(255,255,255,.08))}
+.om-card-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.om-card-fade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(8,10,22,.55) 78%,rgba(8,10,22,.9))}
+.om-card-cta{position:relative;z-index:10;padding:1.5rem 0}
+.om-play{display:flex;align-items:center;justify-content:center;width:100%;padding:.5rem 1.5rem;border-radius:1.5rem;text-decoration:none;font-size:1.5rem;font-weight:800;text-transform:uppercase;
+ background-image:linear-gradient(#0a0a0a,#0a0a0a),linear-gradient(90deg,#F8D36F,#a9741c 50%,#F8D36F);box-shadow:0 0 8px rgba(235,197,103,.25);transition:transform .1s,box-shadow .2s}
+.om-play:hover{box-shadow:0 0 14px rgba(235,197,103,.55)}.om-play:active{transform:scale(.98)}
+.om-play span{background:linear-gradient(180deg,#FFF3B0,#F5C542 60%,#D9A21B);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.7))}
+
+@media(min-width:640px){
+ .om-title{font-size:1.875rem}.om-grid{grid-template-columns:repeat(2,1fr)}.om-card{max-width:24rem}
+}
+@media(min-width:768px){
+ .om-banner{aspect-ratio:auto;height:20rem}.om-banner-accent{width:auto;font-size:2.25rem}.om-winner-amt{font-size:1.1rem}.om-winner-name{padding:.5rem 1.5rem;font-size:1.5rem}
+}
+@media(min-width:1024px){
+ .om-title{font-size:2.25rem}.om-banner-lead{font-size:1.9rem}.om-banner-accent{font-size:2.25rem}.om-banner-man{right:1rem}
+ .om-grid{grid-template-columns:repeat(3,1fr)}.om-card{min-height:18rem}
+}
+@media(min-width:1280px){.om-banner{padding:0 3rem}.om-banner-lead{font-size:2.25rem}.om-banner-accent{font-size:3.75rem}.om-grid{grid-template-columns:repeat(4,1fr)}}
