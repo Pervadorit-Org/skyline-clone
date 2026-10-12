@@ -30,8 +30,13 @@ function defaultForm(catalog, storeCode = '') {
   }
 }
 
-export default function LegalPageForm() {
-  const { pageKey } = useParams()
+/**
+ * Legal page editor. As a route (/footer/legal/:pageKey) it reads the key from the URL;
+ * inside the Pages hub it is embedded with an explicit `pageKey` and stays on the same screen.
+ */
+export default function LegalPageForm({ pageKey: pageKeyProp, embedded = false } = {}) {
+  const routeParams = useParams()
+  const pageKey = pageKeyProp || routeParams.pageKey
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -104,7 +109,7 @@ export default function LegalPageForm() {
       .catch((err) => {
         if (cancelled) return
         toast.error(err.message || 'Failed to load legal page.')
-        navigate('/footer')
+        if (!embedded) navigate('/footer')
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -112,7 +117,7 @@ export default function LegalPageForm() {
     return () => {
       cancelled = true
     }
-  }, [catalog, isMaster, pageKey, loadStoreCode, user?.storeCode, navigate, toast])
+  }, [catalog, isMaster, pageKey, loadStoreCode, user?.storeCode, navigate, embedded, toast])
 
   const setField = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -155,9 +160,10 @@ export default function LegalPageForm() {
       if (isMaster) body.storeCode = form.storeCode.trim()
       await updateAdminLegalPage(pageKey, body)
       toast.success(`${catalog.title} saved.`)
-      navigate('/footer')
+      if (!embedded) navigate('/footer')
     } catch (err) {
       toast.error(err.message || 'Save failed.')
+    } finally {
       setSaving(false)
     }
   }
@@ -166,7 +172,7 @@ export default function LegalPageForm() {
     return (
       <div className="blog-admin-page">
         <p>Unknown legal page.</p>
-        <Link to="/footer" className="admin-btn admin-btn-secondary">Back</Link>
+        {!embedded && <Link to="/footer" className="admin-btn admin-btn-secondary">Back</Link>}
       </div>
     )
   }
@@ -184,7 +190,7 @@ export default function LegalPageForm() {
             Use the visual editor or HTML / code palette. Live URL is <code>{catalog.path}</code>.
           </p>
         </div>
-        <Link to="/footer" className="admin-btn admin-btn-secondary">Back</Link>
+        {!embedded && <Link to="/footer" className="admin-btn admin-btn-secondary">Back</Link>}
       </div>
 
       <form className="blog-admin-form footer-form-steps" onSubmit={handleSubmit}>
@@ -260,9 +266,11 @@ export default function LegalPageForm() {
           <button type="submit" className="admin-btn admin-btn-primary" disabled={saving}>
             {saving ? 'Saving…' : 'Save page'}
           </button>
-          <button type="button" className="admin-btn admin-btn-secondary" onClick={() => navigate('/footer')}>
-            Cancel
-          </button>
+          {!embedded && (
+            <button type="button" className="admin-btn admin-btn-secondary" onClick={() => navigate('/footer')}>
+              Cancel
+            </button>
+          )}
         </div>
       </form>
     </div>

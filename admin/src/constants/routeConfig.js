@@ -51,6 +51,13 @@ export const NAV_ROUTES = [
   { path: '/chime-deposits', label: 'Chime deposits', allowedRoles: [ROLES.MASTER_ADMIN, ROLES.DISTRIBUTOR_ADMIN, ROLES.STORE_ADMIN], permissionKey: STORE_FEATURE_KEYS.CHIME_DEPOSITS, adminPermissionKey: ADMIN_FEATURE_KEYS.CHIME_DEPOSITS },
   { path: '/chime-accounts', label: 'Chime accounts', allowedRoles: [ROLES.MASTER_ADMIN, ROLES.DISTRIBUTOR_ADMIN, ROLES.STORE_ADMIN], permissionKey: STORE_FEATURE_KEYS.CHIME_ACCOUNTS, adminPermissionKey: ADMIN_FEATURE_KEYS.CHIME_ACCOUNTS },
   { path: '/profile', label: 'Profile', allowedRoles: [ROLES.MASTER_ADMIN, ROLES.DISTRIBUTOR_ADMIN, ROLES.STORE_ADMIN] },
+  {
+    path: '/pages',
+    label: 'Pages',
+    allowedRoles: [ROLES.MASTER_ADMIN, ROLES.STORE_ADMIN],
+    anyPermissionKeys: [STORE_FEATURE_KEYS.BLOG_POSTS, STORE_FEATURE_KEYS.HELP_CONTENT, STORE_FEATURE_KEYS.FOOTER_PAGES],
+    anyAdminPermissionKeys: [ADMIN_FEATURE_KEYS.BLOG_POSTS, ADMIN_FEATURE_KEYS.HELP_CONTENT, ADMIN_FEATURE_KEYS.FOOTER_PAGES]
+  },
   { path: '/help', label: 'Help content', allowedRoles: [ROLES.MASTER_ADMIN, ROLES.STORE_ADMIN], permissionKey: STORE_FEATURE_KEYS.HELP_CONTENT, adminPermissionKey: ADMIN_FEATURE_KEYS.HELP_CONTENT },
   { path: '/support-tickets', label: 'Support tickets', allowedRoles: [ROLES.MASTER_ADMIN, ROLES.STORE_ADMIN], permissionKey: STORE_FEATURE_KEYS.SUPPORT_TICKETS, adminPermissionKey: ADMIN_FEATURE_KEYS.SUPPORT_TICKETS },
   { path: '/social-links', label: 'Social media links', allowedRoles: [ROLES.MASTER_ADMIN, ROLES.STORE_ADMIN], permissionKey: STORE_FEATURE_KEYS.SOCIAL_LINKS, adminPermissionKey: ADMIN_FEATURE_KEYS.SOCIAL_LINKS },
@@ -92,6 +99,7 @@ export const ROUTE_ACCESS = {
   'stores/:id': [ROLES.MASTER_ADMIN, ROLES.DISTRIBUTOR_ADMIN],
   'stores/:id/edit': [ROLES.MASTER_ADMIN, ROLES.DISTRIBUTOR_ADMIN],
   'team': [ROLES.MASTER_ADMIN, ROLES.STORE_ADMIN],
+  'pages': [ROLES.MASTER_ADMIN, ROLES.STORE_ADMIN],
   'admin-roles': [ROLES.MASTER_ADMIN],
   'admin-roles/new': [ROLES.MASTER_ADMIN],
   'admin-roles/:id/edit': [ROLES.MASTER_ADMIN],
@@ -231,7 +239,8 @@ export const PATH_PERMISSION = {
 
 /** Path segment -> any of these store permissions grants access. */
 export const PATH_ANY_PERMISSION = {
-  team: [STORE_FEATURE_KEYS.STORE_ROLES_MANAGE, STORE_FEATURE_KEYS.STORE_STAFF_MANAGE]
+  team: [STORE_FEATURE_KEYS.STORE_ROLES_MANAGE, STORE_FEATURE_KEYS.STORE_STAFF_MANAGE],
+  pages: [STORE_FEATURE_KEYS.BLOG_POSTS, STORE_FEATURE_KEYS.HELP_CONTENT, STORE_FEATURE_KEYS.FOOTER_PAGES]
 }
 
 /** Path segment -> admin permission key (for master_admin with admin_role_id). Used for route access and redirect. */
@@ -305,7 +314,8 @@ export const ADMIN_PATH_PERMISSION = {
 
 /** Path segment -> any of these admin permissions grants access. */
 export const ADMIN_PATH_ANY_PERMISSION = {
-  team: [ADMIN_FEATURE_KEYS.ADMIN_ROLES_MANAGE, ADMIN_FEATURE_KEYS.ADMIN_STAFF_MANAGE]
+  team: [ADMIN_FEATURE_KEYS.ADMIN_ROLES_MANAGE, ADMIN_FEATURE_KEYS.ADMIN_STAFF_MANAGE],
+  pages: [ADMIN_FEATURE_KEYS.BLOG_POSTS, ADMIN_FEATURE_KEYS.HELP_CONTENT, ADMIN_FEATURE_KEYS.FOOTER_PAGES]
 }
 
 function hasAnyAdminPermission(user, keys) {

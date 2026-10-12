@@ -50,6 +50,45 @@
   resize: vertical;
 }
 
+.login-box input::placeholder,
+.login-box textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* Password field with show/hide eye button */
+.login-password {
+  position: relative;
+}
+
+.login-box .login-password input {
+  padding-right: 2.75rem;
+}
+
+.login-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  margin-top: 0.125rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.login-password-toggle:hover,
+.login-password-toggle:focus-visible {
+  color: #1a1a2e;
+  background: #f3f4f6;
+  outline: none;
+}
+
 .login-error {
   margin: 0 0 1rem;
   color: #c00;
