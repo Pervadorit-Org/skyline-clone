@@ -11,6 +11,7 @@ import {
 } from '../../utils/storeChest';
 import { DfStorePaymentModal } from './DfStorePaymentModal';
 import './df-store.css';
+import { site } from '../../config/site';
 
 function groupTheme(group) {
   const k = String(group?.group_key || '').toLowerCase();
@@ -291,7 +292,7 @@ export function DfStoreDepositView({
   return (
     <section className="store-route-page store-route-page--premium df-store-page" aria-label="Store">
       <header className="df-store-heading">
-        <p>DRAGON FURY SHOP</p>
+        <p>{`${site.platformName} SHOP`.toUpperCase()}</p>
         <h1>Choose your chest</h1>
         <span>SC packages for your next session.</span>
       </header>

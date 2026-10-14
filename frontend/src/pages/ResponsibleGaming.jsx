@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { getLegalPage } from '../api/legal';
 import { site } from '../config/site';
 import { usePageContentReady } from '../context/PageReadyContext';
@@ -99,8 +100,11 @@ export function ResponsibleGaming() {
     };
   }, []);
 
+  // Hidden by an admin (Admin → Pages): off the website and the footer.
+  if (!loading && page?.isActive === false) return <Navigate to="/" replace />;
+
   const cmsHtml = htmlHasContent(page?.content) ? String(page.content) : '';
-  const brand = String(site.platformName || 'Dragon Fury').replace(/\s+/g, '');
+  const brand = String(site.platformName || 'Golden Dragon Casino').replace(/\s+/g, '');
 
   return (
     <main className="legal-page">

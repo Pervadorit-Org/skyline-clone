@@ -17,6 +17,7 @@ function storeCodeToDisplayName(storeCode) {
   if (!s) return null;
   const known = {
     dragonfury: 'Dragon Fury',
+    goldendragon: 'Golden Dragon Casino',
     playjuwa: 'PlayJuwa',
     grandsweep: 'Grand Sweep'
   };

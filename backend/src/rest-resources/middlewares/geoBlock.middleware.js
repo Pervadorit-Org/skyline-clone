@@ -401,6 +401,8 @@ function enforceGeoRules(data, res, next, context = {}) {
 function geoBlock() {
   return async function geoBlockMiddleware(req, res, next) {
     const path = req.originalUrl || req.url;
+    // LOCAL DEV: location / VPN / country restrictions disabled. Remove this line to re-enable.
+    return next();
     try {
       if (isSearchCrawler(req.headers['user-agent'])) {
         return next();

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { site } from '../../config/site';
 
 const SIGNUP_TO = '/register';
 
@@ -15,7 +16,7 @@ export function GuestFinalCta() {
         2 SC on signup. Spin, platforms, and instant casino — one login.
       </p>
       <Link to={SIGNUP_TO} className="dash-final-cta-btn">
-        Join Dragon Fury
+        Join {site.platformName}
       </Link>
     </section>
   );

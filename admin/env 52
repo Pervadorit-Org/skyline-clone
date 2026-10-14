@@ -1,0 +1,4 @@
+# Dev proxy -> dragonfury backend
+VITE_API_URL=
+VITE_PARTNER_APP_URL=http://localhost:5173
+VITE_ADMIN_STORE_CODE=dragonfury

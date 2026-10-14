@@ -59,8 +59,10 @@ export function getGameDisplayName(name, gameKey) {
   }
   const trimmed = String(name || '').trim();
   if (!trimmed && !gameKey) return '';
-  const mapped = GAME_DISPLAY_NAMES[compactGameKey(gameKey)]
-    || GAME_DISPLAY_NAMES[compactGameKey(trimmed)];
+  // The admin-set name wins: renaming a game must not be overridden by its integration key.
+  const mapped = trimmed
+    ? GAME_DISPLAY_NAMES[compactGameKey(trimmed)]
+    : GAME_DISPLAY_NAMES[compactGameKey(gameKey)];
   if (mapped) return mapped;
   return trimmed.replace(/\s*\(agent\)\s*$/i, '').trim() || trimmed;
 }

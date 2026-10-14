@@ -1,26 +1,23 @@
-import { Fragment, useCallback, useRef } from 'react';
+import { Fragment, useCallback, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import lobbyData from '../../data/goldenLobby.json';
-import { getAllCachedProviderSlotGames } from '../../utils/dashboardSlotGamesCache';
-import { useToast } from '../../context/ToastContext';
+import { useLobbyCatalog } from '../../hooks/useLobbyCatalog';
+import { useLobbyContent } from '../../hooks/useLobbyContent';
+import { useLobbyPopular } from '../../hooks/useLobbyPopular';
+import { buildCategoryGameIndex, prepareDashboardSlotGames } from '../../utils/gitslotparkLandingGames';
+import { buildLobbySections } from './lobbyBuilder';
 import '../../styles/golden-lobby.css';
 
 /**
- * Casino lobby sections (featured banners, category rows, mosaics, Top 10 …),
- * rendered from src/data/goldenLobby.json. `renderInsert(afterTitle)` lets the
- * lobby slot its own panels (packages, providers …) between sections.
+ * The signed-in lobby feed: rows of games from the live game list (provider catalog), laid out by
+ * lobbyDefaults.js and the admin's changes (Admin → Pages → Lobby). `renderInsert(afterId)` lets the
+ * lobby slot its own panels (packages, providers …) between rows.
  */
 
-const CDN = lobbyData.base;
-const assetUrl = (p) => (/^(https?:|data:)/.test(p || '') ? p : `${CDN}${p || ''}`);
-const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+const PLACEHOLDER = '/logo.webp';
 
-/** Match a lobby entry to a playable game from the provider catalog (by title). */
-function findCatalogGame(entry) {
-  const key = norm(entry.title);
-  if (!key) return null;
-  const all = getAllCachedProviderSlotGames();
-  return all.find((g) => norm(g.title || g.name) === key) || null;
+function gameImage(game) {
+  const icons = Array.isArray(game?.iconUrls) ? game.iconUrls : [];
+  return [game?.image, ...icons].find((u) => typeof u === 'string' && u.trim()) || PLACEHOLDER;
 }
 
 function ArrowIcon() {
@@ -76,28 +73,30 @@ function useDragScroll() {
 }
 
 function GameCard({ game, onPlay, className = '', style }) {
+  const [src, setSrc] = useState(() => gameImage(game));
+  const title = game.title || game.name || 'Game';
   return (
     <button
       type="button"
       className={`gl-card ${className}`.trim()}
       style={style}
-      title={game.title}
-      aria-label={`Play ${game.title}`}
+      title={title}
+      aria-label={`Play ${title}`}
       onClick={() => onPlay(game)}
     >
-      <img src={assetUrl(game.img)} alt={game.title} loading="lazy" draggable="false" />
+      <img src={src} alt={title} loading="lazy" draggable="false" onError={() => setSrc(PLACEHOLDER)} />
     </button>
   );
 }
 
 function SectionHeader({ section, onPrev, onNext }) {
-  const iconIsCategory = String(section.icon || '').startsWith('game-categories/');
+  const iconIsCategory = Boolean(section.iconIsCategory);
   return (
     <header className="gl-head">
       <h2 className="gl-head__title">
         {section.icon ? (
           <span className={`gl-head__icon${iconIsCategory ? ' gl-head__icon--cat' : ''}`} aria-hidden="true">
-            <img src={assetUrl(section.icon)} alt="" />
+            <img src={section.icon} alt="" />
           </span>
         ) : null}
         {section.title}
@@ -132,7 +131,7 @@ function RowsSection({ section, onPlay }) {
           {section.rows.map((row, ri) => (
             <div className="gl-rows__line" key={ri}>
               {row.map((g) => (
-                <GameCard key={g.id} game={g} onPlay={onPlay} />
+                <GameCard key={g.id || g.gameid} game={g} onPlay={onPlay} />
               ))}
             </div>
           ))}
@@ -152,11 +151,11 @@ function MosaicSection({ section, onPlay }) {
         <div className="gl-mosaic">
           {section.games.map((g) => (
             <div
-              key={g.id}
+              key={g.id || g.gameid}
               className="gl-mosaic__cell"
               style={{
-                gridColumn: `${g.col} / span ${g.cs}`,
-                gridRow: `${g.row} / span ${g.rs}`,
+                gridColumn: `${g._cell.col} / span ${g._cell.cs}`,
+                gridRow: `${g._cell.row} / span ${g._cell.rs}`,
               }}
             >
               <GameCard game={g} onPlay={onPlay} className="gl-card--fill" />
@@ -177,7 +176,7 @@ function GridSection({ section, onPlay }) {
       <div className="gl-scroller" ref={ref} {...handlers}>
         <div className="gl-grid">
           {section.games.map((g) => (
-            <GameCard key={g.id} game={g} onPlay={onPlay} />
+            <GameCard key={g.id || g.gameid} game={g} onPlay={onPlay} />
           ))}
         </div>
       </div>
@@ -194,7 +193,7 @@ function RankSection({ section, onPlay }) {
         <h2 className="gl-head__title">
           {section.icon ? (
             <span className="gl-head__icon gl-head__icon--cat" aria-hidden="true">
-              <img src={assetUrl(section.icon)} alt="" />
+              <img src={section.icon} alt="" />
             </span>
           ) : null}
           {section.title}
@@ -203,7 +202,7 @@ function RankSection({ section, onPlay }) {
       <div className="gl-scroller gl-scroller--rank" ref={ref} {...handlers}>
         <div className="gl-rank">
           {section.games.map((g, i) => (
-            <div className="gl-rank__item" key={g.id}>
+            <div className="gl-rank__item" key={g.id || g.gameid}>
               <span
                 className={`gl-rank__num${i === 0 ? ' is-first' : i === section.games.length - 1 && section.games.length >= 10 ? ' is-last' : ''}`}
                 aria-hidden="true"
@@ -235,16 +234,23 @@ function FeaturedSection({ section, onPlay }) {
   const { ref, handlers } = useDragScroll();
   return (
     <section className="gl-featured" aria-label={section.title}>
-      <picture className="gl-featured__bg">
-        <source media="(min-width: 768px)" srcSet={assetUrl(section.bgDesktop)} />
-        <img src={assetUrl(section.bgMobile)} alt={section.title} loading="lazy" />
-      </picture>
+      {section.bgDesktop ? (
+        <picture className="gl-featured__bg">
+          <source media="(min-width: 768px)" srcSet={section.bgDesktop} />
+          <img src={section.bgMobile || section.bgDesktop} alt={section.title} loading="lazy" />
+        </picture>
+      ) : (
+        // No artwork uploaded: our own gradient with the studio name.
+        <div className="gl-featured__bg gl-featured__bg--plain" aria-hidden="true">
+          <span className="gl-featured__studio">{section.brand || section.title}</span>
+        </div>
+      )}
       <div className="gl-featured__fade" aria-hidden="true" />
       <div className="gl-featured__games">
         <div className="gl-scroller gl-scroller--featured" ref={ref} {...handlers}>
           <div className="gl-featured__grid">
             {section.games.map((g) => (
-              <GameCard key={g.id} game={g} onPlay={onPlay} />
+              <GameCard key={g.id || g.gameid} game={g} onPlay={onPlay} />
             ))}
           </div>
         </div>
@@ -262,29 +268,30 @@ const SECTION_BY_TYPE = {
 };
 
 export function GoldenLobbySections({ onPlayGame, renderInsert }) {
-  const { toast } = useToast();
+  const rawGames = useLobbyCatalog();
+  const content = useLobbyContent();
+  const popular = useLobbyPopular();
 
-  const handlePlay = useCallback(
-    (entry) => {
-      const game = findCatalogGame(entry);
-      if (!game) {
-        toast?.info?.(`${entry.title} isn't available to launch right now.`);
-        return;
-      }
-      onPlayGame(game);
-    },
-    [onPlayGame, toast]
-  );
+  const sections = useMemo(() => {
+    if (!rawGames.length) return [];
+    const eligible = prepareDashboardSlotGames(rawGames).filter(
+      (g) => String(g.provider || '').toLowerCase() !== 'bona'
+    );
+    const index = buildCategoryGameIndex(rawGames);
+    return buildLobbySections(eligible, (catalogId) => index.get(catalogId) || [], content, popular);
+  }, [rawGames, content, popular]);
+
+  const handlePlay = useCallback((game) => onPlayGame(game), [onPlayGame]);
 
   return (
     <div className="gl-feed">
-      {lobbyData.sections.map((section, i) => {
+      {sections.map((section) => {
         const Section = SECTION_BY_TYPE[section.type];
         if (!Section) return null;
         return (
-          <Fragment key={`${section.type}-${section.title}-${i}`}>
+          <Fragment key={section.id}>
             <Section section={section} onPlay={handlePlay} />
-            {renderInsert ? renderInsert(section.title) : null}
+            {renderInsert ? renderInsert(section.id) : null}
           </Fragment>
         );
       })}

@@ -164,7 +164,7 @@ export function ReferralShareModal({ open, onClose, referralLink, shareOptions =
   const { toast } = useToast();
   const reduceMotion = useReducedMotion();
   const [copied, setCopied] = useState(false);
-  const siteName = site?.platformName || 'Dragon Fury';
+  const siteName = site?.platformName || 'Golden Dragon Casino';
   useEffect(() => {
     if (!open) return undefined;
     const releaseScrollLock = lockBodyScroll();

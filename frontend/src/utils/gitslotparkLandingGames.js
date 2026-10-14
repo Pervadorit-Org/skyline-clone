@@ -388,6 +388,7 @@ export function mapOneGameHubToCarouselGame(game) {
     iconUrls: iconUrls.length ? iconUrls.slice(0, 4) : [GAME_PLACEHOLDER],
     brand: game.brand || '',
     categories: Array.isArray(game.categories) ? game.categories : [],
+    subcategories: Array.isArray(game.subcategories) ? game.subcategories : [],
   };
 }
 
@@ -1433,16 +1434,66 @@ export function buildOrionstarSlotCategories(allGames, options = {}) {
  * config/gameCategories.js); Virtual Game is bucketed here because the lobby
  * builder deliberately skips hidden category ids.
  */
-export function buildCategoryPageGames(allGames, catalogId) {
-  if (catalogId === 'virtual-games') {
-    return prepareDashboardSlotGames(allGames || []).filter((game) => {
+/**
+ * Every catalog category a game-list entry belongs to (its `categories` AND `subcategories`),
+ * not just the first one, so a game tagged for several categories shows up in each of them.
+ */
+export function resolveHubCategoryIds(game) {
+  if (!isOneGameHubProvider(game?.provider)) return [];
+  const raw = [
+    ...(Array.isArray(game.categories) ? game.categories : []),
+    ...(Array.isArray(game.subcategories) ? game.subcategories : []),
+    game.category,
+  ];
+  const ids = [];
+  for (const value of raw) {
+    if (value == null || String(value).trim() === '') continue;
+    const slug = String(value).trim().toLowerCase().replace(/\s+/g, '-');
+    const id = HUB_SLUG_TO_CATEGORY_ID[slug];
+    if (id && !ids.includes(id)) ids.push(id);
+  }
+  return ids;
+}
+
+/** Games of every category at once: { catalogId -> games }. Used by the lobby rows. */
+export function buildCategoryGameIndex(allGames) {
+  const index = new Map();
+  const base = buildOrionstarSlotCategories(allGames, {});
+  for (const category of base) index.set(category.id, [...(category.games || [])]);
+
+  const prepared = prepareDashboardSlotGames(allGames || []).filter((game) => {
+    if (String(game.provider || '').toLowerCase() === 'bona') return false;
+    return !isGrazGameBrand(game);
+  });
+  const seen = new Map();
+  for (const [id, list] of index) seen.set(id, new Set(list.map((g) => gameCatalogId(g) || g.id)));
+  for (const game of prepared) {
+    const key = gameCatalogId(game) || game.id;
+    for (const id of resolveHubCategoryIds(game)) {
+      if (id === 'virtual-games') continue;
+      if (!index.has(id)) {
+        if (isHiddenSlotCategoryId(id)) continue;
+        index.set(id, []);
+        seen.set(id, new Set());
+      }
+      if (seen.get(id).has(key)) continue;
+      seen.get(id).add(key);
+      index.get(id).push(game);
+    }
+  }
+  index.set(
+    'virtual-games',
+    prepareDashboardSlotGames(allGames || []).filter((game) => {
       if (String(game.provider || '').toLowerCase() === 'bona') return false;
       if (isGrazGameBrand(game)) return false;
       return isOneGameHubProvider(game.provider) && resolveOrionstarCategory(game).id === 'virtual-games';
-    });
-  }
-  const category = buildOrionstarSlotCategories(allGames, {}).find((c) => c.id === catalogId);
-  return category?.games || [];
+    })
+  );
+  return index;
+}
+
+export function buildCategoryPageGames(allGames, catalogId) {
+  return buildCategoryGameIndex(allGames).get(catalogId) || [];
 }
 
 export function resolveLaunchGameId(game) {

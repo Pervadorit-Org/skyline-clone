@@ -1,4 +1,4 @@
-import { homeConfig } from '../../../config/homeConfig';
+import { useHomeConfig } from '../../../config/homeConfigContext';
 import { ImageSlot } from './ImageSlot';
 import { PillButton } from './PillButton';
 
@@ -6,10 +6,11 @@ import { PillButton } from './PillButton';
 // on the right. Background is a CSS gradient (see home-v2.css) + DragonFury's
 // own dragon art — not goldendragon.casino's hosted play-for-free images.
 export function NoPurchaseSection() {
+  const homeConfig = useHomeConfig();
   const cfg = homeConfig.noPurchase;
   if (!cfg) return null;
   return (
-    <section className="df-home2-section df-home2-nopurchase" style = {{backgroundImage: "https://www.goldendragon.casino/landing/play-for-free-bg.webp"}}>
+    <section className="df-home2-section df-home2-nopurchase" style={{ backgroundImage: "url(/static_image/play-for-free-bg.webp)" }}>
       <div className="df-home2-nopurchase__inner">
         <div className="df-home2-nopurchase__text">
           <h2 className="df-home2-nopurchase__title">{cfg.title}</h2>

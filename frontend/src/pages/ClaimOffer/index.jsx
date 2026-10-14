@@ -4,7 +4,7 @@ import { claimOffer, getClaimPreview } from '../../api/emailCampaigns';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { usePageContentReady } from '../../context/PageReadyContext';
-import { STORE_CODE } from '../../config/site';
+import { IS_BRAND_STORE } from '../../config/site';
 import './ClaimOffer.css';
 
 export function ClaimOffer() {
@@ -19,7 +19,7 @@ export function ClaimOffer() {
   const [result, setResult] = useState(null);
   const [fatal, setFatal] = useState(null);
 
-  const isPlayjuwa = String(STORE_CODE || '').toLowerCase().replace(/[^a-z0-9]/g, '') === 'dragonfury';
+  const isPlayjuwa = IS_BRAND_STORE;
 
   usePageContentReady(!loading || !isPlayjuwa);
 

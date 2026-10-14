@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { getLegalPage } from '../api/legal';
 import { site } from '../config/site';
 import { usePageContentReady } from '../context/PageReadyContext';
@@ -7,7 +7,7 @@ import { usePageSeo } from '../utils/pageSeo';
 import { sanitizeHtml } from '../utils/sanitizeHtml';
 import './Blog/Blog.css';
 import './FooterPage/FooterPage.css';
-import './df-content-pages.css';
+import './legal-prose.css';
 
 function siteOrigin() {
   const fromSite = String(site.canonicalUrl || '').trim().replace(/\/+$/, '');
@@ -38,11 +38,24 @@ const LEGAL_PAGE_META = {
   'responsible-gaming': {
     pageKey: 'responsible-gaming',
     path: '/responsible-gaming',
-    title: 'Responsible Gaming',
+    title: 'Responsible Gambling',
     backTo: '/',
     backLabel: 'Back to Home'
   }
 };
+
+const SIMPLE_PAGES = {
+  'about-us': { path: '/about-us', title: 'About Us' },
+  'bonus-terms': { path: '/bonus-terms', title: 'Bonus Terms' },
+  'sweep-policy': { path: '/sweep-policy', title: 'Sweep Policy' },
+  amoe: { path: '/amoe', title: 'AMOE' },
+  'aml-cft-policy': { path: '/aml-cft-policy', title: 'AML/CFT Policy' },
+  'cookie-policy': { path: '/cookie-policy', title: 'Cookie Policy' },
+  'ssl-encryption': { path: '/ssl-encryption', title: 'SSL Encryption' },
+};
+Object.entries(SIMPLE_PAGES).forEach(([key, page]) => {
+  LEGAL_PAGE_META[key] = { pageKey: key, ...page, backTo: '/', backLabel: 'Back to Home' };
+});
 
 function wrapTablesForScroll(root) {
   if (!root) return;
@@ -79,7 +92,18 @@ function fallbackCopy(pageKey) {
   if (pageKey === 'terms') {
     return `Terms and conditions content will be added here. For support, contact ${support}.`;
   }
+  if (pageKey !== 'responsible-gaming') {
+    return `This page's content will be added here. For support, contact ${support}.`;
+  }
   return `${site.platformName} is committed to responsible play. You must be 18+ to participate. Set personal limits, take breaks, and never play with money you cannot afford to lose. If you need help, contact support at ${support} or visit ncpgambling.org.`;
+}
+
+function formatUpdated(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  return Number.isNaN(d.getTime())
+    ? ''
+    : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function htmlHasContent(html) {
@@ -144,34 +168,28 @@ export function LegalDocument({ pageKey }) {
     return <LegalPageSkeleton />;
   }
 
+  // An admin hid this page (Admin → Pages): it is no longer on the website or in the footer.
+  if (page && page.isActive === false) {
+    return <Navigate to="/" replace />;
+  }
+
+  const updated = formatUpdated(page?.updatedAt || page?.updated_at);
+
+  // Same look as the Responsible Gambling and FAQ pages: gold gradient title, "last updated" line, readable text.
   return (
-    <div className="df-content-page pj-blog-page pj-blog-detail df-content-skin">
-      <article className="df-content-card pj-blog-article">
-        <nav className="df-content-crumbs" aria-label="Breadcrumb">
-          <Link to="/">Home</Link>
-          <span aria-hidden="true">/</span>
-          <span>{title}</span>
-        </nav>
-        <span className="df-content-badge">Legal</span>
-        <h1 className="df-content-title pj-blog-title">{title}</h1>
+    <main className="legal-page">
+      <header className="legal-head">
+        <h1>{title}</h1>
+        {updated ? <p>Last updated {updated}</p> : null}
+      </header>
+      <article className="legal-prose">
         {html ? (
-          <div
-            className="pj-blog-content pj-footer-page-content pj-legal-page-content df-content-body"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
-          />
+          <div className="pj-legal-page-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }} />
         ) : (
-          <p className="df-content-lead">{fallbackCopy(pageKey)}</p>
+          <p>{fallbackCopy(pageKey)}</p>
         )}
-        <p className="df-content-lead" style={{ marginTop: '1.25rem', marginBottom: 0, fontSize: '0.85rem' }}>
-          {site.copyright}
-        </p>
-        <div className="df-content-actions">
-          <Link to={meta.backTo} className="df-content-btn df-content-btn--ghost">
-            {meta.backLabel}
-          </Link>
-        </div>
       </article>
-    </div>
+    </main>
   );
 }
 

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import { STORE_CODE } from '../../config/site';
+import { IS_BRAND_STORE } from '../../config/site';
 
-const IS_DRAGONFURY = String(STORE_CODE || '').toLowerCase().replace(/[^a-z0-9]/g, '') === 'dragonfury';
+const IS_DRAGONFURY = IS_BRAND_STORE;
 const SECTION_THEMES = ['gold', 'teal', 'ember', 'forest'];
 
 function hasBlockContent(block) {

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { AUTH_LOBBY_LINKS } from '../constants/authLobbyLinks';
+import { useLobbyShell } from '../hooks/useLobbyShell';
 import { BG_MUSIC_MUTED_STORAGE_KEY } from './backgroundMusicTracks';
 import { openSupportWidget } from './intercomApi';
 import { SiteLogo } from './SiteLogo';
@@ -58,6 +59,7 @@ export function DfQuickMenu({ open, onClose, anchorRef }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { logout, isAuthenticated, user } = useAuth();
+  const shell = useLobbyShell();
   const panelRef = useRef(null);
   const [muted, setMuted] = useState(readMusicMuted);
 
@@ -150,7 +152,7 @@ export function DfQuickMenu({ open, onClose, anchorRef }) {
         {name ? <p className="df-drawer__user">Signed in as <strong>{name}</strong></p> : null}
 
         <nav className="df-drawer__nav" aria-label="Lobby links">
-          {AUTH_LOBBY_LINKS.map((item) => {
+          {AUTH_LOBBY_LINKS.filter((item) => !shell.hidden('header', item.id)).map((item) => {
             const active = item.match?.(pathname);
             return (
               <button
@@ -168,7 +170,7 @@ export function DfQuickMenu({ open, onClose, anchorRef }) {
                 }}
               >
                 <Icon id={item.id} />
-                <span>{item.label}</span>
+                <span>{shell.label('header', item.id, item.label)}</span>
               </button>
             );
           })}

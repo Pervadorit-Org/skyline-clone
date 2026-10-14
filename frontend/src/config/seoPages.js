@@ -6,33 +6,33 @@ import { FEATURED_PLATFORM_GAMES } from './featuredPlatformGames';
 import { getGameDisplayName } from '../utils/gameDisplay';
 
 export const HOME_SEO = {
-  title: 'DragonFury - Access 20+ Sweepstakes Game Systems Online',
+  title: 'Golden Dragon Casino - Access 20+ Sweepstakes Game Systems Online',
   description:
     'Dragon Fury, Orion Stars, Golden Dragon, Fire Kirin & more — all in one place. Explore our full games list and start playing today.',
 };
 
 export const GAMES_LISTING_SEO = {
-  title: 'Our Games | Fish Tables & Slots - DragonFury',
+  title: 'Our Games | Fish Tables & Slots - Golden Dragon Casino',
   description:
-    'Browse every game system on DragonFury — Juwa, Firekirin, Orionstars, Golden Dragon, Ultra Panda, Riversweeps, and more. Play in your browser today.',
+    'Browse every game system on Golden Dragon Casino — Juwa, Firekirin, Orionstars, Golden Dragon, Ultra Panda, Riversweeps, and more. Play in your browser today.',
 };
 
 export const BLOG_SEO = {
-  title: 'DragonFury Blog - Game Guides & Tips',
+  title: 'Golden Dragon Casino Blog - Game Guides & Tips',
   description:
-    'Explore guides, tips, and comparisons across every game system available on DragonFury — from fish games to classic slots.',
+    'Explore guides, tips, and comparisons across every game system available on Golden Dragon Casino — from fish games to classic slots.',
 };
 
 export const FAQ_SEO = {
-  title: 'DragonFury FAQ | Sweepstakes Games Help',
+  title: 'Golden Dragon Casino FAQ | Sweepstakes Games Help',
   description:
-    'Answers about free play, Sweepstakes Coins, redemption, eligibility, and support on DragonFury. Play in your browser — no app download required.',
+    'Answers about free play, Sweepstakes Coins, redemption, eligibility, and support on Golden Dragon Casino. Play in your browser — no app download required.',
 };
 
 export const CONTACT_SEO = {
-  title: 'Contact DragonFury Support',
+  title: 'Contact Golden Dragon Casino Support',
   description:
-    'Reach DragonFury customer support by email or live chat. Use official channels only, and never share your login details.',
+    'Reach Golden Dragon Casino customer support by email or live chat. Use official channels only, and never share your login details.',
 };
 
 function toSlug(name) {
@@ -49,114 +49,114 @@ const PLATFORM_COPY = {
   'Golden Dragon': {
     genre: 'Fish & Slots',
     blurb: 'Classic fish tables and slots with a simple login and browser-based play.',
-    title: 'Golden Dragon Sweepstakes Online | DragonFury',
+    title: 'Golden Dragon Sweepstakes Online | Golden Dragon Casino',
     description:
-      'Play Golden Dragon fish games and slots on DragonFury. No download — sign up and launch in your browser.',
+      'Play Golden Dragon fish games and slots on Golden Dragon Casino. No download — sign up and launch in your browser.',
   },
   'Ultra Panda': {
     genre: 'Fish & Slots',
     blurb: 'Ultra Panda fish shooting and slots, ready to play on desktop or mobile.',
-    title: 'Ultra Panda Online | DragonFury',
+    title: 'Ultra Panda Online | Golden Dragon Casino',
     description:
-      'Access Ultra Panda fish games and slots through DragonFury. Browser-based play with a wide table selection.',
+      'Access Ultra Panda fish games and slots through Golden Dragon Casino. Browser-based play with a wide table selection.',
   },
   Egame99: {
     genre: 'Casino & Slots',
-    blurb: 'Egame99 casino-style games with fast browser access on DragonFury.',
-    title: 'Egame99 Online | DragonFury',
+    blurb: 'Egame99 casino-style games with fast browser access on Golden Dragon Casino.',
+    title: 'Egame99 Online | Golden Dragon Casino',
     description:
-      'Play Egame99 on DragonFury in your browser. Sign up free and jump into the full game list — no app required.',
+      'Play Egame99 on Golden Dragon Casino in your browser. Sign up free and jump into the full game list — no app required.',
   },
   Vblink: {
     genre: 'Fish & Slots',
-    blurb: 'Vblink fish games and slots with instant web play on DragonFury.',
-    title: 'Vblink Online | DragonFury',
+    blurb: 'Vblink fish games and slots with instant web play on Golden Dragon Casino.',
+    title: 'Vblink Online | Golden Dragon Casino',
     description:
-      'Launch Vblink fish games and slots on DragonFury. No download needed — play from any modern browser.',
+      'Launch Vblink fish games and slots on Golden Dragon Casino. No download needed — play from any modern browser.',
   },
   Juwa: {
     genre: 'Fish & Slots',
     blurb: 'Juwa fish games and slots — the flagship lineup, playable in your browser.',
-    title: 'Dragon Fury Online - Fish Games & Slots | DragonFury',
+    title: 'Dragon Fury Online - Fish Games & Slots | Golden Dragon Casino',
     description:
-      'Access Juwa fish games and slots online through DragonFury. No download needed — browser-based play with a wide game selection.',
+      'Access Juwa fish games and slots online through Golden Dragon Casino. No download needed — browser-based play with a wide game selection.',
   },
   Firekirin: {
     genre: 'Fish Games',
     blurb: 'Firekirin fish tables online — browse available rooms and start in your browser.',
-    title: 'Firekirin Online - Fish Games | DragonFury',
+    title: 'Firekirin Online - Fish Games | Golden Dragon Casino',
     description:
-      "Play Firekirin fish games through DragonFury's easy online access. Browse available tables and get started today.",
+      "Play Firekirin fish games through Golden Dragon Casino's easy online access. Browse available tables and get started today.",
   },
   Orionstars: {
     genre: 'Fish & Slots',
     blurb: 'Orionstars fish games and slots with full library access in the browser.',
-    title: 'Orionstars Online - Fish Games | DragonFury',
+    title: 'Orionstars Online - Fish Games | Golden Dragon Casino',
     description:
-      "Play Orionstars fish games and slots through DragonFury's browser-based access. Explore the full game library today.",
+      "Play Orionstars fish games and slots through Golden Dragon Casino's browser-based access. Explore the full game library today.",
   },
   CashMachine777: {
     genre: 'Slots',
-    blurb: 'CashMachine777 slots with one-click browser play on DragonFury.',
-    title: 'CashMachine777 Slots Online | DragonFury',
+    blurb: 'CashMachine777 slots with one-click browser play on Golden Dragon Casino.',
+    title: 'CashMachine777 Slots Online | Golden Dragon Casino',
     description:
-      'Play CashMachine777 slots on DragonFury. Sign up, open the platform in your browser, and start spinning — no app download.',
+      'Play CashMachine777 slots on Golden Dragon Casino. Sign up, open the platform in your browser, and start spinning — no app download.',
   },
   Gameroom: {
     genre: 'Casino',
-    blurb: 'Gameroom casino titles with simple web login on DragonFury.',
-    title: 'Gameroom Online | DragonFury',
+    blurb: 'Gameroom casino titles with simple web login on Golden Dragon Casino.',
+    title: 'Gameroom Online | Golden Dragon Casino',
     description:
-      'Access Gameroom casino games through DragonFury. Browser-based play, wide selection, no download required.',
+      'Access Gameroom casino games through Golden Dragon Casino. Browser-based play, wide selection, no download required.',
   },
   Mafia: {
     genre: 'Fish & Slots',
-    blurb: 'Mafia fish games and slots with browser-based play on DragonFury.',
-    title: 'Mafia Online | DragonFury',
+    blurb: 'Mafia fish games and slots with browser-based play on Golden Dragon Casino.',
+    title: 'Mafia Online | Golden Dragon Casino',
     description:
-      'Play Mafia fish games and slots on DragonFury. Sign up and launch in your browser — no download required.',
+      'Play Mafia fish games and slots on Golden Dragon Casino. Sign up and launch in your browser — no download required.',
   },
   Gamevault: {
     genre: 'Fish & Slots',
-    blurb: 'Game Vault fish games and slots, launched straight from DragonFury.',
-    title: 'Game Vault Online | DragonFury',
+    blurb: 'Game Vault fish games and slots, launched straight from Golden Dragon Casino.',
+    title: 'Game Vault Online | Golden Dragon Casino',
     description:
-      'Play Game Vault fish games and slots on DragonFury. Instant browser access with a wide table and slot list.',
+      'Play Game Vault fish games and slots on Golden Dragon Casino. Instant browser access with a wide table and slot list.',
   },
   'Juwa 2.0': {
     genre: 'Fish & Slots',
-    blurb: 'Juwa 2.0 — the next Juwa lineup, playable in your browser on DragonFury.',
-    title: 'Juwa 2.0 Online | DragonFury',
+    blurb: 'Juwa 2.0 — the next Juwa lineup, playable in your browser on Golden Dragon Casino.',
+    title: 'Juwa 2.0 Online | Golden Dragon Casino',
     description:
-      'Access Juwa 2.0 fish games and slots through DragonFury. No download — sign up and play in your browser.',
+      'Access Juwa 2.0 fish games and slots through Golden Dragon Casino. No download — sign up and play in your browser.',
   },
   Milkyway: {
     genre: 'Fish & Slots',
     blurb: 'Milkyway fish shooting and slots with instant web play.',
-    title: 'Milkyway Online | DragonFury',
+    title: 'Milkyway Online | Golden Dragon Casino',
     description:
-      'Launch Milkyway fish games and slots on DragonFury. Browser-based access, no app required.',
+      'Launch Milkyway fish games and slots on Golden Dragon Casino. Browser-based access, no app required.',
   },
   Pandamasters: {
     genre: 'Fish & Slots',
     blurb: 'Pandamasters fish tables and slots, ready on desktop or phone.',
-    title: 'Pandamasters Online | DragonFury',
+    title: 'Pandamasters Online | Golden Dragon Casino',
     description:
-      'Play Pandamasters fish games and slots through DragonFury. Sign up and play in your browser today.',
+      'Play Pandamasters fish games and slots through Golden Dragon Casino. Sign up and play in your browser today.',
   },
   Riversweeps: {
     genre: 'Fish & Slots',
-    blurb: 'Riversweeps fish games and slots with one login on DragonFury.',
-    title: 'Riversweeps Online | DragonFury',
+    blurb: 'Riversweeps fish games and slots with one login on Golden Dragon Casino.',
+    title: 'Riversweeps Online | Golden Dragon Casino',
     description:
-      'Access Riversweeps fish games and slots on DragonFury. No download needed — play in any modern browser.',
+      'Access Riversweeps fish games and slots on Golden Dragon Casino. No download needed — play in any modern browser.',
   },
   Vegasx: {
     genre: 'Casino & Slots',
-    blurb: 'Vegasx casino and slots with fast browser play on DragonFury.',
-    title: 'Vegasx Online | DragonFury',
+    blurb: 'Vegasx casino and slots with fast browser play on Golden Dragon Casino.',
+    title: 'Vegasx Online | Golden Dragon Casino',
     description:
-      'Play Vegasx casino games and slots on DragonFury. Simple login, browser-based play, no app download.',
+      'Play Vegasx casino games and slots on Golden Dragon Casino. Simple login, browser-based play, no app download.',
   },
 };
 
@@ -168,11 +168,11 @@ export const GAME_CATEGORY_PAGES = FEATURED_PLATFORM_GAMES.map((featured) => {
     slug,
     name: displayName,
     catalogName: featured.name,
-    title: copy.title || `${displayName} Online | DragonFury`,
+    title: copy.title || `${displayName} Online | Golden Dragon Casino`,
     description:
       copy.description ||
-      `Play ${displayName} on DragonFury in your browser. Sign up free — no download required.`,
-    blurb: copy.blurb || `Play ${displayName} online in your browser on DragonFury.`,
+      `Play ${displayName} on Golden Dragon Casino in your browser. Sign up free — no download required.`,
+    blurb: copy.blurb || `Play ${displayName} online in your browser on Golden Dragon Casino.`,
     genre: copy.genre || 'Sweepstakes',
     image: featured.image_url,
   };

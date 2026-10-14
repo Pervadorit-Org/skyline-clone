@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { homeConfig } from '../../../config/homeConfig';
+import { useHomeConfig } from '../../../config/homeConfigContext';
 
 // Our own house glyph for the Home tab (not goldendragon.casino's hosted icon).
 function HomeIcon() {
@@ -15,6 +15,7 @@ function HomeIcon() {
 
 // Horizontal, scrollable game-category strip. First item renders active (gold).
 export function CategoryStrip() {
+  const homeConfig = useHomeConfig();
   const items = homeConfig.categoryStrip?.items || [];
   if (items.length === 0) return null;
   return (

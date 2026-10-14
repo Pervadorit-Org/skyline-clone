@@ -355,6 +355,37 @@
     animation: none;
   }
 }
+.gl-featured__bg--plain {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: clamp(24px, 6vw, 72px);
+  background:
+    radial-gradient(ellipse 60% 70% at 18% 50%, rgba(235, 197, 103, 0.28), transparent 70%),
+    linear-gradient(135deg, #2a1230 0%, #170a1f 55%, #0e0b1c 100%);
+}
+.gl-featured__studio {
+  max-width: 40%;
+  font-family: Montserrat, system-ui, sans-serif;
+  font-size: clamp(1.6rem, 4vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: transparent;
+  background: linear-gradient(180deg, #ffe9a0, #f5c542 55%, #d9a21b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 767px) {
+  .gl-featured__bg--plain {
+    align-items: flex-start;
+    padding-top: 24px;
+  }
+  .gl-featured__studio {
+    max-width: 80%;
+  }
+}
 .gl-featured__fade {
   position: absolute;
   inset: 0;

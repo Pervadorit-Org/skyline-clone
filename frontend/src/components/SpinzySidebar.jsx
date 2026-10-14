@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { openSupportWidget } from './intercomApi';
 import { openTaskList } from './Tasks/TaskListModal';
-import { DashboardSidebar, RAIL_ITEMS } from './Home/DashboardSidebar';
+import { DashboardSidebar, RAIL_ITEMS, applyRailShell } from './Home/DashboardSidebar';
+import { useLobbyShell } from '../hooks/useLobbyShell';
 import '../styles/dashboard-sidebar.css';
 
 /* Persistent icon-only rail (click an icon → navigate). Shown to logged-in
@@ -13,6 +14,7 @@ function IconRail({ onNavigate, isGuest = false }) {
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
   const { logout } = useAuth();
+  const shell = useLobbyShell();
 
   const isActive = (to) => {
     if (!to || to === '/casino') return false;
@@ -44,9 +46,10 @@ function IconRail({ onNavigate, isGuest = false }) {
   };
 
   // Guests have no session to log out of; hide the logout control for them.
-  const items = isGuest
-    ? RAIL_ITEMS.filter((it) => it.action !== 'logout')
-    : RAIL_ITEMS;
+  const items = applyRailShell(
+    isGuest ? RAIL_ITEMS.filter((it) => it.action !== 'logout') : RAIL_ITEMS,
+    shell
+  );
 
   return (
     <aside className="dgs-rail" aria-label="Sidebar">

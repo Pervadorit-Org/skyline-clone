@@ -13,4 +13,14 @@ async function getOne(req, res) {
   }
 }
 
-module.exports = { getOne };
+async function list(req, res) {
+  try {
+    const storeCode = req.query.store_code || req.query.storeCode;
+    const data = await legalPages.listPublic(storeCode);
+    return sendSuccess(res, data);
+  } catch (err) {
+    return sendError(res, err.message || 'Failed to list legal pages', err.statusCode || 500);
+  }
+}
+
+module.exports = { getOne, list };

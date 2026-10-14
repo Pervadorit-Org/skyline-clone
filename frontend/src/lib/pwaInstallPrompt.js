@@ -58,7 +58,7 @@ export async function openNativeInstall() {
   if (isiOS && typeof navigator.share === 'function') {
     try {
       await navigator.share({
-        title: document.title || 'Dragon Fury',
+        title: document.title || 'Golden Dragon Casino',
         url: window.location.href
       });
       return true;

@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { getHelp } from '../../api/help';
 import { useAuth } from '../../context/AuthContext';
 import { usePageContentReady } from '../../context/PageReadyContext';
@@ -14,6 +14,8 @@ import {
   ReferEarnHelp,
 } from './tabs';
 import '../df-content-pages.css';
+import '../Faq/faq-page.css';
+import './help-theme.css';
 import './HelpContent.css';
 
 const DEFAULT_TABS = [
@@ -98,16 +100,10 @@ export function Help() {
   );
 
   return (
-    <div className="df-content-page df-help-page" data-tour="help">
-      <div className="df-content-card">
-        <nav className="df-content-crumbs" aria-label="Breadcrumb">
-          <Link to="/">Home</Link>
-          <span aria-hidden="true">/</span>
-          <span>Help</span>
-        </nav>
-        <span className="df-content-badge">{activeLabel}</span>
-        <h1 className="df-content-title">Help Center</h1>
-        <p className="df-content-lead">
+    <main className="faq-page help-theme" data-tour="help">
+      <div className="faq-wrap">
+        <h1 className="faq-title">Help Center</h1>
+        <p className="faq-lead">
           Guides for Create Account, Recharge, Redeem, Promotions, VIP, Spin Wheel, and Refer &amp; Earn.
         </p>
 
@@ -154,6 +150,6 @@ export function Help() {
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

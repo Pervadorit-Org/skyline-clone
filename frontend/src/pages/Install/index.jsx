@@ -115,13 +115,13 @@ function defaultSimId() {
 }
 
 function brandLines(name) {
-  const parts = String(name || 'Dragon Fury').trim().split(/\s+/);
+  const parts = String(name || 'Golden Dragon Casino').trim().split(/\s+/);
   if (parts.length >= 2) return [parts[0].toUpperCase(), parts.slice(1).join(' ').toUpperCase()];
   return [parts[0].toUpperCase(), ''];
 }
 
 function brandInitials(name) {
-  const parts = String(name || 'Dragon Fury').trim().split(/\s+/).filter(Boolean);
+  const parts = String(name || 'Golden Dragon Casino').trim().split(/\s+/).filter(Boolean);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return parts[0].slice(0, 2).toUpperCase();
 }

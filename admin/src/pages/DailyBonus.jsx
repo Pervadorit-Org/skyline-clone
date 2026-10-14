@@ -34,6 +34,7 @@ function toDraft(store) {
   return {
     enabled: store.enabled === true,
     repeatAfterComplete: store.repeatAfterComplete === true,
+    resetOnMiss: store.resetOnMiss === true,
     days
   }
 }
@@ -152,6 +153,7 @@ export default function DailyBonus() {
         distributorCode: selectedStore.distributorCode,
         enabled: draft.enabled === true,
         repeatAfterComplete: draft.repeatAfterComplete === true,
+        resetOnMiss: draft.resetOnMiss === true,
         days: draft.days.map((d) => ({
           dayIndex: d.dayIndex,
           rewardType: d.rewardType,
@@ -172,6 +174,7 @@ export default function DailyBonus() {
                 ...s,
                 enabled: updated.enabled,
                 repeatAfterComplete: updated.repeatAfterComplete === true,
+                resetOnMiss: updated.resetOnMiss === true,
                 days: updated.days,
                 hasOverride: true,
                 updatedBy: updated.updatedBy,
@@ -288,6 +291,19 @@ export default function DailyBonus() {
                     </label>
                     <p className="daily-bonus-toggle-hint">
                       When on, users who claim all 7 days start again from Day 1 the next day.
+                    </p>
+                    <label className="daily-bonus-enabled">
+                      <input
+                        type="checkbox"
+                        checked={draft.resetOnMiss}
+                        onChange={(e) =>
+                          setDraft((prev) => ({ ...prev, resetOnMiss: e.target.checked }))
+                        }
+                      />
+                      Missed day resets to Day 1
+                    </label>
+                    <p className="daily-bonus-toggle-hint">
+                      When on, a player who skips a full day (00:00 UTC) starts again from Day 1. Their earlier claims stay in the history. Off = a missed day changes nothing.
                     </p>
                   </div>
                 </div>

@@ -43,53 +43,9 @@ export const casinoLobbyConfig = {
   ],
   bannerIntervalMs: 5000,
 
-  // Image banners shown at the top of the lobby for signed-in players.
-  // `mobile` is used below 768px, `desktop` above. `href` may be external.
-  imageBanners: [
-    {
-      id: 'first-purchase',
-      label: 'First Purchase',
-      href: '/store',
-      mobile: 'https://cdn.goldendragon.casino/banners/fc2eade7-605b-4572-abd5-66b603231e06.webp',
-      desktop: 'https://cdn.goldendragon.casino/banners/9be6e1a9-3395-4ef0-b580-aa1591295c56.webp',
-    },
-    {
-      id: 'daily-tasks',
-      label: 'Daily Tasks',
-      href: '/daily-bonus',
-      mobile: 'https://cdn.goldendragon.casino/banners/1eb4603d-9ed8-4050-9b0d-400f2b7986d4.webp',
-      desktop: 'https://cdn.goldendragon.casino/banners/a9b5a4a1-a6e6-4adc-b84c-5bfbe0bf39b0.webp',
-    },
-    {
-      id: 'spin-the-wheel',
-      label: 'Spin the Wheel',
-      href: '/spinwheel',
-      mobile: 'https://cdn.goldendragon.casino/banners/5178a06a-38c2-4821-a106-e005accedd0c.webp',
-      desktop: 'https://cdn.goldendragon.casino/banners/adf3afea-675d-4da3-a797-8a75c60279ba.webp',
-    },
-    {
-      id: 'referral',
-      label: 'Referral',
-      href: '/account/affiliate',
-      mobile: 'https://cdn.goldendragon.casino/banners/31860304-62e0-4909-9f38-0e17afd7fca0.webp',
-      desktop: 'https://cdn.goldendragon.casino/banners/68457448-7ced-4770-84aa-b49e8b8ebe18.webp',
-    },
-    {
-      id: 'vip',
-      label: 'VIP',
-      href: '/account/vip',
-      mobile: 'https://cdn.goldendragon.casino/banners/4e119840-7fb6-45d0-80ae-2dfe83f541a8.png',
-      desktop: 'https://cdn.goldendragon.casino/banners/47110912-f507-412a-85b9-caa60c85f7d4.webp',
-    },
-    {
-      id: 'facebook-community',
-      label: 'Facebook Community',
-      // Opens the site's Facebook page when one is configured, else not clickable.
-      href: site.socialLinks?.facebook || '',
-      mobile: 'https://cdn.goldendragon.casino/banners/d97893f9-75f2-4df9-bbf4-a5f9b4b6a58e.webp',
-      desktop: 'https://cdn.goldendragon.casino/banners/984eb854-d7fd-4f4a-8c56-fdf9f23f0c93.webp',
-    },
-  ],
+  // Image banners for signed-in players are managed in Admin → Pages → Lobby (banners). While none are
+  // uploaded, the three built-in slides above (our own art) are shown for everyone.
+  imageBanners: [],
 
   promoCards: [
     {
@@ -100,7 +56,7 @@ export const casinoLobbyConfig = {
       href: '/daily-bonus',
       art: '/df-online/sc-coin.webp',
       // Card background artwork (chest of coins). Falls back to `art` if unset.
-      bg: 'https://www.goldendragon.casino/casino/daily-rewards-bg.webp',
+      bg: '/P1.png',
       variant: 'daily',
     },
     {
@@ -111,11 +67,11 @@ export const casinoLobbyConfig = {
       ctaLabel: 'SPIN',
       href: '/spinwheel',
       // Card background artwork (dragon wall).
-      bg: 'https://www.goldendragon.casino/wheel/card-background.webp',
+      bg: '/df-online/skyline.webp',
       // Wheel artwork: the segments spin slowly behind the fixed outer ring.
       wheel: {
-        segments: 'https://www.goldendragon.casino/wheel/card-segments.webp',
-        ring: 'https://www.goldendragon.casino/wheel/card-outer-ring.webp',
+        segments: '/df-online/wheel-segments.svg',
+        ring: '/df-wheel-overlay.svg',
       },
       variant: 'spin',
     },

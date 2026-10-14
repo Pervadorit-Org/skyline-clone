@@ -1,0 +1,265 @@
+# # Database (staging RDS)
+DB_PORT=5432
+DB_WRITE_HOST=localhost
+DB_READ_HOST=localhost
+DB_USER=harsh
+DB_PASSWORD=
+DB_NAME=dragonfury_restored
+DB_SSL=false
+ 
+# App
+NODE_ENV=development
+PORT=8080
+# Third-party HTTP timeout (ms) — game bots, payment providers, etc. Default in code: 60000
+THIRD_PARTY_HTTP_TIMEOUT_MS=60000
+APP_NAME=Dragon Fury Backend
+USER_BACKEND_URL=http://localhost:8080
+USER_FRONTEND_URL=http://localhost:5173
+ADMIN_BACKEND_URL=http://localhost:5174
+ALLOWED_ORIGIN=http://localhost:5173,http://localhost:5175,http://localhost:3000,http://localhost:8080,http://localhost:5174,http://localhost:5177,http://localhost:5176,http://192.168.1.9:5173
+ 
+# JWT (replace with your own secrets in production)
+JWT_LOGIN_SECRET=partner-platform-jwt-secret-change-in-production
+JWT_LOGIN_TOKEN_EXPIRY=24h
+JWT_REFRESH_TOKEN_SECRET=partner-platform-jwt-secret-change-in-production
+JWT_REFRESH_TOKEN_EXPIRY=30d
+EMAIL_TOKEN_KEY=partner-platform-email-key
+EMAIL_TOKEN_EXPIRY=4h
+# Admin login requires email OTP after password. Set true only to bypass (e.g. Mailgun outage).
+ADMIN_SKIP_LOGIN_OTP=false
+ 
+# Google SSO (optional; set GOOGLE_CLIENT_ID to enable)
+GOOGLE_CLIENT_ID=705336797302-0j9mhdqskkl27dgnnpvhtbtki4jsc32u.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
+ 
+# Facebook SSO (optional; set FACEBOOK_APP_ID and FACEBOOK_APP_SECRET to enable)
+FACEBOOK_APP_ID=1389611505767372
+FACEBOOK_APP_SECRET=90ecc1b48d43d36092937de802b80fbc
+ 
+# Frontend URL for verification/reset links (default used if not set)
+FRONTEND_URL=http://localhost:5173
+
+# Didit KYC (https://business.didit.me) — required for withdraw when enabled in admin
+# DIDIT_API_KEY=
+# DIDIT_WORKFLOW_ID=
+# DIDIT_WEBHOOK_SECRET=
+# DIDIT_API_BASE_URL=https://verification.didit.me
+
+# Mailgun
+MAILGUN_API_KEY=37316415897f2eac84e1056d2a9e1d4c-eb8b05da-5c17b073
+MAILGUN_DOMAIN=grandsweep.xyz
+MAILGUN_HOST=api.mailgun.net
+EMAIL_SENDER_EMAIL=noreply@pervadorit.com
+EMAIL_SENDER_NAME=Dragon Fury
+EMAIL_SITE_DISPLAY_NAME=Dragon Fury
+ 
+# Payment (CentryOS / Orionstars Payment API — for deposit/withdraw)
+PAYMENT_API_BASE_URL=https://payment-api.orionstarsweeps.com/api
+# PAYMENT_API_BASE_URL=https://dev-pay-api.orionstarsweeps.com/api
+PAYMENT_PARTNER_CODE=goodwork
+# Set to true/1 to log all payment API requests/responses in hotpink (for debugging)
+PAYMENT_LOG_ENABLED=true
+# Set to true or 1 to log only payment errors in hotpink (useful to debug payment issues)
+PAYMENT_ERROR_LOG_ENABLED=true
+# Required for payment: encrypts auto-generated Payment API password (set a long random secret min 32 long characters)
+# Primary key (last wins when dotenv override:true). Keep a single primary — do not duplicate this var.
+PAYMENT_PASSWORD_ENCRYPTION_KEY=df4bfb2f638b1ed44250b71bf0abc8b32cf7b821206e9c4d36fa9b1febd7fcea
+# Older key(s) so existing OrionStars passwords encrypted before the primary was rotated still decrypt
+PAYMENT_PASSWORD_ENCRYPTION_KEY_FALLBACK=VUwqAq4d7z2Ci4K6dMuYh08rLac1MEiL98YVhzQ0dHoz5EWKw4yAXDJdYPffFyKmzeB7Up1zURVVew5dGD
+ 
+ 
+SPEED_API_KEY=sk_test_mmj971gn2hIJp63wmmjc0z13y9P9mA3Zmmjc0z18UTR3mBrw
+ 
+ 
+# GitSlotPark
+# Pragmatic Play
+GIT_SLOTPARK_AGENT_ID=stagingCasinoslotsUSD
+GIT_SLOTPARK_SECRET_KEY=2aac9139775b465791f90f82f4fa255f
+ 
+# PG Soft
+GIT_SLOTPARK_PGSOFT_AGENT_ID=stagingCasinoslotsUSD
+GIT_SLOTPARK_PGSOFT_SECRET_KEY=5f8bcfff1eb54bde91d50270bc5907d8
+ 
+# Amatic
+GIT_SLOTPARK_AMATIC_AGENT_ID=stagingCasinoslotsUSD
+GIT_SLOTPARK_AMATIC_SECRET_KEY=0460ae69caf14bf58b78f5319d565a6c
+ 
+# Amusnet
+GIT_SLOTPARK_AMUSNET_AGENT_ID=stagingCasinoslotsUSD
+GIT_SLOTPARK_AMUSNET_SECRET_KEY=cc3ed87022134fd483800f593c69d376
+ 
+# Fingerprint — PlayJuwa only (Grandweeps is enforced in the Grandweeps repo)
+# Fingerprint — not enforced for dragonfury (see Partner Platform playjuwa only).
+FINGERPRINT_SECRET_API_KEY=
+FINGERPRINT_REGION=us
+FINGERPRINT_ENFORCED_STORE_CODES=
+ 
+#s3 bucket for images
+AWS_S3_BUCKET=partners-platforms
+AWS_S3_REGION=us-east-1
+AWS_S3_ACCESS_KEY_ID=AKIARWPFIWLH5KEGSL24
+AWS_S3_SECRET_ACCESS_KEY=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
+ 
+ 
+#Admin panel configuration
+# Map EACH admin host → that store's storeCode (PlayJuwa included — no special env needed)
+ADMIN_HOST_STORE_MAP=localhost:dragonfury,localhost:testingstore,admin.playjuwa.com:playjuwa,admin.luckywinnerspower.com:goodwork,admin.goodgdragon.com:goodgdragon,admin.myvepower.com:myvepower,admin.casinoslots.casino:casinoslots,admin.sweepstakebet.com:sweepstakebet,admin.grandsweep.xyz:grandsweeps,admin.winner4.com:winners4
+# Optional extra public site host → storeCode (built-in defaults already cover known domains)
+# PUBLIC_HOST_STORE_MAP=goodgdragon.com:goodgdragon,www.goodgdragon.com:goodgdragon
+ENFORCE_ADMIN_HOST_BINDING=true
+ 
+ 
+# Public API URL for DollarPay notify callbacks (YOUR backend, not DollarPay host)
+BACKEND_PUBLIC_URL=http://localhost:8080
+# API_PUBLIC_BASE_URL is a legacy alias — do NOT set to mh.dollarpaywallet.com
+API_PUBLIC_BASE_URL=http://localhost:8080
+# Web Push (VAPID) � admin desktop alerts when tab/browser is closed
+# Generate with: npx web-push generate-vapid-keys
+VAPID_PUBLIC_KEY=BDeAdERMXp2kdVv6m-aM76RxpEjEXENbyoikVKgRwcXWDBhXSX6Y9C6lEOteGpuDej8GRJdwDPlUdcaMYbdYg9I
+VAPID_PRIVATE_KEY=2MVhApJgGekCZN3uouV53SzeBhdoONwNBdi5X5xH5Gc
+VAPID_SUBJECT=mailto:noreply@pervadorit.com
+ 
+ 
+CRON_SECRET=0f1435a6c1a3bd0ea0b5304b4b02ff0a594a0faab18668f5c9af1ef044acaba6
+# Bona Games (Transfer Wallet � SC slots)
+BONA_API_BASE_URL=https://sg.bona.games
+BONA_APP_ID=7esbcb7zfkgf6g02
+BONA_APP_SECRET=d7fi9odig8t2e4q7
+BONA_CURRENCY=SC
+BONA_HOME_URL=
+BONA_LANG=en
+
+
+# Bona Seamless callbacks (give these HTTPS URLs to Bona):
+# POST {PUBLIC_API}/api/bona/callback/query
+# POST {PUBLIC_API}/api/bona/callback/bet
+# POST {PUBLIC_API}/api/bona/callback/settlement
+# POST {PUBLIC_API}/api/bona/callback/activity-settlement
+# POST {PUBLIC_API}/api/bona/callback/fishing-settlement
+
+
+# Geo blocking (ipgeolocation.io)
+IPGEO_URL=https://api.ipgeolocation.io/v3/ipgeo
+IPGEO_API_KEY=2829011944f44cb099a18e96089195c2
+# Optional comma-separated bootstrap allowlist (also managed in admin UI)
+# GEO_IP_ALLOWLIST=
+
+#Didit KYC (https://business.didit.me) — required for withdraw when enabled in admin
+DIDIT_API_KEY=NQINiEE8o7KthzPUF95mQyzIjzJBHJVsSoU8KOobEfE
+DIDIT_WORKFLOW_ID=63a7820b-88e8-4283-b3c7-e6785a686d49
+DIDIT_WEBHOOK_SECRET=PrmaGjMKPT3SkQpvG8KHSr40lhagth9wzlgYvlW28ZQ
+DIDIT_API_BASE_URL=https://verification.didit.me
+# Only these stores require KYC for withdraw (comma-separated). Empty = all stores.
+# Empty = Didit KYC available for all stores (per-store toggle in admin).
+KYC_STORE_CODES=
+
+
+# PLAYJUWA_MAILGUN_DOMAIN=playjuwa.com
+# PLAYJUWA_MAIL_FROM=no-reply@playjuwa.com
+# PLAYJUWA_MAIL_FROM_NAME=PlayJuwa
+# PLAYJUWA_FRONTEND_URL=https://playjuwa.com
+# PLAYJUWA_MAILGUN_API_KEY=2f4635cb7771e669678ad5916ef6a404-11c539c0-eefcdf7b
+# # HTTP webhook signing key from Mailgun → API Security (NOT the private API key)
+# PLAYJUWA_MAILGUN_WEBHOOK_SIGNING_KEY=9864240a0119fb74583b718f1c587826
+# PLAYJUWA_MAIL_BATCH_SIZE=10
+# PLAYJUWA_MAIL_MAX_PER_HOUR=40
+# PLAYJUWA_MAIL_DELAY_MS=1000
+
+# PLAYJUWA_MAILGUN_DOMAIN=playjuwa.com
+# PLAYJUWA_MAIL_FROM=no-reply@playjuwa.com
+# PLAYJUWA_MAIL_FROM_NAME=PlayJuwa
+# PLAYJUWA_FRONTEND_URL=https://playjuwa.com
+# PLAYJUWA_MAILGUN_API_KEY=37316415897f2eac84e1056d2a9e1d4c-eb8b05da-5c17b073
+# HTTP webhook signing key from Mailgun → API Security (NOT the private API key)
+# PLAYJUWA_MAILGUN_WEBHOOK_SIGNING_KEY=9864240a0119fb74583b718f1c587826
+# PLAYJUWA_MAIL_BATCH_SIZE=10
+# PLAYJUWA_MAIL_MAX_PER_HOUR=40
+# PLAYJUWA_MAIL_DELAY_MS=1000
+
+
+# 1gamehub
+GAMEHUB1_CASINOSLOTS_BASE_URL=https://site-ire1.1gamehub.com/integrations/bradenvend-casinoslots/rpc
+GAMEHUB1_CASINOSLOTS_SECRET_TOKEN=ff9f6381-2a1d-4c50-8063-462f4631ec07
+GAMEHUB1_CASINOSLOTS_HMAC_SALT=900f448a-8d80-42a1-a38e-f1f96204b6de
+
+
+# 1GameHub (live catalog + seamless SC wallet)
+# Default casinoslots
+GAMEHUB1_BASE_URL=https://site-ire1.1gamehub.com/integrations/bradenvend-casinoslots/rpc
+GAMEHUB1_SECRET_TOKEN=ff9f6381-2a1d-4c50-8063-462f4631ec07
+GAMEHUB1_HMAC_SALT=900f448a-8d80-42a1-a38e-f1f96204b6de
+
+GAMEHUB1_BASE_URL_GOODGDRAGON=https://site-ire1.1gamehub.com/integrations/bradenvend-goodgdragon/rpc
+GAMEHUB1_SECRET_TOKEN_GOODGDRAGON=99e569d8-7065-4ec8-91b5-2d9f2f654f93
+GAMEHUB1_HMAC_SALT_GOODGDRAGON=3a918ab0-cbc8-4a3a-acf9-ea99adb249f5
+
+GAMEHUB1_BASE_URL_GRANDSWEEPS=https://site-ire1.1gamehub.com/integrations/bradenvend-grandsweeps/rpc
+GAMEHUB1_SECRET_TOKEN_GRANDSWEEPS=e5f9eff8-3b38-4261-8947-4371e0a9610b
+GAMEHUB1_HMAC_SALT_GRANDSWEEPS=e49ac685-b1b5-4e75-abc9-03a1123d76c4
+
+GAMEHUB1_BASE_URL_GOODWORK=https://site-ire1.1gamehub.com/integrations/bradenvend-luckywinnerspower/rpc
+GAMEHUB1_SECRET_TOKEN_GOODWORK=e0e76922-1889-48bb-8a02-2ff6cb9ee82f
+GAMEHUB1_HMAC_SALT_GOODWORK=c197e686-c526-4c9e-92ef-dd36531900c6
+
+GAMEHUB1_BASE_URL_MYVEPOWER=https://site-ire1.1gamehub.com/integrations/bradenvend-myvepower/rpc
+GAMEHUB1_SECRET_TOKEN_MYVEPOWER=95bcc0ff-6957-4d1e-9def-a845da55a13b
+GAMEHUB1_HMAC_SALT_MYVEPOWER=5d80eaf8-5e7e-445c-b3ca-8b98df2fd5f5
+
+GAMEHUB1_BASE_URL_PLAYJUWA=https://site-ire1.1gamehub.com/integrations/bradenvend-playjuwa/rpc
+GAMEHUB1_SECRET_TOKEN_PLAYJUWA=134e6845-58bb-417d-b6d2-849e0f025e12
+GAMEHUB1_HMAC_SALT_PLAYJUWA=a8137441-e241-41f2-9044-4dd253cdd3f0
+
+GAMEHUB1_BASE_URL_DRAGONFURY=https://site-ire1.1gamehub.com/integrations/bradenvend-dragonfury/rpc
+GAMEHUB1_SECRET_TOKEN_DRAGONFURY=f9b199ba-31fc-4f2a-9c0a-64fae97a58dc
+GAMEHUB1_HMAC_SALT_DRAGONFURY=187b4eae-07dc-4477-badc-2af4c2848cec
+
+GAMEHUB1_BASE_URL_SWEEPSTAKEBET=https://site-ire1.1gamehub.com/integrations/bradenvend-sweepstakebet/rpc
+GAMEHUB1_SECRET_TOKEN_SWEEPSTAKEBET=cf9fcfb9-270f-4113-a113-0f1d5eeae31f
+GAMEHUB1_HMAC_SALT_SWEEPSTAKEBET=336abf33-d98c-4d95-803a-b2665e7235e5
+
+
+SELFCRYPTO_MNEMONIC=follow sight visual marriage shadow unique anxiety notable calm elegant knock question
+
+
+
+LND_REST_URL=https://127.0.0.1:18080
+LND_MACAROON_HEX=0201036c6e6402f801030a1076695f408aefa0ab76b10623ca2edba41201301a160a0761646472657373120472656164120577726974651a130a04696e666f120472656164120577726974651a170a08696e766f69636573120472656164120577726974651a210a086d616361726f6f6e120867656e6572617465120472656164120577726974651a160a076d657373616765120472656164120577726974651a170a086f6666636861696e120472656164120577726974651a160a076f6e636861696e120472656164120577726974651a140a057065657273120472656164120577726974651a180a067369676e6572120867656e657261746512047265616400000620b5aecd0704ae827c5fe8e4d6cf9289ac6accdbad61206b92182333b1d21e4d3b
+LND_TLS_REJECT_UNAUTHORIZED=false
+
+# Playjuwa gitslotpark
+GIT_SLOTPARK_PGSOFT_AGENT_ID_PLAYJUWA=playjuwaUSD
+GIT_SLOTPARK_PGSOFT_SECRET_KEY_PLAYJUWA=2520612f450a41d49cb88cd86c6408a5
+GIT_SLOTPARK_AMATIC_AGENT_ID_PLAYJUWA=playjuwaUSD
+GIT_SLOTPARK_AMATIC_SECRET_KEY_PLAYJUWA=984377246dd6422db4f54569315f5864
+GIT_SLOTPARK_AMUSNET_AGENT_ID_PLAYJUWA=playjuwaUSD
+GIT_SLOTPARK_AMUSNET_SECRET_KEY_PLAYJUWA=84ef324c17c3418ca331f980ddd6f080
+
+# DragonFury temporarily reuses PlayJuwa GitSlotPark agents
+GIT_SLOTPARK_PGSOFT_AGENT_ID_DRAGONFURY=playjuwaUSD
+GIT_SLOTPARK_PGSOFT_SECRET_KEY_DRAGONFURY=2520612f450a41d49cb88cd86c6408a5
+GIT_SLOTPARK_AMATIC_AGENT_ID_DRAGONFURY=playjuwaUSD
+GIT_SLOTPARK_AMATIC_SECRET_KEY_DRAGONFURY=984377246dd6422db4f54569315f5864
+GIT_SLOTPARK_AMUSNET_AGENT_ID_DRAGONFURY=playjuwaUSD
+GIT_SLOTPARK_AMUSNET_SECRET_KEY_DRAGONFURY=84ef324c17c3418ca331f980ddd6f080
+
+# Firebase Cloud Messaging (required for PlayJuwa browser push campaigns)
+
+# Firebase Config
+# FIREBASE_PROJECT_ID=playjuwa-26c49
+# FIREBASE_CLIENT_EMAIL=firebase-adminsdk-fbsvc@playjuwa-26c49.iam.gserviceaccount.com
+# FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCvTD6E8LP115Cd\nIV58sRaAr4GHXMTBYmhXy2CEEgVa3VVLivMsEEtOWgO662ozoo8FjSSIdpxroXuG\n7t4txYksXNOX868TNkzsYppxujeZTk1cYh+iToRTImXy7RbbM4/bJSS1bakmwHYy\nHY2fXeBZEXdaTFj0Mt05/c/Z8yGxW+TLeaQxyaDgftHitPWVPXcsnDYOosJB1yVe\ncTWQ6NIMQfABVLxxOmyrB44fDI5dt8K2rguusavU/yt7+KQrmmSGnA2kq/K98yAH\n6SDr/Svfn1t2nHQU9eiTHwn625wh5GVrWnUJay4goHtC/zTiH5e7I8UnWaQaSyED\nKsJ/TlbjAgMBAAECggEAKjLn//ez0rQsZ28PgGPe/2aAf3X5FXabmLroRpLSADA0\n5sURyeM4RanMqRQf0kNJO7Rg/YrUF+LdSju5d3pMjcXg1/z9Adp6BROti0AhP0IG\nxH0IkXlmSF8I/MRPUsBkWoRkBFrcM+xz55eOrrUaG0blnPKxHUQbVmj/vr9VNoz6\n8GutlssWCzurRtxxI+gVjWLEt1LuMcQOQzX9CQHtTLbliZB9Z4zZZx8+SGp6OrDw\nCr8nONKaeq7TtC9e80nZlrUuYw9gCYo96IcwS6CB2popFWrlzED4O7ZZhiURxDIM\n3P/b7kwVaNmjLad3Ot4MT0xdpvCBjrXsEQ24OV81WQKBgQDfkPIDD3qtG8UwH3iT\nB8lsm0J8cW88rWTo1C2kuDw1qmoeiiuiKusHFUD4hYtgAsX06RFwIjifW/Soi7bm\nU3LsCTX7DpNytmYosmUiHrszFrDkQfSY8DQHW5yKY4Ok/0NfNIjFejzx4T5YnQVc\nA2URi/dBe9rPmSsMDltE7kpv+wKBgQDIuqdWD9LJ1WUCeRviCB15AcekkQuMDyoZ\nsnYfxVtmR7sskAcJBmnc/2Bh27rCULw6UOYGknSIZjq5BZPSbN/0IMOw2WQ8i06A\nn5z0bYYI7bu88lZtV+hWUElaNH0/YVTx0QBShWuHOVaQtYbiEsFBXpXZvULVAP/5\nECPCWY24OQKBgQCkJRHruVPDAd63xIOMwGzddulL4SVhEZZDdHXGuRZL+MFNhvke\nahCB9NLtJW/9oEuj0/PftuCH8MYjceFqHt8D+odNu5f6430CaGjksleT3RcnoF1s\nZQBuXo8C9KnVXS4kGrhI9cUFevGBslgbBMsSJQf3Zm5zeewnP+s3IxY4PQKBgCmb\nz24ej5I5Atw1YJtFFV7tCIZLbrpUtmRnQucpEN4txlXhcSPkyXL/GOqQErGO7MWl\n2VjJaRCRKGEMD+1RlkbTt9zj40xNkDNHYtCkF2Gobf8nuNSnoUirEdl6AfBua55I\ntallcLmyIAiVKGWaf6beRW/CNKVUtLrbJp5109O5AoGBALf1wnx4yuNNcpSwEgFw\nvVLf7reQAWBhiYCUvSUbKph5pqcSo6Z5IlvQEegkkFTQiKPENrWZ/Pxi6eLK+2eQ\ngSjavB3tXDTWk0sQ1pg2PtKWPWVtebOFTUgtNIoO3B2bpvhyWHUnN0M6EpcuwUOX\neQKEqWRePHafxZOCHRsERyK2\n-----END PRIVATE KEY-----\n"
+
+DOLLARPAY_MERCHANT_ID_DRAGONFURY=1038168782
+DOLLARPAY_KEY_DRAGONFURY=ecd40084ce2db0bef35a8e5a991498c9
+
+XXPAY_MCH_NO_DRAGONFURY=2026096046
+XXPAY_API_KEY_DRAGONFURY=Bkr6l5bMTAa1TbL4D3og5ohrz2t3pUr3
+XXPAY_BASE_URL_DRAGONFURY=https://www.ggusonepay.com
+
+GIT_SLOTPARK_PGSOFT_API_BASE_URL_DRAGONFURY=https://ggapi.loginxgamesapi.com
+GIT_SLOTPARK_AMATIC_API_BASE_URL_DRAGONFURY=https://amapi.loginxgamesapi.com
+GIT_SLOTPARK_AMUSNET_API_BASE_URL_DRAGONFURY=https://apiang.gitamus.net
+GIT_SLOTPARK_LOBBY_URL_DRAGONFURY=https://dragonfury.casino
+GIT_SLOTPARK_PGSOFT_LOBBY_URL_DRAGONFURY=https://dragonfury.casino
+GIT_SLOTPARK_AMATIC_LOBBY_URL_DRAGONFURY=https://dragonfury.casino
+GIT_SLOTPARK_AMUSNET_LOBBY_URL_DRAGONFURY=https://dragonfury.casino

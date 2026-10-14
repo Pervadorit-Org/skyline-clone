@@ -1,7 +1,8 @@
-import { homeConfig } from '../../../config/homeConfig';
+import { useHomeConfig } from '../../../config/homeConfigContext';
 import { PillButton } from './PillButton';
 
 export function Hero1() {
+  const homeConfig = useHomeConfig();
   const cfg = homeConfig.hero1;
   return (
     <section className="df-home2-hero1">

@@ -6,12 +6,14 @@ import { openTaskList } from '../Tasks/TaskListModal';
 import { warmupCasino } from '../../utils/preloadCasino';
 import { getGameCategoryPath } from '../../config/gameCategories';
 import '../../styles/dashboard-sidebar.css';
+import { site } from '../../config/site';
+import { useLobbyShell } from '../../hooks/useLobbyShell';
 
 /* ---- your own assets ---- */
 const LOGO_SRC = '/df-online/logo-512.webp';
-const VAULT_SRC = 'https://www.goldendragon.casino/sidebar/balance-vault.webp';
-const GC_COIN_SRC = 'https://www.goldendragon.casino/sidebar/gold-coin.webp';
-const SC_COIN_SRC = 'https://www.goldendragon.casino/sidebar/sweep-coin.webp';
+const VAULT_SRC = '/df-online/balance-background.webp';
+const GC_COIN_SRC = '/icons/coin.png';
+const SC_COIN_SRC = '/df-online/sc-coin.webp';
 const VIP_TIER_SRC = '/df-online/dragons/tier-hatchling.webp';
 const REFER_BOX_SRC = '/df-online/referral-invite.webp';
 
@@ -203,6 +205,14 @@ export const RAIL_ITEMS = [
   { id: 'logout', label: 'Logout', icon: ICON.logout, action: 'logout' },
 ];
 
+/** Rail items with the admin's labels applied and switched-off items (and their orphan dividers) removed. */
+export function applyRailShell(items, shell) {
+  const kept = items
+    .filter((it) => it.divider || !shell.hidden('sidebar', it.id))
+    .map((it) => (it.divider ? it : { ...it, label: shell.label('sidebar', it.id, it.label) }));
+  return kept.filter((it, i) => !(it.divider && (i === 0 || i === kept.length - 1 || kept[i - 1].divider)));
+}
+
 /**
  * Dashboard left rail — Golden-Dragon-style lobby sidebar,
  * exact option set + icons, DragonFury assets, no purple.
@@ -213,6 +223,7 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
   const { balanceSc, logout } = useAuth();
   const [gamesOpen, setGamesOpen] = useState(false);
   const [bonusesOpen, setBonusesOpen] = useState(false);
+  const shell = useLobbyShell();
 
   const go = (to) => {
     navigate(isAuthenticated ? to : '/register');
@@ -220,22 +231,23 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
   };
   const isActive = (to) => pathname === to || pathname.startsWith(`${to}/`);
 
-  const Row = ({ icon, label, to, onClick, badge }) => (
+  // `id` is the admin's handle for the item (label override + on/off).
+  const Row = ({ id, icon, label, to, onClick, badge }) => (shell.hidden('sidebar', id) ? null : (
     <button
       type="button"
       className={`dgs__row${to && isActive(to) ? ' is-active' : ''}`}
       onClick={() => (onClick ? onClick() : go(to))}
     >
       <span className="dgs__row-ico">{icon}</span>
-      <span className="dgs__row-label">{label}</span>
+      <span className="dgs__row-label">{shell.label('sidebar', id, label)}</span>
       {badge ? <span className="dgs__row-badge">{badge}</span> : null}
     </button>
-  );
+  ));
 
   return (
     <aside className="dgs" aria-label="Dashboard navigation">
-      <Link to="/casino" className="dgs__logo" aria-label="DragonFury home" onClick={onNavigate}>
-        <img src={LOGO_SRC} alt="DragonFury" width="200" height="107" draggable="false" />
+      <Link to="/casino" className="dgs__logo" aria-label={`${site.platformName} home`} onClick={onNavigate}>
+        <img src={shell.text('sidebar.logo', LOGO_SRC)} alt={site.platformName} width="200" height="107" draggable="false" />
       </Link>
 
       <div className="dgs__scroll">
@@ -243,7 +255,7 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
           <>
           {/* ---- balance card ---- */}
           <div className="dgs__card dgs__balance">
-            <span className="dgs__balance-ribbon">Your Balance</span>
+            <span className="dgs__balance-ribbon">{shell.text('sidebar.balance', 'Your Balance')}</span>
             <div className="dgs__balance-body">
               <img className="dgs__balance-vault" src={VAULT_SRC} alt="" aria-hidden draggable="false" />
               <div className="dgs__pills">
@@ -259,10 +271,10 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
             </div>
             <div className="dgs__balance-actions">
               <Link to={isAuthenticated ? '/store' : '/register'} className="dgs__rim dgs__rim--buy" onClick={onNavigate}>
-                <span className="dgs__store-btn dgs__store-btn--buy">Buy</span>
+                <span className="dgs__store-btn dgs__store-btn--buy">{shell.text('sidebar.buy', 'Buy')}</span>
               </Link>
               <Link to={isAuthenticated ? '/redeem' : '/register'} className="dgs__rim dgs__rim--redeem" onClick={onNavigate}>
-                <span className="dgs__store-btn dgs__store-btn--redeem">Redeem</span>
+                <span className="dgs__store-btn dgs__store-btn--redeem">{shell.text('sidebar.redeemBtn', 'Redeem')}</span>
               </Link>
             </div>
           </div>
@@ -273,7 +285,7 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
               <img className="dgs__vip-tier" src={VIP_TIER_SRC} alt="" aria-hidden draggable="false" />
               <div className="dgs__vip-meta">
                 <div className="dgs__vip-row">
-                  <b>VIP Level</b>
+                  <b>{shell.text('sidebar.vipLevel', 'VIP Level')}</b>
                   <span>Iron</span>
                 </div>
                 <div className="dgs__vip-track">
@@ -294,8 +306,8 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
           /* ---- guest: referral banner instead of balance / VIP points ---- */
           <Link to="/register" className="dgs__refer" onClick={onNavigate}>
             <span className="dgs__refer-text">
-              <b>Refer a Friend</b>
-              <span>Earn free coins</span>
+              <b>{shell.text('sidebar.referTitle', 'Refer a Friend')}</b>
+              <span>{shell.text('sidebar.referSub', 'Earn free coins')}</span>
             </span>
             <img className="dgs__refer-img" src={REFER_BOX_SRC} alt="" aria-hidden draggable="false" />
           </Link>
@@ -304,35 +316,38 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
         <div className="dgs__divider" aria-hidden />
 
         <nav className="dgs__nav">
-          <Row icon={ICON.promotions} label="Promotions" to="/promotions" />
-          <Row icon={ICON.install} label="Install App" to="/install" />
-          <Row icon={ICON.referral} label="Referral" to="/account/affiliate" />
+          <Row id="promotions" icon={ICON.promotions} label="Promotions" to="/promotions" />
+          <Row id="install" icon={ICON.install} label="Install App" to="/install" />
+          <Row id="referral" icon={ICON.referral} label="Referral" to="/account/affiliate" />
 
           <div className="dgs__divider" aria-hidden />
 
-          <Row icon={ICON.vip} label="VIP" to="/account/vip" />
-          <Row icon={ICON.favorites} label="Favorites" to="/favorites" />
-          <Row icon={ICON.tasks} label="Task List" onClick={() => { if (!isAuthenticated) { go('/register'); return; } openTaskList(); onNavigate?.(); }} badge="1" />
-          <Row icon={ICON.faq} label="FAQ" to="/faq" />
+          <Row id="vip" icon={ICON.vip} label="VIP" to="/account/vip" />
+          <Row id="favorites" icon={ICON.favorites} label="Favorites" to="/favorites" />
+          <Row id="tasks" icon={ICON.tasks} label="Task List" onClick={() => { if (!isAuthenticated) { go('/register'); return; } openTaskList(); onNavigate?.(); }} badge="1" />
+          <Row id="faq" icon={ICON.faq} label="FAQ" to="/faq" />
 
           <div className="dgs__divider" aria-hidden />
 
-          <Link to="/platform" className="dgs__plain" onClick={onNavigate}>
-            Platforms
-          </Link>
+          {shell.hidden('sidebar', 'platforms') ? null : (
+            <Link to="/platform" className="dgs__plain" onClick={onNavigate}>
+              {shell.label('sidebar', 'platforms', 'Platforms')}
+            </Link>
+          )}
 
           <div className="dgs__divider" aria-hidden />
 
           {/* ---- Games ---- */}
+          {shell.hidden('sidebar', 'games') ? null : (
           <div className={`dgs__group${gamesOpen ? ' is-open' : ''}`}>
             <button type="button" className="dgs__group-trigger" onClick={() => setGamesOpen((o) => !o)} aria-expanded={gamesOpen}>
               <span className="dgs__group-trigger-label">
-                <span>Games</span>
+                <span>{shell.label('sidebar', 'games', 'Games')}</span>
               </span>
               {ICON.chevron}
             </button>
             <div className="dgs__group-body">
-              {GAME_ITEMS.map((g) => (
+              {GAME_ITEMS.filter((g) => !shell.hidden('sidebar', g.id)).map((g) => (
                 <button
                   key={g.id}
                   type="button"
@@ -343,42 +358,59 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
                   }}
                 >
                   <span className="dgs__row-ico">{g.icon}</span>
-                  <span className="dgs__row-label">{g.label}</span>
+                  <span className="dgs__row-label">{shell.label('sidebar', g.id, g.label)}</span>
                 </button>
               ))}
             </div>
           </div>
+          )}
 
           <div className="dgs__divider" aria-hidden />
 
           {/* ---- Bonuses ---- */}
+          {shell.hidden('sidebar', 'bonuses') ? null : (
           <div className={`dgs__group${bonusesOpen ? ' is-open' : ''}`}>
             <button type="button" className="dgs__group-trigger" onClick={() => setBonusesOpen((o) => !o)} aria-expanded={bonusesOpen}>
               <span className="dgs__group-trigger-label">
                 {ICON.bonuses}
-                <span>Bonuses</span>
+                <span>{shell.label('sidebar', 'bonuses', 'Bonuses')}</span>
               </span>
               {ICON.chevron}
             </button>
             <div className="dgs__group-body">
-              <Row icon={ICON.spin} label="Spin the Wheel" to="/spinwheel" />
-              <Row icon={ICON.promotions} label="Daily Rewards" to="/daily-bonus" />
-              <Row icon={ICON.bonuses} label="Weekly Missions" to="/promotions" />
+              <Row id="spin" icon={ICON.spin} label="Spin the Wheel" to="/spinwheel" />
+              <Row id="daily" icon={ICON.promotions} label="Daily Rewards" to="/daily-bonus" />
+              <Row id="missions" icon={ICON.bonuses} label="Weekly Missions" to="/promotions" />
             </div>
           </div>
+          )}
 
           <div className="dgs__divider" aria-hidden />
 
-          <Row icon={ICON.providers} label="Providers" to="/providers" />
-          <Row icon={ICON.responsible} label="Responsible Gaming Policy" to="/responsible-gaming" />
-          <Row icon={ICON.support} label="Support" onClick={() => openSupportWidget()} />
-          <Row icon={ICON.blog} label="Blog" to="/blog" />
-          <Row icon={ICON.tutorial} label="Tutorial" onClick={() => go('/install')} />
+          <Row id="providers" icon={ICON.providers} label="Providers" to="/providers" />
+          <Row id="responsible" icon={ICON.responsible} label="Responsible Gaming Policy" to="/responsible-gaming" />
+          <Row id="support" icon={ICON.support} label="Support" onClick={() => openSupportWidget()} />
+          <Row id="blog" icon={ICON.blog} label="Blog" to="/blog" />
+          <Row id="tutorial" icon={ICON.tutorial} label="Tutorial" onClick={() => go('/install')} />
+
+          {shell.sidebarLinks.map((l) => (
+            <Row
+              key={`${l.label}|${l.to}`}
+              id={`custom-${l.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+              icon={ICON.tutorial}
+              label={l.label}
+              onClick={() => {
+                if (/^https?:\/\//i.test(l.to)) window.open(l.to, '_blank', 'noopener,noreferrer');
+                else go(l.to);
+                onNavigate?.();
+              }}
+            />
+          ))}
 
           {isAuthenticated ? (
             <>
               <div className="dgs__divider" aria-hidden />
-              <Row icon={ICON.logout} label="Logout" onClick={() => { logout?.(); onNavigate?.(); }} />
+              <Row id="logout" icon={ICON.logout} label="Logout" onClick={() => { logout?.(); onNavigate?.(); }} />
             </>
           ) : null}
         </nav>

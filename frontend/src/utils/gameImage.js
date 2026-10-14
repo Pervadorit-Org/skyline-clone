@@ -53,13 +53,14 @@ export function getGameImageUrl(game) {
   const name = game?.name;
   const compactName = compactGameKey(name);
   const compactKey = compactGameKey(game?.gameKey);
+  // The admin-set name wins over the integration key, so a renamed game shows its own art.
   const portrait =
-    PLATFORM_PORTRAIT[compactKey] ||
     PLATFORM_PORTRAIT[compactName] ||
-    PLATFORM_PORTRAIT[IMAGE_SLUG_ALIASES[compactKey]] ||
-    PLATFORM_PORTRAIT[IMAGE_SLUG_ALIASES[compactName]];
+    PLATFORM_PORTRAIT[IMAGE_SLUG_ALIASES[compactName]] ||
+    PLATFORM_PORTRAIT[compactKey] ||
+    PLATFORM_PORTRAIT[IMAGE_SLUG_ALIASES[compactKey]];
   if (portrait) return portrait;
-  const aliasedSlug = IMAGE_SLUG_ALIASES[compactKey] || IMAGE_SLUG_ALIASES[compactName];
+  const aliasedSlug = IMAGE_SLUG_ALIASES[compactName] || IMAGE_SLUG_ALIASES[compactKey];
   if (aliasedSlug === 'goldendragon') {
     return '/df-online/platforms/golden-dragon.webp';
   }
@@ -75,7 +76,7 @@ export function getGameImageUrl(game) {
     .toLowerCase()
     .replace(/\s+/g, '')
     .replace(/[^a-z0-9.]/g, '');
-  const imageSlug = aliasedSlug || IMAGE_SLUG_ALIASES[dotSlug] || dotSlug;
+  const imageSlug = IMAGE_SLUG_ALIASES[dotSlug] || aliasedSlug || dotSlug;
   if (!imageSlug) return '';
   return `/optimized/games/${imageSlug}.webp`;
 }

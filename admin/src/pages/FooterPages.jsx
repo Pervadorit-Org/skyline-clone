@@ -12,6 +12,7 @@ import {
   getAdminFooterSettings,
   updateAdminFooterSettings,
   getAdminLegalPages,
+  setAdminLegalPageVisibility,
   getAdminGameSeoPages,
   setAdminGameSeoPageVisibility,
   deleteAdminGameSeoPage,
@@ -54,6 +55,7 @@ export default function FooterPages() {
   const [showDefaultMenus, setShowDefaultMenus] = useState(true)
   const [savingDefaults, setSavingDefaults] = useState(false)
   const [legalPages, setLegalPages] = useState(LEGAL_PAGE_OPTIONS)
+  const [legalBusyKey, setLegalBusyKey] = useState('')
   const [gamePages, setGamePages] = useState([])
   const [gamesLoading, setGamesLoading] = useState(false)
   const [gameVisibilitySlug, setGameVisibilitySlug] = useState('')
@@ -133,9 +135,25 @@ export default function FooterPages() {
     loadLegalPages()
   }, [loadLegalPages])
 
+  async function toggleLegalVisibility(page) {
+    setLegalBusyKey(page.pageKey)
+    try {
+      await setAdminLegalPageVisibility(page.pageKey, { storeCode: settingsStoreCode, isActive: page.isActive === false })
+      toast.success(page.isActive === false ? `${page.title} is visible again.` : `${page.title} is hidden from the website and footer.`)
+      loadLegalPages()
+    } catch (err) {
+      toast.error(err.message || 'Could not update this page.')
+    } finally {
+      setLegalBusyKey('')
+    }
+  }
+
   const gameStoreCode = String(settingsStoreCode || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '')
-  const showGamePages = gameStoreCode === 'playjuwa' || gameStoreCode === 'dragonfury'
-  const gameStoreLabel = gameStoreCode === 'dragonfury' ? 'Dragon Fury' : 'PlayJuwa'
+  const platformSiteUrl = String(import.meta.env.VITE_PARTNER_APP_URL || (import.meta.env.DEV ? 'http://localhost:5173' : '')).replace(/\/+$/, '')
+  const showGamePages = gameStoreCode === 'playjuwa' || gameStoreCode === 'dragonfury' || gameStoreCode === 'goldendragon'
+  const gameStoreLabel = gameStoreCode === 'goldendragon'
+    ? 'Golden Dragon Casino'
+    : gameStoreCode === 'dragonfury' ? 'Dragon Fury' : 'PlayJuwa'
 
   useEffect(() => {
     if (!showGamePages) {
@@ -479,7 +497,7 @@ export default function FooterPages() {
           <div className="footer-menu-card-header">
             <h3>{gameStoreLabel} game pages</h3>
           </div>
-          <p>These are the platform pages at /games. Hide removes a game from the games page and the footer. Edit changes the hero, buttons, sections, FAQ, and SEO.</p>
+          <p>These are the platform pages at /platform-games/&lt;name&gt; (the footer Platforms links). Hide removes a platform from the games page and the footer. Edit changes the hero, buttons, steps, feature sections, tips, FAQ, and SEO.</p>
           {gamesLoading ? <p>Loading games…</p> : (
             <div className="admin-table-wrap">
               <table className="admin-table">
@@ -499,7 +517,12 @@ export default function FooterPages() {
                         <RecordActivity item={page} />
                         {page.permanentRedirect ? <div><code className="footer-slug-code">301 → {page.permanentRedirect}</code></div> : null}
                       </td>
-                      <td><code className="footer-slug-code">/games/{page.slug}</code></td>
+                      <td>
+                        <code className="footer-slug-code">/platform-games/{page.slug}</code>
+                        {platformSiteUrl && page.isActive !== false && recordStatus !== 'deleted'
+                          ? <> <a href={`${platformSiteUrl}/platform-games/${page.slug}`} target="_blank" rel="noreferrer">View ↗</a></>
+                          : null}
+                      </td>
                       <td>
                         <span className={`blog-admin-badge${recordStatus === 'deleted' ? '' : page.isActive !== false ? ' is-active' : ''}`}>
                           {recordStatus === 'deleted' ? 'Deleted' : (page.isActive !== false ? 'Live' : 'Hidden')}
@@ -563,13 +586,13 @@ export default function FooterPages() {
       <div className="footer-legal-card">
         <div>
           <strong>Legal pages</strong>
-          <p>Privacy Policy, Terms &amp; Conditions, and Responsible Gaming. Edit with the visual editor or HTML palette.</p>
+          <p>About Us, Privacy Policy, Terms &amp; Conditions, Bonus Terms, Sweep Policy, Responsible Gambling, AMOE, AML/CFT, Cookie Policy and SSL Encryption. Edit each with the visual editor, and Hide / Show it on the website and in the footer. All of them are listed in the website footer; a page with no text yet shows a short placeholder until you add content.</p>
           {isMaster && !settingsStoreCode && (
             <p className="footer-defaults-hint">Select a store above to edit these pages.</p>
           )}
         </div>
         <div className="footer-legal-list">
-          {legalPages.map((page) => {
+          {legalPages.filter((page) => page.pageKey !== 'contact-us').map((page) => {
             const canEdit = Boolean(settingsStoreCode)
             const editTo = `/footer/legal/${page.pageKey}?storeCode=${encodeURIComponent(settingsStoreCode)}`
             return (
@@ -579,16 +602,26 @@ export default function FooterPages() {
                   <div className="footer-legal-row-meta">
                     <code>{page.path}</code>
                     <span className={`blog-admin-badge${page.hasContent && page.isActive !== false ? ' is-active' : ''}`}>
-                      {page.hasContent
-                        ? (page.isActive !== false ? 'Live' : 'Hidden')
-                        : 'Empty'}
+                      {page.isActive === false
+                        ? 'Hidden'
+                        : (page.hasContent ? 'Live' : 'Empty')}
                     </span>
                   </div>
                 </div>
                 {canEdit ? (
-                  <Link to={editTo} className="admin-btn admin-btn-primary">
-                    Edit
-                  </Link>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-secondary"
+                      disabled={legalBusyKey === page.pageKey}
+                      onClick={() => toggleLegalVisibility(page)}
+                    >
+                      {page.isActive === false ? 'Show' : 'Hide'}
+                    </button>
+                    <Link to={editTo} className="admin-btn admin-btn-primary">
+                      Edit
+                    </Link>
+                  </div>
                 ) : (
                   <button type="button" className="admin-btn admin-btn-secondary" disabled>
                     Edit

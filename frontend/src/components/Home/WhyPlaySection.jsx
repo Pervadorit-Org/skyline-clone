@@ -27,7 +27,7 @@ const FEATURES = [
 export function WhyPlaySection() {
   return (
     <section className="df-why-play" aria-labelledby="df-why-play-title">
-      <p className="df-games-eyebrow">The DragonFury difference</p>
+      <p className="df-games-eyebrow">The {site.platformName} difference</p>
       <h2 className="df-games-title df-why-play-title" id="df-why-play-title">
         Why play at {site.platformName}?
       </h2>

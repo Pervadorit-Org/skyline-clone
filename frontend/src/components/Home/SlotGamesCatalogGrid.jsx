@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppLoader } from '../AppLoader';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { site } from '../../config/site';
 import { GuestSlotSpinWheelModal } from '../SpinWheel/GuestSlotSpinWheelModal';
 import { canGuestLandingSpin } from '../SpinWheel/guestLandingSpinCooldown';
 import { slotFavoriteId } from '../../utils/gameFavorites';
@@ -434,7 +435,7 @@ export function SlotGamesCatalogGrid({
           ref={gridRef}
           className={`df-games-grid df-games-grid--dense${lobbyMode ? ' df-games-grid--lobby' : ''}`}
           role="list"
-          aria-label={`${tabLabel(activeTab)} inside Dragon Fury`}
+          aria-label={`${tabLabel(activeTab)} inside ${site.platformName}`}
         >
           {loading && visibleGames.length === 0 ? (
             <div className="df-games-grid__loader">

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { homeConfig } from '../../../config/homeConfig';
+import { useHomeConfig } from '../../../config/homeConfigContext';
 import '../../../styles/home-v2.css';
 import { Hero1 } from './Hero1';
 import { Hero2 } from './Hero2';
@@ -49,6 +49,7 @@ const SECTION_COMPONENTS = {
  * (both untouched) — see src/pages/Home/index.jsx for the mount point.
  */
 export function HomeV2({ revealBelowFold = true }) {
+  const homeConfig = useHomeConfig();
   const { theme, sections } = homeConfig;
 
   const cssVars = useMemo(() => {

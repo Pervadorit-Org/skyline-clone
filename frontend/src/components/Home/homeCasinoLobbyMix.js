@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { STORE_CODE } from '../../config/site';
+import { STORE_CODE, IS_BRAND_STORE } from '../../config/site';
 import { prefetchLobbySlotGames } from './DashboardSlotGamesSection';
 import { getAllCachedProviderSlotGames } from '../../utils/dashboardSlotGamesCache';
 import {
@@ -15,10 +15,8 @@ export const IS_PLAYJUWA_STORE =
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '') === 'playjuwa';
 
-export const IS_DRAGONFURY_STORE =
-  String(STORE_CODE || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '') === 'dragonfury';
+// Runs for every store of this brand (dragonfury / goldendragon): see config/site.js.
+export const IS_DRAGONFURY_STORE = IS_BRAND_STORE;
 
 const SKIP_CATEGORY_IDS = new Set(['recently-played', 'top-fishing']);
 const MOBILE_GAMES_PER_GROUP = 2;

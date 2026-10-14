@@ -52,6 +52,9 @@ const ForgotPassword = lazy(() =>
 const Terms = lazy(() =>
   import('./pages/Terms').then((m) => ({ default: m.Terms }))
 );
+const LegalDocument = lazy(() =>
+  import('./pages/LegalDocument').then((m) => ({ default: m.LegalDocument }))
+);
 const Privacy = lazy(() =>
   import('./pages/Privacy').then((m) => ({ default: m.Privacy }))
 );
@@ -150,6 +153,9 @@ const AllSlotGames = lazy(() =>
 );
 const FirekirinExclusiveGames = lazy(() =>
   import('./pages/SlotGames/FirekirinExclusiveGames').then((m) => ({ default: m.FirekirinExclusiveGames }))
+);
+const PlatformGamePage = lazy(() =>
+  import('./pages/PlatformGame/PlatformGamePage').then((m) => ({ default: m.PlatformGamePage }))
 );
 const PlatformGames = lazy(() =>
   import('./pages/Platform').then((m) => ({ default: m.PlatformGames }))
@@ -279,6 +285,13 @@ function RouteTitleManager() {
       ['/terms', 'Terms & Conditions'],
       ['/privacy', 'Privacy Policy'],
       ['/responsible-gaming', 'Responsible Gaming'],
+      ['/about-us', 'About Us'],
+      ['/bonus-terms', 'Bonus Terms'],
+      ['/sweep-policy', 'Sweep Policy'],
+      ['/amoe', 'AMOE'],
+      ['/aml-cft-policy', 'AML/CFT Policy'],
+      ['/cookie-policy', 'Cookie Policy'],
+      ['/ssl-encryption', 'SSL Encryption'],
       ['/help', 'Help Center'],
       ['/support/tickets', 'Support Tickets'],
       ['/blog', 'Blog'],
@@ -412,6 +425,8 @@ function App() {
                   element={<GoogleAuthCallback />}
                 />
                 <Route path="/cashapp" element={<Navigate to="/" replace />} />
+                {/* Platform pages are standalone: no site header, footer or app sidebar. */}
+                <Route path="/platform-games/:slug" element={<PlatformGamePage />} />
                 <Route
                   path="*"
                   element={(
@@ -429,6 +444,12 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
+                <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
+                <Route path="/terms-conditions" element={<Navigate to="/terms" replace />} />
+                <Route path="/responsible-gambling" element={<Navigate to="/responsible-gaming" replace />} />
+                {['about-us', 'bonus-terms', 'sweep-policy', 'amoe', 'aml-cft-policy', 'cookie-policy', 'ssl-encryption'].map((key) => (
+                  <Route key={key} path={`/${key}`} element={<LegalDocument pageKey={key} />} />
+                ))}
                 <Route path="/responsible-gaming" element={<ResponsibleGaming />} />
                 <Route path="/help" element={<Help />} />
                 <Route path="/faq" element={<FaqPage />} />
@@ -452,6 +473,7 @@ function App() {
                 {/* Games list + SEO category slugs; numeric ids still open GameDetail */}
                 <Route path="/games" element={<GamesListing />} />
                 <Route path="/games/:gameId" element={<GameDetailOrSeo />} />
+                <Route path="/platform-games" element={<GamesListing />} />
 
                 <Route path="/category" element={<Navigate to="/casino" replace />} />
                 <Route path="/category/:slug" element={<CategoryPage />} />

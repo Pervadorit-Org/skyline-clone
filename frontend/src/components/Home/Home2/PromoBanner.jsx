@@ -1,9 +1,10 @@
-import { homeConfig } from '../../../config/homeConfig';
+import { useHomeConfig } from '../../../config/homeConfigContext';
 import { ImageSlot } from './ImageSlot';
 import { PillButton } from './PillButton';
 
 /** Renders homeConfig.banner1 or homeConfig.banner2 — same layout, mirrored by `characterSide`. */
 export function PromoBanner({ configKey }) {
+  const homeConfig = useHomeConfig();
   const cfg = homeConfig[configKey];
   if (!cfg) return null;
   const isImageBg = cfg.bg.startsWith('/');

@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const db = require('../../db/models');
 const { comparePassword } = require('../../utils/common');
 const { createAccessToken } = require('../../helpers/authentication.helpers');
@@ -36,6 +37,38 @@ function looksLikeEmail(value) {
   return String(value || '').includes('@');
 }
 
+/**
+ * Stores whose sign-in page accepts "username or email" (not only email or phone).
+ * Default: goldendragon. Override with USERNAME_LOGIN_STORE_CODES=store1,store2.
+ */
+function usernameLoginStoreCodes() {
+  const raw = process.env.USERNAME_LOGIN_STORE_CODES;
+  const list = raw === undefined ? 'goldendragon' : raw;
+  return new Set(
+    String(list)
+      .split(',')
+      .map((c) => normalizeStoreCode(c))
+      .filter(Boolean)
+  );
+}
+
+function usernameLoginEnabled(storeCode) {
+  const code = normalizeStoreCode(storeCode || '');
+  return Boolean(code) && usernameLoginStoreCodes().has(code);
+}
+
+async function findUserByUsername(username, storeCode) {
+  const name = String(username || '').trim().toLowerCase();
+  if (!name || !storeCode) return null;
+  return db.User.findOne({
+    where: {
+      isActive: true,
+      storeCode,
+      [Op.and]: [db.sequelize.where(db.sequelize.fn('lower', db.sequelize.col('username')), name)]
+    }
+  });
+}
+
 async function findUserForLogin(identifier, storeCode) {
   const base = { isActive: true };
   if (storeCode) base.storeCode = storeCode;
@@ -45,8 +78,16 @@ async function findUserForLogin(identifier, storeCode) {
     return db.User.findOne({ where: { ...base, email: emailNorm } });
   }
 
+  const byUsername = usernameLoginEnabled(storeCode);
+  if (byUsername) {
+    const named = await findUserByUsername(identifier, storeCode);
+    if (named) return named;
+  }
+
   const phone = normalizePhoneE164(identifier);
   if (!phone || !/^\+[1-9]\d{7,14}$/.test(phone)) {
+    // A username store treats a non-phone identifier as an unknown username, not as a malformed phone.
+    if (byUsername) return null;
     const err = new Error('Enter a valid email address or US phone number.');
     err.statusCode = 400;
     err.code = 'INVALID_LOGIN_IDENTIFIER';
@@ -91,7 +132,9 @@ async function login(body) {
     const err = new Error(
       looksLikeEmail(identifier)
         ? 'No account found with this email. Please sign up first, then log in.'
-        : 'No account found with this phone number. Please sign up first, then log in.'
+        : usernameLoginEnabled(storeCode)
+          ? 'No account found with this username or phone number. Please sign up first, then log in.'
+          : 'No account found with this phone number. Please sign up first, then log in.'
     );
     err.statusCode = 401;
     err.code = 'ACCOUNT_NOT_FOUND';

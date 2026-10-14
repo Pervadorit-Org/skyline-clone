@@ -1,5 +1,5 @@
 /**
- * Dragon Fury white-label branding.
+ * Golden Dragon Casino white-label branding.
  * STORE_CODE must match a store_admin's `storeCode` in the backend database.
  * One store = one email + one Google SSO + one Facebook SSO per user.
  */
@@ -8,21 +8,30 @@ export const STORE_CODE = typeof import.meta !== 'undefined' && import.meta.env?
   ? String(import.meta.env.VITE_STORE_CODE).trim()
   : 'dragonfury';
 
+/**
+ * Store codes that run this white-label's brand features (casino lobby mix, game pages,
+ * brand-themed footer pages). Compared after stripping non-alphanumerics, lowercase.
+ */
+export const BRAND_STORE_CODES = ['dragonfury', 'goldendragon'];
+export const IS_BRAND_STORE = BRAND_STORE_CODES.includes(
+  String(STORE_CODE || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+);
+
 export const site = {
   /** Display name of the platform */
   platformName: typeof import.meta !== 'undefined' && import.meta.env?.VITE_SITE_TITLE
     ? String(import.meta.env.VITE_SITE_TITLE).trim()
-    : 'Dragon Fury',
+    : 'Golden Dragon Casino',
   /** Default document title / SEO title (homepage) */
   seoTitle:
     typeof import.meta !== 'undefined' && import.meta.env?.VITE_SEO_TITLE
       ? String(import.meta.env.VITE_SEO_TITLE).trim()
-      : 'DragonFury | Games & Account Website',
+      : 'Golden Dragon Casino | Games & Account Website',
   /** Default meta description for SEO */
   seoDescription:
     typeof import.meta !== 'undefined' && import.meta.env?.VITE_SEO_DESCRIPTION
       ? String(import.meta.env.VITE_SEO_DESCRIPTION).trim()
-      : 'Dragon Fury is the game platform featured here. Browse listed games; use this website for your player account, wallet tools and support.',
+      : 'Golden Dragon Casino is the game platform featured here. Browse listed games; use this website for your player account, wallet tools and support.',
   /** Header / auth / footer / landing logo image */
   logoUrl:
     typeof import.meta !== 'undefined' && import.meta.env?.VITE_LOGO_URL

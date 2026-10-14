@@ -1,7 +1,8 @@
-import { homeConfig } from '../../../config/homeConfig';
+import { useHomeConfig } from '../../../config/homeConfigContext';
 import { FeatureCard } from './FeatureCard';
 
 export function FeatureCardsSection() {
+  const homeConfig = useHomeConfig();
   const cards = homeConfig.featureCards;
   return (
     <section className="df-home2-section df-home2-reasons df-home2-feature-cards">

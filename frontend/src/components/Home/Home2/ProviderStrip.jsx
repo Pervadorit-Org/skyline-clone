@@ -1,6 +1,7 @@
-import { homeConfig } from '../../../config/homeConfig';
+import { useHomeConfig } from '../../../config/homeConfigContext';
 
 export function ProviderStrip() {
+  const homeConfig = useHomeConfig();
   const { title, logos } = homeConfig.providers;
   const loop = [...logos, ...logos];
   return (

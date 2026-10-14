@@ -1,0 +1,746 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="4014" height="2154" viewBox="0 0 4014 2154" font-family="Helvetica, Arial, sans-serif">
+<defs>
+<marker id="one" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" fill="context-stroke"/></marker>
+<marker id="many" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7"><circle cx="5" cy="5" r="3.4" fill="#fff" stroke="context-stroke" stroke-width="1.6"/></marker>
+</defs>
+<rect width="4014" height="2154" fill="#f8fafc"/>
+<text x="60" y="62" font-size="40" font-weight="700" fill="#0f172a">DragonFury database: tables and relations</text>
+<text x="60" y="96" font-size="19" fill="#475569">PostgreSQL dragonfury_local · 92 tables · 1154 columns · 66 enforced foreign keys · 57 unenforced (logical) links</text>
+<text x="60" y="124" font-size="16" fill="#64748b">Each card shows primary key, foreign keys and logical links; "+N more columns" are not listed. A store is not a table: it is a store_admin user with a store_code (stored as plain text on many tables).</text>
+<rect x="1261" y="1034" width="904" height="374" rx="18" fill="#2563eb" fill-opacity="0.07" stroke="#2563eb" stroke-opacity="0.55" stroke-width="2"/>
+<rect x="60" y="150" width="904" height="494" rx="18" fill="#0d9488" fill-opacity="0.07" stroke="#0d9488" stroke-opacity="0.55" stroke-width="2"/>
+<rect x="1114" y="150" width="1198" height="494" rx="18" fill="#d97706" fill-opacity="0.07" stroke="#d97706" stroke-opacity="0.55" stroke-width="2"/>
+<rect x="2462" y="150" width="1492" height="734" rx="18" fill="#7c3aed" fill-opacity="0.07" stroke="#7c3aed" stroke-opacity="0.55" stroke-width="2"/>
+<rect x="60" y="1034" width="904" height="374" rx="18" fill="#db2777" fill-opacity="0.07" stroke="#db2777" stroke-opacity="0.55" stroke-width="2"/>
+<rect x="2756" y="1034" width="904" height="406" rx="18" fill="#ea580c" fill-opacity="0.07" stroke="#ea580c" stroke-opacity="0.55" stroke-width="2"/>
+<rect x="60" y="1590" width="904" height="358" rx="18" fill="#16a34a" fill-opacity="0.07" stroke="#16a34a" stroke-opacity="0.55" stroke-width="2"/>
+<rect x="1408" y="1590" width="610" height="182" rx="18" fill="#0891b2" fill-opacity="0.07" stroke="#0891b2" stroke-opacity="0.55" stroke-width="2"/>
+<rect x="2756" y="1590" width="904" height="374" rx="18" fill="#64748b" fill-opacity="0.07" stroke="#64748b" stroke-opacity="0.55" stroke-width="2"/>
+<path d="M863.3,1649.0 Q1112.5,1423.0 1361.7,1197.0" fill="none" stroke="#16a34a" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M863.3,1649.0 Q1193.9,1512.7 1361.7,1197.0" fill="none" stroke="#16a34a" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3069.0,1145.0 Q2313.5,1145.0 1558.0,1145.0" fill="none" stroke="#ea580c" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M330.3,1649.0 Q818.5,1423.0 1306.7,1197.0" fill="none" stroke="#16a34a" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M330.3,1649.0 Q877.3,1550.0 1306.7,1197.0" fill="none" stroke="#16a34a" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M608.5,1649.0 Q971.9,1423.0 1335.4,1197.0" fill="none" stroke="#16a34a" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M608.5,1649.0 Q1045.9,1541.9 1335.4,1197.0" fill="none" stroke="#16a34a" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3657.0,571.4 Q3208.0,437.0 2759.0,302.6" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2878.8,585.0 Q2770.2,449.0 2661.5,313.0" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3137.7,585.0 Q2920.4,449.0 2703.1,313.0" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,327.5 Q2452.8,710.2 1542.6,1093.0" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M310.4,1769.0 Q818.5,1483.0 1326.6,1197.0" fill="none" stroke="#16a34a" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M310.4,1769.0 Q887.2,1605.0 1326.6,1197.0" fill="none" stroke="#16a34a" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2549.4,313.0 Q2019.5,703.0 1489.6,1093.0" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,463.2 Q3061.0,381.0 2759.0,298.8" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3657.0,538.7 Q2607.5,823.0 1558.0,1107.3" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2854.3,465.0 Q2767.0,389.0 2679.7,313.0" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3088.6,465.0 Q2914.0,389.0 2739.4,313.0" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,1264.5 Q2460.5,1209.0 1558.0,1153.5" fill="none" stroke="#ea580c" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,745.6 Q2460.5,931.0 1558.0,1116.4" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,1656.4 Q2460.5,1419.0 1558.0,1181.6" fill="none" stroke="#64748b" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3069.0,1739.0 Q2313.5,1467.0 1558.0,1195.0" fill="none" stroke="#64748b" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3069.0,1739.0 Q2360.9,1335.3 1558.0,1195.0" fill="none" stroke="#64748b" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2779.7,1753.0 Q2157.5,1475.0 1535.4,1197.0" fill="none" stroke="#64748b" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2779.7,1753.0 Q2214.7,1347.2 1535.4,1197.0" fill="none" stroke="#64748b" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2779.7,1753.0 Q2100.4,1602.8 1535.4,1197.0" fill="none" stroke="#64748b" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,1761.0 Q2460.5,1475.0 1558.0,1189.0" fill="none" stroke="#64748b" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,1761.0 Q2502.8,1341.5 1558.0,1189.0" fill="none" stroke="#64748b" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1705.0,1697.2 Q1713.0,1697.0 1721.0,1696.8" fill="none" stroke="#0891b2" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1552.3,1649.0 Q1492.5,1423.0 1432.7,1197.0" fill="none" stroke="#0891b2" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1824.6,1649.0 Q1642.7,1423.0 1460.8,1197.0" fill="none" stroke="#0891b2" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M945.0,1206.9 Q1112.5,1185.0 1280.0,1163.1" fill="none" stroke="#db2777" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M357.0,1229.9 Q818.5,1193.0 1280.0,1156.1" fill="none" stroke="#db2777" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M651.0,1239.8 Q965.5,1201.0 1280.0,1162.2" fill="none" stroke="#db2777" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M945.0,1287.3 Q1112.5,1237.0 1280.0,1186.7" fill="none" stroke="#db2777" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1648.3,1301.0 Q1571.9,1249.0 1495.4,1197.0" fill="none" stroke="#2563eb" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3657.0,757.1 Q2607.5,939.0 1558.0,1120.9" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3657.0,677.2 Q3203.3,495.1 2749.6,313.0" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3657.0,757.1 Q2583.6,801.1 1558.0,1120.9" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2775.0,785.8 Q2166.5,947.0 1558.0,1108.2" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2877.9,689.0 Q2764.6,501.0 2651.3,313.0" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2775.0,785.8 Q2130.7,811.7 1558.0,1108.2" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M357.0,1321.9 Q818.5,1245.0 1280.0,1168.1" fill="none" stroke="#db2777" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M840.9,417.0 Q1109.3,755.0 1377.7,1093.0" fill="none" stroke="#0d9488" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1558.0,1186.6 Q1722.4,1235.8 1886.7,1285.0" fill="none" stroke="#2563eb" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M564.8,433.0 Q960.7,763.0 1356.6,1093.0" fill="none" stroke="#0d9488" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M846.4,521.0 Q1108.8,807.0 1371.3,1093.0" fill="none" stroke="#0d9488" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M299.0,537.0 Q811.1,815.0 1323.2,1093.0" fill="none" stroke="#0d9488" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M573.2,537.0 Q959.9,815.0 1346.7,1093.0" fill="none" stroke="#0d9488" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M299.7,433.0 Q818.5,763.0 1337.3,1093.0" fill="none" stroke="#0d9488" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M357.0,374.1 Q1419.0,321.0 2481.0,267.9" fill="none" stroke="#0d9488" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M853.8,625.0 Q1108.2,859.0 1362.5,1093.0" fill="none" stroke="#0d9488" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3069.0,765.0 Q2313.5,939.0 1558.0,1113.0" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2481.0,816.1 Q2019.5,959.0 1558.0,1101.9" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,842.6 Q2460.5,983.0 1558.0,1123.4" fill="none" stroke="#7c3aed" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1552.6,625.0 Q1492.5,859.0 1432.4,1093.0" fill="none" stroke="#d97706" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1552.6,625.0 Q1408.3,837.4 1432.4,1093.0" fill="none" stroke="#d97706" stroke-opacity="0.38" stroke-width="1.4" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1557.4,313.0 Q1492.5,703.0 1427.6,1093.0" fill="none" stroke="#d97706" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1557.4,313.0 Q1354.4,680.0 1427.6,1093.0" fill="none" stroke="#d97706" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1282.1,329.0 Q1346.2,711.0 1410.3,1093.0" fill="none" stroke="#d97706" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1411.0,265.2 Q1566.0,261.0 1721.0,256.8" fill="none" stroke="#d97706" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1282.1,329.0 Q1208.7,734.1 1410.3,1093.0" fill="none" stroke="#d97706" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1994.8,297.0 Q2019.2,305.0 2043.8,313.0" fill="none" stroke="#d97706" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1835.4,401.0 Q1641.7,747.0 1448.1,1093.0" fill="none" stroke="#d97706" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3380.8,433.0 Q2469.4,763.8 1558.0,1094.6" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M357.0,1137.9 Q818.5,1141.0 1280.0,1144.1" fill="none" stroke="#db2777" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M667.0,261.0 Q512.0,261.0 357.0,261.0" fill="none" stroke="#0d9488" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M667.0,289.4 Q512.0,321.0 357.0,352.6" fill="none" stroke="#0d9488" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M288.6,313.0 Q818.5,703.0 1348.4,1093.0" fill="none" stroke="#0d9488" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M218.0,313.0 Q218.0,321.0 218.0,329.0" fill="none" stroke="#0d9488" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2794.0,1649.0 Q2176.0,1422.5 1558.0,1196.0" fill="none" stroke="#64748b" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2117.7,297.0 Q1789.8,695.0 1461.8,1093.0" fill="none" stroke="#d97706" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3069.0,1144.6 Q1713.0,1141.0 357.0,1137.4" fill="none" stroke="#ea580c" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2775.0,1253.8 Q2166.5,1205.0 1558.0,1156.2" fill="none" stroke="#ea580c" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3041.4,1213.0 Q3061.0,1205.0 3080.6,1197.0" fill="none" stroke="#ea580c" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1868.0,1206.1 Q1713.0,1185.0 1558.0,1163.9" fill="none" stroke="#2563eb" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3085.5,329.0 Q2305.3,711.0 1525.2,1093.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3085.5,329.0 Q2243.8,585.3 1525.2,1093.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3069.0,267.1 Q2914.0,265.0 2759.0,262.9" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2824.2,361.0 Q2775.2,337.0 2726.2,313.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3657.0,312.7 Q2607.5,703.0 1558.0,1093.3" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3657.0,261.0 Q3208.0,261.0 2759.0,261.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2538.3,433.0 Q2019.5,763.0 1500.7,1093.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2620.0,329.0 Q2620.0,321.0 2620.0,313.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3657.0,366.8 Q3208.0,321.0 2759.0,275.2" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3657.0,425.7 Q2607.5,763.0 1558.0,1100.3" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3083.6,449.0 Q2313.5,771.0 1543.4,1093.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3069.0,364.9 Q2914.0,329.0 2759.0,293.1" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M373.0,1705.2 Q365.0,1705.0 357.0,1704.8" fill="none" stroke="#16a34a" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1578.2,1197.0 Q1568.1,1193.7 1558.0,1190.4" fill="none" stroke="#2563eb" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2796.9,345.0 Q2152.7,719.0 1508.6,1093.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2796.9,345.0 Q2082.4,597.9 1508.6,1093.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3053.0,275.1 Q3208.0,273.0 3363.0,270.9" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2775.0,269.4 Q2767.0,269.0 2759.0,268.6" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3657.0,538.7 Q2607.5,823.0 1558.0,1107.3" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2620.0,313.0 Q2620.0,381.0 2620.0,449.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,327.5 Q2452.8,710.2 1542.6,1093.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,267.7 Q3061.0,265.0 2759.0,262.3" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,544.0 Q2460.5,823.0 1558.0,1102.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2790.2,569.0 Q2166.5,831.0 1542.8,1093.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1419.0,1213.0 Q1419.0,1205.0 1419.0,1197.0" fill="none" stroke="#2563eb" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3069.0,565.8 Q2313.5,831.0 1558.0,1096.2" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2107.8,489.0 Q1790.7,791.0 1473.6,1093.0" fill="none" stroke="#d97706" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2526.3,625.0 Q2028.0,859.0 1529.7,1093.0" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3069.0,1255.7 Q2313.5,1205.0 1558.0,1154.3" fill="none" stroke="#ea580c" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3347.0,1268.8 Q3355.0,1269.0 3363.0,1269.2" fill="none" stroke="#ea580c" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M574.1,329.0 Q969.6,711.0 1365.2,1093.0" fill="none" stroke="#0d9488" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M574.1,329.0 Q872.4,811.7 1365.2,1093.0" fill="none" stroke="#0d9488" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M651.0,267.6 Q1333.0,261.0 2015.0,254.4" fill="none" stroke="#0d9488" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1557.6,417.0 Q1493.3,755.0 1428.9,1093.0" fill="none" stroke="#d97706" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1280.6,433.0 Q1344.7,763.0 1408.9,1093.0" fill="none" stroke="#d97706" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,648.5 Q2460.5,879.0 1558.0,1109.5" fill="none" stroke="#7c3aed" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M651.0,1145.0 Q965.5,1145.0 1280.0,1145.0" fill="none" stroke="#db2777" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M531.8,1093.0 Q660.5,755.0 789.2,417.0" fill="none" stroke="#db2777" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1574.0,1140.8 Q1566.0,1141.0 1558.0,1141.2" fill="none" stroke="#2563eb" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1558.0,1141.2 Q1713.0,1137.0 1868.0,1132.8" fill="none" stroke="#2563eb" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2775.0,1145.0 Q2166.5,1145.0 1558.0,1145.0" fill="none" stroke="#ea580c" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3053.0,1145.0 Q3061.0,1145.0 3069.0,1145.0" fill="none" stroke="#ea580c" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M2914.0,1333.0 Q2914.0,1265.0 2914.0,1197.0" fill="none" stroke="#ea580c" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,1152.5 Q2460.5,1149.0 1558.0,1145.5" fill="none" stroke="#ea580c" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3363.0,1151.8 Q2607.5,1145.0 1852.0,1138.2" fill="none" stroke="#ea580c" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M3502.0,1213.0 Q3502.0,1221.0 3502.0,1229.0" fill="none" stroke="#ea580c" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1831.6,505.0 Q1642.1,799.0 1452.5,1093.0" fill="none" stroke="#d97706" stroke-opacity="0.8" stroke-width="2.2" marker-start="url(#many)" marker-end="url(#one)"/>
+<rect x="1871" y="1096" width="272" height="66" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.6"/>
+<path d="M1871,1122 V1104 a8,8 0 0 1 8,-8 H2135 a8,8 0 0 1 8,8 V1122 z" fill="#2563eb"/>
+<text x="1881" y="1114" font-size="14.5" font-weight="700" fill="#fff">admin_roles</text>
+<text x="1881" y="1136" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1881" y="1152" font-size="11.5" fill="#94a3b8">+ 5 more columns (6 total)</text>
+<rect x="670" y="1652" width="272" height="98" rx="8" fill="#fff" stroke="#16a34a" stroke-width="1.6"/>
+<path d="M670,1678 V1660 a8,8 0 0 1 8,-8 H934 a8,8 0 0 1 8,8 V1678 z" fill="#16a34a"/>
+<text x="680" y="1670" font-size="14.5" font-weight="700" fill="#fff">blog_posts</text>
+<text x="680" y="1692" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="680" y="1708" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  deleted_by_id → users</text>
+<text x="680" y="1724" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  restored_by_id → users</text>
+<text x="680" y="1740" font-size="11.5" fill="#94a3b8">+ 24 more columns (27 total)</text>
+<rect x="3366" y="348" width="272" height="82" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3366,374 V356 a8,8 0 0 1 8,-8 H3630 a8,8 0 0 1 8,8 V374 z" fill="#7c3aed"/>
+<text x="3376" y="366" font-size="14.5" font-weight="700" fill="#fff">bona_user_mappings</text>
+<text x="3376" y="388" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3376" y="404" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="3376" y="420" font-size="11.5" fill="#94a3b8">+ 7 more columns (9 total)</text>
+<rect x="82" y="1096" width="272" height="82" rx="8" fill="#fff" stroke="#db2777" stroke-width="1.6"/>
+<path d="M82,1122 V1104 a8,8 0 0 1 8,-8 H346 a8,8 0 0 1 8,8 V1122 z" fill="#db2777"/>
+<text x="92" y="1114" font-size="14.5" font-weight="700" fill="#fff">bonus_codes</text>
+<text x="92" y="1136" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="92" y="1152" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#db2777">FK</tspan>  created_by_user_id <tspan fill="#db2777">→ users</tspan></text>
+<text x="92" y="1168" font-size="11.5" fill="#94a3b8">+ 13 more columns (15 total)</text>
+<rect x="670" y="212" width="272" height="98" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.6"/>
+<path d="M670,238 V220 a8,8 0 0 1 8,-8 H934 a8,8 0 0 1 8,8 V238 z" fill="#0d9488"/>
+<text x="680" y="230" font-size="14.5" font-weight="700" fill="#fff">bonus_sc_lot_consumptions</text>
+<text x="680" y="252" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="680" y="268" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#0d9488">FK</tspan>  lot_id <tspan fill="#0d9488">→ bonus_sc_lots</tspan></text>
+<text x="680" y="284" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#0d9488">FK</tspan>  ledger_id <tspan fill="#0d9488">→ wallet_sc_ledger</tspan></text>
+<text x="680" y="300" font-size="11.5" fill="#94a3b8">+ 2 more columns (5 total)</text>
+<rect x="82" y="212" width="272" height="98" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.6"/>
+<path d="M82,238 V220 a8,8 0 0 1 8,-8 H346 a8,8 0 0 1 8,8 V238 z" fill="#0d9488"/>
+<text x="92" y="230" font-size="14.5" font-weight="700" fill="#fff">bonus_sc_lots</text>
+<text x="92" y="252" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="92" y="268" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#0d9488">FK</tspan>  user_id <tspan fill="#0d9488">→ users</tspan></text>
+<text x="92" y="284" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#0d9488">FK</tspan>  ledger_id <tspan fill="#0d9488">→ wallet_sc_ledger</tspan></text>
+<text x="92" y="300" font-size="11.5" fill="#94a3b8">+ 18 more columns (21 total)</text>
+<rect x="1430" y="212" width="272" height="98" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M1430,238 V220 a8,8 0 0 1 8,-8 H1694 a8,8 0 0 1 8,8 V238 z" fill="#d97706"/>
+<text x="1440" y="230" font-size="13.1" font-weight="700" fill="#fff">chime_cashapp_withdrawal_requests</text>
+<text x="1440" y="252" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1440" y="268" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#d97706">FK</tspan>  user_id <tspan fill="#d97706">→ users</tspan></text>
+<text x="1440" y="284" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#d97706">FK</tspan>  approved_by_user_id <tspan fill="#d97706">→ users</tspan></text>
+<text x="1440" y="300" font-size="11.5" fill="#94a3b8">+ 19 more columns (22 total)</text>
+<rect x="1136" y="212" width="272" height="114" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M1136,238 V220 a8,8 0 0 1 8,-8 H1400 a8,8 0 0 1 8,8 V238 z" fill="#d97706"/>
+<text x="1146" y="230" font-size="14.5" font-weight="700" fill="#fff">chime_deposit_requests</text>
+<text x="1146" y="252" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1146" y="268" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#d97706">FK</tspan>  user_id <tspan fill="#d97706">→ users</tspan></text>
+<text x="1146" y="284" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#d97706">FK</tspan>  package_id <tspan fill="#d97706">→ deposit_packages</tspan></text>
+<text x="1146" y="300" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#d97706">FK</tspan>  approved_by_user_id <tspan fill="#d97706">→ users</tspan></text>
+<text x="1146" y="316" font-size="11.5" fill="#94a3b8">+ 14 more columns (18 total)</text>
+<rect x="2778" y="1652" width="272" height="82" rx="8" fill="#fff" stroke="#64748b" stroke-width="1.6"/>
+<path d="M2778,1678 V1660 a8,8 0 0 1 8,-8 H3042 a8,8 0 0 1 8,8 V1678 z" fill="#64748b"/>
+<text x="2788" y="1670" font-size="14.5" font-weight="700" fill="#fff">contact_list_downloads</text>
+<text x="2788" y="1692" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2788" y="1708" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#64748b">FK</tspan>  downloaded_by_user_id <tspan fill="#64748b">→ users</tspan></text>
+<text x="2788" y="1724" font-size="11.5" fill="#94a3b8">+ 14 more columns (16 total)</text>
+<rect x="1724" y="316" width="272" height="82" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M1724,342 V324 a8,8 0 0 1 8,-8 H1988 a8,8 0 0 1 8,8 V342 z" fill="#d97706"/>
+<text x="1734" y="334" font-size="14.5" font-weight="700" fill="#fff">deposit_orders</text>
+<text x="1734" y="356" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1734" y="372" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#d97706">FK</tspan>  user_id <tspan fill="#d97706">→ users</tspan></text>
+<text x="1734" y="388" font-size="11.5" fill="#94a3b8">+ 16 more columns (18 total)</text>
+<rect x="2018" y="316" width="272" height="66" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M2018,342 V324 a8,8 0 0 1 8,-8 H2282 a8,8 0 0 1 8,8 V342 z" fill="#d97706"/>
+<text x="2028" y="334" font-size="14.5" font-weight="700" fill="#fff">deposit_package_groups</text>
+<text x="2028" y="356" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2028" y="372" font-size="11.5" fill="#94a3b8">+ 11 more columns (12 total)</text>
+<rect x="1724" y="212" width="272" height="82" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M1724,238 V220 a8,8 0 0 1 8,-8 H1988 a8,8 0 0 1 8,8 V238 z" fill="#d97706"/>
+<text x="1734" y="230" font-size="14.5" font-weight="700" fill="#fff">deposit_packages</text>
+<text x="1734" y="252" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1734" y="268" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#d97706">FK</tspan>  group_id <tspan fill="#d97706">→ deposit_package_groups</tspan></text>
+<text x="1734" y="284" font-size="11.5" fill="#94a3b8">+ 14 more columns (16 total)</text>
+<rect x="2018" y="212" width="272" height="82" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M2018,238 V220 a8,8 0 0 1 8,-8 H2282 a8,8 0 0 1 8,8 V238 z" fill="#d97706"/>
+<text x="2028" y="230" font-size="14.5" font-weight="700" fill="#fff">deposit_requests</text>
+<text x="2028" y="252" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2028" y="268" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#d97706">FK</tspan>  user_id <tspan fill="#d97706">→ users</tspan></text>
+<text x="2028" y="284" font-size="11.5" fill="#94a3b8">+ 9 more columns (11 total)</text>
+<rect x="2778" y="1336" width="272" height="82" rx="8" fill="#fff" stroke="#ea580c" stroke-width="1.6"/>
+<path d="M2778,1362 V1344 a8,8 0 0 1 8,-8 H3042 a8,8 0 0 1 8,8 V1362 z" fill="#ea580c"/>
+<text x="2788" y="1354" font-size="14.5" font-weight="700" fill="#fff">email_campaign_send_attempts</text>
+<text x="2788" y="1376" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2788" y="1392" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#ea580c">FK</tspan>  send_id <tspan fill="#ea580c">→ email_campaign_sends</tspan></text>
+<text x="2788" y="1408" font-size="11.5" fill="#94a3b8">+ 9 more columns (11 total)</text>
+<rect x="2778" y="1096" width="272" height="98" rx="8" fill="#fff" stroke="#ea580c" stroke-width="1.6"/>
+<path d="M2778,1122 V1104 a8,8 0 0 1 8,-8 H3042 a8,8 0 0 1 8,8 V1122 z" fill="#ea580c"/>
+<text x="2788" y="1114" font-size="14.5" font-weight="700" fill="#fff">email_campaign_sends</text>
+<text x="2788" y="1136" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2788" y="1152" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#ea580c">FK</tspan>  user_id <tspan fill="#ea580c">→ users</tspan></text>
+<text x="2788" y="1168" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#ea580c">FK</tspan>  campaign_id <tspan fill="#ea580c">→ email_campaigns</tspan></text>
+<text x="2788" y="1184" font-size="11.5" fill="#94a3b8">+ 19 more columns (22 total)</text>
+<rect x="2778" y="1216" width="272" height="98" rx="8" fill="#fff" stroke="#ea580c" stroke-width="1.6"/>
+<path d="M2778,1242 V1224 a8,8 0 0 1 8,-8 H3042 a8,8 0 0 1 8,8 V1242 z" fill="#ea580c"/>
+<text x="2788" y="1234" font-size="14.5" font-weight="700" fill="#fff">email_campaign_test_users</text>
+<text x="2788" y="1256" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2788" y="1272" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#ea580c">FK</tspan>  user_id <tspan fill="#ea580c">→ users</tspan></text>
+<text x="2788" y="1288" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#ea580c">FK</tspan>  campaign_id <tspan fill="#ea580c">→ email_campaigns</tspan></text>
+<text x="2788" y="1304" font-size="11.5" fill="#94a3b8">+ 1 more columns (4 total)</text>
+<rect x="3072" y="1096" width="272" height="98" rx="8" fill="#fff" stroke="#ea580c" stroke-width="1.6"/>
+<path d="M3072,1122 V1104 a8,8 0 0 1 8,-8 H3336 a8,8 0 0 1 8,8 V1122 z" fill="#ea580c"/>
+<text x="3082" y="1114" font-size="14.5" font-weight="700" fill="#fff">email_campaigns</text>
+<text x="3082" y="1136" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3082" y="1152" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#ea580c">FK</tspan>  bonus_code_id <tspan fill="#ea580c">→ bonus_codes</tspan></text>
+<text x="3082" y="1168" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  created_by_user_id → users</text>
+<text x="3082" y="1184" font-size="11.5" fill="#94a3b8">+ 23 more columns (26 total)</text>
+<rect x="3072" y="1336" width="272" height="66" rx="8" fill="#fff" stroke="#ea580c" stroke-width="1.6"/>
+<path d="M3072,1362 V1344 a8,8 0 0 1 8,-8 H3336 a8,8 0 0 1 8,8 V1362 z" fill="#ea580c"/>
+<text x="3082" y="1354" font-size="14.5" font-weight="700" fill="#fff">email_unsubscribes</text>
+<text x="3082" y="1376" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3082" y="1392" font-size="11.5" fill="#94a3b8">+ 3 more columns (4 total)</text>
+<rect x="1871" y="1184" width="272" height="82" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.6"/>
+<path d="M1871,1210 V1192 a8,8 0 0 1 8,-8 H2135 a8,8 0 0 1 8,8 V1210 z" fill="#2563eb"/>
+<text x="1881" y="1202" font-size="13.9" font-weight="700" fill="#fff">fingerprint_signup_ip_allowlist</text>
+<text x="1881" y="1224" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1881" y="1240" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#2563eb">FK</tspan>  created_by_user_id <tspan fill="#2563eb">→ users</tspan></text>
+<text x="1881" y="1256" font-size="11.5" fill="#94a3b8">+ 5 more columns (7 total)</text>
+<rect x="82" y="1652" width="272" height="98" rx="8" fill="#fff" stroke="#16a34a" stroke-width="1.6"/>
+<path d="M82,1678 V1660 a8,8 0 0 1 8,-8 H346 a8,8 0 0 1 8,8 V1678 z" fill="#16a34a"/>
+<text x="92" y="1670" font-size="14.5" font-weight="700" fill="#fff">footer_menus</text>
+<text x="92" y="1692" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="92" y="1708" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  deleted_by_id → users</text>
+<text x="92" y="1724" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  restored_by_id → users</text>
+<text x="92" y="1740" font-size="11.5" fill="#94a3b8">+ 11 more columns (14 total)</text>
+<rect x="376" y="1652" width="272" height="114" rx="8" fill="#fff" stroke="#16a34a" stroke-width="1.6"/>
+<path d="M376,1678 V1660 a8,8 0 0 1 8,-8 H640 a8,8 0 0 1 8,8 V1678 z" fill="#16a34a"/>
+<text x="386" y="1670" font-size="14.5" font-weight="700" fill="#fff">footer_pages</text>
+<text x="386" y="1692" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="386" y="1708" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#16a34a">FK</tspan>  menu_id <tspan fill="#16a34a">→ footer_menus</tspan></text>
+<text x="386" y="1724" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  deleted_by_id → users</text>
+<text x="386" y="1740" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  restored_by_id → users</text>
+<text x="386" y="1756" font-size="11.5" fill="#94a3b8">+ 23 more columns (27 total)</text>
+<rect x="3072" y="212" width="272" height="114" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3072,238 V220 a8,8 0 0 1 8,-8 H3336 a8,8 0 0 1 8,8 V238 z" fill="#7c3aed"/>
+<text x="3082" y="230" font-size="14.5" font-weight="700" fill="#fff">game_activities</text>
+<text x="3082" y="252" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3082" y="268" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="3082" y="284" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  operation_done_by_user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="3082" y="300" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  game_id <tspan fill="#7c3aed">→ games</tspan></text>
+<text x="3082" y="316" font-size="11.5" fill="#94a3b8">+ 5 more columns (9 total)</text>
+<rect x="2778" y="364" width="272" height="82" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M2778,390 V372 a8,8 0 0 1 8,-8 H3042 a8,8 0 0 1 8,8 V390 z" fill="#7c3aed"/>
+<text x="2788" y="382" font-size="14.5" font-weight="700" fill="#fff">game_automation_api_logs</text>
+<text x="2788" y="404" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2788" y="420" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  game_id <tspan fill="#7c3aed">→ games</tspan></text>
+<text x="2788" y="436" font-size="11.5" fill="#94a3b8">+ 9 more columns (11 total)</text>
+<rect x="3660" y="572" width="272" height="82" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3660,598 V580 a8,8 0 0 1 8,-8 H3924 a8,8 0 0 1 8,8 V598 z" fill="#7c3aed"/>
+<text x="3670" y="590" font-size="14.5" font-weight="700" fill="#fff">game_balance_alert_sent</text>
+<text x="3670" y="612" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  game_id</text>
+<text x="3670" y="628" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  game_id → games</text>
+<rect x="3660" y="212" width="272" height="98" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3660,238 V220 a8,8 0 0 1 8,-8 H3924 a8,8 0 0 1 8,8 V238 z" fill="#7c3aed"/>
+<text x="3670" y="230" font-size="13.5" font-weight="700" fill="#fff">game_bot_automation_failure_logs</text>
+<text x="3670" y="252" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3670" y="268" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  platform_user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="3670" y="284" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  game_id <tspan fill="#7c3aed">→ games</tspan></text>
+<text x="3670" y="300" font-size="11.5" fill="#94a3b8">+ 7 more columns (10 total)</text>
+<rect x="2484" y="332" width="272" height="98" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M2484,358 V340 a8,8 0 0 1 8,-8 H2748 a8,8 0 0 1 8,8 V358 z" fill="#7c3aed"/>
+<text x="2494" y="350" font-size="14.5" font-weight="700" fill="#fff">game_bot_automation_failures</text>
+<text x="2494" y="372" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2494" y="388" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  platform_user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="2494" y="404" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  game_id <tspan fill="#7c3aed">→ games</tspan></text>
+<text x="2494" y="420" font-size="11.5" fill="#94a3b8">+ 7 more columns (10 total)</text>
+<rect x="2778" y="588" width="272" height="82" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M2778,614 V596 a8,8 0 0 1 8,-8 H3042 a8,8 0 0 1 8,8 V614 z" fill="#7c3aed"/>
+<text x="2788" y="606" font-size="12.0" font-weight="700" fill="#fff">game_golden_dragon_drawer_alert_sent</text>
+<text x="2788" y="628" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  game_id</text>
+<text x="2788" y="644" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  game_id → games</text>
+<rect x="3660" y="332" width="272" height="98" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3660,358 V340 a8,8 0 0 1 8,-8 H3924 a8,8 0 0 1 8,8 V358 z" fill="#7c3aed"/>
+<text x="3670" y="350" font-size="14.5" font-weight="700" fill="#fff">game_history</text>
+<text x="3670" y="372" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3670" y="388" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  game_id <tspan fill="#7c3aed">→ games</tspan></text>
+<text x="3670" y="404" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  changed_by_user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="3670" y="420" font-size="11.5" fill="#94a3b8">+ 11 more columns (14 total)</text>
+<rect x="3072" y="588" width="272" height="82" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3072,614 V596 a8,8 0 0 1 8,-8 H3336 a8,8 0 0 1 8,8 V614 z" fill="#7c3aed"/>
+<text x="3082" y="606" font-size="14.5" font-weight="700" fill="#fff">game_manual_mode_alert_sent</text>
+<text x="3082" y="628" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  game_id</text>
+<text x="3082" y="644" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  game_id → games</text>
+<rect x="3072" y="348" width="272" height="98" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3072,374 V356 a8,8 0 0 1 8,-8 H3336 a8,8 0 0 1 8,8 V374 z" fill="#7c3aed"/>
+<text x="3082" y="366" font-size="14.5" font-weight="700" fill="#fff">game_manual_mode_logs</text>
+<text x="3082" y="388" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3082" y="404" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  switched_by_user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="3082" y="420" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  game_id <tspan fill="#7c3aed">→ games</tspan></text>
+<text x="3082" y="436" font-size="11.5" fill="#94a3b8">+ 8 more columns (11 total)</text>
+<rect x="2778" y="212" width="272" height="130" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M2778,238 V220 a8,8 0 0 1 8,-8 H3042 a8,8 0 0 1 8,8 V238 z" fill="#7c3aed"/>
+<text x="2788" y="230" font-size="14.5" font-weight="700" fill="#fff">game_manual_request_logs</text>
+<text x="2788" y="252" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2788" y="268" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="2788" y="284" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  performed_by_user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="2788" y="300" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  manual_request_id <tspan fill="#7c3aed">→ game_manual_requests</tspan></text>
+<text x="2788" y="316" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  game_id <tspan fill="#7c3aed">→ games</tspan></text>
+<text x="2788" y="332" font-size="11.5" fill="#94a3b8">+ 7 more columns (12 total)</text>
+<rect x="3366" y="212" width="272" height="114" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3366,238 V220 a8,8 0 0 1 8,-8 H3630 a8,8 0 0 1 8,8 V238 z" fill="#7c3aed"/>
+<text x="3376" y="230" font-size="14.5" font-weight="700" fill="#fff">game_manual_requests</text>
+<text x="3376" y="252" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3376" y="268" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="3376" y="284" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  game_id <tspan fill="#7c3aed">→ games</tspan></text>
+<text x="3376" y="300" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  resolved_by_user_id → users</text>
+<text x="3376" y="316" font-size="11.5" fill="#94a3b8">+ 13 more columns (17 total)</text>
+<rect x="82" y="1772" width="272" height="98" rx="8" fill="#fff" stroke="#16a34a" stroke-width="1.6"/>
+<path d="M82,1798 V1780 a8,8 0 0 1 8,-8 H346 a8,8 0 0 1 8,8 V1798 z" fill="#16a34a"/>
+<text x="92" y="1790" font-size="14.5" font-weight="700" fill="#fff">game_seo_pages</text>
+<text x="92" y="1812" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="92" y="1828" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  deleted_by_id → users</text>
+<text x="92" y="1844" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  restored_by_id → users</text>
+<text x="92" y="1860" font-size="11.5" fill="#94a3b8">+ 29 more columns (32 total)</text>
+<rect x="2484" y="452" width="272" height="66" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M2484,478 V460 a8,8 0 0 1 8,-8 H2748 a8,8 0 0 1 8,8 V478 z" fill="#7c3aed"/>
+<text x="2494" y="470" font-size="14.5" font-weight="700" fill="#fff">game_templates</text>
+<text x="2494" y="492" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2494" y="508" font-size="11.5" fill="#94a3b8">+ 8 more columns (9 total)</text>
+<rect x="2484" y="212" width="272" height="98" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M2484,238 V220 a8,8 0 0 1 8,-8 H2748 a8,8 0 0 1 8,8 V238 z" fill="#7c3aed"/>
+<text x="2494" y="230" font-size="14.5" font-weight="700" fill="#fff">games</text>
+<text x="2494" y="252" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2494" y="268" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  game_template_id <tspan fill="#7c3aed">→ game_templates</tspan></text>
+<text x="2494" y="284" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  added_by_user_id → users</text>
+<text x="2494" y="300" font-size="11.5" fill="#94a3b8">+ 27 more columns (30 total)</text>
+<rect x="1577" y="1200" width="272" height="82" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.6"/>
+<path d="M1577,1226 V1208 a8,8 0 0 1 8,-8 H1841 a8,8 0 0 1 8,8 V1226 z" fill="#2563eb"/>
+<text x="1587" y="1218" font-size="14.5" font-weight="700" fill="#fff">geo_ip_allowlist</text>
+<text x="1587" y="1240" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1587" y="1256" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#2563eb">FK</tspan>  created_by_user_id <tspan fill="#2563eb">→ users</tspan></text>
+<text x="1587" y="1272" font-size="11.5" fill="#94a3b8">+ 5 more columns (7 total)</text>
+<rect x="3366" y="452" width="272" height="98" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3366,478 V460 a8,8 0 0 1 8,-8 H3630 a8,8 0 0 1 8,8 V478 z" fill="#7c3aed"/>
+<text x="3376" y="470" font-size="14.5" font-weight="700" fill="#fff">gitslotpark_transactions</text>
+<text x="3376" y="492" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3376" y="508" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="3376" y="524" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  game_id → games</text>
+<text x="3376" y="540" font-size="11.5" fill="#94a3b8">+ 12 more columns (15 total)</text>
+<rect x="3660" y="452" width="272" height="98" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3660,478 V460 a8,8 0 0 1 8,-8 H3924 a8,8 0 0 1 8,8 V478 z" fill="#7c3aed"/>
+<text x="3670" y="470" font-size="14.5" font-weight="700" fill="#fff">gitslotpark_user_mappings</text>
+<text x="3670" y="492" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3670" y="508" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="3670" y="524" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  gitslotpark_user_id → users</text>
+<text x="3670" y="540" font-size="11.5" fill="#94a3b8">+ 2 more columns (5 total)</text>
+<rect x="670" y="1772" width="272" height="66" rx="8" fill="#fff" stroke="#16a34a" stroke-width="1.6"/>
+<path d="M670,1798 V1780 a8,8 0 0 1 8,-8 H934 a8,8 0 0 1 8,8 V1798 z" fill="#16a34a"/>
+<text x="680" y="1790" font-size="14.5" font-weight="700" fill="#fff">help_content</text>
+<text x="680" y="1812" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="680" y="1828" font-size="11.5" fill="#94a3b8">+ 7 more columns (8 total)</text>
+<rect x="376" y="1788" width="272" height="66" rx="8" fill="#fff" stroke="#16a34a" stroke-width="1.6"/>
+<path d="M376,1814 V1796 a8,8 0 0 1 8,-8 H640 a8,8 0 0 1 8,8 V1814 z" fill="#16a34a"/>
+<text x="386" y="1806" font-size="14.5" font-weight="700" fill="#fff">legal_pages</text>
+<text x="386" y="1828" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="386" y="1844" font-size="11.5" fill="#94a3b8">+ 11 more columns (12 total)</text>
+<rect x="2484" y="644" width="272" height="66" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M2484,670 V652 a8,8 0 0 1 8,-8 H2748 a8,8 0 0 1 8,8 V670 z" fill="#7c3aed"/>
+<text x="2494" y="662" font-size="14.5" font-weight="700" fill="#fff">link2play_games</text>
+<text x="2494" y="684" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2494" y="700" font-size="11.5" fill="#94a3b8">+ 11 more columns (12 total)</text>
+<rect x="1283" y="1216" width="272" height="82" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.6"/>
+<path d="M1283,1242 V1224 a8,8 0 0 1 8,-8 H1547 a8,8 0 0 1 8,8 V1242 z" fill="#2563eb"/>
+<text x="1293" y="1234" font-size="14.5" font-weight="700" fill="#fff">notifications</text>
+<text x="1293" y="1256" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1293" y="1272" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#2563eb">FK</tspan>  user_id <tspan fill="#2563eb">→ users</tspan></text>
+<text x="1293" y="1288" font-size="11.5" fill="#94a3b8">+ 8 more columns (10 total)</text>
+<rect x="2778" y="468" width="272" height="98" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M2778,494 V476 a8,8 0 0 1 8,-8 H3042 a8,8 0 0 1 8,8 V494 z" fill="#7c3aed"/>
+<text x="2788" y="486" font-size="14.5" font-weight="700" fill="#fff">one_game_hub_sessions</text>
+<text x="2788" y="508" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  player_id</text>
+<text x="2788" y="524" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="2788" y="540" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  game_id → games</text>
+<text x="2788" y="556" font-size="11.5" fill="#94a3b8">+ 4 more columns (7 total)</text>
+<rect x="3072" y="468" width="272" height="98" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3072,494 V476 a8,8 0 0 1 8,-8 H3336 a8,8 0 0 1 8,8 V494 z" fill="#7c3aed"/>
+<text x="3082" y="486" font-size="14.5" font-weight="700" fill="#fff">one_game_hub_transactions</text>
+<text x="3082" y="508" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3082" y="524" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="3082" y="540" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  game_id → games</text>
+<text x="3082" y="556" font-size="11.5" fill="#94a3b8">+ 10 more columns (13 total)</text>
+<rect x="670" y="1860" width="272" height="66" rx="8" fill="#fff" stroke="#16a34a" stroke-width="1.6"/>
+<path d="M670,1886 V1868 a8,8 0 0 1 8,-8 H934 a8,8 0 0 1 8,8 V1886 z" fill="#16a34a"/>
+<text x="680" y="1878" font-size="14.5" font-weight="700" fill="#fff">page_schemas</text>
+<text x="680" y="1900" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="680" y="1916" font-size="11.5" fill="#94a3b8">+ 8 more columns (9 total)</text>
+<rect x="1430" y="332" width="272" height="82" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M1430,358 V340 a8,8 0 0 1 8,-8 H1694 a8,8 0 0 1 8,8 V358 z" fill="#d97706"/>
+<text x="1440" y="350" font-size="14.5" font-weight="700" fill="#fff">payment_deposit_completions</text>
+<text x="1440" y="372" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1440" y="388" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#d97706">FK</tspan>  user_id <tspan fill="#d97706">→ users</tspan></text>
+<text x="1440" y="404" font-size="11.5" fill="#94a3b8">+ 4 more columns (6 total)</text>
+<rect x="1136" y="348" width="272" height="82" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M1136,374 V356 a8,8 0 0 1 8,-8 H1400 a8,8 0 0 1 8,8 V374 z" fill="#d97706"/>
+<text x="1146" y="366" font-size="14.5" font-weight="700" fill="#fff">payment_pending_deposits</text>
+<text x="1146" y="388" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1146" y="404" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#d97706">FK</tspan>  user_id <tspan fill="#d97706">→ users</tspan></text>
+<text x="1146" y="420" font-size="11.5" fill="#94a3b8">+ 19 more columns (21 total)</text>
+<rect x="1430" y="436" width="272" height="66" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M1430,462 V444 a8,8 0 0 1 8,-8 H1694 a8,8 0 0 1 8,8 V462 z" fill="#d97706"/>
+<text x="1440" y="454" font-size="14.5" font-weight="700" fill="#fff">payment_providers</text>
+<text x="1440" y="476" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1440" y="492" font-size="11.5" fill="#94a3b8">+ 12 more columns (13 total)</text>
+<rect x="2018" y="404" width="272" height="82" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M2018,430 V412 a8,8 0 0 1 8,-8 H2282 a8,8 0 0 1 8,8 V430 z" fill="#d97706"/>
+<text x="2028" y="422" font-size="14.5" font-weight="700" fill="#fff">payment_transactions</text>
+<text x="2028" y="444" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2028" y="460" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#d97706">FK</tspan>  user_id <tspan fill="#d97706">→ users</tspan></text>
+<text x="2028" y="476" font-size="11.5" fill="#94a3b8">+ 8 more columns (10 total)</text>
+<rect x="670" y="1096" width="272" height="66" rx="8" fill="#fff" stroke="#db2777" stroke-width="1.6"/>
+<path d="M670,1122 V1104 a8,8 0 0 1 8,-8 H934 a8,8 0 0 1 8,8 V1122 z" fill="#db2777"/>
+<text x="680" y="1114" font-size="14.5" font-weight="700" fill="#fff">promotions</text>
+<text x="680" y="1136" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="680" y="1152" font-size="11.5" fill="#94a3b8">+ 16 more columns (17 total)</text>
+<rect x="2484" y="540" width="272" height="82" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M2484,566 V548 a8,8 0 0 1 8,-8 H2748 a8,8 0 0 1 8,8 V566 z" fill="#7c3aed"/>
+<text x="2494" y="558" font-size="14.5" font-weight="700" fill="#fff">provider_transaction_events</text>
+<text x="2494" y="580" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2494" y="596" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="2494" y="612" font-size="11.5" fill="#94a3b8">+ 12 more columns (14 total)</text>
+<rect x="3366" y="1096" width="272" height="114" rx="8" fill="#fff" stroke="#ea580c" stroke-width="1.6"/>
+<path d="M3366,1122 V1104 a8,8 0 0 1 8,-8 H3630 a8,8 0 0 1 8,8 V1122 z" fill="#ea580c"/>
+<text x="3376" y="1114" font-size="14.5" font-weight="700" fill="#fff">push_campaign_sends</text>
+<text x="3376" y="1136" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3376" y="1152" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#ea580c">FK</tspan>  user_id <tspan fill="#ea580c">→ users</tspan></text>
+<text x="3376" y="1168" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#ea580c">FK</tspan>  device_token_id <tspan fill="#ea580c">→ user_device_tokens</tspan></text>
+<text x="3376" y="1184" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#ea580c">FK</tspan>  campaign_id <tspan fill="#ea580c">→ push_campaigns</tspan></text>
+<text x="3376" y="1200" font-size="11.5" fill="#94a3b8">+ 9 more columns (13 total)</text>
+<rect x="3072" y="1216" width="272" height="98" rx="8" fill="#fff" stroke="#ea580c" stroke-width="1.6"/>
+<path d="M3072,1242 V1224 a8,8 0 0 1 8,-8 H3336 a8,8 0 0 1 8,8 V1242 z" fill="#ea580c"/>
+<text x="3082" y="1234" font-size="14.5" font-weight="700" fill="#fff">push_campaign_test_users</text>
+<text x="3082" y="1256" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3082" y="1272" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#ea580c">FK</tspan>  user_id <tspan fill="#ea580c">→ users</tspan></text>
+<text x="3082" y="1288" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#ea580c">FK</tspan>  campaign_id <tspan fill="#ea580c">→ push_campaigns</tspan></text>
+<text x="3082" y="1304" font-size="11.5" fill="#94a3b8">+ 1 more columns (4 total)</text>
+<rect x="3366" y="1232" width="272" height="82" rx="8" fill="#fff" stroke="#ea580c" stroke-width="1.6"/>
+<path d="M3366,1258 V1240 a8,8 0 0 1 8,-8 H3630 a8,8 0 0 1 8,8 V1258 z" fill="#ea580c"/>
+<text x="3376" y="1250" font-size="14.5" font-weight="700" fill="#fff">push_campaigns</text>
+<text x="3376" y="1272" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3376" y="1288" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  created_by_user_id → users</text>
+<text x="3376" y="1304" font-size="11.5" fill="#94a3b8">+ 12 more columns (14 total)</text>
+<rect x="376" y="212" width="272" height="114" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.6"/>
+<path d="M376,238 V220 a8,8 0 0 1 8,-8 H640 a8,8 0 0 1 8,8 V238 z" fill="#0d9488"/>
+<text x="386" y="230" font-size="14.5" font-weight="700" fill="#fff">referral_deposit_rewards</text>
+<text x="386" y="252" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="386" y="268" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#0d9488">FK</tspan>  referrer_user_id <tspan fill="#0d9488">→ users</tspan></text>
+<text x="386" y="284" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#0d9488">FK</tspan>  referred_user_id <tspan fill="#0d9488">→ users</tspan></text>
+<text x="386" y="300" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#0d9488">FK</tspan>  deposit_request_id <tspan fill="#0d9488">→ deposit_requests</tspan></text>
+<text x="386" y="316" font-size="11.5" fill="#94a3b8">+ 8 more columns (12 total)</text>
+<rect x="3366" y="676" width="272" height="82" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3366,702 V684 a8,8 0 0 1 8,-8 H3630 a8,8 0 0 1 8,8 V702 z" fill="#7c3aed"/>
+<text x="3376" y="694" font-size="14.5" font-weight="700" fill="#fff">scorpio_players</text>
+<text x="3376" y="716" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  user_id</text>
+<text x="3376" y="732" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="3376" y="748" font-size="11.5" fill="#94a3b8">+ 3 more columns (5 total)</text>
+<rect x="3366" y="572" width="272" height="82" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3366,598 V580 a8,8 0 0 1 8,-8 H3630 a8,8 0 0 1 8,8 V598 z" fill="#7c3aed"/>
+<text x="3376" y="590" font-size="14.5" font-weight="700" fill="#fff">scorpio_transactions</text>
+<text x="3376" y="612" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3376" y="628" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#7c3aed">FK</tspan>  user_id <tspan fill="#7c3aed">→ users</tspan></text>
+<text x="3376" y="644" font-size="11.5" fill="#94a3b8">+ 10 more columns (12 total)</text>
+<rect x="1136" y="452" width="272" height="66" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M1136,478 V460 a8,8 0 0 1 8,-8 H1400 a8,8 0 0 1 8,8 V478 z" fill="#d97706"/>
+<text x="1146" y="470" font-size="14.5" font-weight="700" fill="#fff">selfcrypto_hd_counters</text>
+<text x="1146" y="492" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  chain</text>
+<text x="1146" y="508" font-size="11.5" fill="#94a3b8">+ 2 more columns (3 total)</text>
+<rect x="3072" y="1652" width="272" height="66" rx="8" fill="#fff" stroke="#64748b" stroke-width="1.6"/>
+<path d="M3072,1678 V1660 a8,8 0 0 1 8,-8 H3336 a8,8 0 0 1 8,8 V1678 z" fill="#64748b"/>
+<text x="3082" y="1670" font-size="14.5" font-weight="700" fill="#fff">settings</text>
+<text x="3082" y="1692" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3082" y="1708" font-size="11.5" fill="#94a3b8">+ 6 more columns (7 total)</text>
+<rect x="1724" y="420" width="272" height="82" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M1724,446 V428 a8,8 0 0 1 8,-8 H1988 a8,8 0 0 1 8,8 V446 z" fill="#d97706"/>
+<text x="1734" y="438" font-size="14.5" font-weight="700" fill="#fff">speed_withdraw_requests</text>
+<text x="1734" y="460" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1734" y="476" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#d97706">FK</tspan>  user_id <tspan fill="#d97706">→ users</tspan></text>
+<text x="1734" y="492" font-size="11.5" fill="#94a3b8">+ 17 more columns (19 total)</text>
+<rect x="376" y="1096" width="272" height="98" rx="8" fill="#fff" stroke="#db2777" stroke-width="1.6"/>
+<path d="M376,1122 V1104 a8,8 0 0 1 8,-8 H640 a8,8 0 0 1 8,8 V1122 z" fill="#db2777"/>
+<text x="386" y="1114" font-size="14.5" font-weight="700" fill="#fff">spin_wheel_coupons</text>
+<text x="386" y="1136" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="386" y="1152" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#db2777">FK</tspan>  user_id <tspan fill="#db2777">→ users</tspan></text>
+<text x="386" y="1168" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#db2777">FK</tspan>  spin_transaction_id <tspan fill="#db2777">→ user_transactions</tspan></text>
+<text x="386" y="1184" font-size="11.5" fill="#94a3b8">+ 8 more columns (11 total)</text>
+<rect x="2018" y="508" width="272" height="66" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M2018,534 V516 a8,8 0 0 1 8,-8 H2282 a8,8 0 0 1 8,8 V534 z" fill="#d97706"/>
+<text x="2028" y="526" font-size="14.5" font-weight="700" fill="#fff">store_payment_providers</text>
+<text x="2028" y="548" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2028" y="564" font-size="11.5" fill="#94a3b8">+ 11 more columns (12 total)</text>
+<rect x="1871" y="1288" width="272" height="66" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.6"/>
+<path d="M1871,1314 V1296 a8,8 0 0 1 8,-8 H2135 a8,8 0 0 1 8,8 V1314 z" fill="#2563eb"/>
+<text x="1881" y="1306" font-size="14.5" font-weight="700" fill="#fff">store_roles</text>
+<text x="1881" y="1328" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1881" y="1344" font-size="11.5" fill="#94a3b8">+ 7 more columns (8 total)</text>
+<rect x="3366" y="1652" width="272" height="82" rx="8" fill="#fff" stroke="#64748b" stroke-width="1.6"/>
+<path d="M3366,1678 V1660 a8,8 0 0 1 8,-8 H3630 a8,8 0 0 1 8,8 V1678 z" fill="#64748b"/>
+<text x="3376" y="1670" font-size="14.5" font-weight="700" fill="#fff">store_staff_attendance</text>
+<text x="3376" y="1692" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3376" y="1708" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="3376" y="1724" font-size="11.5" fill="#94a3b8">+ 10 more columns (12 total)</text>
+<rect x="3072" y="1740" width="272" height="98" rx="8" fill="#fff" stroke="#64748b" stroke-width="1.6"/>
+<path d="M3072,1766 V1748 a8,8 0 0 1 8,-8 H3336 a8,8 0 0 1 8,8 V1766 z" fill="#64748b"/>
+<text x="3082" y="1758" font-size="14.4" font-weight="700" fill="#fff">store_staff_off_shift_requests</text>
+<text x="3082" y="1780" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3082" y="1796" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="3082" y="1812" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  reviewed_by_user_id → users</text>
+<text x="3082" y="1828" font-size="11.5" fill="#94a3b8">+ 8 more columns (11 total)</text>
+<rect x="2778" y="1756" width="272" height="114" rx="8" fill="#fff" stroke="#64748b" stroke-width="1.6"/>
+<path d="M2778,1782 V1764 a8,8 0 0 1 8,-8 H3042 a8,8 0 0 1 8,8 V1782 z" fill="#64748b"/>
+<text x="2788" y="1774" font-size="14.5" font-weight="700" fill="#fff">store_staff_shifts</text>
+<text x="2788" y="1796" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2788" y="1812" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="2788" y="1828" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  created_by_user_id → users</text>
+<text x="2788" y="1844" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  updated_by_user_id → users</text>
+<text x="2788" y="1860" font-size="11.5" fill="#94a3b8">+ 7 more columns (11 total)</text>
+<rect x="3366" y="1756" width="272" height="98" rx="8" fill="#fff" stroke="#64748b" stroke-width="1.6"/>
+<path d="M3366,1782 V1764 a8,8 0 0 1 8,-8 H3630 a8,8 0 0 1 8,8 V1782 z" fill="#64748b"/>
+<text x="3376" y="1774" font-size="14.5" font-weight="700" fill="#fff">store_subscription_requests</text>
+<text x="3376" y="1796" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3376" y="1812" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  requested_by_user_id → users</text>
+<text x="3376" y="1828" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  approved_by_user_id → users</text>
+<text x="3376" y="1844" font-size="11.5" fill="#94a3b8">+ 11 more columns (14 total)</text>
+<rect x="3072" y="1860" width="272" height="66" rx="8" fill="#fff" stroke="#64748b" stroke-width="1.6"/>
+<path d="M3072,1886 V1868 a8,8 0 0 1 8,-8 H3336 a8,8 0 0 1 8,8 V1886 z" fill="#64748b"/>
+<text x="3082" y="1878" font-size="14.5" font-weight="700" fill="#fff">store_subscriptions</text>
+<text x="3082" y="1900" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3082" y="1916" font-size="11.5" fill="#94a3b8">+ 9 more columns (10 total)</text>
+<rect x="3366" y="1876" width="272" height="66" rx="8" fill="#fff" stroke="#64748b" stroke-width="1.6"/>
+<path d="M3366,1902 V1884 a8,8 0 0 1 8,-8 H3630 a8,8 0 0 1 8,8 V1902 z" fill="#64748b"/>
+<text x="3376" y="1894" font-size="14.5" font-weight="700" fill="#fff">subscriptions</text>
+<text x="3376" y="1916" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3376" y="1932" font-size="11.5" fill="#94a3b8">+ 12 more columns (13 total)</text>
+<rect x="1430" y="1652" width="272" height="98" rx="8" fill="#fff" stroke="#0891b2" stroke-width="1.6"/>
+<path d="M1430,1678 V1660 a8,8 0 0 1 8,-8 H1694 a8,8 0 0 1 8,8 V1678 z" fill="#0891b2"/>
+<text x="1440" y="1670" font-size="14.5" font-weight="700" fill="#fff">support_ticket_messages</text>
+<text x="1440" y="1692" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1440" y="1708" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  ticket_id → support_tickets</text>
+<text x="1440" y="1724" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  author_user_id → users</text>
+<text x="1440" y="1740" font-size="11.5" fill="#94a3b8">+ 4 more columns (7 total)</text>
+<rect x="1724" y="1652" width="272" height="82" rx="8" fill="#fff" stroke="#0891b2" stroke-width="1.6"/>
+<path d="M1724,1678 V1660 a8,8 0 0 1 8,-8 H1988 a8,8 0 0 1 8,8 V1678 z" fill="#0891b2"/>
+<text x="1734" y="1670" font-size="14.5" font-weight="700" fill="#fff">support_tickets</text>
+<text x="1734" y="1692" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1734" y="1708" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="1734" y="1724" font-size="11.5" fill="#94a3b8">+ 7 more columns (9 total)</text>
+<rect x="670" y="1184" width="272" height="82" rx="8" fill="#fff" stroke="#db2777" stroke-width="1.6"/>
+<path d="M670,1210 V1192 a8,8 0 0 1 8,-8 H934 a8,8 0 0 1 8,8 V1210 z" fill="#db2777"/>
+<text x="680" y="1202" font-size="14.5" font-weight="700" fill="#fff">user_bonus_code_grants</text>
+<text x="680" y="1224" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="680" y="1240" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="680" y="1256" font-size="11.5" fill="#94a3b8">+ 5 more columns (7 total)</text>
+<rect x="82" y="1200" width="272" height="82" rx="8" fill="#fff" stroke="#db2777" stroke-width="1.6"/>
+<path d="M82,1226 V1208 a8,8 0 0 1 8,-8 H346 a8,8 0 0 1 8,8 V1226 z" fill="#db2777"/>
+<text x="92" y="1218" font-size="14.5" font-weight="700" fill="#fff">user_daily_bonus_campaigns</text>
+<text x="92" y="1240" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="92" y="1256" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="92" y="1272" font-size="11.5" fill="#94a3b8">+ 8 more columns (10 total)</text>
+<rect x="376" y="1216" width="272" height="82" rx="8" fill="#fff" stroke="#db2777" stroke-width="1.6"/>
+<path d="M376,1242 V1224 a8,8 0 0 1 8,-8 H640 a8,8 0 0 1 8,8 V1242 z" fill="#db2777"/>
+<text x="386" y="1234" font-size="14.5" font-weight="700" fill="#fff">user_daily_bonus_claims</text>
+<text x="386" y="1256" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="386" y="1272" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="386" y="1288" font-size="11.5" fill="#94a3b8">+ 6 more columns (8 total)</text>
+<rect x="670" y="1288" width="272" height="82" rx="8" fill="#fff" stroke="#db2777" stroke-width="1.6"/>
+<path d="M670,1314 V1296 a8,8 0 0 1 8,-8 H934 a8,8 0 0 1 8,8 V1314 z" fill="#db2777"/>
+<text x="680" y="1306" font-size="14.5" font-weight="700" fill="#fff">user_daily_bonus_vouchers</text>
+<text x="680" y="1328" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="680" y="1344" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="680" y="1360" font-size="11.5" fill="#94a3b8">+ 11 more columns (13 total)</text>
+<rect x="1577" y="1096" width="272" height="82" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.6"/>
+<path d="M1577,1122 V1104 a8,8 0 0 1 8,-8 H1841 a8,8 0 0 1 8,8 V1122 z" fill="#2563eb"/>
+<text x="1587" y="1114" font-size="14.5" font-weight="700" fill="#fff">user_device_tokens</text>
+<text x="1587" y="1136" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1587" y="1152" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#2563eb">FK</tspan>  user_id <tspan fill="#2563eb">→ users</tspan></text>
+<text x="1587" y="1168" font-size="11.5" fill="#94a3b8">+ 9 more columns (11 total)</text>
+<rect x="1577" y="1304" width="272" height="82" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.6"/>
+<path d="M1577,1330 V1312 a8,8 0 0 1 8,-8 H1841 a8,8 0 0 1 8,8 V1330 z" fill="#2563eb"/>
+<text x="1587" y="1322" font-size="14.5" font-weight="700" fill="#fff">user_error_logs</text>
+<text x="1587" y="1344" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1587" y="1360" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="1587" y="1376" font-size="11.5" fill="#94a3b8">+ 17 more columns (19 total)</text>
+<rect x="3660" y="676" width="272" height="114" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3660,702 V684 a8,8 0 0 1 8,-8 H3924 a8,8 0 0 1 8,8 V702 z" fill="#7c3aed"/>
+<text x="3670" y="694" font-size="14.5" font-weight="700" fill="#fff">user_game_accounts</text>
+<text x="3670" y="716" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3670" y="732" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="3670" y="748" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  game_id → games</text>
+<text x="3670" y="764" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  provider_user_id → users</text>
+<text x="3670" y="780" font-size="11.5" fill="#94a3b8">+ 7 more columns (11 total)</text>
+<rect x="2778" y="692" width="272" height="114" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M2778,718 V700 a8,8 0 0 1 8,-8 H3042 a8,8 0 0 1 8,8 V718 z" fill="#7c3aed"/>
+<text x="2788" y="710" font-size="14.4" font-weight="700" fill="#fff">user_game_credential_histories</text>
+<text x="2788" y="732" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="2788" y="748" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="2788" y="764" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  game_id → games</text>
+<text x="2788" y="780" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  performed_by_user_id → users</text>
+<text x="2788" y="796" font-size="11.5" fill="#94a3b8">+ 7 more columns (11 total)</text>
+<rect x="82" y="1304" width="272" height="82" rx="8" fill="#fff" stroke="#db2777" stroke-width="1.6"/>
+<path d="M82,1330 V1312 a8,8 0 0 1 8,-8 H346 a8,8 0 0 1 8,8 V1330 z" fill="#db2777"/>
+<text x="92" y="1322" font-size="14.5" font-weight="700" fill="#fff">user_promotion_bonuses</text>
+<text x="92" y="1344" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="92" y="1360" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="92" y="1376" font-size="11.5" fill="#94a3b8">+ 6 more columns (8 total)</text>
+<rect x="670" y="332" width="272" height="82" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.6"/>
+<path d="M670,358 V340 a8,8 0 0 1 8,-8 H934 a8,8 0 0 1 8,8 V358 z" fill="#0d9488"/>
+<text x="680" y="350" font-size="14.5" font-weight="700" fill="#fff">user_transactions</text>
+<text x="680" y="372" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="680" y="388" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="680" y="404" font-size="11.5" fill="#94a3b8">+ 7 more columns (9 total)</text>
+<rect x="1283" y="1096" width="272" height="98" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.6"/>
+<path d="M1283,1122 V1104 a8,8 0 0 1 8,-8 H1547 a8,8 0 0 1 8,8 V1122 z" fill="#2563eb"/>
+<text x="1293" y="1114" font-size="14.5" font-weight="700" fill="#fff">users</text>
+<text x="1293" y="1136" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  user_id</text>
+<text x="1293" y="1152" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#2563eb">FK</tspan>  admin_role_id <tspan fill="#2563eb">→ admin_roles</tspan></text>
+<text x="1293" y="1168" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  store_role_id → store_roles</text>
+<text x="1293" y="1184" font-size="11.5" fill="#94a3b8">+ 51 more columns (54 total)</text>
+<rect x="376" y="348" width="272" height="82" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.6"/>
+<path d="M376,374 V356 a8,8 0 0 1 8,-8 H640 a8,8 0 0 1 8,8 V374 z" fill="#0d9488"/>
+<text x="386" y="366" font-size="14.5" font-weight="700" fill="#fff">vip_ledger</text>
+<text x="386" y="388" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="386" y="404" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="386" y="420" font-size="11.5" fill="#94a3b8">+ 8 more columns (10 total)</text>
+<rect x="670" y="436" width="272" height="82" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.6"/>
+<path d="M670,462 V444 a8,8 0 0 1 8,-8 H934 a8,8 0 0 1 8,8 V462 z" fill="#0d9488"/>
+<text x="680" y="454" font-size="14.5" font-weight="700" fill="#fff">vip_user_state</text>
+<text x="680" y="476" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  user_id</text>
+<text x="680" y="492" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="680" y="508" font-size="11.5" fill="#94a3b8">+ 3 more columns (5 total)</text>
+<rect x="82" y="452" width="272" height="82" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.6"/>
+<path d="M82,478 V460 a8,8 0 0 1 8,-8 H346 a8,8 0 0 1 8,8 V478 z" fill="#0d9488"/>
+<text x="92" y="470" font-size="14.5" font-weight="700" fill="#fff">wallet_ledger</text>
+<text x="92" y="492" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="92" y="508" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="92" y="524" font-size="11.5" fill="#94a3b8">+ 11 more columns (13 total)</text>
+<rect x="376" y="452" width="272" height="82" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.6"/>
+<path d="M376,478 V460 a8,8 0 0 1 8,-8 H640 a8,8 0 0 1 8,8 V478 z" fill="#0d9488"/>
+<text x="386" y="470" font-size="14.5" font-weight="700" fill="#fff">wallet_sc_daily_tallies</text>
+<text x="386" y="492" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="386" y="508" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="386" y="524" font-size="11.5" fill="#94a3b8">+ 7 more columns (9 total)</text>
+<rect x="82" y="332" width="272" height="98" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.6"/>
+<path d="M82,358 V340 a8,8 0 0 1 8,-8 H346 a8,8 0 0 1 8,8 V358 z" fill="#0d9488"/>
+<text x="92" y="350" font-size="14.5" font-weight="700" fill="#fff">wallet_sc_ledger</text>
+<text x="92" y="372" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="92" y="388" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="92" y="404" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  game_id → games</text>
+<text x="92" y="420" font-size="11.5" fill="#94a3b8">+ 28 more columns (31 total)</text>
+<rect x="670" y="540" width="272" height="82" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.6"/>
+<path d="M670,566 V548 a8,8 0 0 1 8,-8 H934 a8,8 0 0 1 8,8 V566 z" fill="#0d9488"/>
+<text x="680" y="558" font-size="14.5" font-weight="700" fill="#fff">wallets</text>
+<text x="680" y="580" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="680" y="596" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="680" y="612" font-size="11.5" fill="#94a3b8">+ 7 more columns (9 total)</text>
+<rect x="3072" y="692" width="272" height="82" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3072,718 V700 a8,8 0 0 1 8,-8 H3336 a8,8 0 0 1 8,8 V718 z" fill="#7c3aed"/>
+<text x="3082" y="710" font-size="14.5" font-weight="700" fill="#fff">win568_bets</text>
+<text x="3082" y="732" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3082" y="748" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="3082" y="764" font-size="11.5" fill="#94a3b8">+ 12 more columns (14 total)</text>
+<rect x="2484" y="732" width="272" height="82" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M2484,758 V740 a8,8 0 0 1 8,-8 H2748 a8,8 0 0 1 8,8 V758 z" fill="#7c3aed"/>
+<text x="2494" y="750" font-size="14.5" font-weight="700" fill="#fff">win568_players</text>
+<text x="2494" y="772" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  user_id</text>
+<text x="2494" y="788" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="2494" y="804" font-size="11.5" fill="#94a3b8">+ 3 more columns (5 total)</text>
+<rect x="3366" y="780" width="272" height="82" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<path d="M3366,806 V788 a8,8 0 0 1 8,-8 H3630 a8,8 0 0 1 8,8 V806 z" fill="#7c3aed"/>
+<text x="3376" y="798" font-size="14.5" font-weight="700" fill="#fff">win568_wallet_ops</text>
+<text x="3376" y="820" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="3376" y="836" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="3376" y="852" font-size="11.5" fill="#94a3b8">+ 10 more columns (12 total)</text>
+<rect x="1430" y="524" width="272" height="98" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.6"/>
+<path d="M1430,550 V532 a8,8 0 0 1 8,-8 H1694 a8,8 0 0 1 8,8 V550 z" fill="#d97706"/>
+<text x="1440" y="542" font-size="14.5" font-weight="700" fill="#fff">withdrawal_requests</text>
+<text x="1440" y="564" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#b45309">PK</tspan>  id</text>
+<text x="1440" y="580" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  user_id → users</text>
+<text x="1440" y="596" font-size="12" font-style="italic" fill="#64748b"><tspan font-weight="700">~</tspan>  approved_by_user_id → users</text>
+<text x="1440" y="612" font-size="11.5" fill="#94a3b8">+ 14 more columns (17 total)</text>
+<rect x="1271" y="1040" width="291" height="34" rx="8" fill="#f8fafc" fill-opacity="0.92"/>
+<text x="1283" y="1063" font-size="22" font-weight="700" fill="#2563eb">Users &amp; Access  <tspan font-size="15" font-weight="400" fill="#64748b">(8 tables)</tspan></text>
+<rect x="70" y="156" width="364" height="34" rx="8" fill="#f8fafc" fill-opacity="0.92"/>
+<text x="82" y="179" font-size="22" font-weight="700" fill="#0d9488">Wallet, Ledger &amp; VIP  <tspan font-size="15" font-weight="400" fill="#64748b">(10 tables)</tspan></text>
+<rect x="1124" y="156" width="510" height="34" rx="8" fill="#f8fafc" fill-opacity="0.92"/>
+<text x="1136" y="179" font-size="22" font-weight="700" fill="#d97706">Deposits, Payments &amp; Withdrawals  <tspan font-size="15" font-weight="400" fill="#64748b">(14 tables)</tspan></text>
+<rect x="2472" y="156" width="327" height="34" rx="8" fill="#f8fafc" fill-opacity="0.92"/>
+<text x="2484" y="179" font-size="22" font-weight="700" fill="#7c3aed">Games &amp; Providers  <tspan font-size="15" font-weight="400" fill="#64748b">(27 tables)</tspan></text>
+<rect x="70" y="1040" width="364" height="34" rx="8" fill="#f8fafc" fill-opacity="0.92"/>
+<text x="82" y="1063" font-size="22" font-weight="700" fill="#db2777">Bonuses &amp; Promotions  <tspan font-size="15" font-weight="400" fill="#64748b">(8 tables)</tspan></text>
+<rect x="2766" y="1040" width="388" height="34" rx="8" fill="#f8fafc" fill-opacity="0.92"/>
+<text x="2778" y="1063" font-size="22" font-weight="700" fill="#ea580c">Email &amp; Push Campaigns  <tspan font-size="15" font-weight="400" fill="#64748b">(8 tables)</tspan></text>
+<rect x="70" y="1596" width="376" height="34" rx="8" fill="#f8fafc" fill-opacity="0.92"/>
+<text x="82" y="1619" font-size="22" font-weight="700" fill="#16a34a">Website Content (CMS)  <tspan font-size="15" font-weight="400" fill="#64748b">(7 tables)</tspan></text>
+<rect x="1418" y="1596" width="205" height="34" rx="8" fill="#f8fafc" fill-opacity="0.92"/>
+<text x="1430" y="1619" font-size="22" font-weight="700" fill="#0891b2">Support  <tspan font-size="15" font-weight="400" fill="#64748b">(2 tables)</tspan></text>
+<rect x="2766" y="1596" width="498" height="34" rx="8" fill="#f8fafc" fill-opacity="0.92"/>
+<text x="2778" y="1619" font-size="22" font-weight="700" fill="#64748b">Staff, Subscriptions &amp; Settings  <tspan font-size="15" font-weight="400" fill="#64748b">(8 tables)</tspan></text>
+<rect x="60" y="2004" width="1500" height="110" rx="14" fill="#fff" stroke="#cbd5e1"/>
+<text x="84" y="2034" font-size="18" font-weight="700" fill="#0f172a">How to read</text>
+<line x1="84" y1="2060" x2="170" y2="2060" stroke="#2563eb" stroke-width="2.4" marker-start="url(#many)" marker-end="url(#one)"/>
+<text x="184" y="2065" font-size="15" fill="#334155">Enforced foreign key (circle = many side, arrow = referenced table)</text>
+<line x1="84" y1="2088" x2="170" y2="2088" stroke="#2563eb" stroke-opacity="0.45" stroke-width="1.6" stroke-dasharray="7 6" marker-start="url(#many)" marker-end="url(#one)"/>
+<text x="184" y="2093" font-size="15" fill="#334155">Logical link: column like user_id / game_id that points to a table but has no database constraint (marked ~ on the card)</text>
+</svg>

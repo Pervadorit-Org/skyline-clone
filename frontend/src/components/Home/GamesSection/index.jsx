@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo, useDeferredValue, Fr
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '../../../context/ToastContext';
 import { useAuth } from '../../../context/AuthContext';
-import { STORE_CODE } from '../../../config/site';
+import { STORE_CODE, site } from '../../../config/site';
 import { buildGuestPlatformGames } from '../../../config/featuredPlatformGames';
 import * as gamesApi from '../../../api/games';
 import { GameCard } from '../../Games/GameCard';
@@ -872,7 +872,7 @@ export function GamesSection({ pageMode = false, initialFilter = null } = {}) {
           </div>
         ) : isCasinoSearchActive && searchedCasinoGames.length === 0 ? null : (
           <div className="df-lobby-slots-block">
-            {!pageMode && !showingFavorites ? <h3 className="df-lobby-slots-title">DragonFury Slots</h3> : null}
+            {!pageMode && !showingFavorites ? <h3 className="df-lobby-slots-title">{site.platformName} Slots</h3> : null}
             <SlotGamesCatalogGrid
               games={showingFavorites ? favoriteSlotGames : casinoCatalogGames}
               categories={casinoCatalogCategories.length ? casinoCatalogCategories : casinoCategories}

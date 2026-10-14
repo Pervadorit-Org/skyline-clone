@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePageContentReady } from '../../context/PageReadyContext';
 import { GAME_CATEGORY_PAGES } from '../../config/seoPages';
-import { STORE_CODE } from '../../config/site';
+import { IS_BRAND_STORE } from '../../config/site';
 import { getGamePages } from '../../api/gamePages';
 import { GameImage } from '../../components/Games/GameImage';
 import './SeoGames.css';
 
-const IS_DRAGONFURY = String(STORE_CODE || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '') === 'dragonfury';
+const IS_DRAGONFURY = IS_BRAND_STORE;
 
 const ACCENTS = [
   { border: 'rgba(68, 230, 68, 0.5)', glow: 'rgba(68, 230, 68, 0.16)' },
@@ -61,7 +61,7 @@ export function GamesListing() {
         <p className="pj-seo-label">Game platforms</p>
         <h1 className="pj-seo-title">Fish tables &amp; slots</h1>
         <p className="pj-seo-lead">
-          Browse every game system on Dragon Fury — Juwa, Firekirin, Orionstars, Golden Dragon, Ultra
+          Browse every game system on {site.platformName} — Juwa, Firekirin, Orionstars, Golden Dragon, Ultra
           Panda, Riversweeps, and more. Sign up and play in your browser.
         </p>
       </header>
@@ -71,7 +71,7 @@ export function GamesListing() {
           return (
             <li key={game.slug}>
               <Link
-                to={`/games/${game.slug}`}
+                to={`/platform-games/${game.slug}`}
                 className="pj-seo-card"
                 style={{
                   '--platform-accent': accent.border,

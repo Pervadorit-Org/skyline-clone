@@ -12,11 +12,12 @@ import { buildAuthPayloadWithGuestSpin, handleSignupBonusesAfterAuthSuccess } fr
 import { composeE164 } from './phoneCountry';
 import { handleDeviceSignupBlockedError } from '../../lib/auth/showDeviceBlockModal';
 
-/** Normalize login field: email stays email; phone digits become E.164. */
+/** Normalize login field: email stays email; anything with a letter is a username; phone digits become E.164. */
 function normalizeLoginIdentifier(raw) {
   const s = String(raw || '').trim();
   if (!s) return s;
   if (s.includes('@')) return s.toLowerCase();
+  if (/[A-Za-z]/.test(s)) return s;
   return composeE164('US', s) || s;
 }
 

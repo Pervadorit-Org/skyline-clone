@@ -37,6 +37,8 @@ function defaultDay(dayIndex) {
 const DEFAULTS = {
   enabled: false,
   repeatAfterComplete: false,
+  // Opt-in per store: a missed UTC day restarts the cycle at Day 1 (off = a missed day changes nothing).
+  resetOnMiss: false,
   days: Array.from({ length: CAMPAIGN_DAYS }, (_, i) => defaultDay(i + 1)),
   spinSegments: DEFAULT_SPIN_SEGMENTS
 };
@@ -55,6 +57,17 @@ function normalizeRepeatAfterComplete(raw, fallback = false) {
     return normalizeEnabled(raw);
   } catch (_) {
     const err = new Error('repeatAfterComplete must be a boolean.');
+    err.statusCode = 400;
+    throw err;
+  }
+}
+
+function normalizeResetOnMiss(raw, fallback = false) {
+  if (raw === undefined || raw === null || raw === '') return fallback === true;
+  try {
+    return normalizeEnabled(raw);
+  } catch (_) {
+    const err = new Error('resetOnMiss must be a boolean.');
     err.statusCode = 400;
     throw err;
   }
@@ -270,6 +283,7 @@ function parseSettingsValue(value) {
       enabled: parsed.enabled === true,
       repeatAfterComplete:
         parsed.repeatAfterComplete === true || parsed.repeat_after_complete === true,
+      resetOnMiss: parsed.resetOnMiss === true || parsed.reset_on_miss === true,
       days,
       spinSegments: parseSpinSegments(parsed.spinSegments ?? parsed.spin_segments),
       updatedBy: typeof parsed.updatedBy === 'string' ? parsed.updatedBy : null,
@@ -285,6 +299,7 @@ function effectiveFromParsed(parsed) {
     return {
       enabled: DEFAULTS.enabled,
       repeatAfterComplete: DEFAULTS.repeatAfterComplete,
+      resetOnMiss: DEFAULTS.resetOnMiss,
       days: DEFAULTS.days.map((d) => ({ ...d, packageIds: [...(d.packageIds || [])] })),
       spinSegments: DEFAULTS.spinSegments.map((s) => ({ ...s })),
       hasOverride: false,
@@ -295,6 +310,7 @@ function effectiveFromParsed(parsed) {
   return {
     enabled: parsed.enabled === true,
     repeatAfterComplete: parsed.repeatAfterComplete === true,
+    resetOnMiss: parsed.resetOnMiss === true,
     days: parsed.days,
     spinSegments: parsed.spinSegments,
     hasOverride: true,
@@ -447,6 +463,7 @@ async function listAllStoreSettings() {
         isActive: s.isActive !== false,
         enabled: effective.enabled,
         repeatAfterComplete: effective.repeatAfterComplete === true,
+        resetOnMiss: effective.resetOnMiss === true,
         days: effective.days,
         spinSegments: effective.spinSegments,
         hasOverride: effective.hasOverride,
@@ -476,6 +493,7 @@ async function listOwnStoreSettings(scope) {
         isActive: store.isActive,
         enabled: effective.enabled,
         repeatAfterComplete: effective.repeatAfterComplete === true,
+        resetOnMiss: effective.resetOnMiss === true,
         days: effective.days,
         spinSegments: effective.spinSegments,
         hasOverride: effective.hasOverride,
@@ -523,6 +541,10 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
     payload.repeatAfterComplete ?? payload.repeat_after_complete,
     previous.repeatAfterComplete === true
   );
+  const resetOnMiss = normalizeResetOnMiss(
+    payload.resetOnMiss ?? payload.reset_on_miss,
+    previous.resetOnMiss === true
+  );
   const days = normalizeDays(payload.days);
   // Separate bonus-wheel segments are no longer used; keep optional for backward-compatible settings rows.
   let spinSegments = DEFAULT_SPIN_SEGMENTS.map((s) => ({ ...s }));
@@ -558,6 +580,7 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
   const valueObj = {
     enabled,
     repeatAfterComplete,
+    resetOnMiss,
     days,
     spinSegments,
     updatedBy: updatedBy || null,
@@ -584,7 +607,8 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
     distributorCode: store.distributorCode,
     updatedBy: updatedBy || null,
     enabled,
-    repeatAfterComplete
+    repeatAfterComplete,
+    resetOnMiss
   });
 
   return {
@@ -592,6 +616,7 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
     storeCode: store.storeCode,
     enabled,
     repeatAfterComplete,
+    resetOnMiss,
     days,
     spinSegments,
     hasOverride: true,

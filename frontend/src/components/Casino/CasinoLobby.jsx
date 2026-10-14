@@ -1,6 +1,8 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { casinoLobbyConfig as cfg } from '../../config/casinoLobbyConfig';
+import { LOBBY_INSERT_AFTER } from '../../config/lobbyDefaults';
+import { useLobbyContent } from '../../hooks/useLobbyContent';
+import { useLobbyConfig } from '../../hooks/useLobbyConfig';
 import { getGameCategoryPath } from '../../config/gameCategories';
 import { useAuth } from '../../context/AuthContext';
 import { useCasinoLobbyCategories } from '../Home/homeCasinoLobbyMix';
@@ -50,11 +52,16 @@ function BannerSlideImage({ banner }) {
 }
 
 function BannerCarousel() {
+  const cfg = useLobbyConfig();
   const { isAuthenticated } = useAuth();
   const [active, setActive] = useState(0);
   // Signed-in players get the image banners; guests keep the built-in slides.
-  const imageMode = isAuthenticated && cfg.imageBanners?.length > 0;
-  const slides = imageMode ? cfg.imageBanners : cfg.banners;
+  const content = useLobbyContent();
+  // Banners the admin uploaded (Admin → Pages → Lobby) win; otherwise the built-in slides.
+  const adminBanners = (content.banners || []).filter((b) => b && (b.desktop || b.mobile));
+  const imageBanners = adminBanners.length ? adminBanners : cfg.imageBanners;
+  const imageMode = isAuthenticated && imageBanners?.length > 0;
+  const slides = imageMode ? imageBanners : cfg.banners.filter((b) => !cfg.off(`banner:${b.id}`));
 
   useEffect(() => {
     setActive(0);
@@ -105,6 +112,7 @@ function BannerCarousel() {
 
 /* ---------- daily rewards / spin cards ---------- */
 function PromoCards() {
+  const cfg = useLobbyConfig();
   return (
     <section className="df-lobby__promos">
       {cfg.promoCards.map((c) => (
@@ -137,6 +145,7 @@ function PromoCards() {
 
 /* ---------- category pills ---------- */
 function CategoryTabs() {
+  const cfg = useLobbyConfig();
   return (
     <nav className="df-lobby__tabs" aria-label="Game categories">
       <Link to="/casino" className="df-lobby__tabs-search" aria-label="Search games">
@@ -161,6 +170,7 @@ function CategoryTabs() {
 
 /* ---------- recent big wins marquee ---------- */
 function BigWinsTicker() {
+  const cfg = useLobbyConfig();
   const loop = [...BIG_WIN_ENTRIES, ...BIG_WIN_ENTRIES];
   return (
     <div className="df-lobby__wins" aria-label={cfg.recentWinsTitle}>
@@ -209,6 +219,7 @@ function Tile({ game, onPlay, playing, className = '', style }) {
 }
 
 function CategoryRow({ category, layout, onPlay, playingId, categoryIcon, bannerArt }) {
+  const cfg = useLobbyConfig();
   const limit = cfg.rowTileLimit[layout] || 18;
   const games = category.games.slice(0, limit);
   const common = { onPlay, playing: false };
@@ -286,6 +297,8 @@ function CategoryRow({ category, layout, onPlay, playingId, categoryIcon, banner
 
 /* ---------- extra sections ---------- */
 function PackagesRow() {
+  const cfg = useLobbyConfig();
+  const off = cfg.off('panel:packages');
   const [pkgs, setPkgs] = useState([]);
   useEffect(() => {
     let off = false;
@@ -300,7 +313,7 @@ function PackagesRow() {
       off = true;
     };
   }, []);
-  if (!pkgs.length) return null;
+  if (off || !pkgs.length) return null;
   return (
     <section className="df-lobby__section">
       <SectionHead title={cfg.packages.title} href={cfg.packages.href} />
@@ -321,7 +334,9 @@ function PackagesRow() {
 }
 
 function ProvidersStrip() {
+  const cfg = useLobbyConfig();
   const logos = cfg.providers.logos;
+  if (cfg.off('panel:providers') || !logos.length) return null;
   return (
     <section className="df-lobby__section df-lobby__providers">
       <h3 className="df-lobby__providers-title">{cfg.providers.title}</h3>
@@ -337,9 +352,14 @@ function ProvidersStrip() {
 }
 
 function InviteDeals() {
+  const cfg = useLobbyConfig();
   const { invite, deals } = cfg;
+  const showInvite = !cfg.off('panel:invite');
+  const showDeals = !cfg.off('panel:deals');
+  if (!showInvite && !showDeals) return null;
   return (
     <section className="df-lobby__invite-deals">
+      {showInvite ? (
       <div className="df-lobby__invite">
         <div>
           <span className="df-lobby__invite-kicker">{invite.kicker}</span>
@@ -354,6 +374,8 @@ function InviteDeals() {
         </div>
         <img src={invite.art} alt="" loading="lazy" draggable="false" />
       </div>
+      ) : null}
+      {showDeals ? (
       <div className="df-lobby__deals">
         <header>
           <h3>{deals.title}</h3>
@@ -372,12 +394,15 @@ function InviteDeals() {
           </Link>
         </div>
       </div>
+      ) : null}
     </section>
   );
 }
 
 function ExclusiveBanner() {
+  const cfg = useLobbyConfig();
   const e = cfg.exclusive;
+  if (cfg.off('panel:exclusive')) return null;
   return (
     <section className="df-lobby__section">
       <SectionHead title={e.title} />
@@ -394,6 +419,8 @@ function ExclusiveBanner() {
 }
 
 function PickForMe({ games, onPlay }) {
+  const cfg = useLobbyConfig();
+  if (cfg.off('panel:pick')) return null;
   const pick = () => {
     if (!games.length) return;
     onPlay(games[Math.floor(Math.random() * games.length)]);
@@ -410,6 +437,7 @@ function PickForMe({ games, onPlay }) {
 }
 
 function TopWinners() {
+  const cfg = useLobbyConfig();
   const w = cfg.winners;
   const [showAll, setShowAll] = useState(false);
   const cols = useMemo(
@@ -420,6 +448,7 @@ function TopWinners() {
       }),
     [w.columns]
   );
+  if (cfg.off('panel:winners')) return null;
   return (
     <section className="df-lobby__winners">
       <h2>
@@ -459,6 +488,7 @@ function TopWinners() {
 
 /* ---------- featured provider showcase (art backdrop + 2-row game strip) ---------- */
 function FeaturedGameSection({ games, onPlay, playingId }) {
+  const cfg = useLobbyConfig();
   const art = cfg.bannerArt[0];
   const list = games.slice(0, 20);
   const scrollerRef = useRef(null);
@@ -514,6 +544,7 @@ function FeaturedGameSection({ games, onPlay, playingId }) {
 
 /* ---------- page ---------- */
 export function CasinoLobby() {
+  const cfg = useLobbyConfig();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const categories = useCasinoLobbyCategories({ enabled: isAuthenticated });
@@ -531,22 +562,17 @@ export function CasinoLobby() {
     []
   );
   // Lobby panels that sit between the game sections (same spots as the reference lobby).
-  const renderLobbyInsert = useCallback((afterTitle) => {
-    switch (afterTitle) {
-      case 'GD Best Banner':
-        return (
-          <>
-            <PackagesRow />
-            <InviteDeals />
-          </>
-        );
-      case 'Keno':
-        return <ProvidersStrip />;
-      case 'Shooting':
-        return <ExclusiveBanner />;
-      default:
-        return null;
-    }
+  const renderLobbyInsert = useCallback((afterId) => {
+    const panels = LOBBY_INSERT_AFTER[afterId];
+    if (!panels) return null;
+    return (
+      <>
+        {panels.includes('packages') ? <PackagesRow /> : null}
+        {panels.includes('inviteDeals') ? <InviteDeals /> : null}
+        {panels.includes('providers') ? <ProvidersStrip /> : null}
+        {panels.includes('exclusive') ? <ExclusiveBanner /> : null}
+      </>
+    );
   }, []);
   const topRef = useRef(null);
   useEffect(() => {
@@ -559,10 +585,12 @@ export function CasinoLobby() {
       <PromoCards />
       <CategoryTabs />
 
-      <section className="df-lobby__section">
-        <SectionHead title={cfg.recentWinsTitle} />
-        <BigWinsTicker />
-      </section>
+      {cfg.off('panel:wins') ? null : (
+        <section className="df-lobby__section">
+          <SectionHead title={cfg.recentWinsTitle} />
+          <BigWinsTicker />
+        </section>
+      )}
 
       {isAuthenticated ? (
         <GoldenLobbySections onPlayGame={handlePlayGame} renderInsert={renderLobbyInsert} />

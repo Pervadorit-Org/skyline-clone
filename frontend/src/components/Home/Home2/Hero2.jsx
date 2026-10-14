@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
-import { homeConfig } from '../../../config/homeConfig';
+import { useHomeConfig } from '../../../config/homeConfigContext';
 
 // Full-width "Play - Win - Redeem" promo: the artwork carries its own copy and
 // CTA, so the whole banner is one link.
 export function Hero2() {
+  const homeConfig = useHomeConfig();
   const cfg = homeConfig.hero2;
   return (
     <section className="df-home2-hero2">

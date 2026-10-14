@@ -11,3 +11,9 @@ export function getLegalPage(pageKey, params = {}) {
   };
   return getRequest(`${API_BASE}/api/legal/${encodeURIComponent(pageKey)}`, query);
 }
+
+/** Which legal pages the footer should link to for this store (hidden / unfilled ones are marked not visible). */
+export function getLegalPageList(params = {}) {
+  const query = { store_code: params.store_code || params.storeCode || STORE_CODE };
+  return getRequest(`${API_BASE}/api/legal`, query);
+}

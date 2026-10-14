@@ -6,6 +6,7 @@ import * as welcomeSignupBonusApi from '../../api/welcomeSignupBonus';
 import '../../styles/spinzy-layout.css';
 import { AppLoader } from '../../components/AppLoader';
 import { HomeV2 } from '../../components/Home/Home2/HomeV2';
+import { HomeConfigProvider } from '../../config/homeConfigContext';
 import { WelcomeBonusModal } from '../../components/Home/WelcomeBonusModal';
 import { useWelcomeBonusScrollModal } from '../../hooks/useWelcomeBonusScrollModal';
 import { useWelcomeBonusImagePreload } from '../../hooks/useWelcomeBonusImagePreload';
@@ -116,7 +117,9 @@ export function Home() {
           {showGuestSections ? (
             <>
               <h1 className="dash-home-h1 sr-only">{site.seoTitle || site.platformName}</h1>
-              <HomeV2 revealBelowFold={belowFoldReady} />
+              <HomeConfigProvider>
+                <HomeV2 revealBelowFold={belowFoldReady} />
+              </HomeConfigProvider>
             </>
           ) : isAuthenticated ? (
             <>

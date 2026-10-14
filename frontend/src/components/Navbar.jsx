@@ -11,26 +11,28 @@ import { ProfileMenu } from './ProfileMenu';
 import * as notificationsApi from '../api/notifications';
 import { OPEN_MOBILE_MENU_EVENT } from '../utils/navEvents';
 import { AUTH_LOBBY_LINKS } from '../constants/authLobbyLinks';
+import { useLobbyShell } from '../hooks/useLobbyShell';
 import { isSafeHttpUrl, isSafeInternalPath } from '../utils/safeUrl';
 
 const HEADER_PAGE_LINKS = [
-  { to: '/casino', label: 'Play', match: (path) => path === '/casino' || path.startsWith('/casino/') },
-  { to: '/bonus', label: 'Bonuses', match: (path) => path === '/bonus' || path === '/promotions' },
-  { to: '/faq', label: 'How to Play', match: (path) => path === '/faq' },
-  { to: '/blog', label: 'Updates', match: (path) => path === '/blog' || path.startsWith('/blog/') },
-  { to: '/contact', label: 'Support', match: (path) => path === '/contact' }
+  { id: 'guest-play', to: '/casino', label: 'Play', match: (path) => path === '/casino' || path.startsWith('/casino/') },
+  { id: 'guest-bonuses', to: '/bonus', label: 'Bonuses', match: (path) => path === '/bonus' || path === '/promotions' },
+  { id: 'guest-how', to: '/faq', label: 'How to Play', match: (path) => path === '/faq' },
+  { id: 'guest-updates', to: '/blog', label: 'Updates', match: (path) => path === '/blog' || path.startsWith('/blog/') },
+  { id: 'guest-support', to: '/contact', label: 'Support', match: (path) => path === '/contact' }
 ];
 
 function HeaderPageLinks({ pathname }) {
+  const shell = useLobbyShell();
   return (
     <nav className="df-nav-links" aria-label="Site">
-      {HEADER_PAGE_LINKS.map(({ to, label, match }) => (
+      {HEADER_PAGE_LINKS.filter(({ id }) => !shell.hidden('header', id)).map(({ id, to, label, match }) => (
         <NavLink
           key={to}
           to={to}
           className={({ isActive }) => `df-nav-link${isActive || match(pathname) ? ' is-active' : ''}`}
         >
-          {label}
+          {shell.label('header', id, label)}
         </NavLink>
       ))}
     </nav>
@@ -38,16 +40,17 @@ function HeaderPageLinks({ pathname }) {
 }
 
 function DesktopAuthNav({ pathname }) {
+  const shell = useLobbyShell();
   return (
     <nav className="df-desktop-auth-nav" aria-label="Primary navigation">
-      {AUTH_LOBBY_LINKS.filter((link) => link.desktop !== false).map(({ to, label, match, id }) => (
+      {AUTH_LOBBY_LINKS.filter((link) => link.desktop !== false && !shell.hidden('header', link.id)).map(({ to, label, match, id }) => (
         <NavLink
           key={id}
           to={to}
           className={() => (match(pathname) ? 'df-desktop-auth-nav__active' : undefined)}
           end={to === '/'}
         >
-          {label}
+          {shell.label('header', id, label)}
         </NavLink>
       ))}
     </nav>

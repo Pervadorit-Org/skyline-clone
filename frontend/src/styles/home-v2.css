@@ -417,7 +417,8 @@
   }
 }
 .df-home2-platforms .df-other-games__tile {
-  aspect-ratio: 158 / 180;
+  /* height follows the art + name, so the name is never covered by the image */
+  aspect-ratio: auto;
   border-radius: var(--df-home2-radius-tile);
   overflow: hidden;
   width: 100%;

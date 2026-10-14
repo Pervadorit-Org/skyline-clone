@@ -17,7 +17,7 @@ export function DragonFuryOnlineHero() {
   const logo = useMemo(() => site.logoUrl || '/logo.webp', []);
 
   return (
-    <section className="df-online-hero" aria-label="DragonFury welcome">
+    <section className="df-online-hero" aria-label={`${site.platformName} welcome`}>
       <div className="df-online-hero__banner">
         <div className="df-online-hero__copy">
           <h1 className="df-online-hero__headline">
@@ -39,7 +39,7 @@ export function DragonFuryOnlineHero() {
           <img
             className="df-online-hero__logo"
             src={logo}
-            alt={site.platformName || 'DragonFury'}
+            alt={site.platformName || 'Golden Dragon Casino'}
             width={460}
             height={348}
             decoding="async"
@@ -48,7 +48,7 @@ export function DragonFuryOnlineHero() {
         </div>
       </div>
 
-      <ul className="df-hero-features" aria-label="Why DragonFury">
+      <ul className="df-hero-features" aria-label={`Why ${site.platformName}`}>
         {HERO_FEATURES.map((feature) => (
           <li key={feature.label} className="df-hero-feature">
             <span className="df-hero-feature__icon" aria-hidden>

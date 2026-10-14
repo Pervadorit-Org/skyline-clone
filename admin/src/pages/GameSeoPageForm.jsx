@@ -8,6 +8,9 @@ import { PermanentRedirectField } from '../components/RecordActivity'
 import { FooterPageLayoutEditor } from '../components/FooterPageLayoutEditor'
 import { emptySections } from '../components/footerPageLayoutDefaults'
 import { useToast } from '../context/ToastContext'
+import { useAuth } from '../context/AuthContext'
+import { Txt, Lnk, ImgField, ListEditor, ImageUploadProvider, SITE_URL } from '../components/ContentFields'
+import { mergePlatformContent } from './platformPageDefaults'
 import './BlogPosts.css'
 import './FooterPages.css'
 
@@ -16,7 +19,8 @@ export default function GameSeoPageForm() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const toast = useToast()
-  const storeCode = searchParams.get('storeCode') || 'dragonfury'
+  const { user } = useAuth()
+  const storeCode = searchParams.get('storeCode') || user?.storeCode || 'dragonfury'
   const [form, setForm] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -37,9 +41,12 @@ export default function GameSeoPageForm() {
           buttons: Array.isArray(page.buttons) && page.buttons.length
             ? page.buttons
             : [{ label: '', href: '' }],
-          sections: page.sections && (page.sections.hero || page.sections.blocks)
-            ? page.sections
-            : emptySections(),
+          sections: {
+            ...(page.sections && (page.sections.hero || page.sections.blocks)
+              ? page.sections
+              : emptySections()),
+            platform: mergePlatformContent(page.name, page.sections?.platform)
+          },
           metaTitle: page.metaTitle || '',
           metaDescription: page.metaDescription || '',
           metaTags: page.metaTags || '',
@@ -63,6 +70,12 @@ export default function GameSeoPageForm() {
   }, [slug, storeCode, toast])
 
   const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
+  const platform = form?.sections?.platform || {}
+  const setPlatform = (patch) => setForm((prev) => ({
+    ...prev,
+    sections: { ...prev.sections, platform: { ...prev.sections.platform, ...patch } }
+  }))
+  const patchPlatform = (key, patch) => setPlatform({ [key]: { ...platform[key], ...patch } })
 
   const uploadHero = async (file) => {
     if (!file) return
@@ -127,7 +140,7 @@ export default function GameSeoPageForm() {
 
   const rawPreview = form.imageUrl || form.defaultImage
   const preview = rawPreview && rawPreview.startsWith('/')
-    ? `https://dragonfury.online${rawPreview}`
+    ? `${SITE_URL || 'https://dragonfury.online'}${rawPreview}`
     : rawPreview
 
   return (
@@ -136,7 +149,7 @@ export default function GameSeoPageForm() {
         <div>
           <p className="footer-admin-hero-sub"><Link to="/footer">← Footer links</Link></p>
           <h2>Edit {form.name || 'game page'}</h2>
-          <p className="footer-admin-hero-sub">Dragon Fury page at /games/{slug}</p>
+          <p className="footer-admin-hero-sub">Platform page at /platform-games/{slug}</p>
         </div>
         <button type="submit" className="admin-btn admin-btn-primary" disabled={saving}>
           {saving ? 'Saving…' : 'Save'}
@@ -238,9 +251,61 @@ export default function GameSeoPageForm() {
           </label>
       </section>
 
+      <section className="footer-form-panel">
+        <p className="footer-form-panel-title">Platform page content</p>
+        <p className="blog-admin-hint">
+          Shown on the public page /platform-games/{slug}. The title, main image, text and buttons are set above;
+          the feature sections (image + title + text) are in Page layout below.
+        </p>
+        <ImageUploadProvider upload={uploadAdminFooterImage}>
+          <div className="hc-panel-body" style={{ padding: 0 }}>
+            <ImgField
+              label="Background image (behind the main image)"
+              value={platform.overlayImage}
+              onChange={(v) => setPlatform({ overlayImage: v })}
+            />
+            <Txt label="Steps heading" value={platform.journey?.title} onChange={(v) => patchPlatform('journey', { title: v })} />
+            <Txt label="Steps intro line" value={platform.journey?.intro} onChange={(v) => patchPlatform('journey', { intro: v })} />
+            <ListEditor
+              title="Steps (numbered)"
+              rows={(platform.journey?.steps || []).map((text) => ({ text }))}
+              max={12}
+              makeRow={() => ({ text: '' })}
+              onChange={(rows) => patchPlatform('journey', { steps: rows.map((r) => r.text) })}
+              columns={[{ key: 'text', label: 'Step text', long: true }]}
+            />
+            <Txt label="“Play …” heading" hint="empty = hidden" value={platform.playTitle} onChange={(v) => setPlatform({ playTitle: v })} />
+            <Txt label="Play button label" hint="empty = no button" value={platform.playButton?.label} onChange={(v) => patchPlatform('playButton', { label: v })} />
+            <Lnk label="Play button link" value={platform.playButton?.url} onChange={(v) => patchPlatform('playButton', { url: v })} />
+            <Txt label="“Download links” heading" hint="empty = hidden" value={platform.downloadTitle} onChange={(v) => setPlatform({ downloadTitle: v })} />
+            <Txt label="Download button label" hint="empty = no button" value={platform.downloadButton?.label} onChange={(v) => patchPlatform('downloadButton', { label: v })} />
+            <Lnk label="Download button link" value={platform.downloadButton?.url} onChange={(v) => patchPlatform('downloadButton', { url: v })} />
+            <Txt label="Features heading" hint="empty = hidden" value={platform.featureTitle} onChange={(v) => setPlatform({ featureTitle: v })} />
+            <Txt label="Left column heading" value={platform.setup?.title} onChange={(v) => patchPlatform('setup', { title: v })} />
+            <ListEditor
+              title="Left column lines (setting up)"
+              rows={(platform.setup?.lines || []).map((text) => ({ text }))}
+              max={20}
+              makeRow={() => ({ text: '' })}
+              onChange={(rows) => patchPlatform('setup', { lines: rows.map((r) => r.text) })}
+              columns={[{ key: 'text', label: 'Line', long: true }]}
+            />
+            <Txt label="Right column heading" value={platform.tips?.title} onChange={(v) => patchPlatform('tips', { title: v })} />
+            <ListEditor
+              title="Right column lines (tips)"
+              rows={(platform.tips?.lines || []).map((text) => ({ text }))}
+              max={20}
+              makeRow={() => ({ text: '' })}
+              onChange={(rows) => patchPlatform('tips', { lines: rows.map((r) => r.text) })}
+              columns={[{ key: 'text', label: 'Line', long: true }]}
+            />
+          </div>
+        </ImageUploadProvider>
+      </section>
+
       <FooterPageLayoutEditor
         value={form.sections}
-        onChange={(sections) => setField('sections', { blocks: sections.blocks || [] })}
+        onChange={(sections) => setForm((prev) => ({ ...prev, sections: { ...prev.sections, blocks: sections.blocks || [] } }))}
         allowFaq
         hideHero
       />

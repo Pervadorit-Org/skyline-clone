@@ -130,3 +130,15 @@
   color: #6b7280;
   font-size: 0.85rem;
 }
+
+/* Guest / logged-in switch above the tab bar */
+.pages-hub-audience { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.pages-hub-audience-btn {
+  display: inline-flex; align-items: baseline; gap: 0.5rem; padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db; border-radius: 999px; background: #fff; color: #374151;
+  font: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+}
+.pages-hub-audience-btn span { font-size: 0.75rem; font-weight: 400; color: #6b7280; }
+.pages-hub-audience-btn:hover { background: #f3f4f6; }
+.pages-hub-audience-btn.active { background: #1a1a2e; border-color: #1a1a2e; color: #fff; }
+.pages-hub-audience-btn.active span { color: #c7d2fe; }

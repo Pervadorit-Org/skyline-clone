@@ -35,6 +35,7 @@ export const TRANSACTION_CATEGORIES = [
   { value: 'withdraw', label: 'Withdraw' },
   { value: 'spin_wheel', label: 'Spin Wheel' },
   { value: 'welcome_signup', label: 'Welcome Bonus' },
+  { value: 'daily_bonus', label: 'Daily Reward' },
   { value: 'referral_friend_signup', label: 'Referral Bonus' },
   { value: 'promotion', label: 'Promotions' },
   { value: 'bonus_code', label: 'Deposit bonus' },

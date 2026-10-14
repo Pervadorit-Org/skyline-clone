@@ -212,6 +212,16 @@ async function updateLegalPage(req, res) {
   }
 }
 
+async function setLegalPageVisibility(req, res) {
+  try {
+    if (!hasFooterAccess(req)) return sendError(res, DENY, 403);
+    const data = await legalPages.setVisibilityAdmin(req, req.params.pageKey, { ...(req.body || {}), storeCode: (req.body || {}).storeCode || (req.query || {}).storeCode });
+    return sendSuccess(res, data);
+  } catch (err) {
+    return sendError(res, err.message || 'Failed to update legal page.', err.statusCode || 500);
+  }
+}
+
 /** POST /admin/footer/upload-image — upload footer page layout images to S3 */
 async function uploadImage(req, res) {
   try {
@@ -280,6 +290,16 @@ async function restoreGamePage(req, res) {
   }
 }
 
+async function createGamePage(req, res) {
+  try {
+    if (!hasFooterAccess(req)) return sendError(res, DENY, 403);
+    const data = await gameSeoPages.createAdmin(req, req.body || {});
+    return sendSuccess(res, data, 201);
+  } catch (err) {
+    return sendError(res, err.message || 'Could not add this platform.', err.statusCode || 500);
+  }
+}
+
 async function updateGamePage(req, res) {
   try {
     if (!hasFooterAccess(req)) return sendError(res, DENY, 403);
@@ -308,9 +328,11 @@ module.exports = {
   listLegalPages,
   getLegalPage,
   updateLegalPage,
+  setLegalPageVisibility,
   uploadImage,
   listGamePages,
   getGamePage,
+  createGamePage,
   updateGamePage,
   removeGamePage,
   restoreGamePage,

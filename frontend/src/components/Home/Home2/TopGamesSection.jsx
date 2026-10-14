@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { homeConfig } from '../../../config/homeConfig';
+import { useHomeConfig } from '../../../config/homeConfigContext';
 import { SectionHeading } from './SectionHeading';
 
 // Reuses the already-live DashboardSlotGamesSection(catalogOnly) pipeline —
@@ -15,6 +15,7 @@ const DashboardSlotGamesSection = lazy(() =>
 // Static showcase tiles (DragonFury's own game art) shown while the live
 // catalog is empty. Hidden once the real catalog renders tiles of its own.
 function StaticTopGames() {
+  const homeConfig = useHomeConfig();
   const { games = [], gameHref = '/register' } = homeConfig.topGames;
   if (games.length === 0) return null;
   return (
@@ -31,6 +32,7 @@ function StaticTopGames() {
 }
 
 export function TopGamesSection() {
+  const homeConfig = useHomeConfig();
   // When the live catalog renders any game cards, hide the static fallback.
   const [hasLiveGames, setHasLiveGames] = useState(false);
   useEffect(() => {

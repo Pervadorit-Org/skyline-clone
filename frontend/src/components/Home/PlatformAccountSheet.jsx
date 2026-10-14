@@ -11,6 +11,7 @@ import { isDepositRequiredError } from '../../utils/depositRequired';
 import { DepositRequiredModal } from '../Games/DepositRequiredModal';
 import { GameFavoriteButton } from './GameFavoriteButton';
 import { platformFavoriteId } from '../../utils/gameFavorites';
+import { site } from '../../config/site';
 
 const QUICK_PRESETS = [10, 25, 50, 100, 250];
 const CREATE_STEPS = [
@@ -385,7 +386,7 @@ export function PlatformAccountSheet({
             <header className="df-game-sheet__head">
               <GameImage game={game} className="df-game-sheet__art" width={72} height={96} />
               <div className="df-game-sheet__titles">
-                <small>DragonFury</small>
+                <small>{site.platformName}</small>
                 <h2>{name}</h2>
                 <span>Web</span>
               </div>

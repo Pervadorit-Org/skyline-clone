@@ -1,0 +1,16 @@
+# Backend API base URL (no trailing slash). Dev proxy uses /api -> localhost:8080
+VITE_API_URL=https://localhost:8080
+
+# Store code
+VITE_STORE_CODE=dragonfury
+
+# SSO
+VITE_GOOGLE_CLIENT_ID=705336797302-0j9mhdqskkl27dgnnpvhtbtki4jsc32u.apps.googleusercontent.com
+# VITE_FACEBOOK_APP_ID=1389611505767372
+
+VITE_PAYMENT_PARTNER_CODE=goodwork
+VITE_SITE_ORIGIN=https://dragonfury.casino
+
+# Payment and GitSlotPark secrets live on the backend only.
+# Do not add VITE_*KEY, VITE_*TOKEN, or VITE_*MCH_NO — they are compiled into public JS.
+# VITE_GIT_SLOTPARK_LAUNCH_MODE=iframe

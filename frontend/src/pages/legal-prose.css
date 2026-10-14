@@ -13,5 +13,14 @@
 .legal-prose li p{margin:0}
 .legal-prose hr{margin:2.5rem 0;border:0;border-top:1px solid rgba(120,140,190,.35)}
 .legal-prose a{color:#EBC567}
+.legal-prose ol{margin:1.1rem 0;padding-left:1.6rem;list-style:decimal}
+.legal-prose img{max-width:100%;height:auto;border-radius:.75rem}
+.legal-prose blockquote{margin:1.25rem 0;padding:.25rem 1rem;border-left:3px solid #EBC567;color:rgba(255,255,255,.8)}
+.legal-prose table{width:100%;border-collapse:collapse;font-size:.95rem}
+.legal-prose th,.legal-prose td{padding:.6rem .8rem;border:1px solid rgba(120,140,190,.35);text-align:left}
+.legal-prose th{background:rgba(255,255,255,.06);color:#fff}
+.legal-prose .pj-blog-table-wrap{overflow-x:auto;margin:1.25rem 0}
+.legal-prose h1,.legal-prose h4{color:#fff}
+.legal-prose{overflow-wrap:anywhere}
 @media(min-width:640px){.legal-head h1{font-size:1.875rem}}
 @media(min-width:1024px){.legal-head h1{font-size:2.25rem}.legal-page{padding-top:3.5rem}}

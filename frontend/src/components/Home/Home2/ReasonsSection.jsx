@@ -1,8 +1,9 @@
-import { homeConfig } from '../../../config/homeConfig';
+import { useHomeConfig } from '../../../config/homeConfigContext';
 import { SectionHeading } from './SectionHeading';
 import { FeatureCard } from './FeatureCard';
 
 export function ReasonsSection() {
+  const homeConfig = useHomeConfig();
   const { title, titleLead, cards } = homeConfig.reasons;
   return (
     <section className="df-home2-section df-home2-reasons">

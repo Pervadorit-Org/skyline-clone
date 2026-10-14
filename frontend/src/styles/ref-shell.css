@@ -582,6 +582,14 @@ html body.guest-landing-active .dash-nav-inner--guest button[aria-label="Open me
   width: 26px;
   height: 20px;
 }
+/* The guest header is 60px tall, so reserve exactly that (older rules reserved 97px) and let the
+   home banner start right under it, with no gap. */
+html body.guest-landing-active #root .dash-root.dash-root--guest-landing {
+  --dash-nav-h: 60px;
+}
+html body.guest-landing-active #root .dash-root--guest-landing .dash-layout {
+  padding-top: 0;
+}
 @media (max-width: 480px) {
   html body.guest-landing-active #root .dash-nav-inner--guest-landing .dash-btn-login,
   html body.guest-landing-active #root .dash-nav-inner--guest-landing .dash-btn-signup,

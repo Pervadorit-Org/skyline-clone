@@ -3,7 +3,7 @@ const STALE_MS = 7 * 24 * 60 * 60 * 1000;
 function normalizeSlotImageUrl(url) {
   return String(url || '').replace(/\u0445/g, 'x').replace(/\u0425/g, 'X');
 }
-const STORAGE_KEY = 'partner-slot-catalog-v5';
+const STORAGE_KEY = 'partner-slot-catalog-v6';
 const providerCache = new Map();
 
 function withPlayableImage(game) {
@@ -24,7 +24,8 @@ function slimGames(games) {
     image: normalizeSlotImageUrl(game.image),
     iconUrls: Array.isArray(game.iconUrls) ? game.iconUrls.slice(0, 1).map(normalizeSlotImageUrl) : [],
     brand: game.brand || '',
-    categories: Array.isArray(game.categories) ? game.categories.slice(0, 1) : [],
+    categories: Array.isArray(game.categories) ? game.categories.slice(0, 4) : [],
+    subcategories: Array.isArray(game.subcategories) ? game.subcategories.slice(0, 4) : [],
     providerId: game.providerId ?? null,
     gameCode: game.gameCode || '',
     gameType: game.gameType ?? null,

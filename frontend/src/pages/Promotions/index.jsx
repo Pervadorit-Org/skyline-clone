@@ -3,12 +3,20 @@ import { Link } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { usePageContentReady } from '../../context/PageReadyContext';
 import { getAffiliateStats } from '../../api/affiliate';
+import { getDailyBonusStatus } from '../../api/dailyBonus';
 import { buildReferralLink } from '../../utils/referralLink';
 import './promotions-page.css';
 
 const GOLD_COIN = '/icons/coin.png';
 const SWEEP_COIN = '/df-online/sc-coin.webp';
 const DRAGON = '/df-online/dragons/tier-hatchling.webp';
+
+/** Milliseconds until the next 00:00 UTC (the daily reward reset). */
+function msUntilUtcMidnight(now = new Date()) {
+  const end = new Date(now);
+  end.setUTCHours(24, 0, 0, 0);
+  return end - now;
+}
 
 function formatTimeLeft(ms) {
   const total = Math.max(0, Math.floor(ms / 1000));
@@ -66,12 +74,9 @@ function Badge({ children, plain }) {
 export function Promotions() {
   const { toast } = useToast();
   const [referralLink, setReferralLink] = useState('');
-  const [timeLeft, setTimeLeft] = useState(() => {
-    const now = new Date();
-    const end = new Date(now);
-    end.setHours(24, 0, 0, 0);
-    return end - now;
-  });
+  const [timeLeft, setTimeLeft] = useState(() => msUntilUtcMidnight());
+  // Real progress from the backend (null until loaded, or when daily rewards are off for this store).
+  const [dailyClaims, setDailyClaims] = useState(null);
 
   usePageContentReady(true);
 
@@ -88,12 +93,20 @@ export function Promotions() {
   }, []);
 
   useEffect(() => {
-    const id = setInterval(() => {
-      const now = new Date();
-      const end = new Date(now);
-      end.setHours(24, 0, 0, 0);
-      setTimeLeft(end - now);
-    }, 1000);
+    let cancelled = false;
+    getDailyBonusStatus({ start: false })
+      .then((status) => {
+        if (cancelled || !status?.available) return;
+        setDailyClaims(status.campaign?.claims_count ?? 0);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setTimeLeft(msUntilUtcMidnight()), 1000);
     return () => clearInterval(id);
   }, []);
 
@@ -235,8 +248,8 @@ export function Promotions() {
                 <div className="promotion-card-description promotion-card-description-daily"><p>Claim Rewards Every Day!</p></div>
               </div>
               <div className="promotion-card-streak">
-                <p id="promo-streak-days" className="promotion-card-streak-days">0 / 7 days in a row</p>
-                <progress className="promotion-card-streak-bar" aria-labelledby="promo-streak-days" value="0" max="7" />
+                <p id="promo-streak-days" className="promotion-card-streak-days">{dailyClaims ?? 0} / 7 days claimed</p>
+                <progress className="promotion-card-streak-bar" aria-labelledby="promo-streak-days" value={dailyClaims ?? 0} max="7" />
                 <p className="promotion-card-streak-label">Don&apos;t miss out - time left:</p>
                 <p className="promotion-card-streak-timer">{formatTimeLeft(timeLeft)}</p>
               </div>

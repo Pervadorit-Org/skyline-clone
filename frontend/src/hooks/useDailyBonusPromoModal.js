@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { onboardingBlocksPromos } from '../utils/onboardingGate';
 import { useLocation } from 'react-router-dom';
 import { getAuthUserId } from './useFirstDepositBonusModal';
 import {
@@ -103,7 +104,7 @@ export function useDailyBonusPromoModal({ isAuthenticated, authLoading, user }) 
   const tryAutoOpen = useCallback(async () => {
     if (!isAuthenticated || authLoading || userId == null) return false;
     if (!isDashboardHome(pathname) || isOnboardingPending()) return false;
-    if (user?.onboardingCompleted === false) return false;
+    if (onboardingBlocksPromos(user)) return false;
 
     const dayKey = todayKeyUTC();
     try {

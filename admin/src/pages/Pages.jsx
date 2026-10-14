@@ -2,46 +2,20 @@ import { lazy, Suspense, useMemo, useRef } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getAllowedPagesForUser } from '../constants/routeConfig'
+import { AUDIENCES, TAB_ALIASES, tabsForAllowed } from '../constants/pagesTabs'
 import './Pages.css'
 
 const BlogPosts = lazy(() => import('./BlogPosts'))
 const Help = lazy(() => import('./Help'))
 const LegalPageForm = lazy(() => import('./LegalPageForm'))
+const HomeContent = lazy(() => import('./HomeContent'))
+const FooterContent = lazy(() => import('./FooterContent'))
+const LobbyContent = lazy(() => import('./LobbyContent'))
 
 /** Public site the "View live page" links point at (local dev falls back to the user app on :5173). */
 const SITE_URL = String(
   import.meta.env.VITE_PARTNER_APP_URL || (import.meta.env.DEV ? 'http://localhost:5173' : '')
 ).replace(/\/+$/, '')
-
-/**
- * One tab per public page. `needs` is the admin screen whose permission gates the tab
- * (a tab is hidden when the signed-in admin cannot open that screen).
- * `kind`: 'blog' | 'help' | 'legal' | 'info' | 'bonuses'.
- */
-const TABS = [
-  { key: 'blog', label: 'Blog', path: '/blog', kind: 'blog', needs: '/blog' },
-  { key: 'help', label: 'Help Center', path: '/help', kind: 'help', needs: '/help' },
-  {
-    key: 'faq',
-    label: 'FAQ',
-    path: '/faq',
-    kind: 'info',
-    summary: 'Frequently Asked Questions page.',
-    related: ['/help', '/support-tickets', '/footer']
-  },
-  {
-    key: 'contact',
-    label: 'Contact Us',
-    path: '/contact',
-    kind: 'info',
-    summary: 'Contact page with live chat, support email and the help center.',
-    related: ['/social-links', '/support-tickets', '/help']
-  },
-  { key: 'privacy', label: 'Privacy Policy', path: '/privacy', kind: 'legal', needs: '/footer' },
-  { key: 'terms', label: 'Terms & Conditions', path: '/terms', kind: 'legal', needs: '/footer' },
-  { key: 'responsible-gaming', label: 'Responsible Gaming', path: '/responsible-gaming', kind: 'legal', needs: '/footer' },
-  { key: 'bonuses', label: 'Bonuses', path: '/bonus', kind: 'bonuses' }
-]
 
 /** Admin screens that control what the public Bonuses page shows. */
 const BONUS_SCREENS = [
@@ -136,10 +110,14 @@ export default function Pages() {
   const tabRefs = useRef({})
 
   const allowed = useMemo(() => new Set(getAllowedPagesForUser(user).map((p) => p.path)), [user])
-  const visibleTabs = useMemo(() => TABS.filter((t) => !t.needs || allowed.has(t.needs)), [allowed])
+  const allTabs = useMemo(() => tabsForAllowed(allowed), [allowed])
 
-  const requested = searchParams.get('tab')
-  const active = visibleTabs.find((t) => t.key === requested) || visibleTabs[0]
+  const requestedRaw = searchParams.get('tab')
+  const requested = TAB_ALIASES[requestedRaw] || requestedRaw
+  const active = allTabs.find((t) => t.key === requested) || allTabs[0]
+  // The tab strip shows the pages of one audience: guest visitors or signed-in players.
+  const visibleTabs = useMemo(() => allTabs.filter((t) => t.audience === active?.audience), [allTabs, active])
+  const audiences = AUDIENCES.filter((a) => allTabs.some((t) => t.audience === a.key))
 
   function selectTab(key) {
     const next = new URLSearchParams(searchParams)
@@ -174,8 +152,24 @@ export default function Pages() {
     <div className="pages-hub">
       <div className="pages-hub-header">
         <h2>Pages</h2>
-        <p className="pages-hub-muted">Edit the content of the public website pages. Pick a page below.</p>
+        <p className="pages-hub-muted">Edit the website pages. Choose who sees them (guest visitors or signed-in players), then pick a page.</p>
       </div>
+
+      {audiences.length > 1 && (
+        <div className="pages-hub-audience" role="group" aria-label="Who sees these pages">
+          {audiences.map((a) => (
+            <button
+              key={a.key}
+              type="button"
+              className={`pages-hub-audience-btn${a.key === active.audience ? ' active' : ''}`}
+              aria-pressed={a.key === active.audience}
+              onClick={() => selectTab(allTabs.find((t) => t.audience === a.key).key)}
+            >
+              {a.label} <span>{a.hint}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="pages-hub-tabs" role="tablist" aria-label="Website pages">
         {visibleTabs.map((t, i) => {
@@ -202,6 +196,9 @@ export default function Pages() {
 
       <div className="pages-hub-panel" role="tabpanel" id="pages-tabpanel" aria-labelledby={`pages-tab-${active.key}`}>
         <Suspense fallback={<p className="pages-hub-muted">Loading…</p>}>
+          {active.kind === 'home' && <HomeContent />}
+          {active.kind === 'lobby' && <LobbyContent section={active.section} />}
+          {active.kind === 'footer' && <FooterContent />}
           {active.kind === 'blog' && <BlogPosts />}
           {active.kind === 'help' && <Help />}
           {active.kind === 'legal' && <LegalPageForm key={active.key} pageKey={active.key} embedded />}

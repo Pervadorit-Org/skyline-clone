@@ -11,6 +11,7 @@ const {
   CAMPAIGN_DAYS,
   calendarDateUTC,
   addCalendarDays,
+  calendarDayDiff,
   isUniqueViolation,
   isVoucherPastTtl,
   toDateOnly,
@@ -108,15 +109,47 @@ async function lastClaimDateForCampaign(campaign, userId, transaction) {
  */
 async function getOrCreateCampaign(
   user,
-  { startIfMissing = false, today = calendarDateUTC(), loopEnabled = false } = {},
+  {
+    startIfMissing = false,
+    today = calendarDateUTC(),
+    loopEnabled = false,
+    resetOnMiss = false
+  } = {},
   transaction
 ) {
   let campaign = await findCurrentCampaign(user.userId, transaction);
+
+  // A cycle closed by the missed-day rule (status 'expired' WITH completed_at set) is history only;
+  // the next cycle starts fresh at Day 1. A legacy 'expired' row has no completed_at and is reopened below.
+  if (campaign && campaign.status === 'expired' && campaign.completedAt) campaign = null;
 
   if (campaign) {
     if (campaign.status === 'expired') {
       await campaign.update({ status: 'active', updatedAt: new Date() }, { transaction });
       campaign.status = 'active';
+    }
+
+    // Opt-in store rule: a full UTC day without a claim restarts the cycle at Day 1.
+    // The old cycle keeps all its claim rows (history) and is closed as status 'expired' + completed_at
+    // (the table's CHECK constraint only allows active | completed | expired).
+    if (resetOnMiss && campaign.status === 'active') {
+      const lastClaim = await db.UserDailyBonusClaim.findOne({
+        where: { campaignId: campaign.id, userId: user.userId },
+        order: [
+          ['claimedOn', 'DESC'],
+          ['id', 'DESC']
+        ],
+        transaction
+      });
+      const lastOn = toDateOnly(lastClaim?.claimedOn);
+      if (lastOn && calendarDayDiff(lastOn, today) > 1) {
+        await campaign.update(
+          { status: 'expired', completedAt: new Date(), updatedAt: new Date() },
+          { transaction }
+        );
+        if (!startIfMissing) return null;
+        return createCampaign(user, today, transaction);
+      }
     }
 
     if (loopEnabled && startIfMissing && campaign.status === 'completed') {
@@ -194,6 +227,7 @@ async function getDailyBonusStatus(userId, { start = true } = {}) {
   const available = featureAvailableForUser(user, settings);
   const today = calendarDateUTC();
   const loopEnabled = settings.repeatAfterComplete === true;
+  const resetOnMiss = settings.resetOnMiss === true;
 
   if (!available) {
     return emptyStatus(user);
@@ -203,7 +237,7 @@ async function getDailyBonusStatus(userId, { start = true } = {}) {
     const lockedUser = await loadUser(userId, t);
     let campaign = await getOrCreateCampaign(
       lockedUser,
-      { startIfMissing: start, today, loopEnabled },
+      { startIfMissing: start, today, loopEnabled, resetOnMiss },
       t
     );
 
@@ -257,6 +291,7 @@ async function getDailyBonusStatus(userId, { start = true } = {}) {
       permanently_done: cycleComplete,
       cycle_complete: cycleComplete,
       repeat_after_complete: loopEnabled,
+      reset_on_miss: resetOnMiss,
       claimed_today: claimedToday,
       can_claim_today:
         !cycleComplete && !claimedToday && days.some((d) => d.state === 'claimable'),

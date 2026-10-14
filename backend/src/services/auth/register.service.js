@@ -238,7 +238,12 @@ async function register(body, options = {}) {
   const trimmedFirst = firstName ? String(firstName).trim() : '';
   const trimmedLast = lastName ? String(lastName).trim() : '';
   const payment = require('../payment');
-  if (payment.isPaymentConfigured() && (!trimmedFirst || !trimmedLast)) {
+  // Names are only needed to create the Payment API account. isPaymentConfigured() is
+  // always true (the base URL has a built-in default), so also require the encryption
+  // key, matching the account-creation step below; otherwise sign-up is blocked
+  // whenever the form sends no name (e.g. local dev without payment keys).
+  const { isPaymentPasswordEncryptionConfigured: paymentAccountWillBeCreated } = require('../../utils/paymentPasswordEncryption');
+  if (payment.isPaymentConfigured() && paymentAccountWillBeCreated() && (!trimmedFirst || !trimmedLast)) {
     const err = new Error('First name and last name are required for account creation.');
     err.statusCode = 400;
     throw err;

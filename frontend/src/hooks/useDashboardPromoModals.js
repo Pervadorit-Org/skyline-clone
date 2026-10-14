@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { onboardingBlocksPromos } from '../utils/onboardingGate';
 import { useLocation } from 'react-router-dom';
 import { useSpinWheelStatus } from '../context/SpinWheelStatusContext';
 import {
@@ -459,7 +460,7 @@ export function useDashboardPromoModals({
       return undefined;
     }
 
-    if (user?.onboardingCompleted === false) {
+    if (onboardingBlocksPromos(user)) {
       return undefined;
     }
 

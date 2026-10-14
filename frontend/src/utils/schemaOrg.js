@@ -52,7 +52,7 @@ export function buildOrganizationSchema() {
     url: SITE_ORIGIN,
     logo: absoluteUrl(site.logoUrl || '/logo.webp'),
     description:
-      'Dragon Fury is an online sweepstakes lobby with fish games, slots, and exclusive platforms.',
+      `${site.platformName} is an online sweepstakes lobby with fish games, slots, and exclusive platforms.`,
     email: site.supportEmail,
     contactPoint: {
       '@type': 'ContactPoint',

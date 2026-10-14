@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { buildGuestPlatformGames } from '../../config/featuredPlatformGames';
 import { GameImage } from '../Games/GameImage';
 import { getGameDisplayName } from '../../utils/gameDisplay';
+import { site } from '../../config/site';
 
 const GUEST_PLATFORMS = buildGuestPlatformGames([]);
 const PAGE_SIZE = 12;
@@ -12,18 +13,42 @@ export function GuestHomePlatforms({
   title = 'TRY OTHER GAMES',
   subtitle = (
     <>
-      Dragon Fury is the main event. One <strong>DragonFury.casino</strong> account also opens
+      {site.platformName} is the main event. One <strong>{site.platformName}</strong> account also opens
       these web platforms.
     </>
   ),
   limit = null,
+  items = null,
+  pages = null,
 }) {
   const navigate = useNavigate();
   const { search } = useLocation();
   const signupTo = `/register${search || ''}`;
   const [visiblePages, setVisiblePages] = useState(1);
 
-  const source = limit ? GUEST_PLATFORMS.slice(0, limit) : GUEST_PLATFORMS;
+  // Admin-managed tiles (home_page_content.platforms.items) override the
+  // built-in curated list when present; otherwise keep the default platforms.
+  // Managed platform pages (same list as the footer) come first; each tile opens its own page.
+  const basePlatforms =
+    Array.isArray(pages) && pages.length
+      ? pages.map((p) => ({
+          id: `page-${p.key}`,
+          name: p.label,
+          image_url: p.image,
+          imageUrl: p.image,
+          to: p.to,
+        }))
+      : Array.isArray(items) && items.length
+      ? items.map((it, i) => ({
+          id: `cfg-${i}`,
+          name: it?.name || '',
+          image_url: it?.image || '',
+          imageUrl: it?.image || '',
+          isNew: Boolean(it?.isNew),
+        }))
+      : GUEST_PLATFORMS;
+
+  const source = limit ? basePlatforms.slice(0, limit) : basePlatforms;
   const total = source.length;
   const visibleCount = limit ? total : Math.min(total, PAGE_SIZE * visiblePages);
   const visibleGames = source.slice(0, visibleCount);
@@ -32,6 +57,12 @@ export function GuestHomePlatforms({
   const goSignup = useCallback(() => {
     navigate(signupTo);
   }, [navigate, signupTo]);
+
+  // Site paths use the router; full URLs open in a new tab.
+  const openTile = (to) => {
+    if (/^https?:\/\//i.test(to)) window.open(to, '_blank', 'noopener,noreferrer');
+    else navigate(to);
+  };
 
   return (
     <section className="df-other-games" id="games" aria-labelledby="df-other-games-title">
@@ -49,8 +80,8 @@ export function GuestHomePlatforms({
               <button
                 type="button"
                 className="df-other-games__tile"
-                aria-label={`${name} (secondary platform)`}
-                onClick={goSignup}
+                aria-label={game.to ? `Open ${name}` : `${name} (secondary platform)`}
+                onClick={() => (game.to ? openTile(game.to) : goSignup())}
               >
                 <span className="df-other-games__ring">
                   {game.isNew ? <span className="df-other-games__new">NEW</span> : null}

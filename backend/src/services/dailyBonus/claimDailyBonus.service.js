@@ -5,6 +5,7 @@ const { createLogger } = require('../../libs/logger');
 const { BONUS_CURRENCY_CODE } = require('../wallet/getCurrencySetting.service');
 const { creditBonusSc } = require('../wallet/walletBuckets.service');
 const { getBalance } = require('../wallet/getBalance.service');
+const { notifyUserBalanceChanged } = require('../realtime/notifyBalance.service');
 const { getEffectiveSettings } = require('./dailyBonusSettings.service');
 const {
   getOrCreateCampaign,
@@ -53,7 +54,8 @@ async function claimDailyBonus(userId, dayIndexRaw) {
       {
         startIfMissing: true,
         today,
-        loopEnabled: settings.repeatAfterComplete === true
+        loopEnabled: settings.repeatAfterComplete === true,
+        resetOnMiss: settings.resetOnMiss === true
       },
       t
     );
@@ -237,6 +239,12 @@ async function claimDailyBonus(userId, dayIndexRaw) {
     };
   });
 
+  // Push the new balance to the player's other open tabs/devices (best effort).
+  try {
+    if (result.amount_sc_credited > 0) notifyUserBalanceChanged(userId);
+  } catch (_) {
+    /* realtime is optional */
+  }
   const balance = await getBalance(userId, { skipCache: true }).catch(() => null);
   return {
     ...result,

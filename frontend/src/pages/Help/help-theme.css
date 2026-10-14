@@ -1,0 +1,12 @@
+/* Help Center in the FAQ / Responsible Gambling theme */
+.help-theme .df-help-tabs{justify-content:center;gap:.5rem;margin:0 0 1.75rem;padding-bottom:0;border-bottom:0}
+.help-theme .df-help-tab{min-height:2.5rem;padding:.45rem 1.1rem;border:0;background:#181d36;color:#e5e7eb;font:700 .95rem Montserrat,system-ui,sans-serif}
+.help-theme .df-help-tab:hover{background:#1c2240;color:#fff}
+.help-theme .df-help-tab.is-active{background:linear-gradient(180deg,#FFE9A0,#F5C542 55%,#D9A21B);color:#1b1304;box-shadow:none}
+.help-theme .df-help-panel{margin-top:0}
+.help-theme .df-help-panel-card{padding:0;border:0;background:transparent}
+.help-theme .df-help-panel .bg-card{background:#12172a;border:0;border-radius:.75rem}
+.help-theme .df-help-panel .bg-card{padding:1.5rem}
+.help-theme .help-tab-body,.help-theme .help-api-content{color:#c9cbd6}
+.help-theme .help-api-content h1,.help-theme .help-tab-body h1,.help-theme .help-api-content h2,.help-theme .help-tab-body h2,.help-theme .help-api-content h3,.help-theme .help-tab-body h3{font-family:Montserrat,system-ui,sans-serif;font-weight:700;color:#fff}
+@media(min-width:768px){.help-theme .df-help-panel .bg-card{padding:2rem 2.25rem}}

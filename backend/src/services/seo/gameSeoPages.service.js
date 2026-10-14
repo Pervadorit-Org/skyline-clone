@@ -15,7 +15,8 @@ const {
 } = require('../cms/contentLifecycle');
 const STORE = 'dragonfury';
 const PLAYJUWA = 'playjuwa';
-const GAME_STORES = new Set([STORE, PLAYJUWA]);
+const GOLDENDRAGON = 'goldendragon';
+const GAME_STORES = new Set([STORE, PLAYJUWA, GOLDENDRAGON]);
 const MAX_BUTTONS = 6;
 const MAX_BLOCKS = 20;
 const MAX_FAQ = 20;
@@ -155,7 +156,64 @@ function normalizeFaqItems(raw) {
   return items;
 }
 
+const PLATFORM_TEXT_MAX = 400;
+const PLATFORM_LINE_MAX = 1000;
+const PLATFORM_LIST_MAX = 20;
+
+function platformText(v, max = PLATFORM_TEXT_MAX) {
+  return String(v ?? '').trim().slice(0, max);
+}
+
+function platformLines(raw, max = PLATFORM_LINE_MAX) {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .slice(0, PLATFORM_LIST_MAX)
+    .map((item) => platformText(typeof item === 'string' ? item : item?.text, max))
+    .filter(Boolean);
+}
+
+/**
+ * Extra content for the /platform-games/:slug page. It lives inside the existing
+ * `sections` JSON column (no schema change). A key is stored only when the admin
+ * sent it, so a missing key means "use the page's built-in default" while an
+ * explicitly empty value hides that part.
+ */
+function normalizePlatform(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+  const has = (obj, key) => obj && Object.prototype.hasOwnProperty.call(obj, key);
+  const out = {};
+  if (has(raw, 'overlayImage')) out.overlayImage = normalizeImageUrl(raw.overlayImage) || '';
+  ['playTitle', 'downloadTitle', 'featureTitle'].forEach((key) => {
+    if (has(raw, key)) out[key] = platformText(raw[key], 200);
+  });
+  ['playButton', 'downloadButton'].forEach((key) => {
+    const src = raw[key];
+    if (!src || typeof src !== 'object') return;
+    const b = {};
+    if (has(src, 'label')) b.label = platformText(src.label, 60);
+    if (has(src, 'url')) b.url = platformText(src.url, 500);
+    out[key] = b;
+  });
+  if (raw.journey && typeof raw.journey === 'object') {
+    const j = {};
+    if (has(raw.journey, 'title')) j.title = platformText(raw.journey.title, 200);
+    if (has(raw.journey, 'intro')) j.intro = platformText(raw.journey.intro, 400);
+    if (has(raw.journey, 'steps')) j.steps = platformLines(raw.journey.steps);
+    out.journey = j;
+  }
+  ['setup', 'tips'].forEach((key) => {
+    const src = raw[key];
+    if (!src || typeof src !== 'object') return;
+    const o = {};
+    if (has(src, 'title')) o.title = platformText(src.title, 200);
+    if (has(src, 'lines')) o.lines = platformLines(src.lines);
+    out[key] = o;
+  });
+  return out;
+}
+
 function normalizeSections(raw) {
+  const platform = normalizePlatform(raw?.platform);
   const list = Array.isArray(raw?.blocks) ? raw.blocks : [];
   if (list.length > MAX_BLOCKS) throw fail(`You can add at most ${MAX_BLOCKS} content sections.`);
   const contentSource = list
@@ -188,7 +246,7 @@ function normalizeSections(raw) {
     const block = contentQueue.shift();
     if (block) blocks.push({ ...block, type: 'content' });
   });
-  return { blocks };
+  return platform ? { blocks, platform } : { blocks };
 }
 
 function toPlain(row) {
@@ -230,6 +288,30 @@ function toPlain(row) {
 }
 
 function catalogFor(storeCode) {
+  if (normalizeStoreCode(storeCode) === GOLDENDRAGON) {
+    const brand = 'Golden Dragon Casino';
+    return CATALOG.map((item) => {
+      if (item.slug === 'dragon-fury') {
+        return {
+          ...item,
+          metaTitle: `Dragon Fury Online | ${brand}`,
+          heroLead: `Play Dragon Fury on ${brand} in your browser. Sign up free — no download required.`,
+          heroBlurb: `Play Dragon Fury online in your browser on ${brand}.`
+        };
+      }
+      const swap = (value) => String(value || '')
+        .replace(/ \| Dragon Fury/g, ` | ${brand}`)
+        .replace(/ on Dragon Fury/g, ` on ${brand}`)
+        .replace(/ through Dragon Fury/g, ` through ${brand}`)
+        .replace(/ from Dragon Fury/g, ` from ${brand}`);
+      return {
+        ...item,
+        metaTitle: swap(item.metaTitle),
+        heroLead: swap(item.heroLead),
+        heroBlurb: swap(item.heroBlurb)
+      };
+    });
+  }
   if (normalizeStoreCode(storeCode) !== PLAYJUWA) return CATALOG;
   return CATALOG.map((item) => {
     if (item.slug === 'dragon-fury') {
@@ -256,7 +338,7 @@ function catalogFor(storeCode) {
 function assertStore(req, storeCode) {
   const sc = normalizeStoreCode(storeCode);
   if (!GAME_STORES.has(sc)) {
-    throw fail('Game pages can only be edited for PlayJuwa and Dragon Fury.', 403);
+    throw fail('Game pages can only be edited for PlayJuwa, Dragon Fury and Golden Dragon Casino.', 403);
   }
   if (req.role === ROLES.STORE_ADMIN) {
     if (normalizeStoreCode(req.storeCode) !== sc) {
@@ -321,6 +403,54 @@ async function getAdmin(req, slug, query = {}) {
   const resolved = resolveSlug(slug);
   const row = await db.GameSeoPage.findOne({ where: { storeCode, slug: resolved } });
   if (!row) throw fail('Game page not found.', 404);
+  return { game_page: toPlain(row) };
+}
+
+function brandFor(storeCode) {
+  if (storeCode === GOLDENDRAGON) return 'Golden Dragon Casino';
+  if (storeCode === PLAYJUWA) return 'PlayJuwa';
+  return 'Dragon Fury';
+}
+
+/** Adds one platform = one page (a game_seo_pages row, existing table) with ready-to-edit default content. */
+async function createAdmin(req, body = {}) {
+  const storeCode = assertStore(req, body.storeCode || body.store_code || req.storeCode);
+  await ensureCatalog(storeCode);
+  const name = String(body.name || '').trim().slice(0, 120);
+  if (!name) throw fail('Platform name is required.');
+  const slug = String(body.slug || name).trim().toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+  if (!slug) throw fail('Use letters or numbers in the platform name.');
+  if (REDIRECT_SLUGS.has(slug) || ALIASES[slug]) throw fail('That address is reserved. Choose another name.');
+  const taken = await db.GameSeoPage.findOne({ where: { storeCode, slug } });
+  if (taken) {
+    throw fail(taken.deletedAt
+      ? `A platform with this address was deleted. Restore "${taken.name}" instead.`
+      : `A platform page /platform-games/${slug} already exists.`, 409);
+  }
+  const brand = brandFor(storeCode);
+  const imageUrl = normalizeImageUrl(body.imageUrl ?? body.image_url);
+  const maxOrder = await db.GameSeoPage.max('sortOrder', { where: { storeCode } });
+  const row = await db.GameSeoPage.create({
+    storeCode,
+    slug,
+    name,
+    genre: null,
+    catalogName: name,
+    defaultImage: null,
+    imageUrl,
+    heroLead: `Play ${name} on ${brand} in your browser. Sign up free and start playing today.`,
+    heroBlurb: `${name} games with fast browser access on ${brand}.`,
+    buttons: defaultButtons(name),
+    sections: { hero: {}, blocks: [] },
+    metaTitle: `${name} Online | ${brand}`,
+    metaDescription: `Play ${name} on ${brand} in your browser. Sign up free and start playing today.`,
+    metaTags: null,
+    canonicalUrl: null,
+    allowIndex: true,
+    sortOrder: (Number.isFinite(maxOrder) ? maxOrder : catalogFor(storeCode).length) + 1,
+    isActive: true
+  });
   return { game_page: toPlain(row) };
 }
 
@@ -450,6 +580,7 @@ async function getPublic(storeCode, slug) {
 module.exports = {
   STORE,
   listAdmin,
+  createAdmin,
   getAdmin,
   updateAdmin,
   setVisibilityAdmin,

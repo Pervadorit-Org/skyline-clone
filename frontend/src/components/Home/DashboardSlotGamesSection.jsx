@@ -53,7 +53,7 @@ import { SCORPIO_GAMES_SLUG, isScorpioPlayProvider } from '../../config/scorpio'
 
 const PROVIDER_FETCH_TIMEOUT_MS = 12000;
 const FIRST_PAINT_TIMEOUT_MS = 6000;
-const ONEGAMEHUB_CACHE_KEY = 'onegamehub-v8';
+const ONEGAMEHUB_CACHE_KEY = 'onegamehub-v9';
 const BONA_CACHE_KEY = 'bona';
 const SCORPIO_CACHE_KEY = 'scorpio-v5';
 const SEARCH_RESULTS_LIMIT = 36;

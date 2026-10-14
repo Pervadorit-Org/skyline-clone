@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { site } from '../../config/site';
 
 const SIGNUP_TO = '/register';
 
@@ -14,7 +15,7 @@ const FEATURES = [
     id: 'platforms',
     kick: '20+ titles',
     title: 'Game platforms',
-    text: 'Golden Dragon, Juwa, Firekirin, Orion Stars — one Dragon Fury login.',
+    text: `Golden Dragon, Juwa, Firekirin, Orion Stars — one ${site.platformName} login.`,
     href: '#games',
   },
   {
@@ -35,7 +36,7 @@ const FEATURES = [
 
 export function FuryArenaSection() {
   return (
-    <section className="dash-fury-arena dash-animate-in" aria-label="Dragon Fury features">
+    <section className="dash-fury-arena dash-animate-in" aria-label={`${site.platformName} features`}>
       <div className="dash-fury-arena-head">
         <p className="dash-fury-arena-kick">The lobby</p>
         <h2 className="dash-fury-arena-title">Play. Spin. Cash out.</h2>

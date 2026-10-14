@@ -96,23 +96,24 @@ export const homeConfig = {
 
   // Horizontal game-category strip (scrollable pills, first = active).
   // Icons are our own (inline house SVG for Home + emoji glyphs) — NOT
-  // goldendragon.casino's hosted game-category PNGs. Links point at the
-  // existing /casino route (guest-accessible).
+  // goldendragon.casino's hosted game-category PNGs. Each pill links to its
+  // own category page (/category/<slug>, see config/gameCategories.js), which
+  // shows that category's games; Home links back to the landing page.
   categoryStrip: {
     items: [
       { label: 'Home', icon: 'home', href: '/' },
-      { label: 'Bingo', emoji: '🎱', href: '/casino' },
-      { label: 'Crash Game', emoji: '📈', href: '/casino' },
-      { label: 'Fishing', emoji: '🎣', href: '/casino' },
-      { label: 'Instant Win', emoji: '⚡', href: '/casino' },
-      { label: 'Keno', emoji: '🔢', href: '/casino' },
-      { label: 'Live Dealer', emoji: '🃏', href: '/casino' },
-      { label: 'Lottery', emoji: '🎟️', href: '/casino' },
-      { label: 'Scratch Cards', emoji: '🎫', href: '/casino' },
-      { label: 'Shooting', emoji: '🎯', href: '/casino' },
-      { label: 'Slots', emoji: '🎰', href: '/casino' },
-      { label: 'Table Games', emoji: '🂡', href: '/casino' },
-      { label: 'Virtual Game', emoji: '🕹️', href: '/casino' },
+      { label: 'Bingo', emoji: '🎱', href: '/category/bingo' },
+      { label: 'Crash Game', emoji: '📈', href: '/category/crash-game' },
+      { label: 'Fishing', emoji: '🎣', href: '/category/fishing' },
+      { label: 'Instant Win', emoji: '⚡', href: '/category/instant-win' },
+      { label: 'Keno', emoji: '🔢', href: '/category/keno' },
+      { label: 'Live Dealer', emoji: '🃏', href: '/category/live-dealer' },
+      { label: 'Lottery', emoji: '🎟️', href: '/category/lottery' },
+      { label: 'Scratch Cards', emoji: '🎫', href: '/category/scratch-cards' },
+      { label: 'Shooting', emoji: '🎯', href: '/category/shooting' },
+      { label: 'Slots', emoji: '🎰', href: '/category/slots' },
+      { label: 'Table Games', emoji: '🂡', href: '/category/table-games' },
+      { label: 'Virtual Game', emoji: '🕹️', href: '/category/virtual-game' },
     ],
   },
 

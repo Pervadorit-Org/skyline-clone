@@ -1,6 +1,7 @@
-import { homeConfig } from '../../../config/homeConfig';
+import { useHomeConfig } from '../../../config/homeConfigContext';
 
 export function IntroSection() {
+  const homeConfig = useHomeConfig();
   const cfg = homeConfig.intro;
   return (
     <section className="df-home2-intro">

@@ -1103,6 +1103,13 @@ export function getAdminGameSeoPage(slug, params = {}) {
   return request(`${ADMIN}/footer/game-pages/${encodeURIComponent(slug)}${query ? `?${query}` : ''}`)
 }
 
+export function createAdminGameSeoPage(body) {
+  return request(`${ADMIN}/footer/game-pages`, {
+    method: 'POST',
+    body: JSON.stringify(body || {})
+  })
+}
+
 export function updateAdminGameSeoPage(slug, body) {
   return request(`${ADMIN}/footer/game-pages/${encodeURIComponent(slug)}`, {
     method: 'PUT',
@@ -1207,6 +1214,14 @@ export function getAdminLegalPage(pageKey, params = {}) {
     Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''))
   ).toString()
   return request(`${ADMIN}/footer/legal/${encodeURIComponent(pageKey)}${q ? `?${q}` : ''}`)
+}
+
+/** Show / hide one legal page on the website and in the footer (keeps its text). */
+export function setAdminLegalPageVisibility(pageKey, body) {
+  return request(`${ADMIN}/footer/legal/${encodeURIComponent(pageKey)}/visibility`, {
+    method: 'PATCH',
+    body: JSON.stringify(body || {})
+  })
 }
 
 export function updateAdminLegalPage(pageKey, body) {

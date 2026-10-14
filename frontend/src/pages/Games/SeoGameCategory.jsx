@@ -3,7 +3,7 @@ import { Link, Navigate, useParams } from 'react-router-dom';
 import { usePageContentReady } from '../../context/PageReadyContext';
 import { useAuth } from '../../context/AuthContext';
 import { getGameCategoryBySlug, getGameCategoryRedirect } from '../../config/seoPages';
-import { STORE_CODE } from '../../config/site';
+import { IS_BRAND_STORE } from '../../config/site';
 import { getGamePage } from '../../api/gamePages';
 import { buildPlatformFaq } from '../../constants/landingFaq';
 import { GameImage } from '../../components/Games/GameImage';
@@ -14,7 +14,7 @@ import { usePageSeo } from '../../utils/pageSeo';
 import '../FooterPage/FooterPage.css';
 import './SeoGames.css';
 
-const IS_DRAGONFURY = String(STORE_CODE || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '') === 'dragonfury';
+const IS_DRAGONFURY = IS_BRAND_STORE;
 
 function ButtonLink({ href, className, children, isAuthenticated }) {
   const next = href === '/register' && isAuthenticated ? '/#games' : href;
@@ -136,7 +136,7 @@ export function SeoGameCategory() {
   const canonical = String(saved?.canonicalUrl || '').trim();
   usePageSeo({
     ready: checked && Boolean(page) && !remote?.hidden,
-    title: saved?.metaTitle || staticPage?.title || (page?.name ? `${page.name} Online | Dragon Fury` : ''),
+    title: saved?.metaTitle || staticPage?.title || (page?.name ? `${page.name} Online | ${site.platformName}` : ''),
     description: saved?.metaDescription || staticPage?.description || page?.description || '',
     keywords: saved?.metaTags || '',
     noIndex: saved ? saved.allowIndex === false : false,
@@ -150,6 +150,10 @@ export function SeoGameCategory() {
       return null;
     }
     return <Navigate to={remote.redirect} replace />;
+  }
+  // Every known platform (managed in the database or built in) lives at /platform-games/:slug.
+  if (checked && IS_DRAGONFURY && (saved || staticPage)) {
+    return <Navigate to={`/platform-games/${saved?.slug || staticPage.slug}`} replace />;
   }
   if (!checked) {
     return (

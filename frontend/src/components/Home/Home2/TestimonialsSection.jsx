@@ -1,8 +1,9 @@
-import { homeConfig } from '../../../config/homeConfig';
+import { useHomeConfig } from '../../../config/homeConfigContext';
 import { SectionHeading } from './SectionHeading';
 import { TestimonialCard } from './TestimonialCard';
 
 export function TestimonialsSection() {
+  const homeConfig = useHomeConfig();
   const { title, subtitle, items } = homeConfig.testimonials;
   return (
     <section className="df-home2-section df-home2-testimonials" aria-labelledby="df-home2-testimonials-title">
