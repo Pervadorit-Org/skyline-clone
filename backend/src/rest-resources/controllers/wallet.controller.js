@@ -64,12 +64,25 @@ async function setCurrencyMode(req, res) {
   }
 }
 
+const PROFILE_INCOMPLETE_MESSAGE = 'Please complete your profile first (add your first and last name) before making a payment.';
+
+/** Payment flows need the player's first and last name; names are optional at signup. */
+async function isProfileNameComplete(userId) {
+  const u = await db.User.findByPk(userId, { attributes: ['firstName', 'lastName'], raw: true });
+  return Boolean((u?.firstName || '').trim() && (u?.lastName || '').trim());
+}
+
+function sendProfileIncomplete(res) {
+  return sendError(res, PROFILE_INCOMPLETE_MESSAGE, 400, 'PROFILE_INCOMPLETE');
+}
+
 async function deposit(req, res) {
   try {
     paymentLog('--- POST /api/wallet/deposit (request) ---');
     paymentLog('request body:', req.body);
     const userId = req.user?.userId;
     if (!userId) return sendError(res, 'Unauthorized', 401);
+    if (!(await isProfileNameComplete(userId))) return sendProfileIncomplete(res);
     const provider = (req.body?.provider && typeof req.body.provider === 'string')
       ? req.body.provider.trim().toLowerCase()
       : 'orionstarspay';
@@ -325,7 +338,7 @@ async function withdraw(req, res) {
     const first = (user?.firstName || '').trim();
     const last = (user?.lastName || '').trim();
     if (!first || !last) {
-      return sendError(res, 'Profile details need to be updated. Please update your profile before using this feature.', 400);
+      return sendProfileIncomplete(res);
     }
     const data = await walletService.withdraw(userId, req.body);
     sendSuccess(res, data);

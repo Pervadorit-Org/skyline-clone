@@ -104,6 +104,13 @@ async function handleResponse(response, requestUrl = '') {
       }
     }
     const message = getMessageFromBody(body, status, requestUrl);
+    if (body && body.code === 'PROFILE_INCOMPLETE') {
+      try {
+        window.dispatchEvent(new CustomEvent('profile:incomplete', { detail: { message } }));
+      } catch {
+        void 0;
+      }
+    }
     const err = new Error(message);
     err.status = status;
     err.body = body;

@@ -360,7 +360,7 @@ export function Settings() {
   const [breakLength, setBreakLength] = useState('1 day');
   const [tab, setTab] = useState(() => {
     const hash = typeof window !== 'undefined' ? window.location.hash.replace('#', '') : '';
-    if (['verification', 'security', 'communication', 'responsible-gaming'].includes(hash)) return hash;
+    if (['verification', 'security', 'communication', 'responsible-gaming', 'profile'].includes(hash)) return hash;
     return searchParams.get('returnTo') ? 'verification' : 'profile';
   });
 

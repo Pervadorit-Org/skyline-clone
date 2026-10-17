@@ -1,7 +1,8 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { ToastProvider } from './context/ToastContext';
+import { ToastProvider, useToast } from './context/ToastContext';
+import { PROFILE_INCOMPLETE_MESSAGE, SETTINGS_PROFILE_REDIRECT } from './utils/purchaseProfile';
 import { SpinWheelStatusProvider } from './context/SpinWheelStatusContext';
 import { VipStatusProvider } from './context/VipStatusContext';
 import { Layout } from './components/Layout';
@@ -243,6 +244,21 @@ function LegacyReferralRedirect() {
   return <Navigate to={`/register?${params.toString()}`} replace />;
 }
 
+/** Any payment call rejected with PROFILE_INCOMPLETE sends the player to Settings to add their name. */
+function ProfileIncompleteRedirect() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  useEffect(() => {
+    const onIncomplete = (e) => {
+      toast.error(e?.detail?.message || PROFILE_INCOMPLETE_MESSAGE);
+      navigate(SETTINGS_PROFILE_REDIRECT);
+    };
+    window.addEventListener('profile:incomplete', onIncomplete);
+    return () => window.removeEventListener('profile:incomplete', onIncomplete);
+  }, [navigate, toast]);
+  return null;
+}
+
 function RouteTitleManager() {
   const { pathname, search } = useLocation();
 
@@ -418,6 +434,7 @@ function App() {
         <RouteTitleManager />
         <LegacyReferralRedirect />
         <ToastProvider>
+          <ProfileIncompleteRedirect />
           <SpinWheelStatusProvider>
             <VipStatusProvider>
             <PageReadyProvider>
