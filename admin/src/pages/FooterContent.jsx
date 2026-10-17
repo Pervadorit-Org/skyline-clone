@@ -101,7 +101,7 @@ export default function FooterContent() {
       </>)
       case 'brand': return (<>
         <ImgField label="Footer logo" value={s.brand.logo} onChange={(v) => patch('brand', { logo: v })} />
-        <p className="hc-muted">No logo uploaded = the website's normal logo.</p>
+        <p className="hc-muted">No logo uploaded = the website&apos;s normal logo.</p>
         <Txt label="About text" long hint="empty = the site description" value={s.brand.text} onChange={(v) => patch('brand', { text: v })} />
       </>)
       case 'platforms': return (<>
@@ -110,7 +110,7 @@ export default function FooterContent() {
         <PlatformLinksManager storeCode={storeCode} />
         <p className="hc-muted">
           Need a platform link that is not one of the pages above? Add it here with a label and a link. These show after
-          the platform pages in the footer and on the home page "Our Exclusive Platforms" section.
+          the platform pages in the footer and on the home page &quot;Our Exclusive Platforms&quot; section.
         </p>
         <ListEditor title="Extra platform links (label + link)" rows={s.platforms.items || []} max={40}
           makeRow={() => ({ label: '', href: '', image: '' })}

@@ -464,7 +464,7 @@ export default function LobbyContent({ section }) {
           </p>
           {cards.length === 0 ? (
             <button type="button" className="admin-btn admin-btn-secondary hc-btn-sm"
-              onClick={() => setCards(PROMO_CARD_DEFAULTS.map(({ label, fields, ...c }) => ({ enabled: true, ...c })))}>
+              onClick={() => setCards(PROMO_CARD_DEFAULTS.map(({ label: _label, fields: _fields, ...c }) => ({ enabled: true, ...c })))}>
               Start from the built-in cards
             </button>
           ) : null}
