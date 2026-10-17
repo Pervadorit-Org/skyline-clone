@@ -93,6 +93,10 @@ async function resolveSignupCode(rawCode) {
         storeCode: storeAdmin.storeCode || null
       };
     }
+    const brand = require('./storeBinding.helpers').fallbackBrandStore(codeNormalized);
+    if (brand) {
+      return { referredByUserId: null, distributorCode: brand.distributorCode, storeCode: brand.storeCode };
+    }
   }
 
   const err = new Error('Wrong code or code does not exist. Please use your store code.');

@@ -27,6 +27,7 @@ async function getMe(userId, _options = {}) {
   data.isPhoneVerified = Boolean(user.isPhoneVerified);
   data.phoneVerificationRequired = phoneStatus.needsVerification;
   data.phoneVerification = phoneStatus;
+  Object.assign(data, await require('../user/updateMarketingPrefs.service').getMarketingPrefs(user));
 
   return data;
 }

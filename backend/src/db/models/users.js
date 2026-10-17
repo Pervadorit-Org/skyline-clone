@@ -88,18 +88,6 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: true
     },
-    marketingEmailOptIn: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-      field: 'marketing_email_opt_in'
-    },
-    marketingSmsOptIn: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-      field: 'marketing_sms_opt_in'
-    },
     profileImageUrl: {
       type: DataTypes.STRING,
       allowNull: true

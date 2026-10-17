@@ -7,7 +7,6 @@ import { useToast } from '../context/ToastContext'
 import { useConfirm } from '../context/ConfirmContext'
 import { ROLES } from '../constants/roles'
 import { FOOTER_DEFAULTS, SECTION_LABELS, SECTION_ORDER } from './footerContentDefaults'
-import PlatformLinksManager from '../components/PlatformLinksManager'
 import { Field, Txt, Lnk, ImgField, ListEditor, ImageUploadProvider, SITE_URL, clone, mergeOver } from '../components/ContentFields'
 import './HomeContent.css'
 
@@ -107,10 +106,9 @@ export default function FooterContent() {
       case 'platforms': return (<>
         <Txt label="Panel title" value={s.platforms.title} onChange={(v) => patch('platforms', { title: v })} />
         <Field label="Max links"><input type="number" min={2} max={40} value={s.platforms.max ?? 14} onChange={(e) => patch('platforms', { max: Number(e.target.value) })} /></Field>
-        <PlatformLinksManager storeCode={storeCode} />
         <p className="hc-muted">
-          Need a platform link that is not one of the pages above? Add it here with a label and a link. These show after
-          the platform pages in the footer and on the home page &quot;Our Exclusive Platforms&quot; section.
+          The platform pages (Golden Dragon, Ultra Panda, Juwa, ...) are a fixed list built into the website. Add any extra platform link here
+          with a label and a link. These show after the platform pages in the footer and on the home page &quot;Our Exclusive Platforms&quot; section.
         </p>
         <ListEditor title="Extra platform links (label + link)" rows={s.platforms.items || []} max={40}
           makeRow={() => ({ label: '', href: '', image: '' })}

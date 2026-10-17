@@ -25,6 +25,14 @@ const DEFAULTS = {
 };
 
 /**
+ * Built-in welcome bonus for brand stores that have no saved settings row (e.g. a restored database).
+ * Golden Dragon: 150,000 GC + 2 SC. Any saved row (admin page) always wins over this.
+ */
+const BRAND_DEFAULTS = {
+  goldendragon: { enabled: true, amountSc: 2, amountGc: 150000, requireDepositToActivateBonus: true }
+};
+
+/**
  * Validate optional landing welcome-bonus modal image URL.
  * Empty / null clears the override (storefront falls back to static asset).
  */
@@ -134,8 +142,21 @@ function parseSettingsValue(value) {
   }
 }
 
-function effectiveFromParsed(parsed) {
+function effectiveFromParsed(parsed, storeCode = null) {
   if (!parsed) {
+    const brand = BRAND_DEFAULTS[normalizeStoreCode(storeCode || '')];
+    if (brand) {
+      return {
+        enabled: brand.enabled,
+        amountSc: brand.amountSc,
+        amountGc: brand.amountGc,
+        modalImageUrl: DEFAULTS.modalImageUrl,
+        requireDepositToActivateBonus: brand.requireDepositToActivateBonus,
+        hasOverride: false,
+        updatedBy: null,
+        updatedAt: null
+      };
+    }
     return {
       enabled: DEFAULTS.enabled,
       amountSc: DEFAULTS.amountSc,
@@ -236,7 +257,7 @@ async function getEffectiveSettings(distributorCode, storeCode) {
   const row = await getSettingRow(distributorCode, storeCode);
   const parsed = parseSettingsValue(row?.value);
   return {
-    ...effectiveFromParsed(parsed),
+    ...effectiveFromParsed(parsed, code),
     distributorCode: row?.distributorCode ?? distributorCode ?? null,
     storeCode: code
   };
@@ -311,7 +332,7 @@ async function listAllStoreSettings() {
       const code = normalizeStoreCode(s.storeCode);
       const mapKey = `${s.distributorCode || ''}|${code}`;
       const parsed = settingsMap.get(mapKey) || null;
-      const effective = effectiveFromParsed(parsed);
+      const effective = effectiveFromParsed(parsed, code);
       return {
         userId: s.userId,
         username: s.username,

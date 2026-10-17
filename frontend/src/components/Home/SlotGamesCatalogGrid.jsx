@@ -223,6 +223,8 @@ export function SlotGamesCatalogGrid({
   initialTab = 'all',
   hideIntro = false,
   showCategoryTabs = false,
+  hideCategoryTabs = false,
+  hideViewMore = false,
   lobbyMode = false,
   favoritesOnly = false,
   searchQuery = '',
@@ -383,7 +385,7 @@ export function SlotGamesCatalogGrid({
         </>
       ) : null}
 
-      {tabs.length > 1 && (!embedded || showCategoryTabs) && !favoritesOnly ? (
+      {tabs.length > 1 && !hideCategoryTabs && (!embedded || showCategoryTabs) && !favoritesOnly ? (
         <div
           className={`df-games-tabs${embedded ? ' df-games-tabs--embedded' : ''}`}
           data-tour="slots"
@@ -510,7 +512,7 @@ export function SlotGamesCatalogGrid({
         </div>
       </div>
 
-      {remaining > 0 ? (
+      {remaining > 0 && !hideViewMore ? (
         <div className="df-games-more df-games-more--toggle">
           <button
             className="df-games-view-more"
