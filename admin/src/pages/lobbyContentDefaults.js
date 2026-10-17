@@ -51,6 +51,9 @@ export const LOBBY_DEFAULTS = {
   providers: [],
   sidebarLinks: [],
   popularity: { mode: 'auto', days: 30 },
+  faq: { intro: '', sections: [] },
+  tasks: { regular: [], daily: [] },
+  promoCards: [],
 }
 
 /** Rows whose games follow real play history when nothing is picked by hand. */
@@ -182,4 +185,247 @@ export const HEADER_ITEMS = [
   { id: 'promotions', label: 'Promotions' }, { id: 'spin', label: 'Spin' }, { id: 'refer', label: 'Refer' },
   { id: 'profile', label: 'Profile' }, { id: 'txns', label: 'Txns' }, { id: 'install', label: 'How to Install' },
   { id: 'blog', label: 'Blog posts' }, { id: 'support', label: 'Support (phone menu only)' },
+]
+
+/* Built-in FAQ / task list / promotion cards, used as the starting point in the editors. */
+export const FAQ_DEFAULT_SECTIONS = [
+  {
+    "title": "Account & Registration",
+    "items": [
+      {
+        "q": "How do I create an account?",
+        "a": "Click Sign Up, enter your details, accept the Terms & Conditions and verify your email address."
+      },
+      {
+        "q": "Who can register?",
+        "a": "You must meet the minimum age requirement in the Terms & Conditions and live in an eligible location. One account per person."
+      },
+      {
+        "q": "Can I have more than one account?",
+        "a": "No. Duplicate or shared accounts are not allowed and may be suspended."
+      },
+      {
+        "q": "How do I update my profile details?",
+        "a": "Go to Profile, edit your information and save. Some changes may require verification."
+      }
+    ]
+  },
+  {
+    "title": "Login and Security",
+    "items": [
+      {
+        "q": "How do I log in?",
+        "a": "Click Login, enter your registered username or email and password, and click Log In."
+      },
+      {
+        "q": "I forgot my password. What should I do?",
+        "a": "Click Forgot Password? on the Login page and follow the instructions to reset your password."
+      },
+      {
+        "q": "How do I change my password?",
+        "a": "Go to Profile → Change Password, enter your current password and new password, and click Update Password."
+      },
+      {
+        "q": "What should I do if I think someone accessed my account?",
+        "a": "Change your password immediately and contact Customer Support if you notice any unusual activity."
+      },
+      {
+        "q": "Should I share my password with Customer Support?",
+        "a": "No. Never share your password with anyone, including Customer Support."
+      }
+    ]
+  },
+  {
+    "title": "Gold Coins (GC) & Sweepstakes Coins (SC)",
+    "items": [
+      {
+        "q": "What are Gold Coins?",
+        "a": "Gold Coins are for entertainment only and have no redemption value."
+      },
+      {
+        "q": "What are Sweepstakes Coins?",
+        "a": "Sweepstakes Coins may be redeemable for prizes, subject to the Official Rules."
+      },
+      {
+        "q": "How do I get free Sweepstakes Coins?",
+        "a": "Through the welcome bundle, daily rewards, promotions, or the Alternate Method of Entry (AMOE). No purchase is required."
+      },
+      {
+        "q": "Does buying more coins improve my chances?",
+        "a": "No. Purchases don't affect outcomes. All games use randomized results."
+      }
+    ]
+  },
+  {
+    "title": "Store & Purchases",
+    "items": [
+      {
+        "q": "Is a purchase required to play?",
+        "a": "No purchase is necessary. Optional coin packages are available in the Store."
+      },
+      {
+        "q": "Where do I buy coin packages?",
+        "a": "Open the Store from the top bar and choose a package."
+      },
+      {
+        "q": "My purchase did not arrive. What should I do?",
+        "a": "Wait a few minutes and refresh. If the coins still do not appear, contact Customer Support with your order details."
+      }
+    ]
+  },
+  {
+    "title": "Payments",
+    "items": [
+      {
+        "q": "Which payment methods are accepted?",
+        "a": "Available methods are shown at checkout and may vary by location."
+      },
+      {
+        "q": "Is my payment information safe?",
+        "a": "Payments are processed by secure third-party processors. We do not store full card details."
+      },
+      {
+        "q": "Can I get a refund?",
+        "a": "Refund eligibility is described in the Terms & Conditions. Contact Customer Support for help with a specific order."
+      }
+    ]
+  },
+  {
+    "title": "Redeeming Sweepstakes Coins",
+    "items": [
+      {
+        "q": "How does redemption work?",
+        "a": "Eligible Sweepstakes Coin balances may be submitted for redemption, subject to verification and the platform's Official Rules."
+      },
+      {
+        "q": "Do I need to verify my identity?",
+        "a": "Yes. ID verification may be required before a redemption is approved."
+      },
+      {
+        "q": "How long does a redemption take?",
+        "a": "Timing depends on verification and processor windows. You can track the status in your account."
+      }
+    ]
+  },
+  {
+    "title": "Bonuses & Promotions",
+    "items": [
+      {
+        "q": "What bonuses are available?",
+        "a": "Welcome bundles, daily rewards, the spin wheel, VIP rewards and referral bonuses. See the Promotions page for current offers."
+      },
+      {
+        "q": "How do VIP rewards work?",
+        "a": "You earn VIP Points by playing and move up ranks to unlock bigger rewards."
+      },
+      {
+        "q": "How does the referral program work?",
+        "a": "Share your referral link. When a friend signs up and meets the requirements, you both get rewarded."
+      }
+    ]
+  },
+  {
+    "title": "Responsible Play & Support",
+    "items": [
+      {
+        "q": "How can I limit my play?",
+        "a": "Contact Customer Support to set limits or to take a break from the platform."
+      },
+      {
+        "q": "How do I contact support?",
+        "a": "Use the Chat button in the corner of the screen or email our support team."
+      }
+    ]
+  }
+]
+
+export const FAQ_DEFAULT_INTRO =
+  'is a free-to-play online platform that runs in two modes: Gold Coins for fun play and Sweepstakes Coins for prize redemptions.'
+
+export const TASK_DEFAULTS = {
+  regular: [
+    { id: 'fb', title: 'Click Link', desc: 'Follow us on Facebook', target: 'Visit the link', social: 'facebook', gc: '1,000', sc: '0.2' },
+    { id: 'x', title: 'Click Link', desc: 'Follow us on X', target: 'Visit the link', social: 'twitter', gc: '10,000', sc: '0.2' },
+    { id: 'phone', title: 'Verify Phone', desc: 'Verify Your Phone Number and get rewards', target: 'Verify your phone number', action: 'phone', gc: '10,000', sc: '0.5' },
+    { id: 'ig', title: 'Click Link', desc: 'Follow us on Instagram', target: 'Visit the link', social: 'instagram', gc: '10,000', sc: '0.2' },
+    { id: 'dc', title: 'Click Link', desc: 'Join our Discord community', target: 'Visit the link', social: 'discord', gc: '10,000', sc: '0.2' },
+    { id: 'email', title: 'Setup Email Address', desc: 'Add and verify your email address', target: 'Set up your email address', action: 'email', gc: '100', sc: '1' },
+  ],
+  daily: [
+    { id: 'purchase', title: 'Purchase Package', desc: 'Purchase a package worth $30 and get rewards.', target: 'Purchase a package worth $30', to: '/store', cta: 'Visit Store', gc: '50,000', sc: '1' },
+    { id: 'referral', title: 'Referral Completed', desc: 'Refer a friend and earn bonus.', target: 'Refer a friend', to: '/account/affiliate', cta: 'Invite Friends', gc: '10,000', sc: '0.5' },
+    { id: 'active', title: 'Stay Active', desc: '', target: 'Log in and stay active today', gc: '1,000', sc: '0.1' },
+    { id: 'play', title: 'Play Games', desc: 'Play 5 games today', target: 'Play 5 games today', to: '/casino', cta: 'Play Games', gc: '2,500', sc: '0.25' },
+  ],
+}
+
+/** Promotions page cards. `fields` = which boxes the editor shows for that card design. */
+export const PROMO_CARD_DEFAULTS = [
+  { id: 'vip', label: 'VIP club card', ribbon: 'Free', badge: 'VIP CLUB MEMBERS ONLY', text: 'Get max rewards.', gold: '200,000', sweep: '20', cta: 'Get NOW $19.99', to: '/store', fields: ['ribbon', 'badge', 'text', 'gold', 'sweep', 'cta', 'to'] },
+  { id: 'welcome', label: 'Welcome bundle card', badge: 'EXCLUSIVE WELCOME BUNDLE', text: 'UP TO', gold: '900,000', sweep: '30', cta: 'SHOW MORE', to: '/store', note: 'was $30.00', fields: ['badge', 'text', 'gold', 'sweep', 'cta', 'to', 'note'] },
+  { id: 'key', label: 'Key to the city card', badge: 'BEST DEAL - 200% EXTRA COINS', text: 'KEY TO THE CITY', cta: 'BUY NOW $24.99', to: '/store', fields: ['badge', 'text', 'cta', 'to'] },
+  { id: 'express', label: 'Special offer card', badge: 'MOST POPULAR - 350% EXTRA COINS', text: 'Your Special Offer', cta: 'BUY NOW $7.99', to: '/store', fields: ['badge', 'text', 'cta', 'to'] },
+  { id: 'invite', label: 'Invite friends card', badge: 'INVITE FRIENDS PROGRAM', text: 'Share the Rewards!', cta: 'Copy Link', fields: ['badge', 'text', 'cta'] },
+  { id: 'daily', label: 'Daily express card', badge: 'DAILY EXPRESS', text: 'Claim Rewards Every Day!', cta: 'CLAIM REWARD', to: '/daily-bonus', fields: ['badge', 'text', 'cta', 'to'] },
+]
+
+/** Store popup (Buy / Redeem / Bonus): every word is optional; empty keeps the built-in text. */
+export const STORE_TAB_ITEMS = [
+  { id: 'buy', label: 'Buy (always shown)' }, { id: 'redeem', label: 'Redeem' }, { id: 'bonus', label: 'Bonus' },
+]
+
+export const STORE_TEXT_GROUPS = [
+  { title: 'Popup', fields: [f('store.title', 'Popup title', 'Store')] },
+  {
+    title: 'Buy: welcome offer',
+    note: 'The welcome chests come from the “Welcome Packages” group in Deposit packages. The ribbon picture has “Get Upto 300% more” drawn on it: upload your own picture, or switch the ribbon off under Sections below if that claim is not true for your offers.',
+    fields: [
+      f('store.welcomeTitle', 'Heading', "Haven't Claimed Your Welcome Offer Yet"),
+      f('store.welcomeSub', 'Sub heading', 'Choose Wisely - you can only pick one'),
+      f('store.welcomeBadge', 'Welcome ribbon picture (empty = built-in “Get Upto 300% more” ribbon)', '', 'image'),
+    ],
+  },
+  {
+    title: 'Buy: limited offers',
+    note: 'Daily Deals shows the “Flash Sale” group and Weekly Deals shows the “Limited Time Offers” group. Both come from Deposit packages. Set an end time on the group to control the countdown; with none set, Daily counts down to the end of the day and Weekly to the end of the week (UTC).',
+    fields: [
+      f('store.limitedTitle', 'Banner title', 'Limited Offer'),
+      f('store.limitedSub', 'Banner text', "Don't miss out - these go fast!"),
+      f('store.dailyTitle', 'Daily deals title', 'Daily Deals'),
+      f('store.weeklyTitle', 'Weekly deals title', 'Weekly Deals'),
+    ],
+  },
+  {
+    title: 'Redeem tab',
+    note: 'Balances, the daily payout limit and the redeem rules come from the player’s wallet and the wallet limits — they are not typed here.',
+    fields: [
+      f('store.redeemIntro', 'Intro text', 'Sweepstakes Coins can be redeemed for real cash. Sweepstakes Coins must be played at least once before they can be redeemed.', 'long'),
+      f('store.redeemBalance', 'Balance label', 'Sweepstakes Coins Balance'),
+      f('store.redeemUnplayed', 'Unplayed label', 'Unplayed'),
+      f('store.redeemRedeemable', 'Redeemable label', 'Redeemable'),
+      f('store.payoutTitle', 'Payout card title', 'Payout'),
+    ],
+  },
+  {
+    title: 'Bonus tab',
+    note: 'Codes are checked by the existing apply-code service; the popup only shows what that service answers.',
+    fields: [
+      f('store.bonusTitle', 'Title', 'Enter Promo Code'),
+      f('store.bonusSub', 'Text under the title', 'Unlock exclusive rewards and bonuses with your promo code.', 'long'),
+      f('store.bonusStep1', 'Step 1', 'Enter your promo code in the field above'),
+      f('store.bonusStep2', 'Step 2', 'Click "Apply Promo Code" to submit'),
+      f('store.bonusStep3', 'Step 3', 'If valid, it is applied to your next purchase'),
+      f('store.bonusStep4', 'Step 4', 'Offers may include discounts or special terms'),
+    ],
+  },
+]
+
+/** Switchable parts of the Store popup (stored in the lobby `off` list as store:<id>). */
+export const STORE_SECTIONS = [
+  { id: 'welcome', label: 'Welcome offer chests', hint: 'From the “Welcome Packages” group.' },
+  { id: 'ribbon', label: 'Welcome ribbon picture', hint: 'The pink “Get Upto … more” badge beside the heading.' },
+  { id: 'limited', label: 'Limited offer banner + Daily/Weekly deals', hint: 'Switches both deal boxes off.' },
+  { id: 'daily', label: 'Daily Deals box', hint: 'From the “Flash Sale” group (its end time drives the countdown).' },
+  { id: 'weekly', label: 'Weekly Deals box', hint: 'From the “Limited Time Offers” group (its end time drives the countdown).' },
+  { id: 'grid', label: 'Package grid', hint: 'From the “Featured” and “General” groups.' },
 ]

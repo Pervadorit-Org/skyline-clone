@@ -3,7 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import * as gamesApi from '../api/games';
 import { DEPOSIT_ELIGIBILITY_CHANGED_EVENT } from '../utils/depositRequired';
 
-const ELIGIBILITY_CACHE_MS = 5000;
+// A user who can play never loses that (until logout / an explicit deposit event), so keep it for the
+// session. Users who cannot play yet are re-checked at most every 30s (an explicit force still wins).
+const ELIGIBILITY_CACHE_MS = 30 * 1000;
+const ELIGIBILITY_CACHE_ALLOWED_MS = 60 * 60 * 1000;
 let eligibilityInflight = null;
 let eligibilityInflightUserId = null;
 let eligibilityCache = {
@@ -54,7 +57,8 @@ async function fetchGamePlayEligibilityCached(userId, { force = false } = {}) {
   if (
     !force &&
     eligibilityCache.userId === cacheKey &&
-    now - eligibilityCache.at < ELIGIBILITY_CACHE_MS
+    now - eligibilityCache.at <
+      (eligibilityCache.hasDeposit ? ELIGIBILITY_CACHE_ALLOWED_MS : ELIGIBILITY_CACHE_MS)
   ) {
     return {
       hasDeposit: eligibilityCache.hasDeposit,
@@ -171,7 +175,12 @@ export function useGamePlayEligibility({ enabled = true } = {}) {
     }
   }, [gateActive]);
 
+  // Only clear the shared cache when the signed-in user really changes. Clearing it on every mount
+  // made each component using this hook fire its own request (cache + in-flight dedupe never applied).
+  const lastUserIdRef = useRef(userId);
   useEffect(() => {
+    if (lastUserIdRef.current === userId) return;
+    lastUserIdRef.current = userId;
     invalidateGamePlayEligibilityCache();
   }, [userId]);
 

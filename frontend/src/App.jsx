@@ -232,6 +232,17 @@ function HomeOrLanding() {
   return <Home />;
 }
 
+/** Legacy share links use ?referralCode=; signup reads ?ref=, so forward them to /register. */
+function LegacyReferralRedirect() {
+  const { pathname, search } = useLocation();
+  const params = new URLSearchParams(search);
+  const code = (params.get('referralCode') || '').trim();
+  if (!code || pathname === '/register') return null;
+  params.delete('referralCode');
+  params.set('ref', code);
+  return <Navigate to={`/register?${params.toString()}`} replace />;
+}
+
 function RouteTitleManager() {
   const { pathname, search } = useLocation();
 
@@ -405,6 +416,7 @@ function App() {
         <BackendMaintenanceGate>
         <ScrollToTop />
         <RouteTitleManager />
+        <LegacyReferralRedirect />
         <ToastProvider>
           <SpinWheelStatusProvider>
             <VipStatusProvider>

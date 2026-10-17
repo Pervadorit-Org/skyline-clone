@@ -22,12 +22,18 @@ function rewardView(reward) {
   const type = reward?.type;
   if (type === 'sc_coins') {
     const amount = Number(reward.amount_sc) || 0;
+    const gcAmount = Number(reward.gc_amount) || 0;
+    const gcLabel = `${gcAmount.toLocaleString('en-US')} GC`;
+    let title = amount > 0 ? `+${formatSc(amount)} SC Won!` : 'SC Bonus Added!';
+    if (gcAmount > 0) title = amount > 0 ? `+${gcLabel} & +${formatSc(amount)} SC!` : `+${gcLabel} Won!`;
     return {
       type,
       accent: 'var(--dash-gold)',
       iconSrc: SC_ICON,
       eyebrow: 'Bonus credits added',
-      title: amount > 0 ? `+${formatSc(amount)} SC Won!` : 'SC Bonus Added!',
+      title,
+      // A Gold-Coin-only day adds nothing to the SC wallet, so the SC balance line would be misleading.
+      showScBalance: amount > 0 || gcAmount === 0,
       desc: 'Credits have been added to your wallet.',
       cta: 'Continue',
       ctaTo: null,
@@ -173,7 +179,7 @@ export function DailyBonusClaimModal({ reward, dayIndex, balanceSc, onClose }) {
                 </ul>
               )}
 
-              {view.type === 'sc_coins' && balanceSc != null && (
+              {view.type === 'sc_coins' && balanceSc != null && view.showScBalance && (
                 <p className="swr-result-wallet-balance">
                   Wallet balance: <strong>{formatSc(balanceSc)} SC</strong>
                 </p>

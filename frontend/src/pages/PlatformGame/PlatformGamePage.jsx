@@ -95,7 +95,7 @@ function Hero({ page, platform, isAuthenticated }) {
         <div className="pg-visual">
           {mainImage ? (
             <div className="pg-visual__main">
-              <img src={mainImage} alt={page.name} width="508" height="374" loading="eager" fetchPriority="high" />
+              <img src={mainImage} alt={page.name} width="508" height="374" loading="eager" fetchpriority="high" />
             </div>
           ) : null}
           <div className="pg-visual__overlay">

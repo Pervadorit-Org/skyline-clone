@@ -13,6 +13,7 @@ const KEY = 'daily_bonus_settings';
 const MAX_AMOUNT_SC = 10000;
 const MAX_SPIN_COUNT = 20;
 const MAX_PERCENT_OFF = 100;
+const MAX_GC_AMOUNT = 1000000000;
 
 const DEFAULT_SPIN_SEGMENTS = [
   { id: 'db1', type: 'sc_coins', value: 1, label: '1 SC', color: '#1a9b6c', probability: 30 },
@@ -26,6 +27,7 @@ function defaultDay(dayIndex) {
     dayIndex,
     rewardType: 'sc_coins',
     amountSc: 5,
+    gcAmount: 0,
     spinCount: 1,
     percentOff: 10,
     packageScope: 'all',
@@ -81,6 +83,18 @@ function normalizeAmountSc(raw) {
     throw err;
   }
   return roundMoney(n);
+}
+
+/** Gold Coins credited on claim for GC stores (see gcWallet.service) and shown on the day card. */
+function normalizeGcAmount(raw) {
+  if (raw == null || raw === '') return 0;
+  const n = Math.round(Number(raw));
+  if (!Number.isFinite(n) || n < 0 || n > MAX_GC_AMOUNT) {
+    const err = new Error(`gcAmount must be a whole number between 0 and ${MAX_GC_AMOUNT}.`);
+    err.statusCode = 400;
+    throw err;
+  }
+  return n;
 }
 
 function normalizeSpinCount(raw) {
@@ -146,6 +160,7 @@ function normalizeDay(raw, index) {
     dayIndex,
     rewardType,
     amountSc: 0,
+    gcAmount: normalizeGcAmount(raw?.gcAmount ?? raw?.gc_amount),
     spinCount: 1,
     percentOff: 10,
     packageScope: 'all',
@@ -155,8 +170,9 @@ function normalizeDay(raw, index) {
 
   if (rewardType === 'sc_coins') {
     day.amountSc = normalizeAmountSc(raw?.amountSc ?? raw?.amount_sc ?? 0);
-    if (!(day.amountSc > 0)) {
-      const err = new Error(`Day ${dayIndex}: amountSc must be greater than 0.`);
+    // A GC-only day (SC = 0) is fine as long as it still rewards something.
+    if (!(day.amountSc > 0) && !(day.gcAmount > 0)) {
+      const err = new Error(`Day ${dayIndex}: set Sweeps Coins or Gold Coins greater than 0.`);
       err.statusCode = 400;
       throw err;
     }

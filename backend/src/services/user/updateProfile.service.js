@@ -1,8 +1,9 @@
 const db = require('../../db/models');
 
-/** Whitelist: only these fields can be updated. Never accept email, username, password, profileImageUrl. */
+/** Whitelist: only these fields can be updated. Never accept email, username, password. profileImageUrl is handled separately (preset gallery only). */
 const ALLOWED_KEYS = [
   'firstName',
+  'middleName',
   'lastName',
   'phone',
   'dateOfBirth',
@@ -13,11 +14,15 @@ const ALLOWED_KEYS = [
   'zipCode'
 ];
 
-/** Only phone is mandatory for profile updates (purchase gate). Other fields are optional. */
-const REQUIRED_KEYS = ['phone'];
+/** Profile pictures are chosen from a preset gallery; only these hosts/paths are accepted. */
+const AVATAR_URL_PATTERN = /^(https:\/\/api\.dicebear\.com\/[\w.\-]+\/[\w.\-]+\/(png|svg)\?[\w=&%.\-]+|\/avatars\/[\w.\-\/]+)$/;
+
+/** Nothing is mandatory on a profile save. Phone is verified in its own section; if sent, it cannot be blank. */
+const REQUIRED_KEYS = [];
 
 const MAX_LENGTHS = {
   firstName: 100,
+  middleName: 100,
   lastName: 100,
   phone: 30,
   streetAddress: 255,
@@ -33,6 +38,7 @@ const MIN_LENGTHS = {
 
 const FIELD_LABELS = {
   firstName: 'First name',
+  middleName: 'Middle name',
   lastName: 'Last name',
   phone: 'Phone number',
   dateOfBirth: 'Date of birth',
@@ -84,9 +90,13 @@ function validateNameFormat(body) {
   const errors = [];
   const msg = 'Only letters (a-z, A-Z) are allowed; no numbers, spaces, hyphens, or special characters.';
   const first = trim(body.firstName);
+  const middle = trim(body.middleName);
   const last = trim(body.lastName);
   if (first && !NAME_LETTERS_ONLY.test(first)) {
     errors.push(`First name: ${msg}`);
+  }
+  if (middle && !NAME_LETTERS_ONLY.test(middle)) {
+    errors.push(`Middle name: ${msg}`);
   }
   if (last && !NAME_LETTERS_ONLY.test(last)) {
     errors.push(`Last name: ${msg}`);
@@ -168,6 +178,19 @@ async function updateProfile(userId, body) {
         : trimmed.length > MAX_LENGTHS[key]
           ? trimmed.slice(0, MAX_LENGTHS[key])
           : trimmed;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(body, 'profileImageUrl')) {
+    const img = trim(body.profileImageUrl);
+    if (img === '') {
+      updates.profileImageUrl = null;
+    } else if (img.length <= 255 && AVATAR_URL_PATTERN.test(img)) {
+      updates.profileImageUrl = img;
+    } else {
+      const err = new Error('Please choose a profile picture from the list.');
+      err.statusCode = 400;
+      throw err;
+    }
   }
 
   const fullUser = await db.User.findByPk(userId);

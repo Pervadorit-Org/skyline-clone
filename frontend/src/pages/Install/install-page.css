@@ -1,0 +1,36 @@
+/* Install page — layout copied from the reference (vertical tabs + stepped panel). */
+.gdi { max-width: 80rem; margin: 0 auto; padding: 2rem 1rem; color: #fff; font-family: Inter, system-ui, sans-serif; }
+@media (min-width: 768px) { .gdi { padding: 2rem; } }
+.gdi-head { margin-bottom: 2rem; text-align: center; }
+.gdi-title { margin: 0; font: 800 1.5rem/1.2 Montserrat, Inter, sans-serif; text-transform: uppercase; background-image: var(--gold-gradient, linear-gradient(180deg, #fff3b0, #ebc567 55%, #be8f37)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+@media (min-width: 768px) { .gdi-title { font-size: 2.25rem; } }
+.gdi-layout { display: flex; flex-direction: column; gap: 1.5rem; }
+@media (min-width: 1024px) { .gdi-layout { flex-direction: row; } }
+.gdi-tabs { display: flex; flex-wrap: wrap; gap: .75rem; }
+@media (min-width: 1024px) { .gdi-tabs { flex-direction: column; width: 16rem; flex: none; } }
+.gdi-tab { cursor: pointer; padding: .5rem .75rem; border: 0; border-radius: .5rem; background: #0c0e1a; color: #fff; text-align: left; font-size: .875rem; line-height: 1.4286; transition: background-color .15s, color .15s; }
+.gdi-tab:hover { background: #161b2e; }
+.gdi-tab:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(235, 197, 103, .4); }
+.gdi-tab.is-selected { background: #ebc567; color: #0c0e1a; }
+@media (min-width: 768px) { .gdi-tab { padding: 1.25rem 1.5rem; font-size: 1rem; line-height: 1.5; } }
+.gdi-panel { flex: 1; min-width: 0; padding: 1.5rem; border: 1px solid #ebc567; border-radius: .5rem; }
+@media (min-width: 768px) { .gdi-panel { padding: 2rem; } }
+.gdi-stack { display: flex; flex-direction: column; gap: 1.5rem; }
+.gdi-steps { display: flex; justify-content: center; gap: .75rem; }
+@media (min-width: 768px) { .gdi-steps { gap: 1rem; margin-bottom: 2rem; } }
+.gdi-step-btn { cursor: pointer; padding: .5rem 1rem; border: 1px solid #ebc567; border-radius: .5rem; background: transparent; color: rgba(255, 255, 255, .4); font: 600 .75rem/1.3333 Inter, sans-serif; transition: color .15s; }
+.gdi-step-btn.is-current { color: #fff; }
+@media (min-width: 640px) { .gdi-step-btn { padding: .5rem 1.5rem; font-size: .875rem; line-height: 1.4286; } }
+@media (min-width: 768px) { .gdi-step-btn { font-size: 1rem; line-height: 1.5; } }
+.gdi-step-title { margin: 0 0 .75rem; font: 700 1rem/1.5 Inter, sans-serif; color: #fff; }
+.gdi-step-desc { margin: 0; font-size: 1rem; line-height: 1.5; color: rgba(255, 255, 255, .7); }
+.gdi-shot { padding: 1rem; border-radius: .5rem; background: #0c0e1a; }
+@media (min-width: 768px) { .gdi-shot { padding: 2rem; } .gdi-shot--center { padding: 1.5rem; } }
+.gdi-shot--center { display: flex; align-items: center; justify-content: center; }
+.gdi-img { display: block; height: auto; max-width: 100%; border-radius: .5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, .25); }
+.gdi-img--full { width: 100%; }
+.gdi-next-wrap { display: flex; justify-content: center; }
+.gdi-gold-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .375rem 1.25rem; border: 0; border-radius: .5rem; background-image: var(--gold-gradient, linear-gradient(180deg, #fdc83a, #fdecba 25%, #f1b42d)); color: #000; font: 800 .875rem/1.4286 Inter, sans-serif; cursor: pointer; box-shadow: 0 1px 2px rgba(0, 0, 0, .05); transition: filter .15s; }
+.gdi-gold-btn:hover { filter: brightness(1.05); }
+.gdi-gold-btn:disabled { opacity: .5; cursor: not-allowed; filter: none; }
+.gdi-next { min-width: 8rem; }

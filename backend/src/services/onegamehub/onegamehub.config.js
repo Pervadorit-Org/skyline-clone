@@ -20,7 +20,8 @@ function envSuffix(storeCode) {
  * Lookup still uses the request storeCode for caching / logging.
  */
 const ONEGAMEHUB_STORE_CREDENTIAL_ALIAS = {
-  dragonfury: 'playjuwa'
+  dragonfury: 'playjuwa',
+  goldendragon: 'playjuwa'
 };
 
 function resolveCredentialStoreCode(storeCode) {

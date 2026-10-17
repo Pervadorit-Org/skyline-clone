@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { usePageContentReady } from '../../context/PageReadyContext';
 import { getAffiliateStats } from '../../api/affiliate';
 import { getDailyBonusStatus } from '../../api/dailyBonus';
+import { useLobbyContent } from '../../hooks/useLobbyContent';
 import { buildReferralLink } from '../../utils/referralLink';
 import './promotions-page.css';
 
 const GOLD_COIN = '/icons/coin.png';
 const SWEEP_COIN = '/df-online/sc-coin.webp';
 const DRAGON = '/df-online/dragons/tier-hatchling.webp';
+
+const CARD_ORDER = ['vip', 'welcome', 'key', 'express', 'invite', 'daily'];
 
 /** Milliseconds until the next 00:00 UTC (the daily reward reset). */
 function msUntilUtcMidnight(now = new Date()) {
@@ -80,6 +83,17 @@ export function Promotions() {
 
   usePageContentReady(true);
 
+  // Admin-managed card text / amounts / links / order / visibility; anything left empty keeps the built-in value.
+  const { promoCards } = useLobbyContent();
+  const cfg = (id) => (Array.isArray(promoCards) ? promoCards.find((c) => c.id === id) : null) || {};
+  const val = (id, field, fallback) => {
+    const v = cfg(id)[field];
+    return typeof v === 'string' && v.trim() ? v : fallback;
+  };
+  const order = Array.isArray(promoCards) && promoCards.length
+    ? promoCards.filter((c) => c.enabled !== false && CARD_ORDER.includes(c.id)).map((c) => c.id)
+    : CARD_ORDER;
+
   useEffect(() => {
     let cancelled = false;
     getAffiliateStats()
@@ -123,17 +137,10 @@ export function Promotions() {
     }
   };
 
-  return (
-    <main className="promotions-page">
-      <h1 className="promotions-title">Promotions</h1>
-      <img src="/df-online/tour-mascot.webp" alt="" aria-hidden="true" className="promotions-title-image" />
-
-      <section>
-        <h2 className="promotions-subtitle">Latest Promotions</h2>
-        <div className="promotions-grid">
-          {/* 1. VIP */}
+  const cards = {
+    vip: (
           <article className="promotion-card vip-card">
-            <span className="promo-ribbon">Free</span>
+            <span className="promo-ribbon">{val('vip', 'ribbon', 'Free')}</span>
             <div className="promo-art promo-art-vip" aria-hidden="true">
               <svg viewBox="0 0 120 140" width="100%" height="100%">
                 <polygon points="60,4 76,28 104,22 98,52 118,70 94,86 96,116 66,108 60,136 48,108 20,116 24,86 2,70 22,52 16,22 44,28" fill="#f5b52b" />
@@ -145,35 +152,35 @@ export function Promotions() {
             </div>
             <div className="promotion-card-body">
               <div className="promotion-card-head">
-                <Badge>VIP CLUB MEMBERS ONLY</Badge>
-                <div className="promotion-card-description"><p>Get max rewards.</p></div>
+                <Badge>{val('vip', 'badge', 'VIP CLUB MEMBERS ONLY')}</Badge>
+                <div className="promotion-card-description"><p>{val('vip', 'text', 'Get max rewards.')}</p></div>
               </div>
-              <Coins gold="200,000" sweep="20" />
+              <Coins gold={val('vip', 'gold', '200,000')} sweep={val('vip', 'sweep', '20')} />
               <div className="promotion-card-actions">
-                <CtaLink to="/store">Get NOW $19.99</CtaLink>
+                <CtaLink to={val('vip', 'to', '/store')}>{val('vip', 'cta', 'Get NOW $19.99')}</CtaLink>
               </div>
             </div>
           </article>
-
-          {/* 2. Welcome bundle */}
+    ),
+    welcome: (
           <article className="promotion-card welcome-card">
             <div className="promo-art promo-art-wheel" aria-hidden="true">
               <span>67%</span>
             </div>
             <div className="promotion-card-body">
               <div className="promotion-card-head">
-                <Badge>EXCLUSIVE WELCOME BUNDLE</Badge>
-                <div className="promotion-card-description"><p>UP TO</p></div>
+                <Badge>{val('welcome', 'badge', 'EXCLUSIVE WELCOME BUNDLE')}</Badge>
+                <div className="promotion-card-description"><p>{val('welcome', 'text', 'UP TO')}</p></div>
               </div>
-              <Coins gold="900,000" sweep="30" />
+              <Coins gold={val('welcome', 'gold', '900,000')} sweep={val('welcome', 'sweep', '30')} />
               <div className="promotion-card-actions">
-                <CtaLink to="/store">SHOW MORE</CtaLink>
-                <p className="promotion-card-price">was $30.00</p>
+                <CtaLink to={val('welcome', 'to', '/store')}>{val('welcome', 'cta', 'SHOW MORE')}</CtaLink>
+                <p className="promotion-card-price">{val('welcome', 'note', 'was $30.00')}</p>
               </div>
             </div>
           </article>
-
-          {/* 3. Key to the city */}
+    ),
+    key: (
           <article className="promotion-card special-offer-card">
             <div className="promo-art promo-art-statue" aria-hidden="true">
               <span className="promo-sparkle">✦</span>
@@ -187,39 +194,39 @@ export function Promotions() {
             </div>
             <div className="promotion-card-body">
               <div className="promotion-card-head">
-                <Badge>BEST DEAL - 200% EXTRA COINS</Badge>
-                <div className="promotion-card-description promotion-card-description-lg"><p>KEY TO THE CITY</p></div>
+                <Badge>{val('key', 'badge', 'BEST DEAL - 200% EXTRA COINS')}</Badge>
+                <div className="promotion-card-description promotion-card-description-lg"><p>{val('key', 'text', 'KEY TO THE CITY')}</p></div>
               </div>
               <div className="promotion-card-actions">
-                <CtaLink to="/store">BUY NOW $24.99</CtaLink>
+                <CtaLink to={val('key', 'to', '/store')}>{val('key', 'cta', 'BUY NOW $24.99')}</CtaLink>
               </div>
             </div>
           </article>
-
-          {/* 4. Special offer */}
+    ),
+    express: (
           <article className="promotion-card daily-express-card">
             <div className="promo-art promo-art-disco" aria-hidden="true" />
             <span className="promo-sparkle promo-sparkle-a" aria-hidden="true">✦</span>
             <span className="promo-sparkle promo-sparkle-b" aria-hidden="true">✦</span>
             <div className="promotion-card-body">
               <div className="promotion-card-head">
-                <Badge>MOST POPULAR - 350% EXTRA COINS</Badge>
-                <div className="promotion-card-description promotion-card-description-lg"><p>Your Special Offer</p></div>
+                <Badge>{val('express', 'badge', 'MOST POPULAR - 350% EXTRA COINS')}</Badge>
+                <div className="promotion-card-description promotion-card-description-lg"><p>{val('express', 'text', 'Your Special Offer')}</p></div>
               </div>
               <div className="promotion-card-actions">
-                <CtaLink to="/store">BUY NOW $7.99</CtaLink>
+                <CtaLink to={val('express', 'to', '/store')}>{val('express', 'cta', 'BUY NOW $7.99')}</CtaLink>
               </div>
             </div>
           </article>
-
-          {/* 5. Invite friends */}
+    ),
+    invite: (
           <article className="promotion-card invite-card">
             <img src={DRAGON} alt="" aria-hidden="true" className="promo-art promo-art-dragon" />
             <div className="promotion-card-body">
               <div className="promotion-card-head">
-                <Badge>INVITE FRIENDS PROGRAM</Badge>
+                <Badge>{val('invite', 'badge', 'INVITE FRIENDS PROGRAM')}</Badge>
                 <div className="promo-referral">
-                  <p className="promotion-card-description">Share the Rewards!</p>
+                  <p className="promotion-card-description">{val('invite', 'text', 'Share the Rewards!')}</p>
                   <p className="promotion-card-referral-up-to">Up to</p>
                   <div className="promo-flex promo-gap">
                     <span className="promotion-card-referral-amount">10%</span>
@@ -231,12 +238,12 @@ export function Promotions() {
                 </div>
               </div>
               <div className="promotion-card-actions">
-                <CtaButton onClick={copyLink}>Copy Link</CtaButton>
+                <CtaButton onClick={copyLink}>{val('invite', 'cta', 'Copy Link')}</CtaButton>
               </div>
             </div>
           </article>
-
-          {/* 6. Daily express */}
+    ),
+    daily: (
           <article className="promotion-card city-card">
             <span className="promo-ribbon">Free</span>
             <div className="promo-art promo-art-calendar" aria-hidden="true">
@@ -244,8 +251,8 @@ export function Promotions() {
             </div>
             <div className="promotion-card-body">
               <div className="promotion-card-head">
-                <Badge plain>DAILY EXPRESS</Badge>
-                <div className="promotion-card-description promotion-card-description-daily"><p>Claim Rewards Every Day!</p></div>
+                <Badge plain>{val('daily', 'badge', 'DAILY EXPRESS')}</Badge>
+                <div className="promotion-card-description promotion-card-description-daily"><p>{val('daily', 'text', 'Claim Rewards Every Day!')}</p></div>
               </div>
               <div className="promotion-card-streak">
                 <p id="promo-streak-days" className="promotion-card-streak-days">{dailyClaims ?? 0} / 7 days claimed</p>
@@ -254,10 +261,24 @@ export function Promotions() {
                 <p className="promotion-card-streak-timer">{formatTimeLeft(timeLeft)}</p>
               </div>
               <div className="promotion-card-actions">
-                <CtaLink to="/daily-bonus">CLAIM REWARD</CtaLink>
+                <CtaLink to={val('daily', 'to', '/daily-bonus')}>{val('daily', 'cta', 'CLAIM REWARD')}</CtaLink>
               </div>
             </div>
           </article>
+    ),
+  };
+
+  return (
+    <main className="promotions-page">
+      <h1 className="promotions-title">Promotions</h1>
+      <img src="/df-online/tour-mascot.webp" alt="" aria-hidden="true" className="promotions-title-image" />
+
+      <section>
+        <h2 className="promotions-subtitle">Latest Promotions</h2>
+        <div className="promotions-grid">
+          {order.map((id) => (
+            <Fragment key={id}>{cards[id]}</Fragment>
+          ))}
         </div>
       </section>
     </main>

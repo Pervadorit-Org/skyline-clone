@@ -296,6 +296,104 @@ function CategoryRow({ category, layout, onPlay, playingId, categoryIcon, banner
 }
 
 /* ---------- extra sections ---------- */
+/** 50000 -> "50K", 1500000 -> "1.5M" (Gold Coin package headline). */
+function compactCoins(n) {
+  const v = Number(n) || 0;
+  if (v >= 1e6) return `${+(v / 1e6).toFixed(2)}M`;
+  if (v >= 1e3) return `${+(v / 1e3).toFixed(1)}K`;
+  return String(v);
+}
+
+function GoldCoinIcon({ size = 24 }) {
+  return (
+    <svg className="df-gcpkg__gold" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="11" fill="#c98a06" />
+      <circle cx="12" cy="12" r="9.6" fill="#f7c524" stroke="#ffe27a" strokeWidth="1" />
+      <text x="12" y="16.4" textAnchor="middle" fontSize="12" fontWeight="900" fill="#a86a00" fontFamily="Outfit, sans-serif">G</text>
+    </svg>
+  );
+}
+
+function SweepCoinIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" className="df-gcpkg__sweep">
+      <circle cx="12" cy="12" r="11" fill="#0f8f3c" />
+      <circle cx="12" cy="12" r="9.6" fill="#19c45a" stroke="#7df0a6" strokeWidth="1" />
+      <text x="12" y="16.4" textAnchor="middle" fontSize="12" fontWeight="900" fill="#064a1e" fontFamily="Outfit, sans-serif">S</text>
+    </svg>
+  );
+}
+
+/** Coin pile art: more coins for bigger packages, plus one sweeps coin. */
+function CoinPile({ level }) {
+  const stacks = Math.min(4, 1 + Math.floor(level / 3));
+  const height = 2 + Math.min(level, 11) % 4 + Math.floor(level / 4);
+  const gold = (cx, cy, k) => (
+    <g key={`${cx}-${cy}-${k}`}>
+      <ellipse cx={cx} cy={cy + 3} rx="11" ry="4.5" fill="#a86a00" />
+      <ellipse cx={cx} cy={cy} rx="11" ry="4.5" fill="#f7c524" stroke="#ffe27a" strokeWidth="0.8" />
+    </g>
+  );
+  const items = [];
+  for (let st = 0; st < stacks; st += 1) {
+    const cx = 22 + st * 15 - (stacks - 1) * 5;
+    const n = Math.max(2, height - st);
+    for (let i = 0; i < n; i += 1) items.push(gold(cx, 40 - i * 3.4 - (st % 2) * 3, i));
+  }
+  return (
+    <svg className="df-gcpkg__pile" viewBox="2 0 72 48" aria-hidden="true">
+      {items}
+      <circle cx="60" cy="36" r="9" fill="#0f8f3c" />
+      <circle cx="60" cy="36" r="7.6" fill="#19c45a" stroke="#7df0a6" strokeWidth="0.8" />
+      <text x="60" y="40" textAnchor="middle" fontSize="11" fontWeight="900" fill="#064a1e" fontFamily="Outfit, sans-serif">S</text>
+    </svg>
+  );
+}
+
+function ribbonTone(label) {
+  const t = String(label || '').trim().toUpperCase();
+  if (t === 'FAVORITE' || t === 'FAVOURITE') return 'purple';
+  if (t === 'POPULAR') return 'popular';
+  return 'gold';
+}
+
+function GcPackageCard({ pkg, href, level }) {
+  const gc = Number(pkg.gc_coin) || 0;
+  const freeSc = Number(pkg.final_sc) || 0;
+  const price = Number(pkg.final_price) || 0;
+  const was = Number(pkg.actual_price) || 0;
+  const ribbon = pkg.discount_label ? String(pkg.discount_label).trim() : '';
+  return (
+    <div className="df-gcpkg__slot">
+      <Link to={href} className="df-gcpkg" aria-label={`${compactCoins(gc)} Gold Coins for $${price.toFixed(2)}`}>
+        {ribbon ? (
+          <span className={`df-gcpkg__ribbon df-gcpkg__ribbon--${ribbonTone(ribbon)}`}>{ribbon}</span>
+        ) : null}
+        <span className="df-gcpkg__inner">
+          <span className="df-gcpkg__gc">
+            <GoldCoinIcon />
+            <span className={`df-gcpkg__gc-num${gc >= 1e6 ? ' is-small' : ''}`}>{compactCoins(gc)}</span>
+          </span>
+          <CoinPile level={level} />
+          {freeSc > 0 ? (
+            <span className="df-gcpkg__free">
+              <span>+ FREE SC</span>
+              <SweepCoinIcon />
+              <b>{+freeSc.toFixed(2)}</b>
+            </span>
+          ) : (
+            <span className="df-gcpkg__free df-gcpkg__free--none" aria-hidden="true">&nbsp;</span>
+          )}
+        </span>
+        <span className="df-gcpkg__price">
+          {was > price ? <s>{`$${+was.toFixed(2)}`}</s> : null}
+          <span>{`$${price.toFixed(2)}`}</span>
+        </span>
+      </Link>
+    </div>
+  );
+}
+
 function PackagesRow() {
   const cfg = useLobbyConfig();
   const off = cfg.off('panel:packages');
@@ -306,7 +404,8 @@ function PackagesRow() {
       .then((c) => {
         if (off) return;
         const all = (c.groups || []).flatMap((g) => g.packages || []);
-        setPkgs(all.slice(0, cfg.packages.limit));
+        const gcStore = all.some((p) => Number(p.gc_coin) > 0);
+        setPkgs(gcStore ? all : all.slice(0, cfg.packages.limit));
       })
       .catch(() => {});
     return () => {
@@ -314,6 +413,19 @@ function PackagesRow() {
     };
   }, []);
   if (off || !pkgs.length) return null;
+  const gcStore = pkgs.some((p) => Number(p.gc_coin) > 0);
+  if (gcStore) {
+    return (
+      <section className="df-lobby__section">
+        <SectionHead title={cfg.packages.title} href={cfg.packages.href} icon="/df-online/sc-coin.webp" />
+        <div className="df-lobby__scroller df-gcpkg__row">
+          {pkgs.map((p, i) => (
+            <GcPackageCard key={p.id} pkg={p} href={cfg.packages.href} level={i} />
+          ))}
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="df-lobby__section">
       <SectionHead title={cfg.packages.title} href={cfg.packages.href} />

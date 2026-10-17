@@ -24,7 +24,7 @@ export function getDepositPackageImageProps(index = 0, { eager = true } = {}) {
     height: 512,
     loading: eager ? 'eager' : 'lazy',
     decoding: 'async',
-    fetchPriority: eager ? 'high' : 'auto',
+    fetchpriority: eager ? 'high' : 'auto',
     draggable: false
   };
 }

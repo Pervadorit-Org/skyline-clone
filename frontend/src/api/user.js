@@ -16,6 +16,10 @@ export function updateProfilePhoto(profileImageUrl) {
   return patchRequest(`${USER_BASE}/profile-photo`, { profileImageUrl });
 }
 
+export function updateMarketingPrefs(prefs) {
+  return patchRequest(`${USER_BASE}/marketing-preferences`, prefs);
+}
+
 export function changePassword(currentPassword, newPassword) {
   const body = encodePasswordsInBody({ currentPassword, newPassword });
   return postRequest(`${USER_BASE}/change-password`, body);

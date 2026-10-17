@@ -447,7 +447,8 @@ async function register(body, options = {}) {
     }),
     ...(welcomeBonusGrant?.granted && {
       welcome_bonus_granted: true,
-      welcome_bonus_amount_sc: welcomeBonusGrant.amount_sc
+      welcome_bonus_amount_sc: welcomeBonusGrant.amount_sc,
+      welcome_bonus_amount_gc: welcomeBonusGrant.amount_gc || 0
     }),
     ...(referralFriendBonusGrant?.granted && {
       referral_friend_bonus_granted: true,

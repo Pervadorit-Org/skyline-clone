@@ -15,6 +15,7 @@ export function getTransactions(params = {}) {
   if (params.dateFrom) q.set('dateFrom', params.dateFrom);
   if (params.dateTo) q.set('dateTo', params.dateTo);
   if (params.category) q.set('category', params.category);
+  if (params.currency) q.set('currency', params.currency);
   if (params.gameName) q.set('gameName', params.gameName);
   const query = q.toString();
   return getRequest(`${TRANSACTIONS_BASE}${query ? `?${query}` : ''}`);
@@ -42,5 +43,7 @@ export const TRANSACTION_CATEGORIES = [
   { value: 'affiliate', label: 'Refer & Earn' },
   { value: 'vip_bonus', label: 'VIP Bonus' },
   { value: 'game_deposit', label: 'Game Deposit' },
-  { value: 'game_withdraw', label: 'Game Withdraw' }
+  { value: 'game_withdraw', label: 'Game Withdraw' },
+  { value: 'gc_purchase', label: 'GC Purchase' },
+  { value: 'package_bonus', label: 'Free SC Bonus' }
 ];

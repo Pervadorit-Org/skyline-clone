@@ -58,7 +58,8 @@ function resolveStoreCodeFromReq(req) {
 
 /** Until DragonFury has its own GitSlotPark agents, reuse PlayJuwa store credentials. */
 const GITSLOTPARK_STORE_CREDENTIAL_ALIAS = {
-  dragonfury: 'playjuwa'
+  dragonfury: 'playjuwa',
+  goldendragon: 'playjuwa'
 };
 
 function resolveCredentialStoreCode(storeCode) {

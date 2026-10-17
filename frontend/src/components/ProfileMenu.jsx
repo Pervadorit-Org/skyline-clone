@@ -73,10 +73,16 @@ export function ProfileMenu({ user, onLogout }) {
         aria-haspopup="menu"
         aria-label="Open account menu"
       >
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <svg className="df-profile-trigger__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <circle cx="12" cy="7.500" r="4.500" />
           <path d="M3.500 21.500c0-4.700 3.800-7.500 8.500-7.500s8.500 2.800 8.500 7.500z" />
         </svg>
+        <img
+          className="df-profile-trigger__avatar"
+          src={user?.profileImageUrl || `https://api.dicebear.com/9.x/dylan/png?seed=${encodeURIComponent(user?.username || user?.email || 'user')}`}
+          alt=""
+          draggable="false"
+        />
       </button>
       {open ? (
         <div className="pm-menu" role="menu">

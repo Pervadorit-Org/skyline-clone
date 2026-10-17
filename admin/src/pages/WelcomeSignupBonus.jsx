@@ -58,6 +58,7 @@ export default function WelcomeSignupBonus() {
         nextDrafts[key] = {
           enabled: s.enabled === true,
           amountSc: s.amountSc != null ? String(s.amountSc) : '10',
+          amountGc: s.amountGc != null ? String(s.amountGc) : '0',
           modalImageUrl: normalizeImageUrl(s.modalImageUrl)
         }
       })
@@ -117,8 +118,8 @@ export default function WelcomeSignupBonus() {
       toast.error(`Amount must be a number between 0 and ${MAX_AMOUNT_SC}.`)
       return
     }
-    if (draft.enabled === true && !(Number(draft.amountSc) > 0)) {
-      toast.error('When enabled, amount must be greater than 0.')
+    if (draft.enabled === true && !(Number(draft.amountSc) > 0) && !(store.gcStore && Number(draft.amountGc) > 0)) {
+      toast.error('When enabled, set an SC amount (or GC for Gold Coin stores) greater than 0.')
       return
     }
 
@@ -127,6 +128,7 @@ export default function WelcomeSignupBonus() {
       const payload = {
         enabled: draft.enabled === true,
         amountSc: Number(draft.amountSc),
+        ...(store.gcStore ? { amountGc: Math.max(0, Math.round(Number(draft.amountGc) || 0)) } : {}),
         modalImageUrl: normalizeImageUrl(draft.modalImageUrl)
       }
       if (isMasterAdmin) {
@@ -187,7 +189,7 @@ export default function WelcomeSignupBonus() {
                 <th>Store</th>
                 <th>Distributor</th>
                 <th>Enabled</th>
-                <th>Amount (SC)</th>
+                <th>Amount (SC / GC)</th>
                 <th>Landing modal image</th>
                 <th>Updated</th>
                 <th />
@@ -206,16 +208,20 @@ export default function WelcomeSignupBonus() {
                   const draft = drafts[key] || {
                     enabled: false,
                     amountSc: '10',
+                    amountGc: '0',
                     modalImageUrl: null
                   }
                   const amountOk = isValidAmount(draft.amountSc)
                   const enabledNeedsPositive =
-                    draft.enabled === true && !(Number(draft.amountSc) > 0)
+                    draft.enabled === true &&
+                    !(Number(draft.amountSc) > 0) &&
+                    !(s.gcStore && Number(draft.amountGc) > 0)
                   const savedImage = normalizeImageUrl(s.modalImageUrl)
                   const draftImage = normalizeImageUrl(draft.modalImageUrl)
                   const dirty =
                     draft.enabled !== (s.enabled === true) ||
                     Number(draft.amountSc) !== Number(s.amountSc) ||
+                    (s.gcStore === true && Number(draft.amountGc || 0) !== Number(s.amountGc || 0)) ||
                     draftImage !== savedImage
                   const saving = savingKey === key
                   const uploading = uploadingKey === key
@@ -251,6 +257,21 @@ export default function WelcomeSignupBonus() {
                           onChange={(e) => updateDraft(key, { amountSc: e.target.value })}
                           disabled={saving || uploading}
                         />
+                        {s.gcStore ? (
+                          <label className="wl-muted" style={{ display: 'block', marginTop: 6 }}>
+                            Gold Coins (GC)
+                            <input
+                              className="store-features-input wsb-amount"
+                              type="number"
+                              min={0}
+                              step="1"
+                              value={draft.amountGc}
+                              onChange={(e) => updateDraft(key, { amountGc: e.target.value })}
+                              disabled={saving || uploading}
+                              aria-label={`${s.storeCode} welcome Gold Coins`}
+                            />
+                          </label>
+                        ) : null}
                       </td>
                       <td>
                         <div className="wsb-image-cell">

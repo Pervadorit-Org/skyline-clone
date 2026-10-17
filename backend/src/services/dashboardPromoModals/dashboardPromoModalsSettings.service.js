@@ -6,7 +6,7 @@ const { ROLES } = require('../../constants/roles');
 
 const KEY = 'dashboard_promo_modals_settings';
 
-const MODAL_TYPES = ['daily_bonus', 'spin_wheel', 'first_deposit', 'invite_friends', 'custom'];
+const MODAL_TYPES = ['daily_bonus', 'spin_wheel', 'first_deposit', 'invite_friends', 'store', 'custom'];
 const MAX_STEPS = 15;
 const MIN_DELAY_SECONDS = 0;
 const MAX_DELAY_SECONDS = 300;

@@ -84,6 +84,10 @@ export default function FooterContent() {
   if (loading) return <div className="hc-page"><p>Loading…</p></div>
 
   const s = form
+  const isBrandStore = ['dragonfury', 'goldendragon'].includes(String(storeCode || '').toLowerCase().replace(/[^a-z0-9]/g, ''))
+  // Brand stores manage the Pages column in "Footer links", so the panel is not shown here.
+  const sections = isBrandStore ? SECTION_ORDER.filter((k) => k !== 'pages') : SECTION_ORDER
+  const current = sections.includes(active) ? active : sections[0]
 
   const renderFields = (k) => {
     switch (k) {
@@ -149,7 +153,7 @@ export default function FooterContent() {
     }
   }
 
-  const activeShown = form.show?.[active] !== false
+  const activeShown = form.show?.[current] !== false
   return (
     <ImageUploadProvider upload={uploadFooterImage}>
       <div className="hc-page">
@@ -172,15 +176,15 @@ export default function FooterContent() {
         )}
 
         <div className="hc-layout">
-          <select className="hc-nav-select" value={active} onChange={(e) => setActive(e.target.value)}>
-            {SECTION_ORDER.map((k) => (
+          <select className="hc-nav-select" value={current} onChange={(e) => setActive(e.target.value)}>
+            {sections.map((k) => (
               <option key={k} value={k}>{SECTION_LABELS[k]}{form.show?.[k] === false ? ' (hidden)' : ''}</option>
             ))}
           </select>
 
           <nav className="hc-nav" aria-label="Footer sections">
-            {SECTION_ORDER.map((k) => (
-              <button key={k} type="button" className={`hc-nav-item${active === k ? ' active' : ''}`} onClick={() => setActive(k)}>
+            {sections.map((k) => (
+              <button key={k} type="button" className={`hc-nav-item${current === k ? ' active' : ''}`} onClick={() => setActive(k)}>
                 <span className="hc-nav-item-label">{SECTION_LABELS[k]}</span>
                 {form.show?.[k] === false ? <span className="hc-nav-tag">Hidden</span> : null}
               </button>
@@ -189,14 +193,14 @@ export default function FooterContent() {
 
           <div className="hc-panel">
             <div className="hc-panel-head">
-              <h3>{SECTION_LABELS[active]}</h3>
+              <h3>{SECTION_LABELS[current]}</h3>
               <div className="hc-panel-tools">
                 <label className="hc-switch" title="Show on website">
-                  <input type="checkbox" checked={activeShown} onChange={(e) => setShow(active, e.target.checked)} /> Show on website
+                  <input type="checkbox" checked={activeShown} onChange={(e) => setShow(current, e.target.checked)} /> Show on website
                 </label>
               </div>
             </div>
-            <div className="hc-panel-body">{renderFields(active)}</div>
+            <div className="hc-panel-body">{renderFields(current)}</div>
           </div>
         </div>
 

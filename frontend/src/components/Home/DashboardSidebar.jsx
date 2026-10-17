@@ -1,3 +1,4 @@
+import { storeLinkClick } from '../Store/storeModalEvents';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -8,17 +9,28 @@ import { getGameCategoryPath } from '../../config/gameCategories';
 import '../../styles/dashboard-sidebar.css';
 import { site } from '../../config/site';
 import { useLobbyShell } from '../../hooks/useLobbyShell';
+import { useVipStatus } from '../../context/VipStatusContext';
 
 /* ---- your own assets ---- */
-const LOGO_SRC = '/df-online/logo-512.webp';
-const VAULT_SRC = '/df-online/balance-background.webp';
-const GC_COIN_SRC = '/icons/coin.png';
-const SC_COIN_SRC = '/df-online/sc-coin.webp';
-const VIP_TIER_SRC = '/df-online/dragons/tier-hatchling.webp';
+const LOGO_SRC = '/ref/sidebar/logo-v2.webp';
+const LOGO_GLOW_SRC = '/ref/sidebar/casino-glow.svg';
+const VAULT_SRC = '/ref/sidebar/vault.webp';
+const VAULT_FALLBACK = '/df-online/balance-background.webp';
+const GC_COIN_SRC = '/ref/sidebar/gold-coin.webp';
+const SC_COIN_SRC = '/ref/sidebar/sweep-coin.webp';
+const VIP_TIER_SRC = '/ref/sidebar/vip-egg.webp';
+const VIP_TIER_FALLBACK = '/df-online/dragons/tier-hatchling.webp';
+const onImgFallback = (fb) => (e) => {
+  if (!e.currentTarget.dataset.fb) {
+    e.currentTarget.dataset.fb = '1';
+    e.currentTarget.src = fb;
+  }
+};
 const REFER_BOX_SRC = '/df-online/referral-invite.webp';
 
 function formatBalance(n) {
   const v = Number(n || 0);
+  if (v >= 1000000) return `${Number((v / 1000000).toFixed(2))}M`;
   if (v >= 1000) return `${Math.round(v / 1000)}K`;
   return v.toLocaleString('en-US', { maximumFractionDigits: 2 });
 }
@@ -220,10 +232,18 @@ export function applyRailShell(items, shell) {
 export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { balanceSc, logout } = useAuth();
+  const { balanceSc, balanceGc, logout } = useAuth();
   const [gamesOpen, setGamesOpen] = useState(false);
   const [bonusesOpen, setBonusesOpen] = useState(false);
   const shell = useLobbyShell();
+  const { vipStatus } = useVipStatus();
+  const vipLevels = Array.isArray(vipStatus?.levels) ? vipStatus.levels : [];
+  const vipIdx = Number(vipStatus?.level_index) || 0;
+  const vipName = vipStatus?.level_name || vipLevels[vipIdx]?.name || 'Iron';
+  const vipNextLevel = !vipStatus?.is_max_level ? vipLevels[vipIdx + 1] : null;
+  const vipNeed = Number(vipStatus?.next_level_xp) || 0;
+  const vipNext = vipNextLevel ? { name: vipNextLevel.name || 'Next', xp: vipNeed || (vipLevels[vipIdx]?.xp_to_next_level ?? '') } : null;
+  const vipPct = vipNeed > 0 ? Math.max(0, Math.min(100, ((Number(vipStatus?.current_xp) || 0) / vipNeed) * 100)) : (vipStatus?.is_max_level ? 100 : 0);
 
   const go = (to) => {
     navigate(isAuthenticated ? to : '/register');
@@ -248,6 +268,7 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
     <aside className="dgs" aria-label="Dashboard navigation">
       <Link to="/casino" className="dgs__logo" aria-label={`${site.platformName} home`} onClick={onNavigate}>
         <img src={shell.text('sidebar.logo', LOGO_SRC)} alt={site.platformName} width="200" height="107" draggable="false" />
+        <img className="dgs__logo-glow" src={LOGO_GLOW_SRC} alt="" aria-hidden width="347" height="248" draggable="false" />
       </Link>
 
       <div className="dgs__scroll">
@@ -257,11 +278,11 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
           <div className="dgs__card dgs__balance">
             <span className="dgs__balance-ribbon">{shell.text('sidebar.balance', 'Your Balance')}</span>
             <div className="dgs__balance-body">
-              <img className="dgs__balance-vault" src={VAULT_SRC} alt="" aria-hidden draggable="false" />
+              <img className="dgs__balance-vault" src={VAULT_SRC} onError={onImgFallback(VAULT_FALLBACK)} alt="" aria-hidden draggable="false" />
               <div className="dgs__pills">
                 <div className="dgs__pill dgs__pill--gc">
                   <img src={GC_COIN_SRC} alt="Gold Coins" />
-                  <span>{formatBalance(0)}</span>
+                  <span>{formatBalance(balanceGc)}</span>
                 </div>
                 <div className="dgs__pill dgs__pill--sc">
                   <img src={SC_COIN_SRC} alt="Sweep Coins" />
@@ -270,10 +291,10 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
               </div>
             </div>
             <div className="dgs__balance-actions">
-              <Link to={isAuthenticated ? '/store' : '/register'} className="dgs__rim dgs__rim--buy" onClick={onNavigate}>
+              <Link to={isAuthenticated ? '/store' : '/register'} className="dgs__rim dgs__rim--buy" onClick={isAuthenticated ? storeLinkClick('buy', onNavigate) : onNavigate}>
                 <span className="dgs__store-btn dgs__store-btn--buy">{shell.text('sidebar.buy', 'Buy')}</span>
               </Link>
-              <Link to={isAuthenticated ? '/redeem' : '/register'} className="dgs__rim dgs__rim--redeem" onClick={onNavigate}>
+              <Link to={isAuthenticated ? '/redeem' : '/register'} className="dgs__rim dgs__rim--redeem" onClick={isAuthenticated ? storeLinkClick('redeem', onNavigate) : onNavigate}>
                 <span className="dgs__store-btn dgs__store-btn--redeem">{shell.text('sidebar.redeemBtn', 'Redeem')}</span>
               </Link>
             </div>
@@ -282,18 +303,18 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
           {/* ---- vip card ---- */}
           <div className="dgs__card dgs__vip">
             <Link to="/account/vip" className="dgs__vip-link" onClick={onNavigate}>
-              <img className="dgs__vip-tier" src={VIP_TIER_SRC} alt="" aria-hidden draggable="false" />
+              <img className="dgs__vip-tier" src={VIP_TIER_SRC} onError={onImgFallback(VIP_TIER_FALLBACK)} alt="" aria-hidden draggable="false" />
               <div className="dgs__vip-meta">
                 <div className="dgs__vip-row">
                   <b>{shell.text('sidebar.vipLevel', 'VIP Level')}</b>
-                  <span>Iron</span>
+                  <span>{vipName}</span>
                 </div>
                 <div className="dgs__vip-track">
-                  <div className="dgs__vip-fill" style={{ width: '0%' }} />
+                  <div className="dgs__vip-fill" style={{ width: `${vipPct}%` }} />
                 </div>
                 <div className="dgs__vip-next">
-                  <span>Next Level</span>
-                  <b>Bronze 500</b>
+                  <span>{vipNext ? 'Next Level' : 'Top Level'}</span>
+                  <b>{vipNext ? `${vipNext.name} ${vipNext.xp}` : vipName}</b>
                 </div>
               </div>
             </Link>

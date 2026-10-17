@@ -1,6 +1,7 @@
 'use strict';
 
 const db = require('../../db/models');
+const { isGcStoreCode } = require('../wallet/gcWallet.service');
 const { isWithinWindow } = require('./getDepositPackagesCatalog.service');
 const { normalizeScope } = require('./getDepositPackageSettings.service');
 const { isWithinWelcomeWindow, assertPackagePurchaseLimit } = require('./packageEligibility.service');
@@ -98,7 +99,11 @@ async function resolveDepositPackageForUser(userId, packageId, options = {}) {
 
   let payAmount = toNumber(pkg.finalPrice);
   const creditAmount = toNumber(pkg.finalSc);
-  if (payAmount == null || payAmount <= 0 || creditAmount == null || creditAmount <= 0) {
+  // GC stores: the package sells Gold Coins; final_sc is only the optional free promotional SC (may be 0).
+  const gcStorePackage = isGcStoreCode(scope.storeCode);
+  const gcCoin = toNumber(pkg.gcCoin) || 0;
+  const validCredit = gcStorePackage ? gcCoin > 0 && creditAmount != null && creditAmount >= 0 : creditAmount != null && creditAmount > 0;
+  if (payAmount == null || payAmount <= 0 || !validCredit) {
     const err = new Error('Package pricing is invalid.');
     err.statusCode = 400;
     throw err;
@@ -141,6 +146,7 @@ async function resolveDepositPackageForUser(userId, packageId, options = {}) {
     payAmount,
     originalPayAmount,
     creditAmount,
+    gcCoin,
     actualPrice: toNumber(pkg.actualPrice),
     discountLabel: pkg.discountLabel || null,
     voucher: voucherMeta,
@@ -148,6 +154,7 @@ async function resolveDepositPackageForUser(userId, packageId, options = {}) {
     metadata: {
       packageId: pkg.id,
       creditAmount,
+      ...(gcStorePackage ? { gcCoin, freeSc: creditAmount } : {}),
       packageTitle: pkg.title || pkg.Group.title,
       groupKey: pkg.Group.groupKey,
       ...(voucherMeta

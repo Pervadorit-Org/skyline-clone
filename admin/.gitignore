@@ -5,3 +5,16 @@ dist
 *.log
 .DS_Store
 checklist.md
+
+# ---- Secrets: never commit real env files or DB dumps (keep the *.sample templates) ----
+.env
+.env.*
+!.env.sample
+!.env.production.sample
+!.env.example
+env
+env *
+!env.sample
+!env.production.sample
+*.dump
+backup*.sql

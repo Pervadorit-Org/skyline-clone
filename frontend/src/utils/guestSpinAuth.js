@@ -23,7 +23,14 @@ export function handleGuestSpinAfterAuthSuccess(res, toast) {
 export function getWelcomeBonusSuccessMessage(res) {
   if (res?.welcome_bonus_granted !== true) return null;
   const amount = Number(res.welcome_bonus_amount_sc);
-  if (!Number.isFinite(amount) || amount <= 0) {
+  const gc = Number(res.welcome_bonus_amount_gc);
+  const hasGc = Number.isFinite(gc) && gc > 0;
+  const hasSc = Number.isFinite(amount) && amount > 0;
+  if (hasGc) {
+    const gcText = `${Math.floor(gc).toLocaleString('en-US')} GC`;
+    return `Your ${hasSc ? `${gcText} + ${amount} SC` : gcText} welcome bonus has been added to your account!`;
+  }
+  if (!hasSc) {
     return 'Your welcome signup bonus has been added to your account!';
   }
   return `Your ${amount} SC welcome bonus has been added to your account!`;

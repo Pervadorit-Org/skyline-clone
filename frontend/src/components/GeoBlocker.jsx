@@ -80,7 +80,7 @@ export function GeoBlocker({ errorCode }) {
               height={320}
               decoding="async"
               loading="eager"
-              fetchPriority="high"
+              fetchpriority="high"
               onError={() => setShowArt(false)}
             />
           ) : (

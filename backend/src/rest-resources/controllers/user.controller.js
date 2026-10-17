@@ -46,6 +46,20 @@ async function updateProfilePhoto(req, res) {
   }
 }
 
+async function updateMarketingPrefs(req, res) {
+  try {
+    const data = await userService.updateMarketingPrefs(req.user.userId, req.body || {});
+    sendSuccess(res, data);
+  } catch (err) {
+    const status = err.statusCode || 500;
+    const message =
+      typeof err.message === 'string' && err.message.trim()
+        ? err.message.trim()
+        : 'Something went wrong. Please try again later.';
+    sendError(res, message, status);
+  }
+}
+
 async function changePassword(req, res) {
   try {
     const userId = req.user.userId;
@@ -67,5 +81,6 @@ module.exports = {
   getProfile,
   updateProfile,
   updateProfilePhoto,
+  updateMarketingPrefs,
   changePassword
 };

@@ -1,0 +1,246 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Baloo+Bhaijaan+2:wght@400;500;700;800&family=Montserrat:wght@200;300;400;500;600;700;800;900&display=swap");
+
+/* Daily Rewards popup. Values taken from the reference site's stylesheet. */
+
+.dr-backdrop {
+  --dr-gold-gradient: linear-gradient(180deg, #f8d36f 0%, #fcef85 25.48%, #fff79c 47.6%, #e1ad44 75%, #77511a 100%);
+  position: fixed;
+  inset: 0;
+  z-index: 25000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-family: Inter, system-ui, sans-serif;
+}
+.dr-backdrop *, .dr-backdrop *::before, .dr-backdrop *::after { box-sizing: border-box; }
+
+@keyframes drPop {
+  0% { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dr-modal {
+  position: relative;
+  width: 100%;
+  max-width: 56rem;
+  height: 100%;
+  max-height: 720px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid #fbbf24;
+  border-radius: 0.25rem;
+  background: url(/ref/daily/background.webp) top / cover no-repeat;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: drPop 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@media (min-width: 1024px) { .dr-modal { border-radius: 2rem; } }
+
+.dr-top {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1rem;
+}
+@media (min-width: 768px) { .dr-top { padding: 1.5rem; } }
+.dr-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+.dr-icon-btn:focus-visible { outline: 2px solid #fec602; outline-offset: 2px; }
+
+.dr-info {
+  position: absolute;
+  z-index: 4;
+  top: 3.5rem;
+  left: 1.25rem;
+  width: min(320px, calc(100% - 40px));
+  padding: 14px 16px;
+  border: 1px solid rgba(243, 193, 15, 0.45);
+  border-radius: 14px;
+  background: rgba(10, 8, 22, 0.96);
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.55);
+}
+.dr-info ul { margin: 6px 0 0; padding-left: 18px; }
+
+.dr-body {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  height: 100%;
+  min-height: 24rem;
+  flex-direction: column;
+  padding: 2rem 1rem;
+  overflow-y: auto;
+}
+@media (min-width: 768px) { .dr-body { padding-left: 1.5rem; padding-right: 1.5rem; } }
+
+.dr-head { margin-bottom: 2rem; text-align: center; font-family: Montserrat, sans-serif; }
+@media (min-width: 768px) { .dr-head { margin-bottom: 3rem; } }
+.dr-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.875rem;
+  line-height: 1.2;
+  font-weight: 800;
+  background-image: var(--dr-gold-gradient);
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+@media (min-width: 768px) { .dr-title { margin-bottom: 1rem; } }
+.dr-sub { margin: 0; font-size: 0.875rem; line-height: 1.4286; font-weight: 700; color: #fff; }
+@media (min-width: 768px) { .dr-sub { font-size: 1.125rem; line-height: 1.5556; } }
+
+.dr-spacer { flex: 1 1 0; min-height: 0.5rem; }
+
+.dr-days-wrap {
+  margin-bottom: 2rem;
+  padding-top: 3.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+@media (min-width: 768px) { .dr-days-wrap { margin-bottom: 3rem; } }
+.dr-days-wrap::-webkit-scrollbar { display: none; }
+.dr-days { display: flex; gap: 0.625rem; }
+
+.dr-card {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-width: 7rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.75rem;
+  background: radial-gradient(83.8% 80.63% at 50% 6.56%, #243b55 0%, #161b2e 61.84%, #121421 100%);
+  box-shadow: inset 0 1px 4px #ffffff40, inset 0 -2px 4px #000c;
+  color: #6b7280;
+  text-align: center;
+  transition: all 0.3s;
+}
+.dr-card__day {
+  margin-top: auto;
+  margin-bottom: 0.5rem;
+  font: 600 0.875rem/1.4286 Poppins, sans-serif;
+  color: rgba(255, 255, 255, 0.6);
+}
+.dr-card__row { display: flex; align-items: center; justify-content: center; }
+.dr-card__row img, .dr-card__row .dr-coin { width: 1.25rem; height: 1.25rem; margin-right: 0.25rem; flex-shrink: 0; object-fit: contain; }
+.dr-card__row span { font: 700 1.125rem/1.5556 "Baloo Bhaijaan 2", sans-serif; color: inherit; }
+.dr-card__state { display: flex; align-items: center; gap: 0.25rem; color: #6b7280; }
+.dr-card__state svg { width: 1rem; height: 1rem; }
+.dr-card__state span { text-align: center; font-size: 0.75rem; line-height: 1rem; font-weight: 700; text-transform: uppercase; }
+.dr-card--locked .dr-card__row img, .dr-card--locked .dr-coin { opacity: 0.5; }
+.dr-card--done .dr-card__row img { opacity: 0.5; }
+.dr-card--done .dr-card__state { color: #4ade80; }
+
+.dr-card--today { z-index: 1; transform: translateY(-1.25rem); color: #fff; }
+.dr-card--today .dr-card__day { color: #fff; }
+.dr-card--today::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(0deg, #e9bb47 30.29%, #e871eb 100%);
+  pointer-events: none;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box exclude, linear-gradient(#fff 0 0);
+}
+.dr-badge {
+  position: absolute;
+  top: -0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  background-image: linear-gradient(to right, #fb923c, #ef4444);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.dr-foot {
+  display: flex;
+  max-width: 48rem;
+  margin: 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+@media (min-width: 768px) { .dr-foot { flex-direction: row; gap: 1.5rem; width: 100%; } }
+.dr-progress { text-align: left; }
+.dr-progress__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+}
+.dr-progress__head strong { font-size: 1rem; line-height: 1.5; font-weight: 800; text-transform: uppercase; }
+.dr-progress__track { width: 100%; margin-bottom: 0.5rem; border-radius: 9999px; background: #60a5fa66; }
+.dr-progress__bar { position: relative; height: 0.25rem; border-radius: 9999px; background: #fff; transition: width 0.4s ease; }
+.dr-progress__bar::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -0.375rem;
+  width: 1.25rem;
+  height: 0.75rem;
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  background: #fff;
+  filter: blur(4px);
+}
+.dr-progress__note { margin: 0; font-size: 0.75rem; line-height: 1rem; font-weight: 300; color: #fff; }
+
+.dr-claim {
+  max-width: 16rem;
+  padding: 0.5rem 2rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background-image: var(--dr-gold-gradient);
+  color: #000;
+  font: 700 1.25rem/1.4 "Baloo Bhaijaan 2", "Baloo 2", sans-serif;
+  cursor: pointer;
+}
+.dr-claim:disabled { opacity: 0.35; cursor: not-allowed; }
+.dr-claim:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+.dr-loading, .dr-empty { display: grid; place-items: center; flex: 1; min-height: 12rem; text-align: center; font-weight: 700; }
+.dr-spin { animation: drSpin 1s linear infinite; }
+@keyframes drSpin { to { transform: rotate(360deg); } }
+
+@media (max-width: 767px) {
+  .dr-days { justify-content: flex-start; }
+  .dr-claim { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dr-backdrop, .dr-modal, .dr-card, .dr-progress__bar, .dr-spin { animation: none; transition: none; }
+}

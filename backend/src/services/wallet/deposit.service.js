@@ -8,12 +8,19 @@ const { applySignupBonusCodeOnDeposit } = require('../bonusCodes/applySignupBonu
 const { redeemActivePayDiscount } = require('../payDiscount/applyActivePayDiscount.service');
 const { addVipXp } = require('../vip/addVipXp.service');
 const { getBalance } = require('./getBalance.service');
+const { creditGcPackagePurchase, PAID_CURRENCY } = require('./gcPurchase.service');
 const {
   normalizePackageMeta,
   formatPackageDepositDescription,
   packageMetaToTransactionMetadata
 } = require('../depositPackages/depositPackageMeta.service');
 const { assertPackagePurchaseLimitForCompletion } = require('../depositPackages/packageEligibility.service');
+
+function gcDepositDescription(packageMeta, gcResult) {
+  const gc = Number(gcResult.gcCredited || 0).toLocaleString('en-US');
+  const sc = Number(gcResult.scBonusCredited || 0);
+  return `Purchased ${gc} GC${sc > 0 ? ` + ${sc} free SC` : ''}${packageMeta?.packageTitle ? ` (${packageMeta.packageTitle})` : ''}`.slice(0, 255);
+}
 
 async function deposit(userId, body) {
   const [limits, displayCurrency] = await Promise.all([getWalletLimitsForUser(userId), getCurrencySetting()]);
@@ -59,7 +66,9 @@ async function deposit(userId, body) {
     throw err;
   }
 
-  const depositExtras = await db.sequelize.transaction(async (t) => {
+  let depositExtras;
+  try {
+  depositExtras = await db.sequelize.transaction(async (t) => {
     const depositReqPayload = {
       userId,
       amount,
@@ -74,7 +83,30 @@ async function deposit(userId, body) {
     const payAmount = packageMeta?.payAmount != null && Number.isFinite(Number(packageMeta.payAmount))
       ? Number(packageMeta.payAmount)
       : amount;
-    const { purchased, bonus } = splitPurchaseAndPackageBonus(payAmount, walletCredit);
+    // GC stores: a confirmed package payment credits Gold Coins + free promotional SC (never purchased SC).
+    // Idempotent on the payment reference, so a repeated callback cannot credit twice.
+    const excludeChimeId = body?.excludeChimeRequestId ?? null;
+    const gcPaymentKey = excludeChimeId
+      ? `chime:${excludeChimeId}`
+      : providerTransactionId
+        ? `${provider || method || 'payment'}:${providerTransactionId}`
+        : `deposit_request:${depositReq.id}`;
+    const gcResult = await creditGcPackagePurchase({
+      userId,
+      packageId: packageMeta?.packageId,
+      paymentKey: gcPaymentKey,
+      payAmount,
+      depositRequestId: depositReq.id,
+      transaction: t
+    });
+    if (gcResult.handled && gcResult.alreadyCredited) {
+      const dup = new Error('Deposit already credited for this payment.');
+      dup.gcAlreadyCredited = true;
+      throw dup; // rolls back the duplicate deposit request too
+    }
+    const { purchased, bonus } = gcResult.handled
+      ? { purchased: 0, bonus: 0 }
+      : splitPurchaseAndPackageBonus(payAmount, walletCredit);
     const ledgerBase = {
       sourceType: 'DEPOSIT',
       sourceId: depositReq.id,
@@ -123,9 +155,10 @@ async function deposit(userId, body) {
         {
           userId,
           type: 'deposit',
-          amount: walletCredit,
-          currencyCode,
-          description: depositDescription,
+          // GC stores: this row records the money paid (USD). GC and free SC have their own rows.
+          amount: gcResult.handled ? payAmount : walletCredit,
+          currencyCode: gcResult.handled ? PAID_CURRENCY : currencyCode,
+          description: gcResult.handled ? gcDepositDescription(packageMeta, gcResult) : depositDescription,
           ...(hasMetaKeys ? { metadata: depositMetadata } : {})
         },
         { transaction: t }
@@ -158,6 +191,13 @@ async function deposit(userId, body) {
     }
     return { applied, bonusCodeApplied };
   });
+  } catch (err) {
+    if (err?.gcAlreadyCredited) {
+      const balancePayload = await getBalance(userId, { skipCache: true });
+      return { message: err.message, alreadyProcessed: true, ...balancePayload };
+    }
+    throw err;
+  }
 
   const promoPayload = Array.isArray(depositExtras?.applied) ? depositExtras.applied : [];
   const bonusCodePayload = Array.isArray(depositExtras?.bonusCodeApplied) ? depositExtras.bonusCodeApplied : [];

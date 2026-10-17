@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '../../context/ToastContext';
 import * as transactionsApi from '../../api/transactions';
 import { usePageContentReady } from '../../context/PageReadyContext';
+import { useAuth } from '../../context/AuthContext';
 import { formatSc } from '../../utils/currency';
 import './transactions-page.css';
 
@@ -34,6 +35,9 @@ function typeLabel(type) {
     vip_bonus: 'VIP Bonus',
     game_deposit: 'Game Deposit',
     game_withdraw: 'Game Withdraw',
+    gc_purchase: 'GC Purchase',
+    package_bonus: 'Free SC Bonus',
+    welcome_signup_gc: 'Welcome Bonus',
     admin_add: 'Admin add',
     admin_remove: 'Admin remove'
   };
@@ -53,6 +57,9 @@ function toneForType(type) {
     'bonus_code',
     'affiliate',
     'vip_bonus',
+    'gc_purchase',
+    'welcome_signup_gc',
+    'package_bonus',
     'admin_add'
   ].includes(type);
   const isBonus = [
@@ -64,7 +71,9 @@ function toneForType(type) {
     'promotion',
     'bonus_code',
     'affiliate',
-    'vip_bonus'
+    'vip_bonus',
+    'welcome_signup_gc',
+    'package_bonus'
   ].includes(type);
   if (isBonus) return 'bonus';
   if (walletGains) return 'in';
@@ -81,15 +90,24 @@ function CoinAmount({ icon, value }) {
   );
 }
 
+/** GC and SC never mix: a row belongs to exactly one wallet column (GC rows -> GC, USD payment rows -> neither). */
 function gcValue(tx) {
+  if (tx.currency_code === 'GC') return Math.abs(Number(tx.amount) || 0).toLocaleString('en-US');
   const raw = tx.gc_amount ?? tx.gcAmount ?? tx.gold_amount ?? tx.goldCoins ?? tx.gc;
   if (raw == null || raw === '') return null;
   return Math.abs(Number(raw)).toLocaleString('en-US');
 }
 
 function scValue(tx) {
+  if (tx.currency_code === 'GC' || tx.currency_code === 'USD') return null;
   if (tx.amount == null || tx.amount === '') return null;
   return formatSc(Math.abs(Number(tx.amount)));
+}
+
+function detailsText(tx) {
+  const base = tx.description || '-';
+  if (tx.currency_code === 'USD') return `Paid $${Math.abs(Number(tx.amount) || 0).toFixed(2)} · ${base}`;
+  return base;
 }
 
 function TxId({ id }) {
@@ -108,9 +126,10 @@ function actionLabel(type) {
 
 export function AccountTransactions() {
   const { toast } = useToast();
+  const { gcEnabled } = useAuth();
   const [data, setData] = useState({ transactions: [], total: 0, page: 1, limit: DEFAULT_LIMIT, total_pages: 1 });
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ dateFrom: '', dateTo: '', category: '' });
+  const [filters, setFilters] = useState({ dateFrom: '', dateTo: '', category: '', currency: '' });
   const [page, setPage] = useState(1);
 
   usePageContentReady(!loading);
@@ -122,6 +141,7 @@ export function AccountTransactions() {
       if (filters.dateFrom) params.dateFrom = filters.dateFrom;
       if (filters.dateTo) params.dateTo = filters.dateTo;
       if (filters.category) params.category = filters.category;
+      if (gcEnabled && filters.currency) params.currency = filters.currency;
       const res = await transactionsApi.getTransactions(params);
       const total = res.total ?? 0;
       setData({
@@ -137,7 +157,7 @@ export function AccountTransactions() {
     } finally {
       setLoading(false);
     }
-  }, [page, filters, toast]);
+  }, [page, filters, toast, gcEnabled]);
 
   useEffect(() => {
     fetchTransactions();
@@ -169,6 +189,19 @@ export function AccountTransactions() {
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
             </span>
           </label>
+          {gcEnabled ? (
+            <label className="tx-field">
+              <span>Wallet</span>
+              <span className="tx-select-wrap">
+                <select value={filters.currency} onChange={(e) => setFilter('currency', e.target.value)}>
+                  <option value="">GC &amp; SC</option>
+                  <option value="GC">GC only</option>
+                  <option value="SC">SC only</option>
+                </select>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+              </span>
+            </label>
+          ) : null}
           <label className="tx-field">
             <span>From Date</span>
             <input type="date" value={filters.dateFrom} max={filters.dateTo || undefined} onChange={(e) => setFilter('dateFrom', e.target.value)} />
@@ -209,7 +242,7 @@ export function AccountTransactions() {
                       <td><CoinAmount icon="/df-online/sc-coin.webp" value={scValue(tx)} /></td>
                       <td><TxId id={tx.id} /></td>
                       <td><span className="tx-muted">{tx.status || '-'}</span></td>
-                      <td><span className="tx-muted">{tx.description || '-'}</span></td>
+                      <td><span className="tx-muted">{detailsText(tx)}</span></td>
                     </tr>
                   ))}
                 </tbody>

@@ -40,7 +40,7 @@ export function AuthModal({ mode: initialMode }) {
   const searchString = searchParams.toString();
   const querySuffix = searchString ? `?${searchString}` : '';
   const { toast } = useToast();
-  const refCode = searchParams.get('ref') || searchParams.get('affiliate') || '';
+  const refCode = searchParams.get('ref') || searchParams.get('referralCode') || searchParams.get('affiliate') || '';
   const urlBonusCode = (searchParams.get('bonusCode') || searchParams.get('bc') || '').trim();
   const mode = initialMode === 'signup' ? 'signup' : 'login';
   const [showPassword, setShowPassword] = useState(false);

@@ -12,6 +12,7 @@ const {
   packageMetaToTransactionMetadata
 } = require('../depositPackages/depositPackageMeta.service');
 const { assertPackagePurchaseLimitForCompletion } = require('../depositPackages/packageEligibility.service');
+const { creditGcPackagePurchase, PAID_CURRENCY } = require('./gcPurchase.service');
 
 const PROVIDER = 'orionstarspay';
 const SUCCESS_STATUSES = ['completed', 'complete', 'collection', 'success', 'successful', 'paid'];
@@ -177,6 +178,32 @@ async function creditWalletOnce(order, tx, providerTransactionId, transaction) {
     transaction
   });
   if (existingLedger) return { credited: false, alreadyCredited: true };
+
+  // GC stores: credit Gold Coins + free promotional SC instead of purchased SC (idempotent on the payment id).
+  const gcResult = await creditGcPackagePurchase({
+    userId: order.userId,
+    packageId: Number.isInteger(packageId) && packageId > 0 ? packageId : null,
+    paymentKey: `${PROVIDER}:${providerTransactionId}`,
+    payAmount: Number(order.requestedAmount),
+    transaction
+  });
+  if (gcResult.handled) {
+    if (gcResult.alreadyCredited) return { credited: false, alreadyCredited: true };
+    const packageMeta = normalizePackageMeta(meta);
+    await db.UserTransaction.create({
+      userId: order.userId,
+      type: 'deposit',
+      amount: Number(order.requestedAmount),
+      currencyCode: PAID_CURRENCY,
+      description: `Purchased ${Number(gcResult.gcCredited).toLocaleString('en-US')} GC${gcResult.scBonusCredited > 0 ? ` + ${gcResult.scBonusCredited} free SC` : ''}`.slice(0, 255),
+      metadata: {
+        deposit_order_id: order.id,
+        provider_transaction_id: providerTransactionId,
+        ...(packageMeta ? packageMetaToTransactionMetadata(packageMeta) : {})
+      }
+    }, { transaction });
+    return { credited: true, alreadyCredited: false };
+  }
 
   const { PURCHASED_CURRENCY_CODE } = require('./getCurrencySetting.service');
   const displayCurrency = await getCurrencySetting();

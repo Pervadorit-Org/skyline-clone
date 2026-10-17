@@ -13,6 +13,7 @@ const inputClass = 'store-features-input'
 const EMPTY_PKG_FORM = {
   group_id: '',
   title: '',
+  gc_coin: '',
   final_sc: '',
   actual_price: '',
   final_price: '',
@@ -73,6 +74,8 @@ export default function DepositPackages() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [enabled, setEnabled] = useState(false)
+  // Gold Coin stores sell GC; "SC" on the package is then the FREE promotional SC (0 = no free SC).
+  const [gcStore, setGcStore] = useState(false)
   const [groups, setGroups] = useState([])
   const [storeOptions, setStoreOptions] = useState([])
   const [selectedStore, setSelectedStore] = useState(null)
@@ -131,6 +134,7 @@ export default function DepositPackages() {
     try {
       const data = await depositPackagesApi.getDepositPackagesCatalog(scope)
       setEnabled(data?.enabled === true)
+      setGcStore(data?.gc_store === true)
       setGroups(Array.isArray(data?.groups) ? data.groups : [])
       const edits = {}
       ;(data?.groups || []).forEach((g) => {
@@ -210,6 +214,7 @@ export default function DepositPackages() {
     setPkgForm({
       group_id: String(groupId),
       title: pkg?.title || '',
+      gc_coin: pkg?.gc_coin != null && Number(pkg.gc_coin) > 0 ? String(pkg.gc_coin) : '',
       final_sc: pkg?.final_sc != null ? String(pkg.final_sc) : '',
       actual_price: pkg?.actual_price != null ? String(pkg.actual_price) : '',
       final_price: pkg?.final_price != null ? String(pkg.final_price) : '',
@@ -239,7 +244,8 @@ export default function DepositPackages() {
       const body = {
         group_id: Number(group.id),
         title: pkgForm.title.trim() || null,
-        final_sc: Number(pkgForm.final_sc),
+        final_sc: pkgForm.final_sc === '' && gcStore ? 0 : Number(pkgForm.final_sc),
+        ...(gcStore ? { gc_coin: Number(pkgForm.gc_coin) } : {}),
         actual_price: Number(pkgForm.actual_price),
         final_price: Number(pkgForm.final_price),
         discount_label: pkgForm.discount_label.trim() || null,
@@ -480,7 +486,8 @@ export default function DepositPackages() {
                     <table className="deposit-packages-table">
                       <thead>
                         <tr>
-                          <th>SC</th>
+                          {gcStore ? <th>GC</th> : null}
+                          <th>{gcStore ? 'Free SC' : 'SC'}</th>
                           <th>Actual</th>
                           <th>Price</th>
                           <th>Label</th>
@@ -492,10 +499,11 @@ export default function DepositPackages() {
                       <tbody>
                         {packages.length === 0 ? (
                           <tr className="deposit-packages-table-empty">
-                            <td colSpan={7}>No packages yet. Add one below.</td>
+                            <td colSpan={gcStore ? 8 : 7}>No packages yet. Add one below.</td>
                           </tr>
                         ) : packages.map((pkg) => (
                           <tr key={pkg.id}>
+                            {gcStore ? <td><strong>{Number(pkg.gc_coin || 0).toLocaleString('en-US')}</strong></td> : null}
                             <td><strong>{pkg.final_sc}</strong></td>
                             <td><s>{pkg.actual_price}</s></td>
                             <td>{pkg.final_price}</td>
@@ -539,9 +547,15 @@ export default function DepositPackages() {
                           Title (optional)
                           <input className={inputClass} value={pkgForm.title} onChange={(e) => setPkgForm((f) => ({ ...f, title: e.target.value }))} />
                         </label>
+                        {gcStore ? (
+                          <label>
+                            Gold Coins (GC) sold *
+                            <input className={inputClass} required type="number" step="1" min="1" value={pkgForm.gc_coin} onChange={(e) => setPkgForm((f) => ({ ...f, gc_coin: e.target.value }))} />
+                          </label>
+                        ) : null}
                         <label>
-                          Final SC *
-                          <input className={inputClass} required type="number" step="0.01" min="0" value={pkgForm.final_sc} onChange={(e) => setPkgForm((f) => ({ ...f, final_sc: e.target.value }))} />
+                          {gcStore ? 'Free SC bonus (0 = not eligible)' : 'Final SC *'}
+                          <input className={inputClass} required={!gcStore} type="number" step="0.01" min="0" value={pkgForm.final_sc} onChange={(e) => setPkgForm((f) => ({ ...f, final_sc: e.target.value }))} />
                         </label>
                         <label>
                           Actual price (strikethrough) *

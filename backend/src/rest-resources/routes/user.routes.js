@@ -7,6 +7,7 @@ const router = express.Router();
 router.get('/profile', authMiddleware, userController.getProfile);
 router.patch('/profile', authMiddleware, userController.updateProfile);
 router.patch('/profile-photo', authMiddleware, userController.updateProfilePhoto);
+router.patch('/marketing-preferences', authMiddleware, userController.updateMarketingPrefs);
 router.post('/change-password', authMiddleware, userController.changePassword);
 
 module.exports = router;

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { site } from '../../config/site';
+import { useLobbyContent } from '../../hooks/useLobbyContent';
 import { isPurchaseProfileComplete } from '../../utils/purchaseProfile';
 import './task-list-modal.css';
 
@@ -30,6 +31,14 @@ const DAILY = [
   { id: 'active', title: 'Stay Active', desc: '', target: 'Log in and stay active today', gc: '1,000', sc: '0.1' },
   { id: 'play', title: 'Play Games', desc: 'Play 5 games today', target: 'Play 5 games today', to: '/casino', cta: 'Play Games', gc: '2,500', sc: '0.25' },
 ];
+
+/** Admin-managed tasks replace a built-in list; hidden ones are dropped; social tasks fall back to the site's links. */
+function resolveTasks(custom, builtIn) {
+  if (!Array.isArray(custom) || custom.length === 0) return builtIn;
+  return custom
+    .filter((t) => t && t.enabled !== false)
+    .map((t) => ({ ...t, url: t.url || (t.social ? social[t.social] : '') || undefined, to: t.to || undefined }));
+}
 
 const CheckIcon = ({ done }) => (
   <span className={`tl-check${done ? ' is-done' : ''}`} aria-label={done ? 'Completed' : undefined}>
@@ -130,6 +139,9 @@ export function TaskListModal() {
   const { user, isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState('regular');
+  const { tasks: adminTasks } = useLobbyContent();
+  const regularTasks = resolveTasks(adminTasks?.regular, REGULAR);
+  const dailyTasks = resolveTasks(adminTasks?.daily, DAILY);
   const reset = useResetCountdown(open && tab === 'daily');
 
   useEffect(() => {
@@ -211,14 +223,14 @@ export function TaskListModal() {
                   <Link to="/account/profile#profile" onClick={close}>Complete profile</Link>
                 </p>
               )}
-              {REGULAR.map((t) => (
+              {regularTasks.map((t) => (
                 <TaskCard key={t.id} task={t} done={isDone(t)} onClose={close} user={user} />
               ))}
             </div>
           )}
           {tab === 'daily' && (
             <div className="tl-list">
-              {DAILY.map((t) => (
+              {dailyTasks.map((t) => (
                 <TaskCard key={t.id} task={t} done={false} onClose={close} user={user} />
               ))}
             </div>

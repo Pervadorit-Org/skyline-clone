@@ -956,3 +956,58 @@ body.support-widget-open:not(.intercom-maximized) .pj-intercom-launcher {
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+/* Mobile tap targets: invisible hit area up to 44px, no visual/layout change */
+@media (max-width: 767px) {
+  .df-guest-menu-btn,
+  .dash-btn-login,
+  .dash-btn-signup,
+  .dgs__row,
+  .dgs__plain,
+  .dgs__group-trigger,
+  .df-home2-pill,
+  .df-home2-catstrip__tab,
+  .bgm-close,
+  .bgm-speaker,
+  .bgm-switch {
+    position: relative;
+  }
+  .dgs-close::before,
+  .df-guest-menu-btn::before,
+  .dash-btn-login::before,
+  .dash-btn-signup::before,
+  .dgs__row::before,
+  .dgs__plain::before,
+  .dgs__group-trigger::before,
+  .df-home2-pill::before,
+  .df-home2-catstrip__tab::before,
+  .bgm-close::before,
+  .bgm-speaker::before,
+  .bgm-switch::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+  .site-footer__link,
+  .site-footer__contact-mail,
+  .site-footer__contact-chat,
+  .site-footer__note-link {
+    position: relative;
+  }
+  .site-footer__link::before,
+  .site-footer__contact-mail::before,
+  .site-footer__contact-chat::before,
+  .site-footer__note-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+  }
+}

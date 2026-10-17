@@ -73,7 +73,13 @@ const TX_TYPE_LABELS = {
   game_withdraw: 'From game',
   admin_add: 'Admin SC credit',
   admin_deduct: 'Admin deduction',
-  deposit_courtesy: 'Deposit courtesy'
+  deposit_courtesy: 'Deposit courtesy',
+  gc_purchase: 'Gold Coin purchase',
+  welcome_signup_gc: 'Welcome bonus (GC)',
+  package_bonus: 'Package free SC',
+  daily_bonus: 'Daily reward',
+  gc_credit: 'Gold Coins credited',
+  gc_debit: 'Gold Coins used'
 }
 
 const ACTIVITY_LABELS = {
@@ -792,11 +798,13 @@ export default function UserDetail() {
   const [activityType, setActivityType] = useState('')
 
   const [deductPsc, setDeductPsc] = useState('')
+  const [deductGc, setDeductGc] = useState('')
   const [deductBsc, setDeductBsc] = useState('')
   const [deductRsc, setDeductRsc] = useState('')
   const [deductReason, setDeductReason] = useState('')
   const [deducting, setDeducting] = useState(false)
   const [addPsc, setAddPsc] = useState('')
+  const [addGc, setAddGc] = useState('')
   const [addBsc, setAddBsc] = useState('')
   const [addRsc, setAddRsc] = useState('')
   const [addDescription, setAddDescription] = useState('')
@@ -999,7 +1007,9 @@ export default function UserDetail() {
     const hasPsc = psc != null && Number.isFinite(psc) && psc > 0
     const hasBsc = bsc != null && Number.isFinite(bsc) && bsc > 0
     const hasRsc = rsc != null && Number.isFinite(rsc) && rsc > 0
-    if (!hasPsc && !hasBsc && !hasRsc) {
+    const gc = deductGc.trim() === '' ? null : Number(deductGc)
+    const hasGc = gc != null && Number.isFinite(gc) && gc > 0
+    if (!hasPsc && !hasBsc && !hasRsc && !hasGc) {
       toast.error('Enter how much to take from at least one wallet.')
       return
     }
@@ -1017,11 +1027,13 @@ export default function UserDetail() {
         psc: hasPsc ? psc : undefined,
         bsc: hasBsc ? bsc : undefined,
         rsc: hasRsc ? rsc : undefined,
+        gc: hasGc ? gc : undefined,
         reason: deductReason.trim()
       })
       toast.success('SC taken.')
       setDetail((d) => ({ ...d, balance: res.balance || d.balance }))
       setDeductPsc('')
+      setDeductGc('')
       setDeductBsc('')
       setDeductRsc('')
       setDeductReason('')
@@ -1045,7 +1057,9 @@ export default function UserDetail() {
     const hasPsc = psc != null && Number.isFinite(psc) && psc > 0
     const hasBsc = bsc != null && Number.isFinite(bsc) && bsc > 0
     const hasRsc = rsc != null && Number.isFinite(rsc) && rsc > 0
-    if (!hasPsc && !hasBsc && !hasRsc) {
+    const gc = addGc.trim() === '' ? null : Number(addGc)
+    const hasGc = gc != null && Number.isFinite(gc) && gc > 0
+    if (!hasPsc && !hasBsc && !hasRsc && !hasGc) {
       toast.error('Enter how much to give in at least one wallet.')
       return
     }
@@ -1066,11 +1080,13 @@ export default function UserDetail() {
         psc: hasPsc ? psc : undefined,
         bsc: hasBsc ? bsc : undefined,
         rsc: hasRsc ? rsc : undefined,
+        gc: hasGc ? gc : undefined,
         description
       })
       toast.success('SC added.')
       setDetail((d) => ({ ...d, balance: res.balance || d.balance }))
       setAddPsc('')
+      setAddGc('')
       setAddBsc('')
       setAddRsc('')
       setAddDescription('')
@@ -1155,6 +1171,15 @@ export default function UserDetail() {
             </p>
             {b ? (
               <div className="ud-hero-balances" aria-label="Quick wallet summary">
+                {b.gc_enabled ? (
+                  <div className="ud-mini-stat ud-mini-stat--gc">
+                    <span className="ud-mini-stat-label">Gold Coins</span>
+                    <span className="ud-mini-stat-value">{formatMoney(b.balance_gc ?? 0)}</span>
+                    <span className="ud-mini-stat-hint">
+                      {b.currency_mode === 'SC' ? 'playing in SC mode' : 'playing in GC mode'}
+                    </span>
+                  </div>
+                ) : null}
                 <div className="ud-mini-stat ud-mini-stat--psc">
                   <span className="ud-mini-stat-label">Purchased SC</span>
                   <span className="ud-mini-stat-value">{formatMoney(b.usable_balance_psc ?? 0)}</span>
@@ -1492,7 +1517,7 @@ export default function UserDetail() {
                 <div className="ud-section-header">
                   <h2 className="ud-section-title">Adjust wallet (admin)</h2>
                   <p className="ud-section-desc">
-                    Give or take Purchased SC, Bonus SC, or Redeemable SC. Write a reason when giving. Every change is saved in Wallet activity.
+                    Give or take Gold Coins (GC stores), Purchased SC, Bonus SC, or Redeemable SC. Write a reason when giving. Every change is saved in Wallet activity.
                   </p>
                 </div>
                 <div className="ud-section-body">
@@ -1502,6 +1527,21 @@ export default function UserDetail() {
                       <p>Fill any wallet you want to top up. Description is required.</p>
                     </div>
                     <div className="ud-form-grid">
+                      {detail?.balance?.gc_enabled ? (
+                        <div className="users-filter-field">
+                          <label htmlFor="add-gc">Gold Coins (GC)</label>
+                          <input
+                            id="add-gc"
+                            type="number"
+                            min="0"
+                            step="1"
+                            placeholder="0"
+                            value={addGc}
+                            onChange={(e) => setAddGc(e.target.value)}
+                            autoComplete="off"
+                          />
+                        </div>
+                      ) : null}
                       <div className="users-filter-field">
                         <label htmlFor="add-psc">Purchased SC</label>
                         <input
@@ -1566,6 +1606,21 @@ export default function UserDetail() {
                       <p>Take from each wallet separately. Amounts on hold stay.</p>
                     </div>
                     <div className="ud-form-grid">
+                      {detail?.balance?.gc_enabled ? (
+                        <div className="users-filter-field">
+                          <label htmlFor="deduct-gc">Take Gold Coins (GC)</label>
+                          <input
+                            id="deduct-gc"
+                            type="number"
+                            min="0"
+                            step="1"
+                            placeholder="0"
+                            value={deductGc}
+                            onChange={(e) => setDeductGc(e.target.value)}
+                            autoComplete="off"
+                          />
+                        </div>
+                      ) : null}
                       <div className="users-filter-field">
                         <label htmlFor="deduct-psc">Take Purchased SC</label>
                         <input

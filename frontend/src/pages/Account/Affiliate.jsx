@@ -134,11 +134,11 @@ export function AccountAffiliate() {
   const maxRaw = Number(data?.max_rewarded_purchases ?? data?.maxRewardedPurchases);
   const maxPurchases = Number.isFinite(maxRaw) && maxRaw > 0 ? maxRaw : 3;
 
+  const friendBonusSc = Number(data?.friend_signup_bonus_sc) || 0;
   const referred = data?.referred_users || [];
   const totalReferrals = data?.total_referrals ?? referred.length ?? 0;
   const completed = referred.filter((u) => statusKey(u.qualification_status) === 'completed').length;
   const scEarned = data?.total_earned_sc ?? 0;
-  const gcEarned = data?.total_earned_gc ?? 0;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -204,11 +204,6 @@ export function AccountAffiliate() {
             label="SC Earned"
             value={formatSc(scEarned)}
           />
-          <StatCard
-            icon={<img src="/icons/coin.png" alt="" aria-hidden="true" className="ref-coin" />}
-            label="GC Earned"
-            value={gcEarned}
-          />
         </div>
       </div>
 
@@ -271,8 +266,8 @@ export function AccountAffiliate() {
                 </svg>
                 <span>Referee</span>
               </div>
-              <p className="ref-tile-pct">{pct}%</p>
-              <p className="ref-tile-sub">On their first {maxPurchases} purchases</p>
+              <p className="ref-tile-pct">{friendBonusSc > 0 ? `${formatSc(friendBonusSc)} SC` : '—'}</p>
+              <p className="ref-tile-sub">Welcome bonus on signup</p>
             </div>
           </div>
         </div>
@@ -283,7 +278,7 @@ export function AccountAffiliate() {
             <ol>
               <li>Share your link with friends.</li>
               <li>They sign up and verify their account.</li>
-              <li>Each time they buy coins, you both earn a share of what they receive.</li>
+              <li>They get a welcome bonus, and you earn a share of what they receive on their first purchases.</li>
               <li>Rewards are credited automatically on their first qualifying purchases, up to the program&apos;s limit.</li>
             </ol>
           </div>

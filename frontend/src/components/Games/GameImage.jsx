@@ -69,7 +69,7 @@ export function GameImage({
       height={height}
       loading={loading}
       decoding={decoding}
-      fetchPriority={fetchPriority}
+      fetchpriority={fetchPriority}
       onError={() => {
         if (src.includes('/optimized/games/')) {
           setSrc(src.replace('/optimized/games/', '/games/'));

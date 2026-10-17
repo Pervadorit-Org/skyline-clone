@@ -24,6 +24,7 @@ function toDraft(store) {
       dayIndex: i + 1,
       rewardType: src.rewardType || 'sc_coins',
       amountSc: src.amountSc != null ? String(src.amountSc) : '5',
+      gcAmount: src.gcAmount != null ? String(src.gcAmount) : '0',
       spinCount: src.spinCount != null ? String(src.spinCount) : '1',
       percentOff: src.percentOff != null ? String(src.percentOff) : '10',
       packageScope: src.packageScope || 'all',
@@ -158,6 +159,7 @@ export default function DailyBonus() {
           dayIndex: d.dayIndex,
           rewardType: d.rewardType,
           amountSc: Number(d.amountSc),
+          gcAmount: Math.max(0, Math.round(Number(d.gcAmount) || 0)),
           spinCount: Number(d.spinCount),
           percentOff: Number(d.percentOff),
           packageScope: d.packageScope,
@@ -335,12 +337,24 @@ export default function DailyBonus() {
                         </select>
                       </label>
 
+                      <label>
+                        Gold Coins (GC) credited on claim
+                        <input
+                          type="number"
+                          min="0"
+                          step="1"
+                          value={day.gcAmount}
+                          onChange={(e) => updateDay(day.dayIndex, { gcAmount: e.target.value })}
+                          aria-label={`Day ${day.dayIndex} Gold Coins`}
+                        />
+                      </label>
+
                       {day.rewardType === 'sc_coins' && (
                         <label>
-                          SC amount
+                          SC amount (0 = Gold Coins only)
                           <input
                             type="number"
-                            min="0.01"
+                            min="0"
                             step="0.01"
                             value={day.amountSc}
                             onChange={(e) => updateDay(day.dayIndex, { amountSc: e.target.value })}

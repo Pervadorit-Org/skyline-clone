@@ -163,7 +163,7 @@ export function LandingPaymentRedirectModal({
               className={`lprm-image${revealed ? ' lprm-image--ready' : ''}`}
               draggable={false}
               decoding="async"
-              fetchPriority="high"
+              fetchpriority="high"
               onLoad={() => setRevealed(true)}
             />
           </div>

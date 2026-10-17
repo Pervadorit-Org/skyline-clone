@@ -5,6 +5,7 @@ const { createLogger } = require('../../libs/logger');
 const { BONUS_CURRENCY_CODE } = require('../wallet/getCurrencySetting.service');
 const { creditBonusSc } = require('../wallet/walletBuckets.service');
 const { getBalance } = require('../wallet/getBalance.service');
+const gcWallet = require('../wallet/gcWallet.service');
 const { notifyUserBalanceChanged } = require('../realtime/notifyBalance.service');
 const { getEffectiveSettings } = require('./dailyBonusSettings.service');
 const {
@@ -112,6 +113,7 @@ async function claimDailyBonus(userId, dayIndexRaw) {
       dayIndex,
       rewardType,
       amountSc: dayConfig.amountSc,
+      gcAmount: dayConfig.gcAmount || 0,
       spinCount: dayConfig.spinCount,
       percentOff: dayConfig.percentOff,
       packageScope: dayConfig.packageScope,
@@ -144,7 +146,10 @@ async function claimDailyBonus(userId, dayIndexRaw) {
     let amountScCredited = 0;
     let pendingFreeSpins = Math.max(0, parseInt(user.pendingFreeSpins, 10) || 0);
 
-    if (rewardType === 'sc_coins') {
+    if (rewardType === 'sc_coins' && !(roundMoney(dayConfig.amountSc) > 0)) {
+      // GC-only day: nothing to credit to the SC wallet.
+      granted = { type: rewardType, amount_sc: 0, gc_amount: dayConfig.gcAmount || 0 };
+    } else if (rewardType === 'sc_coins') {
       const credit = roundMoney(dayConfig.amountSc);
       await db.UserTransaction.create(
         {
@@ -175,7 +180,7 @@ async function claimDailyBonus(userId, dayIndexRaw) {
         }
       });
       amountScCredited = credit;
-      granted = { type: rewardType, amount_sc: credit };
+      granted = { type: rewardType, amount_sc: credit, gc_amount: dayConfig.gcAmount || 0 };
     } else if (rewardType === 'bonus_spin') {
       // Grant extra spins on the normal Daily Spin wheel (pending_free_spins).
       const spins = dayConfig.spinCount;
@@ -209,6 +214,23 @@ async function claimDailyBonus(userId, dayIndexRaw) {
       };
     }
 
+    // Gold Coins for this day (GC stores). One claim row per user per day + idempotent ledger key.
+    let gcCredited = 0;
+    if (Number(dayConfig.gcAmount) > 0 && gcWallet.isGcStoreCode(user.storeCode)) {
+      const gc = await gcWallet.creditGc(userId, Number(dayConfig.gcAmount), {
+        transaction: t,
+        type: DAILY_BONUS_TX_TYPE,
+        reason: 'DAILY_BONUS_GC',
+        referenceType: 'DAILY_BONUS_CLAIM',
+        referenceId: String(claim.id),
+        idempotencyKey: `daily_gc:${claim.id}`,
+        description: `Daily bonus day ${dayIndex}: ${Number(dayConfig.gcAmount).toLocaleString('en-US')} GC`,
+        metadata: { source: 'daily_bonus', dayIndex, claimId: claim.id, campaignId: campaign.id, bonusGc: Number(dayConfig.gcAmount) }
+      });
+      if (gc.credited) gcCredited = gc.amount;
+      granted = { ...granted, gc_amount: gcCredited };
+    }
+
     const claimsCount = await db.UserDailyBonusClaim.count({
       where: { campaignId: campaign.id },
       transaction: t
@@ -233,6 +255,7 @@ async function claimDailyBonus(userId, dayIndexRaw) {
       claimed_on: today,
       reward: granted,
       amount_sc_credited: amountScCredited,
+      amount_gc_credited: gcCredited,
       pending_free_spins: pendingFreeSpins,
       campaign_status: claimsCount >= CAMPAIGN_DAYS ? 'completed' : campaign.status,
       claims_count: claimsCount
@@ -241,7 +264,7 @@ async function claimDailyBonus(userId, dayIndexRaw) {
 
   // Push the new balance to the player's other open tabs/devices (best effort).
   try {
-    if (result.amount_sc_credited > 0) notifyUserBalanceChanged(userId);
+    if (result.amount_sc_credited > 0 || result.amount_gc_credited > 0) notifyUserBalanceChanged(userId);
   } catch (_) {
     /* realtime is optional */
   }

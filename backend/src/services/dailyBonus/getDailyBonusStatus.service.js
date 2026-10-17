@@ -191,6 +191,7 @@ function buildDayStatus({ dayConfig, campaign, claimsByDay, claimedToday }) {
     label: dayConfig.label,
     rewardType: dayConfig.rewardType,
     amountSc: dayConfig.amountSc,
+    gcAmount: dayConfig.gcAmount || 0,
     spinCount: dayConfig.spinCount,
     percentOff: dayConfig.percentOff,
     packageScope: dayConfig.packageScope,

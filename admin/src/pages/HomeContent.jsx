@@ -137,7 +137,7 @@ export default function HomeContent() {
         <Field label="Max tiles"><input type="number" min={1} max={60} value={s.platforms.limit ?? 15} onChange={(e) => patchSection('platforms', { limit: Number(e.target.value) })} /></Field>
         <p className="hc-muted">
           The tiles are your platforms (the same list as the footer Platforms links). Add, hide or edit a platform in
-          Pages → Footer → Platforms, and each tile opens that platform's page.
+          Pages → Footer → Platforms, and each tile opens that platform&apos;s page.
         </p>
       </>)
       case 'reasons': return (<>

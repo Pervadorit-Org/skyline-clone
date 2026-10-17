@@ -1786,6 +1786,29 @@ export function Deposit() {
     setPackageSelectionTouched(Boolean(value));
   }, [requirePurchaseProfile]);
 
+  // /store?package=<id> (from the Store popup): open that package's payment step once the catalog is loaded.
+  const [autoOpenPkg, setAutoOpenPkg] = useState(null);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const wanted = params.get('package');
+    if (!wanted || loading || packagesLoading) return;
+    const strip = () => {
+      params.delete('package');
+      const qs = params.toString();
+      window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+    };
+    const hit = allCatalogPacks.find((p) => String(p.id) === String(wanted));
+    strip();
+    if (!hit) {
+      // Offer ended, sold out for this player, or switched off since the popup loaded.
+      toast.error('That package is no longer available. Please choose another one.');
+      return;
+    }
+    if (!requirePurchaseProfile()) return;
+    handleSelectPackage(hit);
+    setAutoOpenPkg(hit);
+  }, [allCatalogPacks, loading, packagesLoading, handleSelectPackage, requirePurchaseProfile, toast]);
+
   const handleRetryPurchase = useCallback((row) => {
     const methodKey = String(row?.method || '').toLowerCase();
     const amt = Number(row?.amount);
@@ -1913,6 +1936,8 @@ export function Deposit() {
         packagesLoading={packagesLoading || loading}
         selectedPackage={selectedPackage}
         onSelectPackage={handleSelectPackage}
+        autoOpenPackage={autoOpenPkg}
+        onAutoOpened={() => setAutoOpenPkg(null)}
         customAmounts={railCustomAmounts}
         customAmountMode={customAmountMode}
         selectedAmount={selectedAmount}

@@ -52,6 +52,10 @@ function applyBalancePayload(data, setters) {
   setters.setRscWalletUsable(rscU);
   setters.setLockedBalanceSc(Math.max(0, locked));
   setters.setBalanceSc(scU + rscU);
+  // Gold Coins (GC stores only): separate wallet + active mode. Absent for every other store.
+  setters.setGcEnabled(data.gc_enabled === true);
+  setters.setBalanceGc(data.gc_enabled === true && data.usable_balance_gc != null ? Number(data.usable_balance_gc) : 0);
+  setters.setCurrencyMode(data.gc_enabled === true && data.currency_mode === 'GC' ? 'GC' : 'SC');
 }
 
 /** Live wallet updates come from Socket.IO; HTTP is only for login / explicit refresh. */
@@ -67,6 +71,10 @@ export function AuthProvider({ children }) {
   const [rscWalletUsable, setRscWalletUsable] = useState(null);
   const [lockedBalanceSc, setLockedBalanceSc] = useState(null);
   const [balanceLoading, setBalanceLoading] = useState(false);
+  /** Gold Coins (GC stores only). */
+  const [gcEnabled, setGcEnabled] = useState(false);
+  const [balanceGc, setBalanceGc] = useState(0);
+  const [currencyMode, setCurrencyMode] = useState('SC');
   const socketConnectedRef = useRef(false);
 
   const balanceSetters = {
@@ -75,7 +83,10 @@ export function AuthProvider({ children }) {
     setScWalletUsable,
     setRscWalletUsable,
     setLockedBalanceSc,
-    setBalanceSc
+    setBalanceSc,
+    setGcEnabled,
+    setBalanceGc,
+    setCurrencyMode
   };
 
   const clearBalances = useCallback(() => {
@@ -85,6 +96,9 @@ export function AuthProvider({ children }) {
     setScWalletUsable(null);
     setRscWalletUsable(null);
     setLockedBalanceSc(null);
+    setGcEnabled(false);
+    setBalanceGc(0);
+    setCurrencyMode('SC');
   }, []);
 
   const loadUser = useCallback(async () => {
@@ -363,10 +377,23 @@ export function AuthProvider({ children }) {
     })();
   }, [clearBalances]);
 
+  /** Switch GC <-> SC. The server owns the mode; no balance is converted. Returns the mode now active. */
+  const switchCurrencyMode = useCallback(async (mode) => {
+    const res = await walletApi.setCurrencyMode(mode);
+    const next = (res?.data?.mode || res?.mode) === 'GC' ? 'GC' : 'SC';
+    setCurrencyMode(next);
+    await refreshBalanceSilent();
+    return next;
+  }, [refreshBalanceSilent]);
+
   const value = {
     user,
     loading,
     isAuthenticated: !!user,
+    gcEnabled,
+    balanceGc,
+    currencyMode,
+    switchCurrencyMode,
     balanceSc,
     pscWalletUsable,
     bscWalletUsable,

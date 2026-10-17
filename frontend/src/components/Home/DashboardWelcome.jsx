@@ -285,7 +285,7 @@ export function DashboardWelcome({ isAuthenticated, placement = 'home' }) {
                     height={heroHeight}
                     sizes="100vw"
                     loading={isHero ? 'eager' : 'lazy'}
-                    fetchPriority={isHero ? 'high' : 'low'}
+                    fetchpriority={isHero ? 'high' : 'low'}
                     aria-hidden={index !== activeSlide}
                     onLoad={() => {
                       markSlideLoaded(imageSrc);

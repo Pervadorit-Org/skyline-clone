@@ -10,6 +10,7 @@ const { ensureWallet, usableOf, roundMoney } = require('./walletBuckets.service'
 const { getSpinWheelWithdrawalSummary } = require('./validateSpinWheelWithdrawal.service');
 const { getCachedBalance, setCachedBalance } = require('./balanceCache');
 const { resolveLockedBonusSc } = require('./bonusScLock.service');
+const gcWallet = require('./gcWallet.service');
 
 async function getBalance(userId, { skipCache = false } = {}) {
   if (!skipCache) {
@@ -97,6 +98,20 @@ async function getBalance(userId, { skipCache = false } = {}) {
     available_to_withdraw_sc: availableToWithdrawRsc,
     ...spinWheelWithdrawal
   };
+
+  // Gold Coins (GC): separate wallet + separate mode, only for stores that run the GC/SC model.
+  // Every other store keeps the exact SC-only payload it had before.
+  if (await gcWallet.isGcStoreUser(userId)) {
+    const gc = await gcWallet.getGcBalance(userId);
+    payload.gc_enabled = true;
+    payload.gold_currency_code = gcWallet.GOLD_CURRENCY_CODE;
+    payload.balance_gc = gc.balance;
+    payload.usable_balance_gc = gc.usable;
+    payload.currency_mode = await gcWallet.getCurrencyMode(userId);
+  } else {
+    payload.gc_enabled = false;
+    payload.currency_mode = gcWallet.MODE_SC;
+  }
 
   setCachedBalance(userId, payload);
   return payload;

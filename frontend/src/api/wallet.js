@@ -2,7 +2,7 @@ import { API_BASE } from '../config/api';
 import { withPaymentPartner } from '../config/paymentPartner';
 import { withDollarpay } from '../config/dollarpay';
 import { withXxpay } from '../config/xxpay';
-import { getRequest, postRequest } from '../services/request';
+import { getRequest, postRequest, putRequest } from '../services/request';
 
 const WALLET_BASE = `${API_BASE}/api/wallet`;
 const PAYMENTS_BASE = `${API_BASE}/api/payments`;
@@ -30,6 +30,19 @@ export function getWalletLimits() {
  */
 export function getBalance() {
   return getRequest(`${WALLET_BASE}/balance`, {}, withPaymentPartner());
+}
+
+/** Active currency (GC / SC) of the player. Only meaningful for GC stores. Returns { gc_enabled, mode }. */
+export function getCurrencyMode() {
+  return getRequest(`${WALLET_BASE}/currency-mode`);
+}
+
+/**
+ * Switch between Gold Coins (GC) and Sweeps Coins (SC) play. Nothing is converted or moved:
+ * it only decides which balance gameplay uses.
+ */
+export function setCurrencyMode(mode) {
+  return putRequest(`${WALLET_BASE}/currency-mode`, { mode });
 }
 
 /** List deposit history. Returns { deposits, pendingDeposits, total }. */

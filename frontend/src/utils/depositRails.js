@@ -397,7 +397,7 @@ function pickUnique(arr, n) {
 export function buildDummyRecentPurchases(packages = [], tick = 0) {
   void tick;
   const scLabels = (packages || [])
-    .map((p) => formatScLabel(p.final_sc ?? p.finalSc))
+    .map((p) => (Number(p.gc_coin) > 0 ? `${Math.floor(Number(p.gc_coin)).toLocaleString('en-US')} GC` : formatScLabel(p.final_sc ?? p.finalSc)))
     .filter(Boolean);
   const fallback = ['10 SC', '20 SC', '25 SC', '50 SC', '100 SC'];
   const pool = scLabels.length ? scLabels : fallback;

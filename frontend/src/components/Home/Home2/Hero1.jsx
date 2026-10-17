@@ -14,7 +14,7 @@ export function Hero1() {
           alt=""
           draggable="false"
           loading="eager"
-          fetchPriority="high"
+          fetchpriority="high"
         />
       </picture>
       <div className="df-home2-hero1__content">

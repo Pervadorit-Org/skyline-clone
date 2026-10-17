@@ -19,6 +19,11 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: true
     },
+    middleName: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      field: 'middle_name'
+    },
     lastName: {
       type: DataTypes.STRING,
       allowNull: true
@@ -82,6 +87,18 @@ module.exports = function (sequelize, DataTypes) {
     zipCode: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    marketingEmailOptIn: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: 'marketing_email_opt_in'
+    },
+    marketingSmsOptIn: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: 'marketing_sms_opt_in'
     },
     profileImageUrl: {
       type: DataTypes.STRING,
