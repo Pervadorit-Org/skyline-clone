@@ -12,6 +12,7 @@ import {
   PROMO_DEFER_RETRY_MS,
 } from './useBlockingOverlayOpen';
 import { DEFAULT_DASHBOARD_PROMO_MODALS } from '../api/dashboardPromoModals';
+import { openStoreModal, isStoreModalOpen } from '../components/Store/storeModalEvents';
 
 /** @deprecated Use admin-configured delays from dashboard promo modals settings. */
 export const PROMO_MODAL_STEP_MS = 5_000;
@@ -23,6 +24,7 @@ export const PROMO_MODAL_AFTER_ONBOARDING_MS = 5_000;
 const SPIN_WHEEL_MODAL_STORAGE_PREFIX = 'spin_wheel_ready_modal_dismissed_';
 const INVITE_FRIENDS_MODAL_STORAGE_PREFIX = 'invite_friends_earn_modal_dismissed_';
 const CUSTOM_PROMO_MODAL_STORAGE_PREFIX = 'custom_promo_modal_dismissed_';
+const STORE_MODAL_SESSION_PREFIX = 'store_promo_modal_shown_';
 
 export function spinWheelModalStorageKey(userId, stepId = '') {
   const id = String(stepId || '').trim();
@@ -276,6 +278,14 @@ export function useDashboardPromoModals({
           if (isDismissed(inviteFriendsModalStorageKey(userId, step.id))) return false;
           return true;
         }
+        if (step.type === 'store') {
+          // Once per browser session, so a page refresh does not reopen it.
+          try {
+            return !sessionStorage.getItem(`${STORE_MODAL_SESSION_PREFIX}${userId}_${step.id}`);
+          } catch {
+            return true;
+          }
+        }
         if (step.type === 'custom') {
           if (!step.imageUrl) return false;
           if (isDismissed(customPromoModalStorageKey(userId, step.id))) return false;
@@ -349,6 +359,19 @@ export function useDashboardPromoModals({
         });
       };
 
+      const openStore = (step, index) => {
+        whenClearToShowPromo(() => {
+          hideAllPromoModals();
+          try {
+            sessionStorage.setItem(`${STORE_MODAL_SESSION_PREFIX}${userId}_${step.id}`, '1');
+          } catch {
+            /* ignore */
+          }
+          openStoreModal('buy');
+          waitForModalClose(() => isStoreModalOpen(), () => afterClosed(step, index + 1));
+        });
+      };
+
       const openDaily = async (step, index) => {
         const daily = dailyBonusPromoRef.current;
         if (!daily?.tryAutoOpen) {
@@ -384,6 +407,10 @@ export function useDashboardPromoModals({
         }
         if (step.type === 'invite_friends') {
           openInvite(step, index);
+          return;
+        }
+        if (step.type === 'store') {
+          openStore(step, index);
           return;
         }
         if (step.type === 'custom') {

@@ -14,11 +14,15 @@ const { ROLES } = require('../../constants/roles');
 
 const KEY = 'lobby_content';
 
-const MAX = { text: 200, ids: 60, banners: 12, sections: 60, textKeys: 400, textValue: 400 };
+const TASK_ACTIONS = new Set(['phone', 'email']);
+const TASK_SOCIALS = new Set(['facebook', 'twitter', 'instagram', 'discord']);
+const PROMO_CARD_IDS = new Set(['vip', 'welcome', 'key', 'express', 'invite', 'daily']);
+
+const MAX = { faqSections: 20, faqItems: 40, tasks: 20, text: 200, ids: 60, banners: 12, sections: 60, textKeys: 400, textValue: 400 };
 
 const TEXT_ROOTS = new Set([
   'banners', 'promoCards', 'categories', 'recentWinsTitle', 'packages', 'providers', 'invite', 'deals',
-  'exclusive', 'pick', 'winners', 'sidebar', 'header', 'brand',
+  'exclusive', 'pick', 'winners', 'sidebar', 'header', 'brand', 'store',
 ]);
 const LINK_KEY = /(^|\.)(href|art|bg|image|logo|to|[a-zA-Z]*Href)$/;
 const BAD_SEGMENT = new Set(['__proto__', 'constructor', 'prototype']);
@@ -176,6 +180,63 @@ function sanitizeContent(payload = {}) {
       .slice(0, 10)
       .map((l) => ({ label: str(l?.label, 60), to: link(l?.to) }))
       .filter((l) => l.label && l.to);
+  }
+
+  // FAQ page: { intro, sections: [{ title, items: [{ q, a }] }] }
+  if (payload.faq && typeof payload.faq === 'object') {
+    const sections = Array.isArray(payload.faq.sections) ? payload.faq.sections : [];
+    out.faq = {
+      intro: str(payload.faq.intro, 500),
+      sections: sections.slice(0, MAX.faqSections).map((sec) => ({
+        title: str(sec?.title, 120),
+        items: (Array.isArray(sec?.items) ? sec.items : [])
+          .slice(0, MAX.faqItems)
+          .map((it) => ({ q: str(it?.q, 240), a: str(it?.a, 1500) }))
+          .filter((it) => it.q && it.a),
+      })).filter((sec) => sec.title && sec.items.length),
+    };
+  }
+
+  // Task list modal: { regular: [task], daily: [task] }
+  if (payload.tasks && typeof payload.tasks === 'object') {
+    const tasks = {};
+    ['regular', 'daily'].forEach((group) => {
+      if (!Array.isArray(payload.tasks[group])) return;
+      tasks[group] = payload.tasks[group].slice(0, MAX.tasks).map((t, i) => ({
+        id: sectionId(t?.id) || `task-${i + 1}`,
+        title: str(t?.title, 80),
+        desc: str(t?.desc, 240),
+        target: str(t?.target, 160),
+        url: link(t?.url),
+        to: link(t?.to),
+        cta: str(t?.cta, 40),
+        gc: str(t?.gc, 20),
+        sc: str(t?.sc, 20),
+        action: TASK_ACTIONS.has(t?.action) ? t.action : '',
+        social: TASK_SOCIALS.has(t?.social) ? t.social : '',
+        enabled: t?.enabled === undefined ? true : boolean(t.enabled),
+      })).filter((t) => t.title);
+    });
+    if (Object.keys(tasks).length) out.tasks = tasks;
+  }
+
+  // Promotions page cards (fixed set of card designs; text, amounts, links, order and visibility are editable)
+  if (Array.isArray(payload.promoCards)) {
+    const seen = new Set();
+    out.promoCards = payload.promoCards
+      .map((c) => ({
+        id: str(c?.id, 20).toLowerCase(),
+        enabled: c?.enabled === undefined ? true : boolean(c.enabled),
+        ribbon: str(c?.ribbon, 40),
+        badge: str(c?.badge, 80),
+        text: str(c?.text, 120),
+        gold: str(c?.gold, 24),
+        sweep: str(c?.sweep, 24),
+        cta: str(c?.cta, 40),
+        to: link(c?.to),
+        note: str(c?.note, 60),
+      }))
+      .filter((c) => PROMO_CARD_IDS.has(c.id) && !seen.has(c.id) && seen.add(c.id));
   }
 
   if (payload.popularity && typeof payload.popularity === 'object') {

@@ -53,6 +53,7 @@ async function createChimeDepositRequest(userId, body) {
 
   const amount = body?.amount != null ? Number(body.amount) : NaN;
   const packageId = body?.package_id ?? body?.packageId ?? null;
+  await require('./gcPurchase.service').assertPackageRequiredForGcStore(userId, packageId);
   const voucherId = body?.voucher_id ?? body?.voucherId ?? null;
   let payAmount = amount;
   let creditSc = null;

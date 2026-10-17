@@ -23,6 +23,7 @@ const FALLBACK_TYPE_OPTIONS = [
 ]
 
 const FALLBACK_WALLET_OPTIONS = [
+  { value: 'GC', label: 'Gold Coins (GC)' },
   { value: 'PSC', label: 'Purchased SC (PSC)' },
   { value: 'BSC', label: 'Bonus SC (BSC)' },
   { value: 'RSC', label: 'Redeemable SC (RSC)' },

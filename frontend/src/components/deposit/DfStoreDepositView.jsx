@@ -7,7 +7,10 @@ import {
   chestImageProps,
   packBonusParts,
   formatMoney,
-  formatScLabel
+  formatScLabel,
+  formatGcLabel,
+  gcOfferParts,
+  isGcPackage
 } from '../../utils/storeChest';
 import { DfStorePaymentModal } from './DfStorePaymentModal';
 import './df-store.css';
@@ -42,8 +45,26 @@ function RefreshTimer({ endsAt }) {
 function offerBadge(pkg, pct) {
   const label = String(pkg?.discount_label || pkg?.badge || '').trim();
   if (label) return label;
+  if (isGcPackage(pkg)) return gcOfferParts(pkg).freeSc > 0 ? 'FREE SC' : null;
   if (pct > 0) return `+${pct}% SC`;
   return null;
+}
+
+/** Amount block shared by the cards: GC packages show Gold Coins + the free SC bonus, others show SC as before. */
+function offerAmount(pkg, sc, base, bonus) {
+  if (isGcPackage(pkg)) {
+    const { gc, freeSc } = gcOfferParts(pkg);
+    return {
+      total: formatGcLabel(gc),
+      breakdown: freeSc > 0 ? `+ ${formatScLabel(freeSc)} free` : 'Gold Coins',
+      label: `${formatGcLabel(gc)}${freeSc > 0 ? ` plus ${formatScLabel(freeSc)} free` : ''}`
+    };
+  }
+  return {
+    total: formatScLabel(sc),
+    breakdown: `${base.toFixed(2)} base${bonus > 0 ? ` + ${bonus.toFixed(2)} bonus` : ''}`,
+    label: formatScLabel(sc)
+  };
 }
 
 function LimitedCard({ pkg, selected, onSelect, index }) {
@@ -51,6 +72,7 @@ function LimitedCard({ pkg, selected, onSelect, index }) {
   const file = resolveLimitedChestFile(pkg);
   const price = formatMoney(pkg.final_price);
   const badge = offerBadge(pkg, pct);
+  const amountView = offerAmount(pkg, sc, base, bonus);
   const listPrice = Number(pkg.actual_price ?? pkg.actualPrice);
   const showList = Number.isFinite(listPrice) && listPrice > Number(pkg.final_price) + 0.009;
 
@@ -61,10 +83,8 @@ function LimitedCard({ pkg, selected, onSelect, index }) {
     >
       {badge ? <span className="store-limited-package__badge">{badge}</span> : null}
       <span className="sc-offer-amount" data-sc-offer-amount="true">
-        <strong className="sc-offer-amount__total">{formatScLabel(sc)}</strong>
-        <span className="sc-offer-amount__breakdown">
-          {base.toFixed(2)} base{bonus > 0 ? ` + ${bonus.toFixed(2)} bonus` : ''}
-        </span>
+        <strong className="sc-offer-amount__total">{amountView.total}</strong>
+        <span className="sc-offer-amount__breakdown">{amountView.breakdown}</span>
       </span>
       <div className="store-limited-package__art" aria-hidden>
         <img className="df-store-chest-image" {...chestImageProps(file, { eager: index < 2 })} />
@@ -82,7 +102,7 @@ function LimitedCard({ pkg, selected, onSelect, index }) {
       <button
         className="df-store-price-button"
         type="button"
-        aria-label={`Buy ${formatScLabel(sc)}. Offer price ${price}`}
+        aria-label={`Buy ${amountView.label}. Offer price ${price}`}
         onClick={() => onSelect(pkg)}
       >
         {price}
@@ -95,6 +115,7 @@ function LimitedCard({ pkg, selected, onSelect, index }) {
 function ChestCard({ pkg, selected, onSelect, index, compact }) {
   const chest = resolveChestTier(pkg);
   const { sc, base, bonus } = packBonusParts(pkg);
+  const amountView = offerAmount(pkg, sc, base, bonus);
   const price = formatMoney(pkg.final_price);
   const title = /chest/i.test(String(pkg.title || '')) ? pkg.title : chest.label;
 
@@ -118,10 +139,8 @@ function ChestCard({ pkg, selected, onSelect, index, compact }) {
       <div className="df-store-card__details">
         <h3>{title}</h3>
         <span className="sc-offer-amount df-store-card__amount" data-sc-offer-amount="true">
-          <strong className="sc-offer-amount__total">{formatScLabel(sc)}</strong>
-          <span className="sc-offer-amount__breakdown">
-            {base.toFixed(2)} base{bonus > 0 ? ` + ${bonus.toFixed(2)} bonus` : ''}
-          </span>
+          <strong className="sc-offer-amount__total">{amountView.total}</strong>
+          <span className="sc-offer-amount__breakdown">{amountView.breakdown}</span>
         </span>
       </div>
       <span className="df-store-card__price" aria-hidden>
@@ -131,7 +150,7 @@ function ChestCard({ pkg, selected, onSelect, index, compact }) {
       <button
         className="df-store-card__select"
         type="button"
-        aria-label={`Buy ${title}: ${formatScLabel(sc)} for ${price}`}
+        aria-label={`Buy ${title}: ${amountView.label} for ${price}`}
         aria-pressed={selected}
         onClick={() => onSelect(pkg)}
       />
@@ -152,6 +171,8 @@ export function DfStoreDepositView({
   packagesLoading = false,
   selectedPackage = null,
   onSelectPackage,
+  autoOpenPackage = null,
+  onAutoOpened,
   customAmountMode = false,
   canSubmit = false,
   submitting = false,
@@ -247,6 +268,14 @@ export function DfStoreDepositView({
     setModalPkg(pkg);
     onSelectPackage?.(pkg);
   }
+
+  // A package picked in the Store popup goes straight to the payment-method step.
+  useEffect(() => {
+    if (!autoOpenPackage?.id) return;
+    setModalPkg(autoOpenPackage);
+    onAutoOpened?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoOpenPackage]);
 
   function handleModalContinue(rail, pkg) {
     onSelectPackage?.(pkg);

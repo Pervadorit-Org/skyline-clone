@@ -124,6 +124,22 @@ export function packBonusParts(pkg) {
   return { sc, base: +base.toFixed(2), bonus, pct };
 }
 
+/** A Gold Coin package (GC stores): gc_coin is what the player buys, final_sc is the FREE promotional SC. */
+export function isGcPackage(pkg) {
+  return Number(pkg?.gc_coin) > 0;
+}
+
+export function formatGcLabel(n) {
+  const v = Math.floor(Number(n) || 0);
+  return `${v.toLocaleString('en-US')} GC`;
+}
+
+/** { gc, freeSc } for a Gold Coin package. freeSc is 0 when the package has no free SC bonus. */
+export function gcOfferParts(pkg) {
+  const freeSc = Number(pkg?.final_sc);
+  return { gc: Math.floor(Number(pkg?.gc_coin) || 0), freeSc: Number.isFinite(freeSc) && freeSc > 0 ? freeSc : 0 };
+}
+
 export function formatMoney(n) {
   const v = Number(n);
   if (!Number.isFinite(v)) return '$0.00';

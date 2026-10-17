@@ -25,6 +25,7 @@ const {
 } = require('../wallet/bonusScLock.service');
 const { ensureWallet, usableOf } = require('../wallet/walletBuckets.service');
 const { BONUS_CURRENCY_CODE } = require('../wallet/getCurrencySetting.service');
+const gcWallet = require('../wallet/gcWallet.service');
 
 const ACTIVATION_BONUS_WELCOME = 'welcome';
 const ACTIVATION_BONUS_REFERRAL = 'referral';
@@ -154,6 +155,9 @@ async function canUserPlayGames(userId, options = {}) {
   const uid = parseInt(userId, 10);
   if (!Number.isInteger(uid) || uid < 1) return false;
 
+  // GC mode is free entertainment play (GC stores only), consistent with getGamePlayEligibility.
+  if (!options.scOnly && (await gcWallet.isGcMode(uid, options.transaction))) return true;
+
   const hasDeposit = await hasUserCompletedDeposit(uid, options);
   if (hasDeposit) return true;
 
@@ -162,6 +166,23 @@ async function canUserPlayGames(userId, options = {}) {
 }
 
 async function getGamePlayEligibility(userId, options = {}) {
+  // GC mode (GC stores only) is free entertainment play: it never needs a purchase or the SC activation gate.
+  // SC mode keeps every existing rule (deposit-to-activate, phone verification lock).
+  if (!options.scOnly && (await gcWallet.isGcMode(userId, options.transaction))) {
+    const hasDepositGc = await hasUserCompletedDeposit(userId, options);
+    return {
+      has_deposit: hasDepositGc,
+      can_play_games: true,
+      activation_bonus_type: null,
+      require_deposit_to_activate_bonus: false,
+      bonus_sc_locked: false,
+      locked_balance_sc: 0,
+      reason: null,
+      message: null,
+      currency_mode: gcWallet.MODE_GC,
+      cta_path: '/deposit'
+    };
+  }
   const [hasDeposit, activationBonusType, gateEnabled] = await Promise.all([
     hasUserCompletedDeposit(userId, options),
     getActivationBonusType(userId, options),

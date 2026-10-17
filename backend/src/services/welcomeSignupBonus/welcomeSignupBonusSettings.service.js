@@ -11,14 +11,25 @@ const log = createLogger('welcomeSignupBonusSettings');
 const KEY = 'welcome_signup_bonus_settings';
 const DEFAULT_AMOUNT_SC = 10;
 const MAX_AMOUNT_SC = 10000;
+const MAX_AMOUNT_GC = 1000000000;
 
 const DEFAULTS = {
   enabled: false,
   amountSc: DEFAULT_AMOUNT_SC,
   modalImageUrl: null,
+  // Gold Coins credited with the welcome bonus (GC stores only; 0 = none).
+  amountGc: 0,
   // When true, users who received welcome/refer signup bonus must make a first
   // package purchase before playing. Missing field on existing rows => true.
   requireDepositToActivateBonus: true
+};
+
+/**
+ * Built-in welcome bonus for brand stores that have no saved settings row (e.g. a restored database).
+ * Golden Dragon: 150,000 GC + 2 SC. Any saved row (admin page) always wins over this.
+ */
+const BRAND_DEFAULTS = {
+  goldendragon: { enabled: true, amountSc: 2, amountGc: 150000, requireDepositToActivateBonus: true }
 };
 
 /**
@@ -81,6 +92,19 @@ function normalizeAmountSc(raw) {
   return roundAmountSc(n);
 }
 
+/** Optional GC amount: whole number >= 0. undefined => caller keeps the previous value. */
+function normalizeAmountGc(raw) {
+  if (raw === undefined) return undefined;
+  if (raw === null || raw === '') return 0;
+  const n = Math.round(Number(raw));
+  if (!Number.isFinite(n) || n < 0 || n > MAX_AMOUNT_GC) {
+    const err = new Error(`amountGc must be a whole number between 0 and ${MAX_AMOUNT_GC}.`);
+    err.statusCode = 400;
+    throw err;
+  }
+  return n;
+}
+
 function normalizeEnabled(raw) {
   if (raw === true || raw === 'true' || raw === 1 || raw === '1') return true;
   if (raw === false || raw === 'false' || raw === 0 || raw === '0') return false;
@@ -102,9 +126,12 @@ function parseSettingsValue(value) {
       typeof parsed.modalImageUrl === 'string' && parsed.modalImageUrl.trim()
         ? parsed.modalImageUrl.trim()
         : null;
+    const parsedGc = Math.round(Number(parsed.amountGc));
+    const amountGc = Number.isFinite(parsedGc) && parsedGc > 0 ? Math.min(parsedGc, MAX_AMOUNT_GC) : 0;
     return {
       enabled: parsed.enabled === true,
       amountSc,
+      amountGc,
       modalImageUrl,
       requireDepositToActivateBonus: parsed.requireDepositToActivateBonus !== false,
       updatedBy: typeof parsed.updatedBy === 'string' ? parsed.updatedBy : null,
@@ -115,11 +142,25 @@ function parseSettingsValue(value) {
   }
 }
 
-function effectiveFromParsed(parsed) {
+function effectiveFromParsed(parsed, storeCode = null) {
   if (!parsed) {
+    const brand = BRAND_DEFAULTS[normalizeStoreCode(storeCode || '')];
+    if (brand) {
+      return {
+        enabled: brand.enabled,
+        amountSc: brand.amountSc,
+        amountGc: brand.amountGc,
+        modalImageUrl: DEFAULTS.modalImageUrl,
+        requireDepositToActivateBonus: brand.requireDepositToActivateBonus,
+        hasOverride: false,
+        updatedBy: null,
+        updatedAt: null
+      };
+    }
     return {
       enabled: DEFAULTS.enabled,
       amountSc: DEFAULTS.amountSc,
+      amountGc: DEFAULTS.amountGc,
       modalImageUrl: DEFAULTS.modalImageUrl,
       requireDepositToActivateBonus: DEFAULTS.requireDepositToActivateBonus,
       hasOverride: false,
@@ -130,6 +171,7 @@ function effectiveFromParsed(parsed) {
   return {
     enabled: parsed.enabled === true,
     amountSc: parsed.amountSc,
+    amountGc: parsed.amountGc || 0,
     modalImageUrl: parsed.modalImageUrl || null,
     requireDepositToActivateBonus: parsed.requireDepositToActivateBonus !== false,
     hasOverride: true,
@@ -215,7 +257,7 @@ async function getEffectiveSettings(distributorCode, storeCode) {
   const row = await getSettingRow(distributorCode, storeCode);
   const parsed = parseSettingsValue(row?.value);
   return {
-    ...effectiveFromParsed(parsed),
+    ...effectiveFromParsed(parsed, code),
     distributorCode: row?.distributorCode ?? distributorCode ?? null,
     storeCode: code
   };
@@ -290,7 +332,7 @@ async function listAllStoreSettings() {
       const code = normalizeStoreCode(s.storeCode);
       const mapKey = `${s.distributorCode || ''}|${code}`;
       const parsed = settingsMap.get(mapKey) || null;
-      const effective = effectiveFromParsed(parsed);
+      const effective = effectiveFromParsed(parsed, code);
       return {
         userId: s.userId,
         username: s.username,
@@ -300,6 +342,8 @@ async function listAllStoreSettings() {
         isActive: s.isActive !== false,
         enabled: effective.enabled,
         amountSc: effective.amountSc,
+        amountGc: effective.amountGc || 0,
+        gcStore: require('../wallet/gcWallet.service').isGcStoreCode(s.storeCode),
         modalImageUrl: effective.modalImageUrl,
         requireDepositToActivateBonus: effective.requireDepositToActivateBonus !== false,
         hasOverride: effective.hasOverride,
@@ -332,6 +376,8 @@ async function listOwnStoreSettings(scope) {
         isActive: store.isActive,
         enabled: effective.enabled,
         amountSc: effective.amountSc,
+        amountGc: effective.amountGc || 0,
+        gcStore: require('../wallet/gcWallet.service').isGcStoreCode(store.storeCode),
         modalImageUrl: effective.modalImageUrl,
         requireDepositToActivateBonus: effective.requireDepositToActivateBonus !== false,
         hasOverride: effective.hasOverride,
@@ -350,6 +396,7 @@ async function getPublicSettingsForStoreCode(storeCode) {
   return {
     enabled: effective.enabled === true,
     amountSc: effective.amountSc,
+    amountGc: effective.amountGc || 0,
     modalImageUrl: effective.modalImageUrl || null
   };
 }
@@ -361,13 +408,15 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
   const store = await resolveStoreScope(scope);
   const enabled = normalizeEnabled(payload.enabled);
   const amountSc = normalizeAmountSc(payload.amountSc);
-  if (enabled && !(amountSc > 0)) {
-    const err = new Error('When enabled, amountSc must be greater than 0.');
+  const previous = await getEffectiveSettings(store.distributorCode, store.storeCode);
+  const gcInput = normalizeAmountGc(payload.amountGc);
+  const amountGc = gcInput === undefined ? previous.amountGc || 0 : gcInput;
+  if (enabled && !(amountSc > 0) && !(amountGc > 0)) {
+    const err = new Error('When enabled, set Sweeps Coins or Gold Coins greater than 0.');
     err.statusCode = 400;
     throw err;
   }
 
-  const previous = await getEffectiveSettings(store.distributorCode, store.storeCode);
   const normalizedImage = normalizeModalImageUrl(payload.modalImageUrl);
   const modalImageUrl =
     normalizedImage === undefined ? previous.modalImageUrl || null : normalizedImage;
@@ -381,6 +430,7 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
   const valueObj = {
     enabled,
     amountSc,
+    amountGc,
     modalImageUrl,
     requireDepositToActivateBonus,
     updatedBy: updatedBy || null,
@@ -412,7 +462,7 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
       modalImageUrl: previous.modalImageUrl || null,
       requireDepositToActivateBonus: previous.requireDepositToActivateBonus !== false
     },
-    next: { enabled, amountSc, modalImageUrl, requireDepositToActivateBonus }
+    next: { enabled, amountSc, amountGc, modalImageUrl, requireDepositToActivateBonus }
   });
 
   return {
@@ -420,6 +470,7 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
     storeCode: store.storeCode,
     enabled,
     amountSc,
+    amountGc,
     modalImageUrl,
     requireDepositToActivateBonus,
     hasOverride: true,
@@ -448,6 +499,7 @@ async function upsertActivateBonusModal(scope, enabledRaw, { updatedBy } = {}) {
   const valueObj = {
     enabled: previous.enabled === true,
     amountSc: previous.amountSc,
+    amountGc: previous.amountGc || 0,
     modalImageUrl: previous.modalImageUrl || null,
     requireDepositToActivateBonus,
     updatedBy: updatedBy || null,

@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { SiteLogo } from './SiteLogo';
+import { storeLinkClick } from './Store/storeModalEvents';
+import '../styles/gd-mobile-header.css';
 import { lockBodyScroll } from '../utils/bodyScrollLock';
 import { PhoneVerifyGateModal } from './Auth/PhoneVerifyGateModal';
 import { DfWalletHud } from './DfWalletHud';
@@ -114,7 +116,11 @@ export function Navbar() {
     bscWalletUsable,
     rscWalletUsable,
     lockedBalanceSc,
-    balanceLoading
+    balanceLoading,
+    gcEnabled,
+    balanceGc,
+    currencyMode,
+    switchCurrencyMode
   } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -128,6 +134,7 @@ export function Navbar() {
   const hasFetchedUnreadOnceRef = useRef(false);
   const notificationAudioRef = useRef(null);
   const [scBreakdownOpen, setScBreakdownOpen] = useState(false);
+  const [modeSwitching, setModeSwitching] = useState(false);
   const [phoneUnlockOpen, setPhoneUnlockOpen] = useState(false);
   const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [guestMenuOpen, setGuestMenuOpen] = useState(false);
@@ -308,6 +315,10 @@ export function Navbar() {
             </button>
             <Link to="/" className="dash-logo dash-nav-auth-logo min-w-0" aria-label="Go to lobby">
               <SiteLogo variant="nav" />
+              <img className="gd-head-logo" src="/ref/mobile/logo-small.webp" alt="" width="50" height="50" draggable="false" />
+            </Link>
+            <Link to="/store" className="gd-head-emblem" aria-label="Open the store" onClick={storeLinkClick('buy')}>
+              <img src="/ref/mobile/egg.webp" alt="" width="22" height="24" draggable="false" />
             </Link>
 
             <div className="df-auth-balances" aria-label="Player balance display">
@@ -325,6 +336,20 @@ export function Navbar() {
                 psc={pscWalletUsable}
                 bsc={bscWalletUsable}
                 rsc={rscWalletUsable}
+                gcEnabled={gcEnabled}
+                mode={currencyMode}
+                gcAmount={balanceGc}
+                switching={modeSwitching}
+                onSwitchMode={async (m) => {
+                  setModeSwitching(true);
+                  try {
+                    await switchCurrencyMode(m);
+                  } catch {
+                    /* keep the current mode; the next balance sync shows the truth */
+                  } finally {
+                    setModeSwitching(false);
+                  }
+                }}
                 lockedSc={lockedSc}
                 onUnlockPhone={() => {
                   setScBreakdownOpen(false);
@@ -365,6 +390,7 @@ export function Navbar() {
                     <path d="M12 22a2.5 2.5 0 0 0 2.4-1.8h-4.8A2.5 2.5 0 0 0 12 22Zm7-6.5V11a7 7 0 0 0-5.5-6.8V3.5a1.5 1.5 0 0 0-3 0v.7A7 7 0 0 0 5 11v4.5L3.5 17v1h17v-1L19 15.5Z" />
                   </svg>
                   <span className="df-header-bell__dot" aria-hidden />
+                  {unreadCount > 0 ? <span className="gd-head-badge" aria-hidden>{unreadCount > 9 ? '9+' : unreadCount}</span> : null}
                 </button>
                 {notifOpen && (
                   <div className="dash-dropdown dash-notif-panel">

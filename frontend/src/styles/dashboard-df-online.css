@@ -5521,3 +5521,152 @@ body.slots-search-sticky .dash-root:has(.dash-nav--authenticated) .dash-slot-sea
     margin-bottom: 18px;
   }
 }
+
+
+/* ---------- Gold Coin stores: "GC 150K" pill with a G/S toggle (live Golden Dragon header) ---------- */
+.df-gcsc {
+  --gcsc-accent: #f3c10f;
+  --gcsc-accent-2: #ffe27a;
+  --gcsc-glow: rgba(243, 193, 15, 0.38);
+  gap: 8px;
+}
+
+.df-gcsc[data-mode='SC'] {
+  --gcsc-accent: #19c45a;
+  --gcsc-accent-2: #6df0a0;
+  --gcsc-glow: rgba(25, 196, 90, 0.4);
+}
+
+.df-gcsc__pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: min(290px, calc(100vw - 240px));
+  min-width: 170px;
+  height: 44px;
+  padding: 0 6px 0 18px;
+  border: 2px solid var(--gcsc-accent);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #0c1423, #060b16);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6) inset, 0 0 14px var(--gcsc-glow);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.df-gcsc__amount {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  font-family: "Baloo 2", system-ui, -apple-system, Segoe UI, sans-serif;
+  font-size: clamp(17px, 2.2vw, 24px);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.df-gcsc__unit { opacity: 0.95; }
+.df-gcsc__value { font-variant-numeric: tabular-nums; }
+
+.df-gcsc__amount:focus-visible,
+.df-gcsc__switch:focus-visible,
+.df-gcsc__store:focus-visible {
+  outline: 2px solid var(--gcsc-accent-2);
+  outline-offset: 2px;
+}
+
+.df-gcsc__switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 66px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--gcsc-accent-2), var(--gcsc-accent));
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.df-gcsc__switch:disabled { opacity: 0.7; cursor: wait; }
+
+.df-gcsc__knob {
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: radial-gradient(circle at 35% 30%, var(--gcsc-accent-2), var(--gcsc-accent) 70%);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  color: #fff;
+  font-family: "Baloo 2", system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+  transition: left 0.25s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+
+/* SC mode: knob slides to the right and the track turns green */
+.df-gcsc[data-mode='SC'] .df-gcsc__knob { left: calc(100% - 41px); }
+
+.df-gcsc__store {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  padding: 0 22px;
+  border: 2px solid var(--gcsc-accent);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #0c1423, #060b16);
+  box-shadow: 0 0 14px var(--gcsc-glow);
+  color: #fff;
+  font-family: "Baloo 2", system-ui, -apple-system, Segoe UI, sans-serif;
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+}
+
+.df-gcsc__store:hover { transform: translateY(-1px); }
+
+@media (max-width: 720px) {
+  .df-gcsc { gap: 5px; }
+  .df-gcsc .df-wallet-hud__tier { display: none; }
+  .df-gcsc__pill { width: auto; min-width: 0; height: 34px; padding: 0 4px 0 10px; gap: 6px; }
+  .df-gcsc__amount { gap: 6px; font-size: 14px; }
+  .df-gcsc__switch { width: 46px; height: 24px; }
+  .df-gcsc__knob { width: 28px; height: 28px; font-size: 15px; left: 2px; }
+  .df-gcsc[data-mode='SC'] .df-gcsc__knob { left: calc(100% - 30px); }
+  .df-gcsc__store { height: 34px; padding: 0 10px; font-size: 13px; }
+}
+
+
+/* ─── Toaster: top-right, left accent bar (site-wide) ─── */
+.dash-toast-host.df-toast-stack{top:max(72px,env(safe-area-inset-top,0px));right:16px;left:auto;transform:none;width:min(420px,calc(100vw - 32px))}
+.dash-toast-host.df-toast-stack .dash-toast.df-toast{align-items:center;gap:14px;padding:16px 48px 16px 20px;border:1px solid #1f2433;border-left:5px solid #f5c542;border-radius:14px;background:#0c0f1a;box-shadow:0 12px 30px rgba(0,0,0,.5);backdrop-filter:none;font-family:Inter,system-ui,sans-serif}
+.dash-toast-host.df-toast-stack .df-toast--success{border-left-color:#4caf50;background:#0c0f1a}
+.dash-toast-host.df-toast-stack .df-toast--error{border-left-color:#ef4444;background:#0c0f1a;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.dash-toast-host.df-toast-stack .df-toast--info{border-left-color:#f5c542}
+.dash-toast-host.df-toast-stack .df-toast__body{text-align:left}
+.dash-toast-host.df-toast-stack .df-toast__message,.dash-toast-host.df-toast-stack .df-toast--error .df-toast__message{font:400 1.0625rem/1.4 Inter,system-ui,sans-serif;color:#d1d5db}
+.dash-toast-host.df-toast-stack .df-toast__progress{display:none}
+.dash-toast-host.df-toast-stack .df-toast__close{top:50%;right:16px;transform:translateY(-50%);width:24px;height:24px;background:transparent;color:#8b93a7;font-size:22px}
+.dash-toast-host.df-toast-stack .df-toast__close:hover{background:transparent;color:#fff}
+.df-toast__icon{flex:none;display:grid;place-items:center;width:28px;height:28px;border:2px solid currentColor;border-radius:50%;font-size:14px;font-weight:800;line-height:1;color:#f5c542}
+.df-toast--success .df-toast__icon{color:#4caf50}
+.df-toast--error .df-toast__icon{color:#ef4444}
+@media(max-width:767px){.dash-toast-host.df-toast-stack{top:max(64px,env(safe-area-inset-top,0px));right:12px;left:auto;transform:none;width:min(420px,calc(100vw - 24px))}}

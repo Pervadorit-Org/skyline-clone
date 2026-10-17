@@ -14,6 +14,7 @@ const {
   splitPlayDebit
 } = require('../wallet/walletBuckets.service');
 const { invalidateBalanceCache } = require('../wallet/balanceCache');
+const gcWallet = require('../wallet/gcWallet.service');
 const { notifyUserBalanceChanged } = require('../realtime/notifyBalance.service');
 
 const JAR_LABELS = {
@@ -133,6 +134,15 @@ async function applyWalletCredit({ transaction, userId, currencyCode, amount, cr
   }
 }
 
+/** Gold Coins can only be adjusted for users of a Gold Coin store. */
+async function assertGcUser(userId, transaction) {
+  if (!(await gcWallet.isGcStoreUser(userId, transaction))) {
+    const err = new Error('Gold Coins are not available for this customer.');
+    err.statusCode = 400;
+    throw err;
+  }
+}
+
 function positiveAmount(value) {
   if (value == null || value === '') return 0;
   const n = roundMoney(Number(value));
@@ -208,14 +218,16 @@ async function adminDeductWallets({
   bscAmount,
   rscAmount,
   scAmount,
+  gcAmount,
   reason
 }) {
   const psc = positiveAmount(pscAmount);
   const bsc = positiveAmount(bscAmount);
   const rsc = positiveAmount(rscAmount);
   const sc = positiveAmount(scAmount);
+  const gc = positiveAmount(gcAmount);
 
-  if (!(psc > 0) && !(bsc > 0) && !(rsc > 0) && !(sc > 0)) {
+  if (!(psc > 0) && !(bsc > 0) && !(rsc > 0) && !(sc > 0) && !(gc > 0)) {
     const err = new Error('Enter how much to take from at least one wallet.');
     err.statusCode = 400;
     throw err;
@@ -227,6 +239,24 @@ async function adminDeductWallets({
   };
 
   await db.sequelize.transaction(async (transaction) => {
+    if (gc > 0) {
+      await assertGcUser(targetUserId, transaction);
+      try {
+        await gcWallet.debitGc(targetUserId, gc, {
+          transaction,
+          type: 'admin_deduct',
+          description: 'Admin took Gold Coins',
+          metadata: { ...metaBase, wallet: 'GC' }
+        });
+      } catch (e) {
+        if (e?.gcInsufficient) {
+          const err = new Error('Not enough ready Gold Coins.');
+          err.statusCode = 400;
+          throw err;
+        }
+        throw e;
+      }
+    }
     if (sc > 0) {
       const funding = await deductNonRedeemableSc({
         transaction,
@@ -327,19 +357,21 @@ async function adminAddSc({
   bscAmount,
   rscAmount,
   scAmount,
+  gcAmount,
   description
 }) {
   let psc = positiveAmount(pscAmount);
   let bsc = positiveAmount(bscAmount);
   let rsc = positiveAmount(rscAmount);
   const sc = positiveAmount(scAmount);
+  const gc = positiveAmount(gcAmount);
 
   // Legacy clients sent only `sc` → Free jar
   if (!(psc > 0) && !(bsc > 0) && !(rsc > 0) && sc > 0) {
     bsc = sc;
   }
 
-  if (!(psc > 0) && !(bsc > 0) && !(rsc > 0)) {
+  if (!(psc > 0) && !(bsc > 0) && !(rsc > 0) && !(gc > 0)) {
     const err = new Error('Enter how much to give in at least one wallet.');
     err.statusCode = 400;
     throw err;
@@ -359,6 +391,18 @@ async function adminAddSc({
   ].filter((c) => c.amount > 0);
 
   await db.sequelize.transaction(async (transaction) => {
+    if (gc > 0) {
+      await assertGcUser(targetUserId, transaction);
+      await gcWallet.creditGc(targetUserId, gc, {
+        transaction,
+        type: 'admin_add',
+        reason: 'ADMIN_ADJUST',
+        referenceType: 'ADMIN_ADJUST',
+        referenceId: String(adminUserId || ''),
+        description: details,
+        metadata: { adminUserId, wallet: 'GC', jar: 'Gold Coins', description: details }
+      });
+    }
     for (const credit of credits) {
       await applyWalletCredit({
         transaction,

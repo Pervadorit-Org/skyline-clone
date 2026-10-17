@@ -71,7 +71,8 @@ async function callBotWithdraw(baseUrl, apiKey, accountName, amount) {
  * @param {number} amount
  */
 async function withdrawGameAccount(userId, gameId, amount) {
-  await assertUserCanPlayGames(userId);
+  // SC-only flow: the GC-mode free-play exemption must not apply here.
+  await assertUserCanPlayGames(userId, { scOnly: true });
 
   let game = null;
   let userGameAccount = null;

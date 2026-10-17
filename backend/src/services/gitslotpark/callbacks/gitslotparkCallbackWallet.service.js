@@ -15,6 +15,7 @@ const {
   roundMoney
 } = require('../../wallet/walletBuckets.service');
 const { resolveLockedBonusSc } = require('../../wallet/bonusScLock.service');
+const gcWallet = require('../../wallet/gcWallet.service');
 const { formatBalance } = require('../gitslotparkSign.helpers');
 const { RESULT } = require('./gitslotparkCallback.helpers');
 const { createLogger } = require('../../../libs/logger');
@@ -44,6 +45,11 @@ function insufficientFundsError() {
  * Slots playable = usable PSC + BSC + RSC (+ leftover legacy SC).
  */
 async function getPlayableBalance(userId, transaction) {
+  // GC mode (GC stores only): play uses the Gold Coin wallet and nothing else.
+  if (await gcWallet.isGcMode(userId, transaction)) {
+    const gc = await gcWallet.getGcBalance(userId, transaction);
+    return formatBalance(gc.usable);
+  }
   const [pscWallet, bscWallet, rscWallet, legacyWallet] = await Promise.all([
     ensureWallet(userId, PURCHASED_CURRENCY_CODE, transaction),
     ensureWallet(userId, BONUS_CURRENCY_CODE, transaction),
@@ -390,6 +396,16 @@ function buildSlotsWalletImpact({ delta, betAmount, winAmount, pscUsable, bscUsa
  * Apply a GitSlotPark balance delta under PSC→BSC→RSC slots rules.
  */
 async function applyBalanceDelta(userId, delta, meta, transaction, options = {}) {
+  // Settle in the wallet the round started in, even if the player switched GC/SC mid-round.
+  const playMode = await gcWallet.resolvePlayMode(userId, meta?.metadata?.roundId, transaction);
+  if (playMode === gcWallet.MODE_GC) {
+    try {
+      return formatBalance(await gcWallet.applyGcDelta(userId, delta, meta, transaction, options));
+    } catch (err) {
+      if (err?.gcInsufficient) throw insufficientFundsError();
+      throw err;
+    }
+  }
   const [pscWallet, bscWallet, rscWallet, legacyWallet] = await Promise.all([
     ensureWallet(userId, PURCHASED_CURRENCY_CODE, transaction),
     ensureWallet(userId, BONUS_CURRENCY_CODE, transaction),
@@ -430,6 +446,17 @@ async function applyRollbackDelta(userId, originalTransactionId, reverseDelta, m
       transaction
     });
     const impact = prior?.metadata?.walletImpact;
+    // The original bet/win hit the GC wallet: reverse GC, whatever mode the player is in now.
+    if (impact && impact.gc != null && prior.currencyCode === gcWallet.GOLD_CURRENCY_CODE) {
+      try {
+        return formatBalance(
+          await gcWallet.applyGcDelta(userId, formatBalance(-Number(impact.gc) || 0), meta, transaction)
+        );
+      } catch (err) {
+        if (err?.gcInsufficient) throw insufficientFundsError();
+        throw err;
+      }
+    }
     if (impact && (impact.psc != null || impact.bsc != null || impact.rsc != null || impact.sc != null)) {
       const psc = impact.psc != null ? Number(impact.psc) || 0 : Number(impact.sc) || 0;
       const bsc = Number(impact.bsc) || 0;

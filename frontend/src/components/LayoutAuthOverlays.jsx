@@ -28,9 +28,13 @@ const CustomPromoModal = lazy(() =>
 const DailyBonusModalHost = lazy(() =>
   import('./DailyBonus/DailyBonusModalHost').then((m) => ({ default: m.DailyBonusModalHost }))
 );
-const BackgroundMusic = lazy(() =>
-  import('./BackgroundMusic').then((m) => ({ default: m.BackgroundMusic }))
+const StoreModal = lazy(() =>
+  import('./Store/StoreModal').then((m) => ({ default: m.StoreModal }))
 );
+// Background music disabled for now.
+// const BackgroundMusic = lazy(() =>
+//   import('./BackgroundMusic').then((m) => ({ default: m.BackgroundMusic }))
+// );
 
 /**
  * Authenticated-only overlays. Lazy-loaded from Layout so guest landing does
@@ -211,9 +215,15 @@ export function LayoutAuthOverlays({ isAuthPage }) {
           />
         </Suspense>
       )}
+      {!isAuthPage && (
+        <Suspense fallback={null}>
+          <StoreModal />
+        </Suspense>
+      )}
+      {/* Background music disabled for now.
       <Suspense fallback={null}>
         <BackgroundMusic hideControls={dailyBonusPromo.open} />
-      </Suspense>
+      </Suspense> */}
     </>
   );
 }

@@ -19,6 +19,11 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: true
     },
+    middleName: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      field: 'middle_name'
+    },
     lastName: {
       type: DataTypes.STRING,
       allowNull: true

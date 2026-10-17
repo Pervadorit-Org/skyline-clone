@@ -90,7 +90,7 @@ export function AppLoader({ fullScreen = false, fillPage = true, message = 'Load
             height={90}
             loading="eager"
             decoding="async"
-            fetchPriority="high"
+            fetchpriority="high"
             onLoad={handleReady}
             onError={handleError}
           />

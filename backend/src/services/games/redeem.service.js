@@ -330,7 +330,8 @@ async function queueRedeemManualRequest({
 }
 
 async function redeemGameAccount(userId, gameId, amount) {
-  await assertUserCanPlayGames(userId);
+  // SC-only flow: the GC-mode free-play exemption must not apply here.
+  await assertUserCanPlayGames(userId, { scOnly: true });
 
   let userGameAccount = null;
   let creditedAmount = Number(amount);

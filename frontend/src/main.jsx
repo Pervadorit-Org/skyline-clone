@@ -13,7 +13,8 @@ import { startIdleTabRecovery } from './utils/idleTabRecovery'
 import { installClipboardFallback } from './utils/clipboardPolyfill'
 import { startTabResumeRepaint } from './utils/forceUiRepaint'
 import { lockAppZoom } from './utils/lockPlayPageZoom'
-import { startClubClickSounds } from './lib/clubClickSounds'
+// Click sounds disabled for now (re-enable by restoring the import and the call below).
+// import { startClubClickSounds } from './lib/clubClickSounds'
 
 scheduleDashboardStyles()
 registerPwaInstallPromptCapture()
@@ -114,7 +115,7 @@ if (site?.faviconUrl) {
   favicon.href = site.faviconUrl
 }
 
-startClubClickSounds()
+// startClubClickSounds()
 
 installClipboardFallback()
 createRoot(document.getElementById('root')).render(

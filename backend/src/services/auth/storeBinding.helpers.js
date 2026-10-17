@@ -17,6 +17,18 @@ function extractRequestOriginHost(req) {
   }
 }
 
+/**
+ * White-label brand stores keep working when their store_admin row is missing (e.g. a restored
+ * database that only has other stores): they resolve to a store with no distributor.
+ */
+const BRAND_FALLBACK_STORE_CODES = new Set(['dragonfury', 'goldendragon']);
+
+function fallbackBrandStore(codeNormalized) {
+  const code = normalizeStoreCode(codeNormalized);
+  if (!BRAND_FALLBACK_STORE_CODES.has(code)) return null;
+  return { storeCode: code, distributorCode: null, userSiteUrl: null };
+}
+
 async function resolveStoreFromCode(codeNormalized) {
   if (!codeNormalized) return null;
   const storeAdmin = await db.User.findOne({
@@ -29,7 +41,7 @@ async function resolveStoreFromCode(codeNormalized) {
     },
     attributes: ['distributorCode', 'storeCode', 'userSiteUrl']
   });
-  if (!storeAdmin) return null;
+  if (!storeAdmin) return fallbackBrandStore(codeNormalized);
   return {
     storeCode: storeAdmin.storeCode || codeNormalized,
     distributorCode: storeAdmin.distributorCode || null,
@@ -126,6 +138,7 @@ async function ensureUserStoreMatchesOrBind(user, clientStoreCodeRaw) {
 module.exports = {
   normalizeStoreCode,
   resolveStoreFromCode,
+  fallbackBrandStore,
   assertClientStoreMatchesRequestOrigin,
   ensureUserStoreMatchesOrBind
 };

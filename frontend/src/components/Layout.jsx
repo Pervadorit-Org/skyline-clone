@@ -36,9 +36,10 @@ const DashboardBackground = lazy(() =>
 const LayoutAuthOverlays = lazy(() =>
   import('./LayoutAuthOverlays').then((m) => ({ default: m.LayoutAuthOverlays }))
 );
-const BackgroundMusic = lazy(() =>
-  import('./BackgroundMusic').then((m) => ({ default: m.BackgroundMusic }))
-);
+// Background music disabled for now.
+// const BackgroundMusic = lazy(() =>
+//   import('./BackgroundMusic').then((m) => ({ default: m.BackgroundMusic }))
+// );
 const LandingFooter = lazy(() =>
   import('./LandingFooter').then((m) => ({ default: m.LandingFooter }))
 );
@@ -307,11 +308,12 @@ export function Layout({ children }) {
           <LayoutAuthOverlays isAuthPage={isAuthPage} />
         </Suspense>
       )}
+      {/* Background music disabled for now.
       {!isAuthenticated && !isAuthPage && (
         <Suspense fallback={null}>
           <BackgroundMusic hideControls={false} />
         </Suspense>
-      )}
+      )} */}
       {layoutPath === '/' && (
         <Suspense fallback={null}>
           <LandingSocialLinks variant="dock" />

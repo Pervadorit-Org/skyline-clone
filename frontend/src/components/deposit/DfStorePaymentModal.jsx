@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CashAppIcon, PayPalIcon } from '../../assets/icons';
 import { ChimeLogo } from '../payment/ChimeLogo';
-import { formatMoney, formatScLabel, packBonusParts } from '../../utils/storeChest';
+import { formatMoney, formatScLabel, packBonusParts, isGcPackage, gcOfferParts } from '../../utils/storeChest';
 import { packagePayableOnRail } from '../../utils/depositRails';
 import './df-store-payment-modal.css';
 
@@ -125,6 +125,10 @@ function bonusLabel(pkg) {
     if (/%\s*sc/i.test(raw)) return `${raw} BONUS`;
     return raw;
   }
+  if (isGcPackage(pkg)) {
+    const { freeSc } = gcOfferParts(pkg);
+    return freeSc > 0 ? `+ ${formatScLabel(freeSc)} FREE BONUS` : null;
+  }
   const { pct } = packBonusParts(pkg);
   if (pct > 0) return `+${pct}% SC BONUS`;
   return null;
@@ -197,7 +201,10 @@ export function DfStorePaymentModal({
   const offerPrice = Number(pkg.final_price);
   const showList =
     Number.isFinite(listPrice) && Number.isFinite(offerPrice) && listPrice > offerPrice + 0.009;
-  const scNum = formatScLabel(pkg.final_sc).replace(/\s*SC$/i, '');
+  const gcPkg = isGcPackage(pkg);
+  const scNum = gcPkg
+    ? gcOfferParts(pkg).gc.toLocaleString('en-US')
+    : formatScLabel(pkg.final_sc).replace(/\s*SC$/i, '');
   const bonus = bonusLabel(pkg);
 
   function handleContinue() {
@@ -229,7 +236,7 @@ export function DfStorePaymentModal({
         <div className="store-payment-modal__hero">
           <h2 className="df-premium-eyebrow">PAYMENT METHOD</h2>
           <strong className="store-payment-modal__amount">
-            {scNum} <small>SC</small>
+            {scNum} <small>{gcPkg ? 'GC' : 'SC'}</small>
           </strong>
           <span
             className="dragonfury-offer-prices store-payment-modal__prices"

@@ -93,6 +93,10 @@ async function resolveSignupCode(rawCode) {
         storeCode: storeAdmin.storeCode || null
       };
     }
+    const brand = require('./storeBinding.helpers').fallbackBrandStore(codeNormalized);
+    if (brand) {
+      return { referredByUserId: null, distributorCode: brand.distributorCode, storeCode: brand.storeCode };
+    }
   }
 
   const err = new Error('Wrong code or code does not exist. Please use your store code.');
@@ -238,16 +242,7 @@ async function register(body, options = {}) {
   const trimmedFirst = firstName ? String(firstName).trim() : '';
   const trimmedLast = lastName ? String(lastName).trim() : '';
   const payment = require('../payment');
-  // Names are only needed to create the Payment API account. isPaymentConfigured() is
-  // always true (the base URL has a built-in default), so also require the encryption
-  // key, matching the account-creation step below; otherwise sign-up is blocked
-  // whenever the form sends no name (e.g. local dev without payment keys).
-  const { isPaymentPasswordEncryptionConfigured: paymentAccountWillBeCreated } = require('../../utils/paymentPasswordEncryption');
-  if (payment.isPaymentConfigured() && paymentAccountWillBeCreated() && (!trimmedFirst || !trimmedLast)) {
-    const err = new Error('First name and last name are required for account creation.');
-    err.statusCode = 400;
-    throw err;
-  }
+  // First/last name are optional at signup (only username, email, password and the consent checkboxes are required).
   const nameError = 'First and last name can only contain letters (a-z, A-Z); no numbers, spaces, hyphens, or special characters.';
   if (trimmedFirst && !nameLettersOnly.test(trimmedFirst)) {
     const err = new Error(nameError);
@@ -447,7 +442,8 @@ async function register(body, options = {}) {
     }),
     ...(welcomeBonusGrant?.granted && {
       welcome_bonus_granted: true,
-      welcome_bonus_amount_sc: welcomeBonusGrant.amount_sc
+      welcome_bonus_amount_sc: welcomeBonusGrant.amount_sc,
+      welcome_bonus_amount_gc: welcomeBonusGrant.amount_gc || 0
     }),
     ...(referralFriendBonusGrant?.granted && {
       referral_friend_bonus_granted: true,

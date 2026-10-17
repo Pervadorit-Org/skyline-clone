@@ -129,7 +129,7 @@ function CarouselGameImage({ src, iconUrls, alt, className, priority = false, bl
           aria-hidden
           className={`${className} dash-slot-carousel-card-img--blur${loaded ? ' is-loaded' : ''}`}
           loading="eager"
-          fetchPriority={priority ? 'high' : 'auto'}
+          fetchpriority={priority ? 'high' : 'auto'}
           decoding="async"
           draggable={false}
         />
@@ -140,7 +140,7 @@ function CarouselGameImage({ src, iconUrls, alt, className, priority = false, bl
         alt={alt}
         className={`${className}${loaded ? ' is-loaded' : ''}${isLogo ? ' dash-slot-carousel-card-img--logo' : ''}`}
         loading="eager"
-        fetchPriority={priority ? 'high' : 'auto'}
+        fetchpriority={priority ? 'high' : 'auto'}
         decoding="async"
         draggable={false}
         ref={(node) => {

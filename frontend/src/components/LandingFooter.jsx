@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { site } from '../config/site';
+import { site, IS_BRAND_STORE } from '../config/site';
 import { openSupportWidget } from './intercomApi';
 import { SiteLogo } from './SiteLogo';
 import { useGamePageLinks } from '../hooks/useGamePageLinks';
@@ -162,6 +162,13 @@ export function LandingFooter() {
       seen.add(to);
       out.push({ to, label });
     };
+    // Brand stores (Dragon Fury / Golden Dragon): the Pages column is only what's created in admin "Footer links".
+    if (IS_BRAND_STORE) {
+      menus.forEach((menu) =>
+        (menu.pages || []).forEach((page) => add(`/${encodeURIComponent(page.slug)}`, page.title))
+      );
+      return out;
+    }
     // Legal pages (About Us, Privacy, Terms, Bonus Terms…) come from Admin → Pages so they can be
     // edited and hidden there. They are listed right after Blog; the other links (Help, FAQ…) follow.
     const legalPaths = new Set([...LEGAL_PATHS, '/bonus']);

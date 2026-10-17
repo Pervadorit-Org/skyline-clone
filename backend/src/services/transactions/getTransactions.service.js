@@ -17,8 +17,14 @@ const VALID_TYPES = [
   'vip_bonus',
   'game_deposit',
   'game_withdraw',
-  'deposit_courtesy'
+  'deposit_courtesy',
+  'gc_purchase',
+  'package_bonus',
+  'welcome_signup_gc'
 ];
+
+/** Wallet filter for GC stores: GC rows never mix with the SC buckets. */
+const CURRENCY_FILTERS = { GC: ['GC'], SC: ['SC', 'PSC', 'BSC', 'RSC'] };
 
 /** Game topup/redeem is written to both user_transactions and game_activities. */
 const GAME_ACTIVITY_DUPLICATE_WINDOW_MS = 15 * 1000;
@@ -90,10 +96,16 @@ async function getTransactions(userId, query = {}) {
 
   const where = { userId };
   const isGameCategory = category === 'game_deposit' || category === 'game_withdraw';
-  const includeGameActivities = !category || isGameCategory;
+  // Platform-game top-ups / redeems are SC-only, so they never appear in the GC view.
+  const includeGameActivities = (!category || isGameCategory) && String(query.currency || '').toUpperCase() !== 'GC';
 
   if (category) {
     where.type = category;
+  }
+
+  const currencyFilter = CURRENCY_FILTERS[String(query.currency || '').toUpperCase()] || null;
+  if (currencyFilter) {
+    where.currencyCode = { [Op.in]: currencyFilter };
   }
 
   if (dateFrom || dateTo) {

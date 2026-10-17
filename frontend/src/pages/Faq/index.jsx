@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { usePageContentReady } from '../../context/PageReadyContext';
 import { site } from '../../config/site';
+import { useLobbyContent } from '../../hooks/useLobbyContent';
 import './faq-page.css';
 
 const name = site.platformName;
@@ -111,8 +112,23 @@ function Chevron({ open }) {
   );
 }
 
+/** Admin-managed FAQ ({ title, items: [{ q, a }] }) in the same shape the built-in list uses. */
+function adminSections(faq) {
+  const list = Array.isArray(faq?.sections) ? faq.sections : [];
+  return list
+    .filter((sec) => sec?.title && Array.isArray(sec.items) && sec.items.length)
+    .map((sec) => ({
+      title: sec.title,
+      lines: sec.items.flatMap((it, i) => [`${String.fromCharCode(97 + (i % 26))}. ${it.q}`, it.a]),
+    }));
+}
+
 export function FaqPage() {
   usePageContentReady(true);
+  const { faq } = useLobbyContent();
+  const custom = adminSections(faq);
+  const sections = custom.length ? custom : FAQ_SECTIONS;
+  const intro = faq?.intro?.trim() || `${name} is a free-to-play online platform that runs in two modes: Gold Coins for fun play and Sweepstakes Coins for prize redemptions.`;
   const [openIdx, setOpenIdx] = useState(1);
 
   return (
@@ -120,10 +136,10 @@ export function FaqPage() {
       <div className="faq-wrap">
         <h1 className="faq-title">Frequently Asked Questions</h1>
         <p className="faq-lead">
-          {name} is a free-to-play online platform that runs in two modes: Gold Coins for fun play and Sweepstakes Coins for prize redemptions.
+          {intro}
         </p>
         <div className="faq-list">
-          {FAQ_SECTIONS.map((sec, i) => {
+          {sections.map((sec, i) => {
             const open = openIdx === i;
             return (
               <div key={sec.title} className={`faq-item${open ? ' is-open' : ''}`}>

@@ -76,6 +76,13 @@ module.exports = function (sequelize, DataTypes) {
         type: DataTypes.INTEGER,
         allowNull: true,
         field: 'max_purchases_per_user'
+      },
+      // Gold Coins sold by this package (GC stores). Column already exists in deposit_packages.
+      gcCoin: {
+        type: DataTypes.DECIMAL(18, 2),
+        allowNull: false,
+        defaultValue: 0,
+        field: 'gc_coin'
       }
     },
     {

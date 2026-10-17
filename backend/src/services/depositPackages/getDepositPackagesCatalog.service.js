@@ -2,6 +2,7 @@
 
 const { Op } = require('sequelize');
 const db = require('../../db/models');
+const { isGcStoreCode } = require('../wallet/gcWallet.service');
 const { DEPOSIT_PACKAGE_GROUP_DEFS, WELCOME_SIGNUP_WINDOW_HOURS } = require('../../constants/depositPackageGroups');
 const { normalizeScope } = require('./getDepositPackageSettings.service');
 const { countUserPackagePurchasesBatch } = require('./countUserPackagePurchases.service');
@@ -53,6 +54,8 @@ function serializePackage(row, { adminMode = false, purchasesUsed = null } = {})
     group_id: plain.groupId,
     title: plain.title || null,
     final_sc: toNumber(plain.finalSc),
+    /** Gold Coins sold by this package (GC stores); final_sc is then the free promotional SC. */
+    gc_coin: toNumber(plain.gcCoin) || 0,
     actual_price: toNumber(plain.actualPrice),
     final_price: toNumber(plain.finalPrice),
     discount_label: plain.discountLabel || null,
@@ -253,6 +256,8 @@ async function getActiveCatalogForScope(scope, { includeInactive = false, userId
 
   return {
     enabled: settings.enabled,
+    /** true for stores that sell Gold Coins (final_sc is then the free promotional SC). */
+    gc_store: isGcStoreCode(normalized.storeCode),
     groups: serializedGroups
   };
 }
@@ -282,6 +287,7 @@ async function getAdminCatalogForScope(scope) {
 
   return {
     enabled: settings.enabled,
+    gc_store: isGcStoreCode(normalized.storeCode),
     groups: groups.map((group) =>
       serializeGroup(group, packagesByGroup.get(group.id) || [], { adminMode: true })
     )

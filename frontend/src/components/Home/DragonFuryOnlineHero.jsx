@@ -43,7 +43,7 @@ export function DragonFuryOnlineHero() {
             width={460}
             height={348}
             decoding="async"
-            fetchPriority="high"
+            fetchpriority="high"
           />
         </div>
       </div>

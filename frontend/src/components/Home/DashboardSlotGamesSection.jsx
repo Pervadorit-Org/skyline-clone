@@ -328,7 +328,7 @@ export async function prefetchLobbySlotGames(onUpdate) {
   }
 }
 
-export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = null, hideIntro = false }) {
+export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = null, hideIntro = false, hideCategoryTabs = false, hideViewMore = false }) {
   const resolvedCategoryId = normalizeSlotCategoryId(categoryId);
   const navigate = useNavigate();
   const location = useLocation();
@@ -834,6 +834,8 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
           loading={loading}
           guestSpinModal
           hideIntro={hideIntro}
+          hideCategoryTabs={hideCategoryTabs}
+          hideViewMore={hideViewMore}
         />
         <DepositRequiredModal
           open={depositRequiredModalOpen}

@@ -25,7 +25,14 @@ import { ChimeLogoMark, ChimeLogoMarkLight } from '../../components/payment/Chim
 import { notifyDepositEligibilityChanged } from '../../utils/depositRequired';
 import { PaymentCardIcon, ApplePayIcon, GooglePayIcon, CashAppIcon, PayPalIcon, ZelleIcon, CryptoPayIcon } from '../../assets/icons';
 import { formatSc, roundTo2 } from '../../utils/currency';
-import { isPurchaseProfileComplete, needsPhoneVerification } from '../../utils/purchaseProfile';
+import { useNavigate } from 'react-router-dom';
+import {
+  isPurchaseProfileComplete,
+  needsPhoneVerification,
+  hasProfileNames,
+  PROFILE_INCOMPLETE_MESSAGE,
+  SETTINGS_PROFILE_REDIRECT
+} from '../../utils/purchaseProfile';
 import { PhoneVerifyGateModal } from '../../components/Auth/PhoneVerifyGateModal';
 import { normalizeDepositHistoryStatus } from '../../utils/depositHistoryStatus';
 import {
@@ -166,6 +173,7 @@ function mergePendingWithDepositRefresh(pendingRows = [], depositRefresh = []) {
 export function Deposit() {
   const { user, refreshBalance, refreshUser } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [phoneGateOpen, setPhoneGateOpen] = useState(false);
   const phoneGateClearedRef = useRef(false);
   const [phoneGateCleared, setPhoneGateCleared] = useState(false);
@@ -365,6 +373,12 @@ export function Deposit() {
   }, [user?.userId, user?.isPhoneVerified]);
 
   const requirePurchaseProfile = useCallback(() => {
+    // Names are optional at signup; ask for them before the first payment.
+    if (user && !hasProfileNames(user)) {
+      toast.error(PROFILE_INCOMPLETE_MESSAGE);
+      navigate(SETTINGS_PROFILE_REDIRECT);
+      return false;
+    }
     if (
       phoneGateClearedRef.current ||
       phoneGateCleared ||
@@ -375,7 +389,7 @@ export function Deposit() {
     }
     setPhoneGateOpen(true);
     return false;
-  }, [phoneGateCleared, user]);
+  }, [phoneGateCleared, user, toast, navigate]);
 
   useEffect(() => {
     if (profileComplete) setPhoneGateOpen(false);
@@ -1786,6 +1800,29 @@ export function Deposit() {
     setPackageSelectionTouched(Boolean(value));
   }, [requirePurchaseProfile]);
 
+  // /store?package=<id> (from the Store popup): open that package's payment step once the catalog is loaded.
+  const [autoOpenPkg, setAutoOpenPkg] = useState(null);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const wanted = params.get('package');
+    if (!wanted || loading || packagesLoading) return;
+    const strip = () => {
+      params.delete('package');
+      const qs = params.toString();
+      window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+    };
+    const hit = allCatalogPacks.find((p) => String(p.id) === String(wanted));
+    strip();
+    if (!hit) {
+      // Offer ended, sold out for this player, or switched off since the popup loaded.
+      toast.error('That package is no longer available. Please choose another one.');
+      return;
+    }
+    if (!requirePurchaseProfile()) return;
+    handleSelectPackage(hit);
+    setAutoOpenPkg(hit);
+  }, [allCatalogPacks, loading, packagesLoading, handleSelectPackage, requirePurchaseProfile, toast]);
+
   const handleRetryPurchase = useCallback((row) => {
     const methodKey = String(row?.method || '').toLowerCase();
     const amt = Number(row?.amount);
@@ -1913,6 +1950,8 @@ export function Deposit() {
         packagesLoading={packagesLoading || loading}
         selectedPackage={selectedPackage}
         onSelectPackage={handleSelectPackage}
+        autoOpenPackage={autoOpenPkg}
+        onAutoOpened={() => setAutoOpenPkg(null)}
         customAmounts={railCustomAmounts}
         customAmountMode={customAmountMode}
         selectedAmount={selectedAmount}

@@ -29,3 +29,12 @@ export function isPurchaseProfileComplete(user) {
 }
 
 export const SETTINGS_RETURN_DEPOSIT = '/settings?returnTo=deposit';
+
+/** First and last name are optional at signup but required before any payment. */
+export function hasProfileNames(user) {
+  if (!user) return false;
+  return Boolean(String(user.firstName || '').trim() && String(user.lastName || '').trim());
+}
+
+export const PROFILE_INCOMPLETE_MESSAGE = 'Please complete your profile first.';
+export const SETTINGS_PROFILE_REDIRECT = '/settings?returnTo=deposit#profile';

@@ -30,7 +30,7 @@ const SOCIAL_PLATFORMS = [
         height={22}
         loading="lazy"
         decoding="async"
-        fetchPriority="low"
+        fetchpriority="low"
       />
     ),
   },

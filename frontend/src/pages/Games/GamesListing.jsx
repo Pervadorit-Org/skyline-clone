@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePageContentReady } from '../../context/PageReadyContext';
 import { GAME_CATEGORY_PAGES } from '../../config/seoPages';
-import { IS_BRAND_STORE } from '../../config/site';
+import { IS_BRAND_STORE, site } from '../../config/site';
 import { getGamePages } from '../../api/gamePages';
 import { GameImage } from '../../components/Games/GameImage';
 import './SeoGames.css';

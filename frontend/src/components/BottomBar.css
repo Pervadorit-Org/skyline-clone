@@ -1,0 +1,69 @@
+/* Mobile bottom navigation — mirrors the reference site (menu / lobby / wallet / platforms / support). */
+.gd-nav { display: none; }
+
+@media (max-width: 1023px) {
+  html body .df-nav-hud { display: none !important; }
+  html body #root#root .gd-nav {
+    --gd-surface: #121421;
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 60;
+    display: block;
+    width: 100%;
+    height: calc(68px + env(safe-area-inset-bottom, 0px));
+    margin-bottom: -1px;
+    color: #ebc567;
+    pointer-events: none;
+  }
+  .gd-nav__bg { position: absolute; inset-inline: 0; bottom: 0; z-index: -1; width: 100%; height: 150%; pointer-events: none; }
+  .gd-nav__body { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .gd-nav__notch,
+  .gd-nav__notch-stroke { position: absolute; top: 0; left: 50%; transform: translateX(-50%); aspect-ratio: 112.4 / 35; }
+  .gd-nav__notch { height: 35.35%; }
+  .gd-nav__notch-stroke { height: 33.98%; }
+  .gd-fill-surface { fill: var(--gd-surface); }
+  .gd-nav__grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: end;
+    width: 100%;
+    height: 68px;
+    padding-bottom: 10px;
+    pointer-events: auto;
+  }
+  .gd-nav__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: 700 10px/14px Inter, system-ui, sans-serif;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .gd-nav__item.is-active { color: #ffeeb1; }
+  .gd-nav__icon { width: 26px; height: 26px; object-fit: contain; }
+  .gd-nav__center { position: relative; display: flex; justify-content: center; }
+  .gd-nav__wallet {
+    position: absolute;
+    top: -84px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+  }
+  .gd-nav__dragon { width: 64px; height: auto; animation: gd-dragon-spin 2.5s linear infinite; }
+  .gd-nav__egg { position: absolute; width: 40px; height: auto; }
+  .gd-nav__wallet-label { position: relative; z-index: 10; margin-right: 8px; font: 700 16px/20px Inter, system-ui, sans-serif; text-transform: uppercase; }
+  @keyframes gd-dragon-spin { to { transform: rotate(360deg); } }
+}

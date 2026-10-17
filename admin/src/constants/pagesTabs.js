@@ -17,11 +17,7 @@ export const PAGE_TABS = [
   { key: 'footer', label: 'Footer', path: '/', kind: 'footer', audience: 'guest', needs: '/footer' },
   { key: 'blog', label: 'Blog', path: '/blog', kind: 'blog', audience: 'guest', needs: '/blog' },
   { key: 'help', label: 'Help Center', path: '/help', kind: 'help', audience: 'guest', needs: '/help' },
-  {
-    key: 'faq', label: 'FAQ', path: '/faq', kind: 'info', audience: 'guest',
-    summary: 'Frequently Asked Questions page.',
-    related: ['/help', '/support-tickets', '/footer'],
-  },
+  { key: 'faq', label: 'FAQ', path: '/faq', kind: 'lobby', section: 'faq', audience: 'guest', needs: '/dashboard-slideshow' },
   { key: 'about-us', label: 'About Us', path: '/about-us', kind: 'legal', audience: 'guest', needs: '/footer' },
   { key: 'privacy', label: 'Privacy Policy', path: '/privacy', kind: 'legal', audience: 'guest', needs: '/footer' },
   { key: 'terms', label: 'Terms & Conditions', path: '/terms', kind: 'legal', audience: 'guest', needs: '/footer' },
@@ -41,6 +37,9 @@ export const PAGE_TABS = [
   { key: 'lobby-cards', label: 'Cards, panels & text', path: '/casino', kind: 'lobby', section: 'cards', audience: 'user', needs: '/dashboard-slideshow' },
   { key: 'lobby-sidebar', label: 'Sidebar menu', path: '/casino', kind: 'lobby', section: 'sidebar', audience: 'user', needs: '/dashboard-slideshow' },
   { key: 'lobby-header', label: 'Header menu', path: '/casino', kind: 'lobby', section: 'header', audience: 'user', needs: '/dashboard-slideshow' },
+  { key: 'lobby-tasks', label: 'Task list', path: '/casino', kind: 'lobby', section: 'tasks', audience: 'user', needs: '/dashboard-slideshow' },
+  { key: 'lobby-promotions', label: 'Promotions page', path: '/promotions', kind: 'lobby', section: 'promotions', audience: 'user', needs: '/dashboard-slideshow' },
+  { key: 'lobby-store', label: 'Store popup', path: '/casino', kind: 'lobby', section: 'store', audience: 'user', needs: '/dashboard-slideshow' },
   { key: 'lobby-hidden', label: 'Hidden games', path: '/casino', kind: 'lobby', section: 'hidden', audience: 'user', needs: '/dashboard-slideshow' },
 ]
 

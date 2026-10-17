@@ -84,7 +84,6 @@ import Pages from './pages/Pages'
 import Link2PlayGames from './pages/Link2PlayGames'
 import Link2PlayGameForm from './pages/Link2PlayGameForm'
 import FooterPages from './pages/FooterPages'
-import GameSeoPageForm from './pages/GameSeoPageForm'
 import FooterPageForm from './pages/FooterPageForm'
 import LegalPageForm from './pages/LegalPageForm'
 import Bonus from './pages/Bonus'
@@ -278,7 +277,6 @@ export default function App() {
           <Route path="pages/new" element={<FooterPageForm />} />
           <Route path="pages/:id/edit" element={<FooterPageForm />} />
           <Route path="legal/:pageKey" element={<LegalPageForm />} />
-          <Route path="games/:slug" element={<GameSeoPageForm />} />
         </Route>
         <Route path="bonus" element={<RoleRoute><Bonus /></RoleRoute>} />
       </Route>

@@ -52,6 +52,7 @@ export function Toaster() {
             className={`dash-toast df-toast ${meta.className}${isExiting ? ' dash-toast-exit df-toast--exit' : ' dash-toast-enter df-toast--enter'}`}
             role="alert"
           >
+            <span className="df-toast__icon" aria-hidden="true">{type === 'success' ? '✓' : type === 'error' ? '!' : 'i'}</span>
             <div className="dash-toast-body df-toast__body">
               <p className="dash-toast-message df-toast__message">{message}</p>
               {action?.to && action?.label ? (

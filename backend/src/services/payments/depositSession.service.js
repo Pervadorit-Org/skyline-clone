@@ -200,6 +200,7 @@ async function createDepositSession(userId, params) {
     : '';
   let amount = params?.amount != null ? Number(params.amount) : NaN;
   const packageId = params?.packageId ?? params?.package_id ?? null;
+  await require('../wallet/gcPurchase.service').assertPackageRequiredForGcStore(userId, packageId);
   let packageMeta = null;
 
   if (packageId != null && packageId !== '') {
