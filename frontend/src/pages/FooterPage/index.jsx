@@ -39,7 +39,7 @@ function FooterPageSkeleton() {
   );
 }
 
-function FooterPageEmpty({ title, message }) {
+function FooterPageEmpty({ code, title, message }) {
   const brand = site.platformName || 'Home';
   return (
     <div className="pj-footer-empty" role="status">
@@ -47,11 +47,17 @@ function FooterPageEmpty({ title, message }) {
         <div className="pj-footer-empty__logo">
           <img src={site.logoUrl} alt={brand} decoding="async" />
         </div>
+        {code ? <p className="pj-footer-empty__code" aria-hidden="true">{code}</p> : null}
         <h1 className="pj-footer-empty__title">{title}</h1>
         <p className="pj-footer-empty__copy">{message}</p>
-        <Link to="/" className="pj-footer-empty__cta">
-          Back to home
-        </Link>
+        <div className="pj-footer-empty__actions">
+          <Link to="/" className="pj-footer-empty__cta">
+            Back to home
+          </Link>
+          <Link to="/contact" className="pj-footer-empty__cta pj-footer-empty__cta--ghost">
+            Contact support
+          </Link>
+        </div>
       </div>
     </div>
   );
@@ -61,6 +67,7 @@ function friendlyFooterError(err) {
   const status = err?.status || err?.statusCode;
   if (status === 404 || /not found/i.test(String(err?.message || ''))) {
     return {
+      code: '404',
       title: 'Page not found',
       message: 'Sorry — this link doesn’t exist or was removed. You can continue from the home page.'
     };
@@ -157,6 +164,7 @@ export function FooterPage() {
   if (emptyState || !page) {
     return (
       <FooterPageEmpty
+        code={emptyState ? emptyState.code : '404'}
         title={emptyState?.title || 'Page not found'}
         message={
           emptyState?.message

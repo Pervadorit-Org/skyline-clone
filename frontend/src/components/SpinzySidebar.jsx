@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useClaimableTaskCount } from './Tasks/useClaimableTaskCount';
 import { openSupportWidget } from './intercomApi';
 import { openTaskList } from './Tasks/TaskListModal';
 import { DashboardSidebar, RAIL_ITEMS, applyRailShell } from './Home/DashboardSidebar';
@@ -14,6 +15,7 @@ function IconRail({ onNavigate, isGuest = false }) {
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
   const { logout } = useAuth();
+  const claimableTasks = useClaimableTaskCount(!isGuest);
   const shell = useLobbyShell();
 
   const isActive = (to) => {
@@ -67,7 +69,10 @@ function IconRail({ onNavigate, isGuest = false }) {
               onClick={() => handle(it)}
             >
               {it.icon}
-              {it.badge && !isGuest ? <span className="dgs-rail__badge">{it.badge}</span> : null}
+              {(() => {
+                const badge = it.id === 'tasks' ? (claimableTasks > 0 ? String(claimableTasks) : '') : it.badge;
+                return badge && !isGuest ? <span className="dgs-rail__badge">{badge}</span> : null;
+              })()}
             </button>
           )
         )}

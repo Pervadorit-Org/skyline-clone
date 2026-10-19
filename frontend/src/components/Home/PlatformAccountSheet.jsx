@@ -9,8 +9,8 @@ import { constrainIntegerScInput } from '../../utils/goldenDragon';
 import { useDepositRequiredGate } from '../../hooks/useDepositRequiredGate';
 import { isDepositRequiredError } from '../../utils/depositRequired';
 import { DepositRequiredModal } from '../Games/DepositRequiredModal';
-import { GameFavoriteButton } from './GameFavoriteButton';
-import { platformFavoriteId } from '../../utils/gameFavorites';
+// import { GameFavoriteButton } from './GameFavoriteButton';
+// import { platformFavoriteId } from '../../utils/gameFavorites';
 import { site } from '../../config/site';
 
 const QUICK_PRESETS = [10, 25, 50, 100, 250];
@@ -390,7 +390,7 @@ export function PlatformAccountSheet({
                 <h2>{name}</h2>
                 <span>Web</span>
               </div>
-              <GameFavoriteButton id={platformFavoriteId(game)} name={name} className="df-game-sheet__fav" />
+              {/* Favorites disabled <GameFavoriteButton id={platformFavoriteId(game)} name={name} className="df-game-sheet__fav" /> */}
             </header>
 
             <button

@@ -131,10 +131,6 @@ const PROFILE_VALIDATION = Yup.object().shape({
     .trim()
     .test('letters', NAME_LETTERS_MSG, (v) => !v || NAME_LETTERS_ONLY.test(v))
     .max(100, 'First name must be at most 100 characters.'),
-  middleName: Yup.string()
-    .trim()
-    .test('letters', NAME_LETTERS_MSG, (v) => !v || NAME_LETTERS_ONLY.test(v))
-    .max(100, 'Middle name must be at most 100 characters.'),
   lastName: Yup.string()
     .trim()
     .test('letters', NAME_LETTERS_MSG, (v) => !v || NAME_LETTERS_ONLY.test(v))
@@ -304,7 +300,6 @@ function DobInput({ value, onChange, onBlur, readOnly, className, maxDate }) {
 
 const initialProfileValues = (user) => ({
   firstName: user?.firstName ?? '',
-  middleName: user?.middleName ?? '',
   lastName: user?.lastName ?? '',
   phone: user?.phone ?? '',
   dateOfBirth: user?.dateOfBirth ? clampToValidCalendarDate(String(user.dateOfBirth).slice(0, 10)) || '' : '',
@@ -322,7 +317,8 @@ const ACCOUNT_TABS = [
   { id: 'profile', label: 'Profile', icon: tabIcon(<><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></>) },
   { id: 'verification', label: 'Verification', icon: tabIcon(<><path d="M20 13c0 5-3.500 7.500-7.660 8.950a1 1 0 0 1-.670-.010C7.500 20.500 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.500-1.200 6.240-2.720a1.170 1.170 0 0 1 1.520 0C14.510 3.810 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></>) },
   { id: 'security', label: 'Security', icon: tabIcon(<><rect width="18" height="11" x="3" y="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></>) },
-  { id: 'communication', label: 'Communication', icon: tabIcon(<><path d="M10.270 21a2 2 0 0 0 3.460 0" /><path d="M6 8a6 6 0 0 1 12 0c0 4.500 1.400 6 2.740 7.330A1 1 0 0 1 20 17H4a1 1 0 0 1-.740-1.670C4.590 14 6 12.500 6 8" /></>) },
+  // Communication (Email/SMS marketing) tab disabled: no table/columns for it in the final DB.
+  // { id: 'communication', label: 'Communication', icon: tabIcon(<><path d="M10.270 21a2 2 0 0 0 3.460 0" /><path d="M6 8a6 6 0 0 1 12 0c0 4.500 1.400 6 2.740 7.330A1 1 0 0 1 20 17H4a1 1 0 0 1-.740-1.670C4.590 14 6 12.500 6 8" /></>) },
   { id: 'responsible-gaming', label: 'Responsible gaming', icon: tabIcon(<path d="M19 14c1.500-1.500 3-3.200 3-5.500a5.500 5.500 0 0 0-10-3.200A5.500 5.500 0 0 0 2 8.500c0 2.300 1.500 4 3 5.500l7 7z" />) },
 ];
 
@@ -360,7 +356,7 @@ export function Settings() {
   const [breakLength, setBreakLength] = useState('1 day');
   const [tab, setTab] = useState(() => {
     const hash = typeof window !== 'undefined' ? window.location.hash.replace('#', '') : '';
-    if (['verification', 'security', 'communication', 'responsible-gaming', 'profile'].includes(hash)) return hash;
+    if (['verification', 'security', 'responsible-gaming', 'profile'].includes(hash)) return hash;
     return searchParams.get('returnTo') ? 'verification' : 'profile';
   });
 
@@ -535,19 +531,20 @@ export function Settings() {
     [toast]
   );
 
-  const handleToggleMarketing = async (key, next) => {
-    if (prefSaving) return;
-    setPrefSaving(key);
-    try {
-      await userApi.updateMarketingPrefs({ [key]: next });
-      await refreshUser();
-      toast.success('Your preferences have been saved.');
-    } catch (err) {
-      toast.error(err?.message || 'Could not save your preferences.');
-    } finally {
-      setPrefSaving('');
-    }
-  };
+  // Marketing preferences disabled (no table/columns in the final DB).
+  // const handleToggleMarketing = async (key, next) => {
+  //   if (prefSaving) return;
+  //   setPrefSaving(key);
+  //   try {
+  //     await userApi.updateMarketingPrefs({ [key]: next });
+  //     await refreshUser();
+  //     toast.success('Your preferences have been saved.');
+  //   } catch (err) {
+  //     toast.error(err?.message || 'Could not save your preferences.');
+  //   } finally {
+  //     setPrefSaving('');
+  //   }
+  // };
 
   const requestSupport = (what) => {
     toast.info(`${what} is applied by Customer Support. Opening live chat…`);
@@ -738,7 +735,6 @@ export function Settings() {
           onSubmit={async (values) => {
             const payload = {
               firstName: values.firstName.trim(),
-              middleName: values.middleName.trim(),
               lastName: values.lastName.trim(),
               dateOfBirth: values.dateOfBirth.trim()
                 ? clampToValidCalendarDate(values.dateOfBirth.trim()) || values.dateOfBirth.trim()
@@ -753,7 +749,7 @@ export function Settings() {
             const savePhoneWithProfile = !storeRequiresPhoneOtp && !phoneAlreadyVerified && values.phone.trim() !== '';
             if (savePhoneWithProfile) payload.phone = values.phone.trim();
             const initial = initialProfileValues(user);
-            const profileKeys = [...(savePhoneWithProfile ? ['phone'] : []), 'firstName', 'middleName', 'lastName', 'dateOfBirth', 'streetAddress', 'city', 'state', 'country', 'zipCode'];
+            const profileKeys = [...(savePhoneWithProfile ? ['phone'] : []), 'firstName', 'lastName', 'dateOfBirth', 'streetAddress', 'city', 'state', 'country', 'zipCode'];
             const hasNoChange = profileKeys.every((k) => String(payload[k] || '') === String(initial[k] || ''));
             if (hasNoChange) {
               setProfileEditing(false);
@@ -896,12 +892,6 @@ export function Settings() {
                   <Field name="firstName" type="text" placeholder="Enter your first name" maxLength={100} readOnly={!profileEditing}
                     className={fieldClass(touched.firstName, errors.firstName)} autoComplete="given-name" />
                   {touched.firstName && errors.firstName && <small className="df-profile-field-error">{errors.firstName}</small>}
-                </label>
-                <label className="dragonfury-profile-field">
-                  <span>Middle name</span>
-                  <Field name="middleName" type="text" placeholder="Enter your middle name (optional)" maxLength={100} readOnly={!profileEditing}
-                    className={fieldClass(touched.middleName, errors.middleName)} autoComplete="additional-name" />
-                  {touched.middleName && errors.middleName && <small className="df-profile-field-error">{errors.middleName}</small>}
                 </label>
                 <label className="dragonfury-profile-field">
                   <span>Last name</span>
@@ -1256,6 +1246,7 @@ export function Settings() {
         </>
         )}
 
+        {/* Communication (Email/SMS marketing) disabled: no table/columns for it in the final DB.
         {tab === 'communication' && (
           <section className="acct-block">
             <header className="acct-sec-head">
@@ -1289,6 +1280,7 @@ export function Settings() {
             </ul>
           </section>
         )}
+        */}
 
         {tab === 'responsible-gaming' && (
           <section className="acct-block">

@@ -43,11 +43,18 @@ export function Favorites() {
         if (!cancelled) setPlatformGames(res?.games ?? []);
       })
       .catch(() => {});
-    const refresh = () => setSlotGames(getAllCachedProviderSlotGames());
-    const t = window.setTimeout(refresh, 1200);
+    // Slot providers fill the cache asynchronously (and can be slow): re-read it for a few seconds.
+    let tries = 0;
+    const refresh = () => {
+      const cached = getAllCachedProviderSlotGames();
+      setSlotGames((prev) => (cached.length !== prev.length ? cached : prev));
+      tries += 1;
+      if (tries >= 8) window.clearInterval(t);
+    };
+    const t = window.setInterval(refresh, 1500);
     return () => {
       cancelled = true;
-      window.clearTimeout(t);
+      window.clearInterval(t);
     };
   }, []);
 
@@ -87,7 +94,7 @@ export function Favorites() {
                     <span>{f.name}</span>
                   </button>
                 ) : (
-                  <Link to="/casino" className="fav-card-btn" aria-label={`Open ${f.name}`}>
+                  <Link to="/casino/platforms" className="fav-card-btn" aria-label={`Open ${f.name}`}>
                     <GameImage game={f.game} className="fav-card-img" width={220} height={220} loading="lazy" />
                     <span>{f.name}</span>
                   </Link>

@@ -6,12 +6,13 @@
   position: relative;
   z-index: 6;
   overflow: visible;
-  background:
-    radial-gradient(ellipse 70% 140% at 50% -40%, rgba(177, 28, 227, 0.45), transparent 60%),
-    linear-gradient(180deg, #9b22c4 0%, #62147c 100%);
-  border-bottom: 1px solid rgba(255, 201, 79, 0.35);
-  box-shadow: 0 8px 24px rgba(32, 6, 40, 0.45);
-  font-family: "Baloo 2", system-ui, sans-serif;
+  align-items: center;
+  min-height: 64px;
+  padding: 0 clamp(12px, 2vw, 24px);
+  background: linear-gradient(180deg, #1e0a22 0%, #170719 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .spm-iframe-header--play .spm-iframe-header-actions {
@@ -30,13 +31,14 @@
   gap: 6px;
   padding: 8px 16px;
   border-radius: 999px;
-  border: 1.5px solid rgba(255, 201, 79, 0.55);
-  background: rgba(41, 11, 51, 0.72);
-  color: #ffe14a;
-  font-family: "Baloo 2", system-ui, sans-serif;
+  border: 2px solid #fcdb57;
+  background: radial-gradient(120% 130% at 50% 0%, #241a0a 0%, #120d06 100%);
+  box-shadow: inset 0 0 12px rgba(252, 219, 87, 0.2), 0 0 10px rgba(252, 219, 87, 0.14);
+  color: #fcdb57;
+  font-family: Inter, system-ui, sans-serif;
   font-size: 14px;
   font-weight: 800;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s;
 }
@@ -47,10 +49,12 @@
   flex-shrink: 0;
 }
 
-.spm-iframe-header-home:hover {
-  background: rgba(255, 215, 0, 0.12);
-  border-color: rgba(255, 215, 0, 0.55);
-  color: var(--dash-gold, #ffd700);
+.spm-iframe-header-home:hover,
+.spm-iframe-header-minmax:hover,
+.spm-iframe-header--play .spm-iframe-header-close:hover {
+  background: radial-gradient(120% 130% at 50% 0%, #3a2a0e 0%, #1a1209 100%);
+  border-color: #ffe58a;
+  color: #ffe58a;
 }
 
 .spm-iframe-header-home:active {
@@ -66,16 +70,12 @@
   height: 40px;
   padding: 0;
   border-radius: 999px;
-  border: 1.5px solid rgba(255, 201, 79, 0.55);
-  background: rgba(41, 11, 51, 0.72);
-  color: #ffe14a;
+  border: 2px solid #fcdb57;
+  background: radial-gradient(120% 130% at 50% 0%, #241a0a 0%, #120d06 100%);
+  box-shadow: inset 0 0 12px rgba(252, 219, 87, 0.2), 0 0 10px rgba(252, 219, 87, 0.14);
+  color: #fcdb57;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s;
-}
-
-.spm-iframe-header-minmax:hover {
-  background: rgba(255, 215, 0, 0.12);
-  border-color: rgba(255, 215, 0, 0.55);
 }
 
 .spm-iframe-header-minmax:active {
@@ -97,8 +97,9 @@
 }
 
 .spm-play-logo .spm-play-logo-img {
-  height: 36px;
-  max-width: min(180px, 42vw);
+  height: 44px;
+  width: auto;
+  max-width: min(150px, 42vw);
 }
 
 .spm-play-wallet {
@@ -125,6 +126,12 @@
   z-index: 5;
 }
 
+.spm-play-wallet .df-gcsc__switch--locked,
+.spm-play-wallet .df-gcsc__switch--locked:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .spm-play-wallet .df-wallet-hud__sheet {
   z-index: 8;
 }
@@ -143,7 +150,7 @@
   }
 
   .spm-play-logo .spm-play-logo-img {
-    height: 28px;
+    height: 32px;
     max-width: min(120px, 34vw);
   }
 
@@ -213,17 +220,21 @@
 
 .spm-iframe-header--play .spm-iframe-header-close {
   border-radius: 999px;
-  border: 1.5px solid rgba(255, 201, 79, 0.55);
-  background: rgba(41, 11, 51, 0.72);
-  color: #ffe14a;
-  font-family: "Baloo 2", system-ui, sans-serif;
+  border: 2px solid #fcdb57;
+  background: radial-gradient(120% 130% at 50% 0%, #241a0a 0%, #120d06 100%);
+  box-shadow: inset 0 0 12px rgba(252, 219, 87, 0.2), 0 0 10px rgba(252, 219, 87, 0.14);
+  color: #fcdb57;
+  font-family: Inter, system-ui, sans-serif;
   font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
 }
 
-.spm-iframe-header--play .spm-iframe-header-close:hover {
-  background: rgba(255, 201, 79, 0.14);
-  border-color: rgba(255, 201, 79, 0.8);
-  color: #ffe14a;
+@media (min-width: 561px) {
+  .spm-iframe-header--play .spm-iframe-header-close {
+    padding: 8px 18px;
+    font-size: 14px;
+  }
 }
 
 /* Full-page slot play — hide support chat and other floating widgets */

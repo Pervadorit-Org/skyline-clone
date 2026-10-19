@@ -73,7 +73,17 @@ export function SlotGamePlayPage() {
   const location = useLocation();
   const { gameId } = useParams();
   const [searchParams] = useSearchParams();
-  const { balanceSc, balanceLoading, pscWalletUsable, bscWalletUsable, rscWalletUsable, lockedBalanceSc } = useAuth();
+  const {
+    balanceSc,
+    balanceLoading,
+    pscWalletUsable,
+    bscWalletUsable,
+    rscWalletUsable,
+    lockedBalanceSc,
+    gcEnabled,
+    balanceGc,
+    currencyMode
+  } = useAuth();
   const [walletOpen, setWalletOpen] = useState(false);
   const [phoneUnlockOpen, setPhoneUnlockOpen] = useState(false);
   const lockedSc = Number(lockedBalanceSc) || 0;
@@ -546,6 +556,10 @@ export function SlotGamePlayPage() {
             psc={pscWalletUsable}
             bsc={bscWalletUsable}
             rsc={rscWalletUsable}
+            gcEnabled={gcEnabled}
+            mode={currencyMode}
+            gcAmount={balanceGc}
+            modeLocked
             lockedSc={lockedSc}
             onUnlockPhone={() => {
               setWalletOpen(false);

@@ -2,14 +2,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap');
 
 .dash-chime-modal-root {
-  --chime-bg: #0a070b;
-  --chime-card: #17101a;
-  --chime-card-2: #1a121d;
+  --chime-bg: #07070b;
+  --chime-card: #10111a;
+  --chime-card-2: #12131d;
   --chime-border-gold: rgba(230, 190, 90, 0.35);
   --chime-gold: #e8c46a;
   --chime-green: #22e08a;
   --chime-green-deep: #0e5e3f;
-  --chime-red: #c961eb;
+  --chime-red: #c5b087;
   --chime-text: #eef3ef;
   --chime-muted: #8ea198;
   --chime-muted-dim: #5c6a65;
@@ -21,7 +21,7 @@
 .dash-chime-modal-backdrop {
   background:
     radial-gradient(circle at 50% -10%, rgba(34, 224, 138, 0.08), transparent 45%),
-    rgba(10, 7, 11, 0.92);
+    rgba(7, 7, 11, 0.92);
   backdrop-filter: blur(10px);
 }
 
@@ -132,7 +132,7 @@
   flex: 1;
   height: 7px;
   border-radius: 6px;
-  background: #261d29;
+  background: #1d1e29;
   position: relative;
   overflow: hidden;
 }
@@ -820,7 +820,7 @@
   font-family: inherit;
   font-weight: 600;
   color: var(--chime-text);
-  background: rgba(8, 5, 9, 0.8);
+  background: rgba(5, 6, 9, 0.8);
   border: 1.5px solid #2a5148;
   border-radius: 12px;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -835,7 +835,7 @@
 .dash-chime-username-field--prefixed {
   border: 1.5px solid #2a5148;
   border-radius: 12px;
-  background: rgba(8, 5, 9, 0.8);
+  background: rgba(5, 6, 9, 0.8);
   overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -891,7 +891,7 @@
   gap: 10px;
   padding: 16px 20px 20px;
   border-top: 1px solid rgba(42, 81, 72, 0.55);
-  background: rgba(8, 5, 9, 0.35);
+  background: rgba(5, 6, 9, 0.35);
 }
 
 @media (min-width: 640px) {

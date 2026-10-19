@@ -37,7 +37,7 @@
 .sm-buy>*+*{margin-top:1.5rem}
 
 /* shared package card */
-.sm-pack{position:relative;display:flex;width:100%;flex-direction:column;gap:.25rem;padding:.5rem;border:0;border-radius:1rem;background:linear-gradient(#d588ff85,#a882f194 21%,#7525c6c9 45%,#08134d);box-shadow:inset 0 0 0 2px #152e4a;color:#fff;font-family:"Baloo Bhaijaan 2",sans-serif;cursor:pointer}
+.sm-pack{position:relative;display:flex;width:100%;flex-direction:column;gap:.25rem;padding:.5rem;border:0;border-radius:1rem;background:linear-gradient(#d8caaf85,#d2c2a194 21%,#3d4164c9 45%,#08134d);box-shadow:inset 0 0 0 2px #152e4a;color:#fff;font-family:"Baloo Bhaijaan 2",sans-serif;cursor:pointer}
 .sm-pack:disabled{cursor:not-allowed;opacity:.5}
 @media(min-width:640px){.sm-pack{gap:.625rem}}
 .sm-pack__in{display:flex;width:100%;flex:1;flex-direction:column;align-items:center;border-radius:.75rem;background:#0c0e1a}
@@ -207,3 +207,7 @@
 .sm-how p{margin:0;font-size:1rem;line-height:1.5;font-weight:700}
 .sm-steps{margin:.25rem 0 0;padding:0 0 0 1.25rem;list-style:decimal outside;font-size:.875rem;line-height:1.4286;font-weight:600;color:#fff}
 .sm-steps li+li{margin-top:.25rem}
+
+/* Dark + gold theme: neutralise the purple artwork */
+.sm-modal__bg{filter:grayscale(1) brightness(.55);background-color:#14151f}
+.sm-welcome__ribbon{filter:hue-rotate(80deg) saturate(1.1)}

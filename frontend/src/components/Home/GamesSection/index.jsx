@@ -54,8 +54,11 @@ import {
   useGameFavorites,
 } from '../../../utils/gameFavorites';
 
+const NO_FAVORITES = [];
+
 const LOBBY_FILTERS = [
-  { id: 'registered', label: '', icon: '/df-online/club-icons/heart.png', ariaLabel: 'Favorites' },
+  // Favorites tab disabled (no backend management)
+  // { id: 'registered', label: '', icon: '/df-online/club-icons/heart.png', ariaLabel: 'Favorites' },
   { id: 'all', label: 'All' },
   { id: 'web', label: 'Web', icon: '/df-online/club-icons/gamepad.png' },
   { id: 'slots', label: 'Slots', icon: '/df-online/club-icons/slots-777.png' },
@@ -137,7 +140,9 @@ export function GamesSection({ pageMode = false, initialFilter = null } = {}) {
   const gamesLoadedOnceRef = useRef(false);
   const gamesFetchInFlightRef = useRef(false);
   const favoriteUser = favoriteUserId(user);
-  const { ids: favoriteIds } = useGameFavorites(favoriteUser);
+  // Favorites disabled (no backend management)
+  const favoriteIds = NO_FAVORITES;
+  // const { ids: favoriteIds } = useGameFavorites(favoriteUser);
 
   const loadGames = useCallback(async () => {
     if (gamesFetchInFlightRef.current) return;

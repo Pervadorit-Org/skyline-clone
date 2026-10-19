@@ -21,12 +21,12 @@
 }
 
 .dash-amount-input-wrap .dash-input-field.err {
-  border-color: var(--dash-red, #b11ce3);
+  border-color: var(--dash-red, #404469);
 }
 
 .dash-amount-input-wrap .dash-input-field.err:focus {
-  border-color: var(--dash-red, #b11ce3);
-  box-shadow: 0 0 0 3px rgba(193, 73, 233, 0.15);
+  border-color: var(--dash-red, #404469);
+  box-shadow: 0 0 0 3px rgba(189, 165, 117, 0.15);
 }
 
 .dash-amount-v-ico {

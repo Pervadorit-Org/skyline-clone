@@ -1,8 +1,8 @@
 /* Secure Payment Modal – fintech-style, mobile-first */
 
 .secure-payment-modal {
-  --spm-bg: #161018;
-  --spm-card: #291f2d;
+  --spm-bg: #101118;
+  --spm-card: #1f202d;
   --spm-border: rgba(255, 255, 255, 0.08);
   --spm-text: #e7e9ea;
   --spm-muted: #a59f8b;
@@ -12,8 +12,8 @@
   --spm-green-soft: rgba(0, 200, 83, 0.15);
   --spm-yellow: #ffc107;
   --spm-yellow-soft: rgba(255, 193, 7, 0.2);
-  --spm-red: #ca65ec;
-  --spm-red-soft: rgba(202, 101, 236, 0.15);
+  --spm-red: #c7b38a;
+  --spm-red-soft: rgba(199, 179, 138, 0.15);
   --spm-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   --spm-radius: 16px;
   --spm-radius-sm: 12px;
@@ -188,7 +188,7 @@
 }
 
 .secure-payment-modal .spm-collapse-trigger:hover {
-  background: #37293c;
+  background: #292b3c;
   border-color: rgba(255, 255, 255, 0.12);
 }
 
@@ -345,10 +345,10 @@
 
 /* —— DollarPay / XXPay round-trip handoff — Dragon Fury premium theme —— */
 .secure-payment-modal--dollarpay {
-  --pj-bg: #140618;
-  --pj-s1: #200c27;
-  --pj-s2: #2f1039;
-  --pj-s3: #3b1847;
+  --pj-bg: #0b0c13;
+  --pj-s1: #131520;
+  --pj-s2: #1c1d2d;
+  --pj-s3: #24263b;
   --pj-line: rgba(255, 255, 255, 0.1);
   --pj-line2: rgba(225, 186, 104, 0.42);
   --pj-gold: #ffc94a;
@@ -356,11 +356,11 @@
   --pj-mint: #60e99b;
   --pj-mint-hi: #9bf5c8;
   --pj-mint-dp: #0e4029;
-  --pj-red: #cf74ee;
+  --pj-red: #ccba96;
   --pj-text: #fff6e5;
-  --pj-t2: #d9cddd;
-  --pj-t3: #cfb9d6;
-  background: rgba(13, 3, 16, 0.88);
+  --pj-t2: #ddd8cd;
+  --pj-t3: #d6ccb9;
+  background: rgba(7, 8, 12, 0.88);
   backdrop-filter: blur(4px);
   border: none;
   box-shadow: none;
@@ -396,14 +396,14 @@
   flex-direction: column;
   min-height: 0;
   background:
-    radial-gradient(ellipse at 50% 0, rgba(127, 66, 147, 0.28), transparent 62%),
-    linear-gradient(160deg, #3b1847, var(--pj-s2) 52%, #230d2a);
+    radial-gradient(ellipse at 50% 0, rgba(58, 62, 95, 0.28), transparent 62%),
+    linear-gradient(160deg, #24263b, var(--pj-s2) 52%, #151622);
   border-radius: 26px;
   overflow: hidden;
   border: 1px solid rgba(225, 186, 104, 0.48);
   box-shadow:
     rgba(255, 255, 255, 0.07) 0 1px inset,
-    rgba(12, 3, 15, 0.77) 0 22px 60px,
+    rgba(7, 7, 11, 0.77) 0 22px 60px,
     rgba(210, 153, 66, 0.08) 0 0 24px;
   color: var(--pj-text);
 }
@@ -415,7 +415,7 @@
   gap: 10px;
   padding: 14px 16px;
   border-bottom: 1px solid rgba(225, 186, 104, 0.22);
-  background: rgba(29, 10, 35, 0.35);
+  background: rgba(17, 18, 28, 0.35);
 }
 
 .spm-pj-lock {
@@ -441,7 +441,7 @@
   border-radius: 999px;
   cursor: pointer;
   font-size: 17px;
-  background: rgba(29, 10, 35, 0.8);
+  background: rgba(17, 18, 28, 0.8);
   border: 1px solid rgba(225, 186, 104, 0.35);
   color: #fff3d9;
   display: grid;
@@ -494,7 +494,7 @@
 }
 
 .spm-pj-ret.is-hot {
-  background: #2a1731;
+  background: #1b1d2d;
   border-bottom-color: rgba(255, 201, 74, 0.6);
   animation: spm-pj-pulse-bg 1.6s ease-in-out infinite;
 }
@@ -524,7 +524,7 @@
   padding: 15px 16px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 201, 74, 0.55) #2f1039;
+  scrollbar-color: rgba(255, 201, 74, 0.55) #1c1d2d;
 }
 
 .spm-pj-body::-webkit-scrollbar {
@@ -534,7 +534,7 @@
 }
 
 .spm-pj-body::-webkit-scrollbar-track {
-  background: #2f1039;
+  background: #1c1d2d;
   border-radius: 99px;
   margin: 10px 0;
 }
@@ -542,7 +542,7 @@
 .spm-pj-body::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #ffe9ac, #ffc94a 55%, #a87511);
   border-radius: 99px;
-  border: 1px solid rgba(20, 6, 24, 0.45);
+  border: 1px solid rgba(11, 12, 19, 0.45);
 }
 
 .spm-pj-body::-webkit-scrollbar-thumb:hover {
@@ -559,7 +559,7 @@
   gap: 14px;
   padding: 14px;
   border-radius: 16px;
-  background: rgba(29, 10, 35, 0.55);
+  background: rgba(17, 18, 28, 0.55);
   border: 1px solid rgba(225, 186, 104, 0.28);
   box-shadow: rgba(255, 255, 255, 0.05) 0 1px inset;
 }
@@ -775,7 +775,7 @@
 .spm-pj-nd.is-on .spm-pj-nd-c {
   border-color: var(--pj-gold);
   color: var(--pj-gold);
-  background: rgba(59, 24, 71, 0.9);
+  background: rgba(36, 38, 59, 0.9);
   box-shadow: 0 0 0 5px rgba(255, 201, 74, 0.14);
 }
 
@@ -836,7 +836,7 @@
 }
 
 .spm-pj-nt.is-w {
-  background: #2a1731;
+  background: #1b1d2d;
   border-color: rgba(255, 201, 74, 0.55);
 }
 
@@ -845,7 +845,7 @@
 }
 
 .spm-pj-nt.is-w .spm-pj-nt-i {
-  background: #351c3e;
+  background: #222438;
   color: var(--pj-gold);
 }
 
@@ -857,7 +857,7 @@
   padding: 12px 13px;
   border-radius: 14px;
   min-height: 46px;
-  background: rgba(29, 10, 35, 0.55);
+  background: rgba(17, 18, 28, 0.55);
   border: 1px solid rgba(225, 186, 104, 0.22);
   font-size: 15px;
   color: var(--pj-t2);
@@ -919,7 +919,7 @@
   flex: none;
   padding: 13px 16px calc(13px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid rgba(225, 186, 104, 0.22);
-  background: linear-gradient(transparent, rgba(29, 16, 33, 0.92) 28%);
+  background: linear-gradient(transparent, rgba(19, 20, 30, 0.92) 28%);
 }
 
 .spm-pj-big {
@@ -929,12 +929,12 @@
   border: 1px solid rgb(255, 227, 160);
   cursor: pointer;
   padding: 11px 18px;
-  color: rgb(28, 14, 33);
+  color: rgb(18, 19, 29);
   background: linear-gradient(rgb(255, 224, 154), rgb(244, 179, 77) 65%, rgb(233, 152, 51));
   box-shadow:
     rgb(255, 247, 217) 0 1px inset,
     rgb(129, 80, 25) 0 3px,
-    rgba(20, 5, 25, 0.333) 0 6px 16px;
+    rgba(11, 12, 19, 0.333) 0 6px 16px;
   font-family: "Lilita One", "Baloo 2", system-ui, sans-serif;
   letter-spacing: 0.03em;
   transition: 0.14s transform;
@@ -1003,7 +1003,7 @@
   min-height: 50px;
   border-radius: 14px;
   border: 1px solid rgba(225, 186, 104, 0.35);
-  background: rgba(29, 10, 35, 0.8);
+  background: rgba(17, 18, 28, 0.8);
   color: #fff3d9;
   font-size: 16px;
   font-weight: 700;
@@ -1152,7 +1152,7 @@
     box-shadow:
       rgb(255, 247, 217) 0 1px inset,
       rgb(129, 80, 25) 0 3px,
-      rgba(20, 5, 25, 0.333) 0 6px 16px,
+      rgba(11, 12, 19, 0.333) 0 6px 16px,
       0 0 0 0 rgba(255, 201, 74, 0);
     filter: brightness(1);
   }
@@ -1241,9 +1241,9 @@
 .secure-payment-modal--iframe-only {
   --dash-gold: #ffd700;
   --dash-teal: #44e644;
-  --dash-bg: #080509;
-  --dash-card: #19111c;
-  --dash-card2: #211725;
+  --dash-bg: #050609;
+  --dash-card: #11121c;
+  --dash-card2: #171825;
   --dash-border: rgba(255, 215, 0, 0.13);
   --dash-muted: #80795a;
   --dash-nav-h: 56px;
@@ -1264,7 +1264,7 @@
   padding: 0 16px;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: 0;
-  background: rgba(8, 5, 9, 0.96);
+  background: rgba(5, 6, 9, 0.96);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 215, 0, 0.16);
   box-shadow: 0 2px 30px rgba(0, 0, 0, 0.7);
@@ -1307,7 +1307,7 @@
 }
 
 .spm-iframe-terms {
-  background: linear-gradient(145deg, var(--dash-card, #19111c), var(--dash-card2, #211725));
+  background: linear-gradient(145deg, var(--dash-card, #11121c), var(--dash-card2, #171825));
   border-top: 1px solid var(--dash-border, rgba(255, 215, 0, 0.13));
 }
 

@@ -16,7 +16,9 @@ const TRANSACTION_TYPES = [
   'game_withdraw',
   'admin_deduct',
   'admin_add',
-  'deposit_courtesy'
+  'deposit_courtesy',
+  'task_reward',
+  'task_reward_gc'
 ];
 
 module.exports = function (sequelize, DataTypes) {

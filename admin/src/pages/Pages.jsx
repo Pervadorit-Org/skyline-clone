@@ -5,7 +5,6 @@ import { getAllowedPagesForUser } from '../constants/routeConfig'
 import { AUDIENCES, TAB_ALIASES, tabsForAllowed } from '../constants/pagesTabs'
 import './Pages.css'
 
-const BlogPosts = lazy(() => import('./BlogPosts'))
 const Help = lazy(() => import('./Help'))
 const LegalPageForm = lazy(() => import('./LegalPageForm'))
 const HomeContent = lazy(() => import('./HomeContent'))
@@ -199,7 +198,6 @@ export default function Pages() {
           {active.kind === 'home' && <HomeContent />}
           {active.kind === 'lobby' && <LobbyContent section={active.section} />}
           {active.kind === 'footer' && <FooterContent />}
-          {active.kind === 'blog' && <BlogPosts />}
           {active.kind === 'help' && <Help />}
           {active.kind === 'legal' && <LegalPageForm key={active.key} pageKey={active.key} embedded />}
           {active.kind === 'info' && <InfoTab tab={active} allowed={allowed} />}

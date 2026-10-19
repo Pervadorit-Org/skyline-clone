@@ -6,8 +6,8 @@ import { usePageContentReady } from '../../context/PageReadyContext';
 import { getVipTierImage } from '../../utils/vipTierColors';
 import './vip-page.css';
 
-const TIER_NAMES = ['Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Sapphire', 'Emerald', 'Diamond'];
-const HERO_TIERS = ['Bronze', 'Gold', 'Silver', 'Platinum', 'Emerald', 'Diamond'];
+const TIER_NAMES = ['Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+const HERO_TIERS = ['Bronze', 'Gold', 'Silver', 'Platinum', 'Diamond'];
 
 const FALLBACK_FAQ = [
   { id: 1, question: 'Why should I become a VIP Club member?', answer: 'Once you join, your gaming experience will soar to new heights. You will benefit from weekly Coins Back, rewards for each level-up, and special privileges that unlock as you progress in VIP Club.' },
@@ -23,7 +23,7 @@ const fmt = (n) => (Number(n) || 0).toLocaleString();
 
 const PERKS = [
   { icon: '📱', title: 'Create an Account', text: (<><span className="vipTier__hl">Join the Club</span> and become part of the VIP Rank Program</>) },
-  { icon: '🏅', title: 'Engage & Play', text: (<>All play and engagement earn <span className="vipTier__hl">VIP Points</span> and boost your Rank</>) },
+  { icon: '🏅', title: 'Deposit & Refer', text: (<>Deposits and referral rewards earn <span className="vipTier__hl">VIP Points</span> and boost your Rank</>) },
   { icon: '🎁', title: 'Earn Ranks, Get Rewards', text: 'Each Rank has its own rewards that are simple and easy to claim' },
 ];
 
@@ -42,47 +42,14 @@ const REDEMPTIONS = [
   ['vegas*****@gmail.com', '205.55', 'Mafia', 'mafia'],
 ];
 
-const Check = () => (
-  <span className="vipTier__check" aria-label="Included">
-    <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#34c759" /><path d="M4.5 8.2l2.4 2.4 4.6-4.8" stroke="#0b0d16" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-  </span>
-);
-const Lock = () => (
-  <span className="vipTier__lock">
-    <svg viewBox="0 0 16 16" fill="none" role="img" aria-label="Not included" width="16" height="16">
-      <rect x="3" y="7" width="10" height="7" rx="1.5" fill="currentColor" />
-      <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" strokeWidth="1.6" fill="none" />
-    </svg>
-  </span>
-);
-const Coins = ({ gc, sc }) => (
-  <span className="vipTier__rowCoins">
-    <span className="vipTier__rowCoin">{gc} GC</span>
-    <span className="vipTier__rowPlus">+</span>
-    <span className="vipTier__rowCoin">{sc} SC</span>
-  </span>
-);
+const Sc = ({ value }) => <span className="vipTier__rowCoin">{fmt(value)} SC</span>;
 
-function buildRows(level, idx) {
-  const reward = level?.level_up_reward_sc;
-  const sc = reward != null ? reward : 0.25 * (idx + 1);
-  const gc = fmt(2500 * (idx + 1));
-  const wd = level?.withdrawal_limit != null ? fmt(level.withdrawal_limit) : fmt(300 * (idx + 1));
-  const pwd = level?.platform_withdrawal_limit != null ? fmt(level.platform_withdrawal_limit) : wd;
+/** Only values the backend returns per level; nothing is invented here. */
+function buildRows(level) {
   return [
-    { icon: '🏆', label: 'Level Up Bonus', value: <Coins gc={gc} sc={sc} /> },
-    { icon: '🎂', label: 'Birthday Bonus', value: <Coins gc={fmt(5000 * (idx + 1))} sc={0.5 * (idx + 1)} /> },
-    { icon: '💳', label: 'Daily Withdrawal', value: <span className="vipTier__rowText">{wd}</span> },
-    { icon: '🎮', label: 'Platform Daily WD', value: <span className="vipTier__rowText">{pwd}</span> },
-    { icon: '🎖️', label: 'Daily Reward', value: <Check /> },
-    { icon: '📅', label: 'Weekly Bonus', value: <Coins gc={gc} sc={sc} /> },
-    { icon: '🗓️', label: 'Monthly Bonus', value: <Coins gc={gc} sc={sc} /> },
-    { icon: '🕹️', label: 'Platform Bonus', value: idx >= 3 ? <Coins gc={gc} sc={sc} /> : <span className="vipTier__rowText">—</span> },
-    { icon: '👥', label: 'Referral Rewards', value: <Check /> },
-    { icon: '🎡', label: 'Wheel Rewards', value: <Check /> },
-    { icon: '💬', label: '24/7 Chat Support', value: <Check /> },
-    { icon: '⚡', label: 'Priority Payout', value: idx >= 2 ? <Check /> : <Lock /> },
-    { icon: '👑', label: 'VIP Manager', value: idx >= 6 ? <Check /> : <Lock /> },
+    { icon: '🏆', label: 'Level Up Bonus', value: level?.level_up_reward_sc != null ? <Sc value={level.level_up_reward_sc} /> : '—' },
+    { icon: '💳', label: 'Daily Withdrawal', value: <span className="vipTier__rowText">{level?.withdrawal_limit != null ? fmt(level.withdrawal_limit) : '—'}</span> },
+    { icon: '🎮', label: 'Platform Daily WD', value: <span className="vipTier__rowText">{level?.platform_withdrawal_limit != null ? fmt(level.platform_withdrawal_limit) : '—'}</span> },
   ];
 }
 
@@ -134,7 +101,7 @@ export function AccountVip() {
   const nextXp = Number(status?.next_level_xp) || 500;
   const pct = Math.min(100, nextXp > 0 ? (100 * curXp) / nextXp : 0);
   const faqItems = faq.length ? faq : FALLBACK_FAQ;
-  const perRow = levels.map((l, i) => buildRows(l, i));
+  const perRow = levels.map((l) => buildRows(l));
   const tableRows = perRow[0].map((r, idx) => ({
     label: r.label,
     icon: r.icon,
@@ -153,7 +120,7 @@ export function AccountVip() {
           <div className="vipTier__heroContent">
             <h1 className="vipTier__heroTitle">VIP RANKS</h1>
             <p className="vipTier__heroSubtitle">
-              Level up your rank, unlock exclusive perks, cashback, bonuses, and premium rewards.
+              Level up your rank to earn level-up rewards and unlock higher withdrawal limits.
             </p>
             <div className="vipTier__heroActions">
               <Link to="/store" className="vipTier__btn vipTier__btn--gold">Visit Store</Link>
@@ -216,15 +183,15 @@ export function AccountVip() {
             </div>
 
             <div className="vipTier__earnCard">
-              <h3 className="vipTier__earnTitle">Turn Every Spin Into VIP Points and Every Point Into Something Bigger.</h3>
+              <h3 className="vipTier__earnTitle">Turn Every Deposit Into VIP Points and Every Point Into Something Bigger.</h3>
               <div className="vipTier__earnGrid">
                 <div className="vipTier__earnItem">
                   <img src="/df-online/sc-coin.webp" alt="" />
-                  <p><span className="vipTier__hl">1 SC</span> Played in Games = 100 XP (VIP Points)</p>
+                  <p><span className="vipTier__hl">1 SC</span> Deposited = 1 XP (VIP Points)</p>
                 </div>
                 <div className="vipTier__earnItem">
                   <img src="/df-online/sc-coin.webp" alt="" />
-                  <p><span className="vipTier__hl">1 SC</span> Topped up in Platform Games = 100 XP (VIP Points)</p>
+                  <p><span className="vipTier__hl">1 SC</span> Earned from Referral Rewards = 1 XP (VIP Points)</p>
                 </div>
               </div>
             </div>

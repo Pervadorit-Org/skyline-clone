@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { getFavoriteGameIds, updateFavoriteGameIds } from '../api/favorites';
 
 const EVENT = 'df-game-favorites';
 const listeners = new Set();
@@ -39,12 +40,52 @@ function writeFavorites(userId, ids) {
   window.dispatchEvent(new CustomEvent(EVENT));
 }
 
+function syncedKey(userId) {
+  return `${storageKey(userId)}_synced`;
+}
+
+/**
+ * Favorites live on the server so every device shows the same list; localStorage is only a cache.
+ * First sync on a device merges its old local-only favorites into the server list; after that the
+ * server list is the source of truth (so a removal on one device is not undone by another).
+ */
+const syncing = new Map();
+export function syncFavoritesFromServer(userId) {
+  if (!userId || typeof localStorage === 'undefined') return Promise.resolve();
+  if (syncing.has(userId)) return syncing.get(userId);
+  const job = (async () => {
+    try {
+      const server = await getFavoriteGameIds();
+      const local = readFavorites(userId);
+      const firstSync = localStorage.getItem(syncedKey(userId)) !== '1';
+      let next = server;
+      if (firstSync) {
+        const localOnly = local.filter((id) => !server.includes(id));
+        if (localOnly.length) next = await updateFavoriteGameIds({ add: localOnly });
+        localStorage.setItem(syncedKey(userId), '1');
+      }
+      if (JSON.stringify(next) !== JSON.stringify(local)) writeFavorites(userId, next);
+    } catch {
+      /* offline or signed out: keep using the local cache */
+    }
+  })();
+  syncing.set(userId, job);
+  return job;
+}
+
+function pushChange(userId, change) {
+  updateFavoriteGameIds(change).catch(() => {
+    /* the local cache already has the change; the server catches up on the next toggle */
+  });
+}
+
 /** @returns {boolean} true when the game was added */
 export function toggleFavorite(userId, id) {
   if (!userId || !id) return false;
   const current = readFavorites(userId);
   const has = current.includes(id);
   writeFavorites(userId, has ? current.filter((item) => item !== id) : [...current, id]);
+  pushChange(userId, has ? { remove: [id] } : { add: [id] });
   return !has;
 }
 
@@ -54,6 +95,7 @@ export function useGameFavorites(userId) {
   useEffect(() => {
     const sync = () => setIds(readFavorites(userId));
     sync();
+    syncFavoritesFromServer(userId);
     listeners.add(sync);
     const onStorage = (event) => {
       if (!event.key || event.key === storageKey(userId)) sync();

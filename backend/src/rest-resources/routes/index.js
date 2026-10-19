@@ -27,6 +27,9 @@ const legalRoutes = require('./legal.routes');
 const socialLinksRoutes = require('./socialLinks.routes');
 const homePageContentRoutes = require('./homePageContent.routes');
 const lobbyContentRoutes = require('./lobbyContent.routes');
+// Favorites disabled (no backend management)
+const tasksRoutes = require('./tasks.routes');
+// const favoritesRoutes = require('./favorites.routes');
 const footerContentRoutes = require('./footerContent.routes');
 const slotProvidersRoutes = require('./slotProviders.routes');
 const landingPaymentLinksRoutes = require('./landingPaymentLinks.routes');
@@ -103,6 +106,8 @@ router.use('/api/legal', legalRoutes);
 router.use('/api/social-links', socialLinksRoutes);
 router.use('/api/home-page', homePageContentRoutes);
 router.use('/api/lobby-content', lobbyContentRoutes);
+router.use('/api/tasks', tasksRoutes);
+// router.use('/api/favorites', favoritesRoutes);
 router.use('/api/footer-content', footerContentRoutes);
 router.use('/api/slot-providers', slotProvidersRoutes);
 router.use('/api/landing-payment-links', landingPaymentLinksRoutes);

@@ -6,8 +6,7 @@
     <!-- Narrow CSP that does not restrict scripts/styles (third-party widgets rely on them) but blocks plugins, base-tag and form hijacking. -->
     <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'" />
     <meta name="google-site-verification" content="tRIv2oT6G-NVoAByEgeJG5dzozqkKCQecQqI-cWqC0Y" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SZ272FK4WP"></script>
+    <!-- Google tag (gtag.js): queue calls now, download the library after load/first interaction so it never competes with first paint. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -15,6 +14,23 @@
       }
       gtag('js', new Date());
       gtag('config', 'G-SZ272FK4WP');
+      (function () {
+        var started = false;
+        function load() {
+          if (started) return;
+          started = true;
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-SZ272FK4WP';
+          document.head.appendChild(s);
+        }
+        ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(function (e) {
+          window.addEventListener(e, load, { once: true, passive: true });
+        });
+        window.addEventListener('load', function () {
+          setTimeout(load, 3500);
+        });
+      })();
     </script>
     <link rel="icon" type="image/webp" href="/logo.webp" />
     <link rel="apple-touch-icon" sizes="180x180" href="/pwa/apple-touch-icon.png" />
@@ -36,10 +52,19 @@
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Fonts: non-render-blocking (swap in when ready). -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Lilita+One&display=swap"
       rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Baloo+Bhaijaan+2:wght@700;800&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Lilita+One&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Outfit:wght@400;500;600;700;800&display=swap"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Baloo+Bhaijaan+2:wght@700;800&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Lilita+One&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Outfit:wght@400;500;600;700;800&display=swap"
+      />
+    </noscript>
   </head>
   <body>
     <div id="root"></div>

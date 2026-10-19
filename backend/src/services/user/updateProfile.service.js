@@ -3,7 +3,6 @@ const db = require('../../db/models');
 /** Whitelist: only these fields can be updated. Never accept email, username, password. profileImageUrl is handled separately (preset gallery only). */
 const ALLOWED_KEYS = [
   'firstName',
-  'middleName',
   'lastName',
   'phone',
   'dateOfBirth',
@@ -22,7 +21,6 @@ const REQUIRED_KEYS = [];
 
 const MAX_LENGTHS = {
   firstName: 100,
-  middleName: 100,
   lastName: 100,
   phone: 30,
   streetAddress: 255,
@@ -38,7 +36,6 @@ const MIN_LENGTHS = {
 
 const FIELD_LABELS = {
   firstName: 'First name',
-  middleName: 'Middle name',
   lastName: 'Last name',
   phone: 'Phone number',
   dateOfBirth: 'Date of birth',
@@ -90,13 +87,9 @@ function validateNameFormat(body) {
   const errors = [];
   const msg = 'Only letters (a-z, A-Z) are allowed; no numbers, spaces, hyphens, or special characters.';
   const first = trim(body.firstName);
-  const middle = trim(body.middleName);
   const last = trim(body.lastName);
   if (first && !NAME_LETTERS_ONLY.test(first)) {
     errors.push(`First name: ${msg}`);
-  }
-  if (middle && !NAME_LETTERS_ONLY.test(middle)) {
-    errors.push(`Middle name: ${msg}`);
   }
   if (last && !NAME_LETTERS_ONLY.test(last)) {
     errors.push(`Last name: ${msg}`);

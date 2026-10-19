@@ -23,11 +23,11 @@
 }
 
 .df-premium-modal {
-  --df-modal-purple: #201039;
-  --df-modal-surface: #160c27;
+  --df-modal-purple: #1c1d2d;
+  --df-modal-surface: #131520;
   --df-modal-gold: #e1ba68;
   --df-modal-text: #fff6e5;
-  --df-modal-muted: #c6b9d6;
+  --df-modal-muted: #d6ccb9;
   --df-modal-green: #60e99b;
   --df-modal-radius: 26px;
 }
@@ -50,14 +50,14 @@
   border: 1px solid rgba(225, 186, 104, 0.48);
   border-radius: var(--df-modal-radius);
   background:
-    radial-gradient(ellipse at 50% 0, #77429330, transparent 62%),
-    linear-gradient(160deg, #301847, var(--df-modal-purple) 52%, #180d2a);
+    radial-gradient(ellipse at 50% 0, #3a3e5f30, transparent 62%),
+    linear-gradient(160deg, #24263b, var(--df-modal-purple) 52%, #151622);
   color: var(--df-modal-text);
   font-family: "Baloo 2", sans-serif;
   text-align: left;
   box-shadow:
     rgba(255, 255, 255, 0.07) 0 1px inset,
-    rgba(9, 3, 15, 0.77) 0 22px 60px,
+    rgba(7, 7, 11, 0.77) 0 22px 60px,
     rgba(210, 153, 66, 0.063) 0 0 24px;
   animation: store-payment-modal-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -101,7 +101,7 @@
   place-items: center !important;
   border: 1px solid rgba(225, 186, 104, 0.35) !important;
   border-radius: 999px !important;
-  background: rgba(20, 10, 35, 0.8) !important;
+  background: rgba(17, 18, 28, 0.8) !important;
   box-shadow: none !important;
   color: transparent !important;
   font-size: 0 !important;
@@ -191,7 +191,7 @@
   font-size: 1.5rem;
   font-weight: 950;
   line-height: 1;
-  text-shadow: #42224e 0 2px 0;
+  text-shadow: #2b2d45 0 2px 0;
 }
 
 .store-payment-modal__prices .dragonfury-offer-price del {
@@ -229,7 +229,7 @@
   border-radius: 999px;
   padding: 4px 8px;
   background: rgba(255, 255, 255, 0.047);
-  color: #e7e2ee;
+  color: #eeeae2;
   font-size: 11px;
   font-weight: 650;
   line-height: 1.4;
@@ -256,7 +256,7 @@
   padding: 8px 0;
   cursor: pointer;
   font-weight: 600;
-  color: #e2ddea;
+  color: #eae6dd;
   font-size: 13px !important;
   text-decoration: none !important;
 }
@@ -278,7 +278,7 @@
 
 .sc-disclosure__body {
   padding: 0 0 10px;
-  color: #d6d1df;
+  color: #dfdad1;
   font-size: 13px;
   line-height: 1.6;
 }
@@ -297,7 +297,7 @@
 
 .store-payment-options__empty {
   margin: 0;
-  color: rgb(198, 185, 214);
+  color: rgb(214, 204, 185);
   font-size: 14px;
   line-height: 1.4;
 }
@@ -314,8 +314,8 @@
   padding: 6px 12px;
   border: 1px solid rgba(255, 255, 255, 0.086);
   border-radius: 15px;
-  background: rgb(22, 12, 39);
-  color: rgb(246, 239, 255);
+  background: rgb(19, 21, 32);
+  color: rgb(250, 248, 244);
   font: inherit;
   text-align: left;
   box-shadow: none;
@@ -425,7 +425,7 @@
 }
 
 .payment-brand-logo--crypto {
-  background: #1b1030;
+  background: #181a28;
   padding: 5px;
 }
 
@@ -463,7 +463,7 @@
 }
 
 .store-payment-card-mark--crypto {
-  background: #1b1030;
+  background: #181a28;
   font-size: 14px;
 }
 
@@ -473,7 +473,7 @@
 }
 
 .store-payment-card-mark--zelle {
-  background: #6d1ed4;
+  background: #3e4266;
   font-size: 9px;
 }
 
@@ -483,7 +483,7 @@
 }
 
 .store-payment-modal__checkout-note {
-  color: rgb(188, 174, 203);
+  color: rgb(203, 193, 174);
   font-size: 12px;
   font-weight: 700;
   line-height: 1.4;
@@ -497,7 +497,7 @@
   z-index: 3;
   width: 100%;
   padding: 8px 0 0;
-  background: linear-gradient(transparent, #1a1021 40%);
+  background: linear-gradient(transparent, #13141e 40%);
 }
 
 .store-payment-continue.df-premium-cta {
@@ -515,8 +515,8 @@
   box-shadow:
     rgb(255, 247, 217) 0 1px inset,
     rgb(129, 80, 25) 0 3px,
-    rgba(16, 5, 25, 0.333) 0 6px 16px;
-  color: rgb(28, 14, 33);
+    rgba(11, 12, 19, 0.333) 0 6px 16px;
+  color: rgb(18, 19, 29);
   font: 400 20px / 1.1 "Lilita One", "Baloo 2", system-ui, sans-serif;
   letter-spacing: 0.045em;
   text-transform: uppercase;

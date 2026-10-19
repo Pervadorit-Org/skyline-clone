@@ -42,7 +42,9 @@ export function DfWalletHud({
   mode = 'SC',
   gcAmount = 0,
   onSwitchMode,
-  switching = false
+  switching = false,
+  // Show the GC/SC mode but don't let the player change it (e.g. while a game is open).
+  modeLocked = false
 }) {
   const gcMode = gcEnabled && mode === 'GC';
   const unit = gcMode ? 'GC' : 'SC';
@@ -70,9 +72,14 @@ export function DfWalletHud({
             type="button"
             role="switch"
             aria-checked={!gcMode}
-            aria-label={gcMode ? 'Playing with Gold Coins. Switch to Sweeps Coins' : 'Playing with Sweeps Coins. Switch to Gold Coins'}
-            className="df-gcsc__switch"
-            disabled={switching || balanceLoading}
+            aria-label={
+              modeLocked
+                ? `Playing with ${gcMode ? 'Gold Coins' : 'Sweeps Coins'}. Close the game to switch`
+                : gcMode ? 'Playing with Gold Coins. Switch to Sweeps Coins' : 'Playing with Sweeps Coins. Switch to Gold Coins'
+            }
+            title={modeLocked ? 'Close the game to switch between GC and SC' : undefined}
+            className={`df-gcsc__switch${modeLocked ? ' df-gcsc__switch--locked' : ''}`}
+            disabled={switching || balanceLoading || modeLocked}
             onClick={() => onSwitchMode?.(gcMode ? 'SC' : 'GC')}
           >
             <span className="df-gcsc__knob">{gcMode ? 'G' : 'S'}</span>

@@ -76,3 +76,11 @@
  .promotions-grid{grid-template-columns:repeat(3,1fr);gap:.875rem}
  .promotion-card{border-radius:1.5rem}
 }
+
+/* API-driven cards: copy length varies, so let cards grow instead of clipping. */
+.promotion-card{aspect-ratio:auto;min-height:15.4rem}
+.promotion-card-body{gap:.75rem}
+.promotion-card-description{font-size:max(.7rem,3.3cqw);line-height:1.35}
+.invite-card .promotion-card-description{max-width:62%}
+.promotion-card-actions{margin-top:auto;padding-top:.5rem}
+.promo-referral{padding-top:.25rem;gap:.1rem}

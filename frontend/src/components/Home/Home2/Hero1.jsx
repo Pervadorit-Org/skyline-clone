@@ -18,7 +18,7 @@ export function Hero1() {
         />
       </picture>
       <div className="df-home2-hero1__content">
-        {cfg.logo ? <img className="df-home2-hero1__logo" src={cfg.logo} alt="" /> : null}
+        {cfg.logo ? <img className="df-home2-hero1__logo" src={cfg.logo} alt="" width="512" height="388" decoding="async" /> : null}
         <div className="df-home2-hero1__offer-block">
           <p className="df-home2-hero1__eyebrow">{cfg.eyebrow}</p>
           <p className="df-home2-hero1__offer">{cfg.offer}</p>

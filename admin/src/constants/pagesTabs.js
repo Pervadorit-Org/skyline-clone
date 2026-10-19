@@ -15,7 +15,6 @@ export const AUDIENCES = [
 export const PAGE_TABS = [
   { key: 'home', label: 'Home Page', path: '/', kind: 'home', audience: 'guest', needs: '/dashboard-slideshow' },
   { key: 'footer', label: 'Footer', path: '/', kind: 'footer', audience: 'guest', needs: '/footer' },
-  { key: 'blog', label: 'Blog', path: '/blog', kind: 'blog', audience: 'guest', needs: '/blog' },
   { key: 'help', label: 'Help Center', path: '/help', kind: 'help', audience: 'guest', needs: '/help' },
   { key: 'faq', label: 'FAQ', path: '/faq', kind: 'lobby', section: 'faq', audience: 'guest', needs: '/dashboard-slideshow' },
   { key: 'about-us', label: 'About Us', path: '/about-us', kind: 'legal', audience: 'guest', needs: '/footer' },
