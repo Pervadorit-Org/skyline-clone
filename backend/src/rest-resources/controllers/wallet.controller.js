@@ -37,6 +37,33 @@ async function getBalance(req, res) {
   }
 }
 
+/** Active currency (GC / SC) of the player. GC stores only; other stores always report SC. */
+async function getCurrencyMode(req, res) {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return sendError(res, 'Unauthorized', 401);
+    const gcWallet = require('../../services/wallet/gcWallet.service');
+    const enabled = await gcWallet.isGcStoreUser(userId);
+    const mode = await gcWallet.getCurrencyMode(userId);
+    sendSuccess(res, { gc_enabled: enabled, mode });
+  } catch (err) {
+    sendError(res, safeMessage(err, 'Unable to load currency mode.'), err.statusCode || 500);
+  }
+}
+
+/** Switch GC <-> SC. Only changes which balance gameplay uses; nothing is converted or moved. */
+async function setCurrencyMode(req, res) {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return sendError(res, 'Unauthorized', 401);
+    const gcWallet = require('../../services/wallet/gcWallet.service');
+    const mode = await gcWallet.setCurrencyMode(userId, req.body?.mode);
+    sendSuccess(res, { gc_enabled: true, mode });
+  } catch (err) {
+    sendError(res, safeMessage(err, 'Unable to switch currency.'), err.statusCode || 500);
+  }
+}
+
 async function deposit(req, res) {
   try {
     paymentLog('--- POST /api/wallet/deposit (request) ---');
@@ -687,6 +714,8 @@ async function revealPaymentPassword(req, res) {
 
 module.exports = {
   getBalance,
+  getCurrencyMode,
+  setCurrencyMode,
   deposit,
   completeDeposit,
   syncDeposits,
