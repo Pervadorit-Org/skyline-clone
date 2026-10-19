@@ -162,11 +162,13 @@ export function LandingFooter() {
       seen.add(to);
       out.push({ to, label });
     };
-    // Brand stores (Dragon Fury / Golden Dragon): the Pages column is only what's created in admin "Footer links".
+    // Brand stores (Dragon Fury / Golden Dragon): pages created in admin "Footer links", followed by
+    // the legal pages managed in Admin → Pages (About Us, Privacy, Terms…; hidden ones are left out).
     if (IS_BRAND_STORE) {
       menus.forEach((menu) =>
         (menu.pages || []).forEach((page) => add(`/${encodeURIComponent(page.slug)}`, page.title))
       );
+      (legalLinks || []).forEach((l) => add(l.to, l.label));
       return out;
     }
     // Legal pages (About Us, Privacy, Terms, Bonus Terms…) come from Admin → Pages so they can be

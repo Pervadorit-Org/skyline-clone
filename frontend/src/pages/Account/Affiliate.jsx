@@ -129,12 +129,25 @@ export function AccountAffiliate() {
 
   const referralLink = buildReferralLink(data?.referral_code);
   const shareOpts = shareOptionsFromAffiliateStats(data);
+  const giveGet = data?.program_mode !== 'classic';
   const rewardPct = Number(data?.reward_percentage ?? data?.rewardPercentage);
   const pct = Number.isFinite(rewardPct) && rewardPct > 0 ? rewardPct : 10;
   const maxRaw = Number(data?.max_rewarded_purchases ?? data?.maxRewardedPurchases);
-  const maxPurchases = Number.isFinite(maxRaw) && maxRaw > 0 ? maxRaw : 3;
+  const maxPurchases = Number.isFinite(maxRaw) && maxRaw > 0 ? maxRaw : giveGet ? 1 : 3;
 
   const friendBonusSc = Number(data?.friend_signup_bonus_sc) || 0;
+  const referrerRewardSc = Number(data?.referrer_reward_sc) || 0;
+  const minDepositUsd = Number(data?.min_qualifying_deposit_usd) || 0;
+  const weeklyCapSc = Number(data?.weekly_cap_sc) || 0;
+  const payoutHours = Number(data?.payout_delay_hours) || 0;
+  const howItWorks = Array.isArray(data?.how_it_works_steps) ? data.how_it_works_steps : [];
+  const rewardByUser = useMemo(() => {
+    const map = new Map();
+    (data?.earnings || []).forEach((e) => {
+      map.set(e.referred_user_id, (map.get(e.referred_user_id) || 0) + (Number(e.amount) || 0));
+    });
+    return map;
+  }, [data]);
   const referred = data?.referred_users || [];
   const totalReferrals = data?.total_referrals ?? referred.length ?? 0;
   const completed = referred.filter((u) => statusKey(u.qualification_status) === 'completed').length;
@@ -215,7 +228,11 @@ export function AccountAffiliate() {
             </div>
             <div className="ref-card-text">
               <p>Invite Friends Program</p>
-              <p>Earn up to {pct}% on each friend&apos;s first {maxPurchases} purchases</p>
+              <p>
+                {giveGet
+                  ? `Give ${formatSc(friendBonusSc)} SC, get ${formatSc(referrerRewardSc)} SC${minDepositUsd > 0 ? ` after their $${minDepositUsd}+ deposit` : ''}`
+                  : `Earn up to ${pct}% on each friend's first ${maxPurchases} purchases`}
+              </p>
             </div>
           </div>
           <div className="ref-fraud">
@@ -256,8 +273,12 @@ export function AccountAffiliate() {
                 </svg>
                 <span>Referrer</span>
               </div>
-              <p className="ref-tile-pct">{pct}%</p>
-              <p className="ref-tile-sub">On their first {maxPurchases} purchases</p>
+              <p className="ref-tile-pct">{giveGet ? `${formatSc(referrerRewardSc)} SC` : `${pct}%`}</p>
+              <p className="ref-tile-sub">
+                {giveGet
+                  ? `After their $${minDepositUsd}+ deposit${weeklyCapSc > 0 ? ` · cap ${formatSc(weeklyCapSc)} SC/week` : ''}`
+                  : `On their first ${maxPurchases} purchases`}
+              </p>
             </div>
             <div className="ref-tile">
               <div className="ref-tile-h">
@@ -276,10 +297,15 @@ export function AccountAffiliate() {
           <div className="ref-box">
             <h3>How it works</h3>
             <ol>
-              <li>Share your link with friends.</li>
-              <li>They sign up and verify their account.</li>
-              <li>They get a welcome bonus, and you earn a share of what they receive on their first purchases.</li>
-              <li>Rewards are credited automatically on their first qualifying purchases, up to the program&apos;s limit.</li>
+              {howItWorks.length ? (
+                howItWorks.map((step) => <li key={step}>{step}</li>)
+              ) : (
+                <>
+                  <li>Share your link with friends.</li>
+                  <li>They sign up and verify their account.</li>
+                  <li>They get a welcome bonus, and you earn a reward once they qualify.</li>
+                </>
+              )}
             </ol>
           </div>
           <div className="ref-box">
@@ -287,7 +313,15 @@ export function AccountAffiliate() {
             <ul>
               <li>No self-referrals, duplicate or fake accounts.</li>
               <li>Referees must complete within 30 days of clicking your link.</li>
-              <li>Rewards apply to each of a referee&apos;s first qualifying purchases, up to the program&apos;s purchase limit.</li>
+              {giveGet ? (
+                <li>
+                  You earn {formatSc(referrerRewardSc)} SC per friend
+                  {minDepositUsd > 0 ? ` who deposits $${minDepositUsd}+` : ''} and plays once
+                  {payoutHours > 0 ? `; payout within ${payoutHours} hours` : ''}.
+                </li>
+              ) : (
+                <li>Rewards apply to each of a referee&apos;s first qualifying purchases, up to the program&apos;s purchase limit.</li>
+              )}
               <li>We may revoke rewards for fraud or reversed accounts.</li>
             </ul>
             <Link to="/terms" className="ref-terms-link">Read full Terms &amp; Conditions</Link>
@@ -349,8 +383,8 @@ export function AccountAffiliate() {
                     <td>{u.username || '—'}</td>
                     <td>{statusLabel(u.qualification_status)}</td>
                     <td>{formatDate(u.joined_at)}</td>
-                    <td>{u.rewarded_purchases ?? 0} / {maxPurchases}</td>
-                    <td>{u.reward_sc != null ? `${formatSc(u.reward_sc)} SC` : '—'}</td>
+                    <td>{u.rewarded_deposits ?? 0} / {u.max_rewarded_deposits ?? maxPurchases}</td>
+                    <td>{rewardByUser.has(u.user_id) ? `${formatSc(rewardByUser.get(u.user_id))} SC` : '—'}</td>
                   </tr>
                 ))
               )}
@@ -377,9 +411,13 @@ export function AccountAffiliate() {
         <h3>Referral Terms (Summary)</h3>
         <ul>
           <li>Logged-in, verified users can share referral links; referees must be new users.</li>
-          <li>The referrer and the referee each earn a percentage of the coins from the referee&apos;s qualifying purchases, up to the program&apos;s purchase limit. Rewards are credited automatically once each purchase completes.</li>
+          <li>
+            {giveGet
+              ? `The referee receives ${formatSc(friendBonusSc)} SC on signup and the referrer earns ${formatSc(referrerRewardSc)} SC once the referee qualifies${weeklyCapSc > 0 ? `, up to ${formatSc(weeklyCapSc)} SC per week` : ''}.`
+              : 'The referrer earns a percentage of the coins from the referee’s qualifying purchases, up to the program’s purchase limit. Rewards are credited automatically once each purchase completes.'}
+          </li>
           <li>Self-referrals, duplicate accounts, and abuse are prohibited. We may delay, deny, or revoke rewards for suspected fraud or reversed accounts.</li>
-          <li>Caps may apply (e.g., monthly limit). Program may change or pause during maintenance or for compliance reasons.</li>
+          <li>Caps may apply. Program may change or pause during maintenance or for compliance reasons.</li>
         </ul>
         <Link to="/terms" className="ref-terms-full">See the full Terms &amp; Conditions for complete rules.</Link>
       </section>

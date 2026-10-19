@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useToast } from '../../context/ToastContext';
 import { GameImage } from '../Games/GameImage';
 import { getGameDisplayName } from '../../utils/gameDisplay';
-import { platformFavoriteId } from '../../utils/gameFavorites';
-import { GameFavoriteButton } from './GameFavoriteButton';
+// import { platformFavoriteId } from '../../utils/gameFavorites';
+// import { GameFavoriteButton } from './GameFavoriteButton';
 import { PlatformAccountSheet } from './PlatformAccountSheet';
 
 /**
@@ -67,11 +67,13 @@ export function LobbyPlatformTile({
         </span>
         <span className="df-lobby-platform__title">{name}</span>
       </button>
+      {/* Favorites disabled (no backend management)
       <GameFavoriteButton
         id={platformFavoriteId(game)}
         name={name}
         className="df-lobby-platform__fav"
       />
+      */}
       {sheetOpen ? (
         <PlatformAccountSheet
           game={game}

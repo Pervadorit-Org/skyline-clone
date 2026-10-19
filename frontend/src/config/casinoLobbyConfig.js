@@ -22,7 +22,7 @@ export const casinoLobbyConfig = {
       id: 'daily-spin',
       kicker: 'FREE EVERY DAY',
       title: 'SPIN THE WHEEL',
-      body: 'Win Gold and Sweep Coins — free spins every 6 hours.',
+      body: 'Win Gold and Sweep Coins — free spins every day.',
       ctaLabel: 'SPIN NOW',
       href: '/spinwheel',
       art: '/df-online/dragons/tier-fury.webp',
@@ -63,7 +63,7 @@ export const casinoLobbyConfig = {
       id: 'spin',
       title: 'Spin the Wheel',
       subtitle: 'Win Gold and Sweep Coins',
-      note: 'Get free-spins every 6 hours!',
+      note: 'Get free spins every day!',
       ctaLabel: 'SPIN',
       href: '/spinwheel',
       // Card background artwork (dragon wall).

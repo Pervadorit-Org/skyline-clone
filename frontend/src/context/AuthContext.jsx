@@ -62,7 +62,15 @@ function applyBalancePayload(data, setters) {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Visitors with no saved token are guests right away: waiting for the effect to flip `loading` made the
+  // shell render as a signed-in layout first and then jump to the guest landing (a large layout shift).
+  const [loading, setLoading] = useState(() => {
+    try {
+      return Boolean(localStorage.getItem('token'));
+    } catch {
+      return true;
+    }
+  });
   /** Sum of usable PSC+BSC + usable RSC (navbar pill). */
   const [balanceSc, setBalanceSc] = useState(null);
   const [pscWalletUsable, setPscWalletUsable] = useState(null);

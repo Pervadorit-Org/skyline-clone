@@ -5,8 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import { site } from '../../config/site';
 import { GuestSlotSpinWheelModal } from '../SpinWheel/GuestSlotSpinWheelModal';
 import { canGuestLandingSpin } from '../SpinWheel/guestLandingSpinCooldown';
-import { slotFavoriteId } from '../../utils/gameFavorites';
-import { GameFavoriteButton } from './GameFavoriteButton';
+// import { slotFavoriteId } from '../../utils/gameFavorites';
+// import { GameFavoriteButton } from './GameFavoriteButton';
 import { useGuestLandingScrollCount, isWelcomeLandingBlocked } from '../../hooks/useGuestLandingScrollCount';
 import { searchSlotCatalogGames } from '../../utils/slotCatalogSearch';
 
@@ -472,11 +472,13 @@ export function SlotGamesCatalogGrid({
                         {game.title}
                       </span>
                     </button>
+                    {/* Favorites disabled (no backend management)
                     <GameFavoriteButton
                       id={slotFavoriteId(game)}
                       name={game.title}
                       className="df-game-card__fav"
                     />
+                    */}
                   </article>
                 ) : (
                   <button

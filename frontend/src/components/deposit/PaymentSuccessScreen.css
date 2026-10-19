@@ -6,9 +6,9 @@
   --pss-teal: #44e644;
   --pss-green: #3ddc7a;
   --pss-green-deep: #00c853;
-  --pss-bg: #080509;
-  --pss-card: #19111c;
-  --pss-card2: #211725;
+  --pss-bg: #050609;
+  --pss-card: #11121c;
+  --pss-card2: #171825;
   --pss-border: rgba(243, 193, 15, 0.22);
   --pss-text: #f0ebe0;
   --pss-muted: #a59f8b;
@@ -34,7 +34,7 @@
   background:
     radial-gradient(ellipse 90% 70% at 50% 20%, rgba(61, 220, 122, 0.14) 0%, transparent 52%),
     radial-gradient(ellipse 60% 50% at 50% 100%, rgba(243, 193, 15, 0.06) 0%, transparent 55%),
-    rgba(8, 5, 9, 0.94);
+    rgba(5, 6, 9, 0.94);
   backdrop-filter: blur(12px);
 }
 
@@ -46,7 +46,7 @@
   padding: 2.25rem 1.75rem 2rem;
   border-radius: 24px;
   border: 1px solid var(--pss-border);
-  background: linear-gradient(165deg, var(--pss-card2) 0%, var(--pss-card) 50%, rgba(14, 10, 16, 0.98) 100%);
+  background: linear-gradient(165deg, var(--pss-card2) 0%, var(--pss-card) 50%, rgba(10, 11, 16, 0.98) 100%);
   box-shadow:
     0 28px 72px rgba(0, 0, 0, 0.65),
     0 0 0 1px rgba(255, 255, 255, 0.03) inset,
@@ -114,7 +114,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(145deg, #152018 0%, #19111c 100%);
+  background: linear-gradient(145deg, #152018 0%, #11121c 100%);
   border: 2px solid rgba(61, 220, 122, 0.5);
   box-shadow:
     0 8px 28px rgba(0, 0, 0, 0.45),
@@ -199,7 +199,7 @@
   text-transform: uppercase;
   color: #fff;
   cursor: pointer;
-  background: linear-gradient(180deg, #ffb347 0%, #b529e4 45%, #ff6b00 100%);
+  background: linear-gradient(180deg, #ffb347 0%, #42476c 45%, #ff6b00 100%);
   border: 1px solid rgba(255, 180, 80, 0.45);
   box-shadow:
     0 6px 24px rgba(255, 107, 0, 0.35),

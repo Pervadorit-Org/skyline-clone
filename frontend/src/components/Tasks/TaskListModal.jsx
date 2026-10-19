@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { site } from '../../config/site';
 import { useLobbyContent } from '../../hooks/useLobbyContent';
-import { isPurchaseProfileComplete } from '../../utils/purchaseProfile';
+import { useToast } from '../../context/ToastContext';
+import { useStoreSocialLinks } from '../../hooks/useStoreSocialLinks';
+import { getTaskStatus, claimTask } from '../../api/tasks';
+import { TASKS_CHANGED_EVENT } from './useClaimableTaskCount';
 import './task-list-modal.css';
 
 export const OPEN_TASK_LIST_EVENT = 'df:open-task-list';
@@ -14,9 +17,9 @@ export function openTaskList() {
 
 const GC = '/icons/coin.png';
 const SC = '/df-online/sc-coin.webp';
-const social = site?.socialLinks || {};
+const envSocial = site?.socialLinks || {};
 
-const REGULAR = [
+const buildRegular = (social) => [
   { id: 'fb', title: 'Click Link', desc: 'Follow us on Facebook', target: 'Visit the link', url: social.facebook, gc: '1,000', sc: '0.2' },
   { id: 'x', title: 'Click Link', desc: 'Follow us on X', target: 'Visit the link', url: social.twitter, gc: '10,000', sc: '0.2' },
   { id: 'phone', title: 'Verify Phone', desc: 'Verify Your Phone Number and get rewards', target: 'Verify your phone number', action: 'phone', gc: '10,000', sc: '0.5' },
@@ -33,7 +36,7 @@ const DAILY = [
 ];
 
 /** Admin-managed tasks replace a built-in list; hidden ones are dropped; social tasks fall back to the site's links. */
-function resolveTasks(custom, builtIn) {
+function resolveTasks(custom, builtIn, social) {
   if (!Array.isArray(custom) || custom.length === 0) return builtIn;
   return custom
     .filter((t) => t && t.enabled !== false)
@@ -49,12 +52,13 @@ const CheckIcon = ({ done }) => (
   </span>
 );
 
-function TaskCard({ task, done, onClose, user }) {
+function TaskCard({ task, done, claimable, claiming, onClaim, onClose }) {
   const [open, setOpen] = useState(false);
+  const [visited, setVisited] = useState(false);
   const cta = (() => {
     if (task.url) {
       return (
-        <a href={task.url} target="_blank" rel="noopener noreferrer" className="tl-cta">
+        <a href={task.url} target="_blank" rel="noopener noreferrer" className="tl-cta" onClick={() => setVisited(true)}>
           Open Link
         </a>
       );
@@ -104,7 +108,14 @@ function TaskCard({ task, done, onClose, user }) {
                 <span className="tl-sc"><img src={SC} alt="" aria-hidden="true" />{task.sc} SC</span>
               </div>
             </div>
-            <button type="button" className="tl-claim" disabled>Claim Now</button>
+            <button
+              type="button"
+              className="tl-claim"
+              disabled={done || !claimable || claiming || (task.kind === 'link' && (!task.url || !visited))}
+              onClick={() => onClaim(task)}
+            >
+              {done ? 'Claimed' : claiming ? 'Claiming…' : 'Claim Now'}
+            </button>
           </div>
         </div>
       </div>
@@ -117,11 +128,10 @@ function TaskCard({ task, done, onClose, user }) {
   );
 }
 
-function useResetCountdown(active) {
+function useResetCountdown(active, resetAt) {
   const calc = () => {
     const now = new Date();
-    const end = new Date(now);
-    end.setHours(24, 0, 0, 0);
+    const end = resetAt ? new Date(resetAt) : new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
     const s = Math.max(0, Math.floor((end - now) / 1000));
     return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m ${s % 60}s`;
   };
@@ -131,18 +141,66 @@ function useResetCountdown(active) {
     setText(calc());
     const id = setInterval(() => setText(calc()), 1000);
     return () => clearInterval(id);
-  }, [active]);
+  }, [active, resetAt]);
   return text;
 }
 
 export function TaskListModal() {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState('regular');
+  const [status, setStatus] = useState({});
+  const [claimedList, setClaimedList] = useState([]);
+  const [resetAt, setResetAt] = useState(null);
+  const [claimingId, setClaimingId] = useState(null);
   const { tasks: adminTasks } = useLobbyContent();
-  const regularTasks = resolveTasks(adminTasks?.regular, REGULAR);
-  const dailyTasks = resolveTasks(adminTasks?.daily, DAILY);
-  const reset = useResetCountdown(open && tab === 'daily');
+  const { socialLinks: adminSocial } = useStoreSocialLinks();
+  // Admin-managed links (Social Links page) win over the build-time env links.
+  const social = { ...envSocial };
+  Object.entries(adminSocial || {}).forEach(([k, v]) => {
+    if (v) social[k] = v;
+  });
+  const regularTasks = resolveTasks(adminTasks?.regular, buildRegular(social), social);
+  const dailyTasks = resolveTasks(adminTasks?.daily, DAILY, social);
+  const reset = useResetCountdown(open && tab === 'daily', resetAt);
+
+  const loadStatus = useCallback(async () => {
+    try {
+      const res = await getTaskStatus();
+      const map = {};
+      (res?.tasks || []).forEach((t) => {
+        map[`${t.group}:${t.id}`] = t;
+      });
+      setStatus(map);
+      setClaimedList(res?.claimed || []);
+      setResetAt(res?.reset_at || null);
+    } catch {
+      /* keep the last known state; claim buttons stay disabled until status loads */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (open && isAuthenticated) loadStatus();
+  }, [open, isAuthenticated, loadStatus]);
+
+  const handleClaim = async (task) => {
+    setClaimingId(`${task.group}:${task.id}`);
+    try {
+      const res = await claimTask(task.group, task.id);
+      const parts = [];
+      if (res?.reward_sc > 0) parts.push(`${res.reward_sc} SC`);
+      if (res?.reward_gc > 0) parts.push(`${res.reward_gc.toLocaleString()} GC`);
+      toast.success(parts.length ? `Reward claimed: ${parts.join(' + ')}` : 'Reward claimed.');
+      window.dispatchEvent(new CustomEvent('wallet:refresh'));
+    } catch (err) {
+      toast.error(err?.message || 'Could not claim this reward.');
+    } finally {
+      setClaimingId(null);
+      loadStatus();
+      window.dispatchEvent(new CustomEvent(TASKS_CHANGED_EVENT));
+    }
+  };
 
   useEffect(() => {
     const onOpen = () => {
@@ -168,10 +226,33 @@ export function TaskListModal() {
   if (!open || !isAuthenticated) return null;
 
   const close = () => setOpen(false);
-  const phoneDone = Boolean(user?.isPhoneVerified);
-  const emailDone = Boolean(user?.emailVerified ?? user?.isEmailVerified ?? user?.email_verified);
-  const profileDone = isPurchaseProfileComplete(user) && phoneDone;
-  const isDone = (t) => (t.action === 'phone' ? phoneDone : t.action === 'email' ? emailDone : false);
+  const stateOf = (t, group) => status[`${group}:${t.id}`] || {};
+  const withReward = (t, group) => {
+    const st = stateOf(t, group);
+    return {
+      ...t,
+      group,
+      kind: st.kind,
+      sc: st.reward_sc != null ? String(st.reward_sc) : t.sc,
+      gc: st.reward_gc != null ? Number(st.reward_gc).toLocaleString() : t.gc,
+    };
+  };
+  const renderTask = (t, group) => {
+    const st = stateOf(t, group);
+    const task = withReward(t, group);
+    return (
+      <TaskCard
+        key={t.id}
+        task={task}
+        done={Boolean(st.claimed)}
+        claimable={Boolean(st.eligible) && !st.claimed}
+        claiming={claimingId === `${group}:${t.id}`}
+        onClaim={handleClaim}
+        onClose={close}
+      />
+    );
+  };
+  const allTasks = [...regularTasks.map((t) => ({ ...t, group: 'regular' })), ...dailyTasks.map((t) => ({ ...t, group: 'daily' }))];
   const tabs = [['regular', 'Regular Tasks'], ['daily', 'Daily'], ['claimed', 'Claimed']];
   const heading = { regular: 'Regular Tasks', daily: 'Daily Tasks', claimed: 'Claimed Tasks' }[tab];
 
@@ -217,25 +298,43 @@ export function TaskListModal() {
         <div className="tl-scroll">
           {tab === 'regular' && (
             <div className="tl-list">
-              {!profileDone && (
-                <p role="status" className="tl-warn">
-                  Complete your profile to claim task rewards.{' '}
-                  <Link to="/account/profile#profile" onClick={close}>Complete profile</Link>
-                </p>
-              )}
-              {regularTasks.map((t) => (
-                <TaskCard key={t.id} task={t} done={isDone(t)} onClose={close} user={user} />
-              ))}
+              {regularTasks.map((t) => renderTask(t, 'regular'))}
             </div>
           )}
           {tab === 'daily' && (
             <div className="tl-list">
-              {dailyTasks.map((t) => (
-                <TaskCard key={t.id} task={t} done={false} onClose={close} user={user} />
-              ))}
+              {dailyTasks.map((t) => renderTask(t, 'daily'))}
             </div>
           )}
-          {tab === 'claimed' && <p className="tl-empty">No claimed tasks</p>}
+          {tab === 'claimed' && (
+            claimedList.length === 0 ? (
+              <p className="tl-empty">No claimed tasks</p>
+            ) : (
+              <div className="tl-list">
+                {claimedList.map((c) => {
+                  const base = allTasks.find((t) => t.id === c.task_id && t.group === c.group);
+                  return (
+                    <div key={c.task_key} className="tl-card">
+                      <div className="tl-card-head">
+                        <span className="tl-card-l">
+                          <img src={GC} alt="" aria-hidden="true" draggable="false" className="tl-card-icon" />
+                          <span className="tl-card-txt">
+                            <span className="tl-card-title"><span>{base?.title || c.task_id}</span></span>
+                            <span className="tl-card-desc">
+                              {[c.reward_sc > 0 ? `${c.reward_sc} SC` : '', c.reward_gc > 0 ? `${Number(c.reward_gc).toLocaleString()} GC` : ''].filter(Boolean).join(' + ')}
+                              {' · '}
+                              {new Date(c.claimed_at).toLocaleDateString()}
+                            </span>
+                          </span>
+                        </span>
+                        <CheckIcon done />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )
+          )}
         </div>
       </div>
     </div>,

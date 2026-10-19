@@ -98,9 +98,10 @@ const Promotions = lazy(() =>
 const Providers = lazy(() =>
   import('./pages/Providers').then((m) => ({ default: m.Providers }))
 );
-const Favorites = lazy(() =>
-  import('./pages/Favorites').then((m) => ({ default: m.Favorites }))
-);
+// Favorites page disabled (no backend management)
+// const Favorites = lazy(() =>
+//   import('./pages/Favorites').then((m) => ({ default: m.Favorites }))
+// );
 const SpinWheel = lazy(() =>
   import('./pages/SpinWheel').then((m) => ({ default: m.SpinWheel }))
 );
@@ -334,7 +335,7 @@ function RouteTitleManager() {
       ['/withdraw', 'Redeem'],
       ['/redeem', 'Redeem'],
       ['/promotions', 'Promotions'],
-      ['/favorites', 'Favorites'],
+      // ['/favorites', 'Favorites'], // disabled
       ['/providers', 'Providers'],
       ['/spinwheel', 'Spin Wheel'],
       ['/daily-bonus', 'Daily Bonus'],
@@ -526,7 +527,9 @@ function App() {
                 <Route path="/redeem" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />
                 <Route path="/kyc/callback" element={<ProtectedRoute><KycCallback /></ProtectedRoute>} />
                 <Route path="/providers" element={<Providers />} />
+                {/* Favorites disabled (no backend management)
                 <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+                */}
                 <Route path="/promotions" element={<ProtectedRoute><Promotions /></ProtectedRoute>} />
                 <Route path="/spinwheel" element={<ProtectedRoute><SpinWheel /></ProtectedRoute>} />
                 <Route path="/daily-bonus" element={<ProtectedRoute><DailyBonus /></ProtectedRoute>} />

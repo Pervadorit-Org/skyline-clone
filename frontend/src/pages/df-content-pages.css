@@ -367,23 +367,6 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
-.pj-footer-empty__cta {
-  border: 2px solid #ffe08a !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1) 40%, transparent 48%),
-    linear-gradient(180deg, #ffcc3d 0%, #ff8a1f 52%, #e85a00 100%) !important;
-  box-shadow: 0 6px 0 #751296, 0 0 0 3px #3b0f4a !important;
-  color: #fff !important;
-  font-family: "Lilita One", "Baloo 2", sans-serif !important;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.pj-footer-empty__title {
-  font-family: "Lilita One", "Baloo 2", sans-serif;
-  color: #ffe06a !important;
-}
-
 /* Help center tabs */
 .df-help-page .df-content-title {
   margin-bottom: 0.35rem;
