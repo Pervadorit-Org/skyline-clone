@@ -9,6 +9,9 @@ import {
 } from '../api/admin'
 import { BlogContentEditor } from '../components/BlogContentEditor'
 import { SeoMetaFields } from '../components/SeoMetaFields'
+import { SchemaEditor, schemaErrorFor } from '../components/SchemaEditor'
+import { PermanentRedirectField } from '../components/RecordActivity'
+import { blogSchemaAuto, originForStore } from '../utils/pageSchema'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { ROLES } from '../constants/roles'
@@ -40,13 +43,20 @@ const EMPTY = {
   slug: '',
   category: '',
   titleImage: '',
+  titleImageAlt: '',
   content: '',
   metaTitle: '',
   metaDescription: '',
   metaTags: '',
+  canonicalUrl: '',
+  permanentRedirect: '',
   allowIndex: true,
   isActive: true,
   storeCode: '',
+  schemaEnabled: true,
+  schemaType: 'BlogPosting',
+  schemaFields: {},
+  schemaCustom: '',
   createdAt: '',
   updatedAt: ''
 }
@@ -114,13 +124,20 @@ export default function BlogPostForm() {
           slug: post.slug || '',
           category: post.category || '',
           titleImage: post.titleImage || '',
+          titleImageAlt: post.titleImageAlt || '',
           content: post.content || '',
           metaTitle: post.metaTitle || '',
           metaDescription: post.metaDescription || '',
           metaTags: post.metaTags || '',
+          canonicalUrl: post.canonicalUrl || '',
+          permanentRedirect: post.permanentRedirect || '',
           allowIndex: post.allowIndex !== false,
           isActive: post.isActive !== false,
           storeCode: post.storeCode || '',
+          schemaEnabled: post.schemaEnabled !== false,
+          schemaType: post.schemaType || 'BlogPosting',
+          schemaFields: post.schemaFields || {},
+          schemaCustom: post.schemaCustom || '',
           createdAt: post.createdAt || '',
           updatedAt: post.updatedAt || ''
         })
@@ -195,20 +212,33 @@ export default function BlogPostForm() {
       toast.error('Pick which website this post is for.')
       return
     }
+    const schemaError = schemaErrorFor(form, blogSchemaAuto(form, originForStore(form.storeCode)))
+    if (schemaError) {
+      toast.error(schemaError)
+      return
+    }
+
     setSaving(true)
     const body = {
       title: form.title.trim(),
       slug,
       category: form.category.trim() || null,
       titleImage: form.titleImage.trim(),
+      titleImageAlt: form.titleImageAlt.trim(),
       content: form.content || '',
       metaTitle: form.metaTitle.trim() || null,
       metaDescription: form.metaDescription.trim() || null,
       metaTags: form.metaTags.trim() || null,
+      canonicalUrl: form.canonicalUrl.trim() || null,
+      permanentRedirect: form.permanentRedirect.trim(),
       allowIndex: form.allowIndex !== false,
       isActive: Boolean(form.isActive)
     }
     if (isMaster) body.storeCode = form.storeCode.trim()
+    body.schemaEnabled = form.schemaEnabled !== false
+    body.schemaType = form.schemaType || 'BlogPosting'
+    body.schemaFields = form.schemaFields || {}
+    body.schemaCustom = form.schemaCustom || ''
 
     try {
       if (isEdit) {
@@ -310,18 +340,34 @@ export default function BlogPostForm() {
         <section className="blog-easy-step">
           <p className="blog-easy-num">{isMaster ? '3' : '2'}</p>
           <div className="blog-easy-step-body">
-            <SeoMetaFields form={form} setField={setField} showIndexControl indexNoun="post" indexControlName="blog-google-index" />
+            <SeoMetaFields form={form} setField={setField} showIndexControl showCanonical indexNoun="post" indexControlName="blog-google-index" />
+            <PermanentRedirectField
+              value={form.permanentRedirect}
+              onChange={(value) => setField('permanentRedirect', value)}
+            />
           </div>
         </section>
 
         <section className="blog-easy-step">
-          <p className="blog-easy-num">{isMaster ? 4 : 3}</p>
+          <p className="blog-easy-num">{isMaster ? '4' : '3'}</p>
+          <div className="blog-easy-step-body">
+            <SchemaEditor
+              value={form}
+              auto={blogSchemaAuto(form, originForStore(form.storeCode))}
+              defaultType="BlogPosting"
+              onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
+            />
+          </div>
+        </section>
+
+        <section className="blog-easy-step">
+          <p className="blog-easy-num">{isMaster ? 5 : 4}</p>
           <div className="blog-easy-step-body">
             <span className="blog-easy-label">Add a big picture</span>
             <p className="blog-easy-help">This picture shows at the top of the post. It must be exactly 2172 × 724 pixels.</p>
             <label className={`blog-easy-cover${form.titleImage ? ' has-pic' : ''}`}>
               {form.titleImage ? (
-                <img src={form.titleImage} alt="Cover" />
+                <img src={form.titleImage} alt={form.titleImageAlt || 'Cover'} />
               ) : (
                 <span>{uploadingCover ? 'Adding picture…' : 'Tap here to pick a picture'}</span>
               )}
@@ -338,16 +384,28 @@ export default function BlogPostForm() {
                 type="button"
                 className="admin-btn admin-btn-danger"
                 disabled={uploadingCover || saving}
-                onClick={() => setField('titleImage', '')}
+                onClick={() => { setField('titleImage', ''); setField('titleImageAlt', ''); }}
               >
                 Remove picture
               </button>
             )}
+
+            <label className="blog-admin-field" style={{ marginTop: '0.85rem' }}>
+              <span>Picture alt text</span>
+              <input
+                type="text"
+                value={form.titleImageAlt}
+                onChange={(e) => setField('titleImageAlt', e.target.value)}
+                maxLength={512}
+                placeholder="Describe this picture"
+              />
+              <span className="blog-admin-hint">Used by screen readers and Google. Example: Panda Master banner with trust checks.</span>
+            </label>
           </div>
         </section>
 
         <section className="blog-easy-step">
-          <p className="blog-easy-num">{isMaster ? 5 : 4}</p>
+          <p className="blog-easy-num">{isMaster ? 6 : 5}</p>
           <div className="blog-easy-step-body">
             <span className="blog-easy-label">Write the post</span>
             <p className="blog-easy-help">Easy uses boxes. Switch to Visual editor, HTML editor, or Preview anytime.</p>
@@ -361,7 +419,7 @@ export default function BlogPostForm() {
         </section>
 
         <section className="blog-easy-step">
-          <p className="blog-easy-num">{(isMaster ? 6 : 5) + (String(form.storeCode || '').trim().toLowerCase() === 'dragonfury' ? 1 : 0)}</p>
+          <p className="blog-easy-num">{isMaster ? 7 : 6}</p>
           <div className="blog-easy-step-body">
             <span className="blog-easy-label">Show it on the website?</span>
             <div className="blog-easy-yesno">

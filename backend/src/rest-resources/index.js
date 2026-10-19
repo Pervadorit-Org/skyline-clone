@@ -83,11 +83,7 @@ app.use('/api/568Win', win568CallbackRoutes);
 const scorpioCallbackRoutes = require('./routes/scorpioCallback.routes');
 app.use('/api/scorpio/callback', scorpioCallbackRoutes);
 
-// Swagger API documentation (internal): hidden in production unless explicitly enabled
-const docsEnabled = config.get('env') !== 'production' || process.env.ENABLE_API_DOCS === 'true';
-if (!docsEnabled) {
-  app.use(['/docs', '/docs.json'], (req, res) => res.status(404).json({ message: 'Not found' }));
-}
+// Swagger API documentation
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: 'Partner Platform API',
@@ -106,11 +102,8 @@ const origins = (config.get('app.origin') || '')
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
-// With credentials enabled, never reflect arbitrary origins: in production an empty
-// ALLOWED_ORIGIN list means "no cross-origin access" rather than "allow everyone".
-const corsOrigin = origins.length ? origins : config.get('env') === 'production' ? false : true;
 app.use(cors({
-  origin: corsOrigin,
+  origin: origins.length ? origins : true,
   credentials: true,
   maxAge: 86400,
   exposedHeaders: ['Content-Disposition', 'X-Export-Row-Count']

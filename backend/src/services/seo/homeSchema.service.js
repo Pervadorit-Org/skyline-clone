@@ -2,28 +2,19 @@
 
 const db = require('../../db/models');
 const {
-  PLAYJUWA,
   PLAYJUWA_ORIGIN,
   isPlayjuwa,
   buildManagedSchema,
   homeAuto,
-  schemaFromBody
+  schemaFromBody,
+  originForStore,
+  hostFromOrigin
 } = require('./pageSchema.service');
 
-/** Stored as one JSON row in the existing `settings` table (no separate table). */
-const SETTINGS_KEY = 'home_page_schema';
+const HOME_KEY = 'home';
 
-function parseRow(row) {
-  if (!row?.value) return null;
-  try {
-    const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
-    return parsed && typeof parsed === 'object' ? parsed : null;
-  } catch {
-    return null;
-  }
-}
-
-function present(plain) {
+function present(row) {
+  const plain = row?.get ? row.get({ plain: true }) : row;
   return {
     schemaEnabled: plain ? plain.schemaEnabled !== false : true,
     schemaType: plain?.schemaType || 'WebPage',
@@ -48,22 +39,49 @@ function buildHome(record, { origin, storeLabel } = {}) {
   return { ...saved, auto, schema, schemaError };
 }
 
-async function getHome({ origin, storeLabel } = {}) {
-  const row = await db.Setting.findOne({
-    where: { key: SETTINGS_KEY, distributorCode: null, storeCode: PLAYJUWA }
-  });
-  return buildHome(parseRow(row), { origin, storeLabel });
+function normalizeSchemaStore(storeCode) {
+  return String(storeCode || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
-async function saveHome(body = {}) {
-  const saved = schemaFromBody(body, 'WebPage');
-  const value = JSON.stringify(saved);
-  const [row] = await db.Setting.findOrCreate({
-    where: { key: SETTINGS_KEY, distributorCode: null, storeCode: PLAYJUWA },
-    defaults: { key: SETTINGS_KEY, distributorCode: null, storeCode: PLAYJUWA, value }
+async function getHome(storeCode, { origin, storeLabel } = {}) {
+  const code = normalizeSchemaStore(storeCode);
+  if (!code) {
+    const err = new Error('storeCode is required.');
+    err.statusCode = 400;
+    throw err;
+  }
+  const row = await db.PageSchema.findOne({
+    where: { storeCode: code, pageKey: HOME_KEY }
   });
-  await row.update({ value });
-  return buildHome(saved, { origin: PLAYJUWA_ORIGIN, storeLabel: 'dragonfury.casino' });
+  const resolvedOrigin = origin || originForStore(code);
+  return buildHome(row, {
+    origin: resolvedOrigin,
+    storeLabel: storeLabel || hostFromOrigin(resolvedOrigin)
+  });
+}
+
+async function saveHome(storeCode, body = {}, { origin, storeLabel } = {}) {
+  const code = normalizeSchemaStore(storeCode);
+  if (!code) {
+    const err = new Error('storeCode is required.');
+    err.statusCode = 400;
+    throw err;
+  }
+  const saved = schemaFromBody(body, 'WebPage');
+  const [row] = await db.PageSchema.findOrCreate({
+    where: { storeCode: code, pageKey: HOME_KEY },
+    defaults: {
+      storeCode: code,
+      pageKey: HOME_KEY,
+      ...saved
+    }
+  });
+  await row.update(saved);
+  const resolvedOrigin = origin || originForStore(code);
+  return buildHome(row, {
+    origin: resolvedOrigin,
+    storeLabel: storeLabel || hostFromOrigin(resolvedOrigin)
+  });
 }
 
 module.exports = {

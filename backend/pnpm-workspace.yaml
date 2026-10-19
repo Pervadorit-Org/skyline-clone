@@ -1,5 +1,0 @@
-allowBuilds:
-  '@firebase/util': false
-  '@scarf/scarf': false
-  bcrypt: false
-  protobufjs: false

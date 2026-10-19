@@ -37,6 +37,11 @@ module.exports = function (sequelize, DataTypes) {
         allowNull: true,
         field: 'title_image'
       },
+      titleImageAlt: {
+        type: DataTypes.STRING(512),
+        allowNull: true,
+        field: 'title_image_alt'
+      },
       metaTitle: {
         type: DataTypes.STRING(512),
         allowNull: true,
@@ -52,13 +57,76 @@ module.exports = function (sequelize, DataTypes) {
         allowNull: true,
         field: 'meta_tags'
       },
+      canonicalUrl: {
+        type: DataTypes.STRING(1024),
+        allowNull: true,
+        field: 'canonical_url'
+      },
       allowIndex: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true,
         field: 'allow_index'
       },
+      schemaEnabled: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+        field: 'schema_enabled'
+      },
+      schemaType: {
+        type: DataTypes.STRING(32),
+        allowNull: false,
+        defaultValue: 'BlogPosting',
+        field: 'schema_type'
+      },
+      schemaFields: {
+        type: DataTypes.JSONB,
+        allowNull: false,
+        defaultValue: {},
+        field: 'schema_fields'
+      },
+      schemaCustom: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        field: 'schema_custom'
+      },
 
+      permanentRedirect: {
+        type: DataTypes.STRING(1024),
+        allowNull: true,
+        field: 'permanent_redirect'
+      },
+      deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        field: 'deleted_at'
+      },
+      deletedById: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: 'deleted_by_id'
+      },
+      deletedByName: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        field: 'deleted_by_name'
+      },
+      restoredAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        field: 'restored_at'
+      },
+      restoredById: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: 'restored_by_id'
+      },
+      restoredByName: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        field: 'restored_by_name'
+      },
       isActive: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

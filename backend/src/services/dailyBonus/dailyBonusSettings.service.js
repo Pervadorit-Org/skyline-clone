@@ -13,7 +13,6 @@ const KEY = 'daily_bonus_settings';
 const MAX_AMOUNT_SC = 10000;
 const MAX_SPIN_COUNT = 20;
 const MAX_PERCENT_OFF = 100;
-const MAX_GC_AMOUNT = 1000000000;
 
 const DEFAULT_SPIN_SEGMENTS = [
   { id: 'db1', type: 'sc_coins', value: 1, label: '1 SC', color: '#1a9b6c', probability: 30 },
@@ -27,7 +26,6 @@ function defaultDay(dayIndex) {
     dayIndex,
     rewardType: 'sc_coins',
     amountSc: 5,
-    gcAmount: 0,
     spinCount: 1,
     percentOff: 10,
     packageScope: 'all',
@@ -39,8 +37,6 @@ function defaultDay(dayIndex) {
 const DEFAULTS = {
   enabled: false,
   repeatAfterComplete: false,
-  // Opt-in per store: a missed UTC day restarts the cycle at Day 1 (off = a missed day changes nothing).
-  resetOnMiss: false,
   days: Array.from({ length: CAMPAIGN_DAYS }, (_, i) => defaultDay(i + 1)),
   spinSegments: DEFAULT_SPIN_SEGMENTS
 };
@@ -64,17 +60,6 @@ function normalizeRepeatAfterComplete(raw, fallback = false) {
   }
 }
 
-function normalizeResetOnMiss(raw, fallback = false) {
-  if (raw === undefined || raw === null || raw === '') return fallback === true;
-  try {
-    return normalizeEnabled(raw);
-  } catch (_) {
-    const err = new Error('resetOnMiss must be a boolean.');
-    err.statusCode = 400;
-    throw err;
-  }
-}
-
 function normalizeAmountSc(raw) {
   const n = Number(raw);
   if (!Number.isFinite(n) || n < 0 || n > MAX_AMOUNT_SC) {
@@ -83,18 +68,6 @@ function normalizeAmountSc(raw) {
     throw err;
   }
   return roundMoney(n);
-}
-
-/** Gold Coins credited on claim for GC stores (see gcWallet.service) and shown on the day card. */
-function normalizeGcAmount(raw) {
-  if (raw == null || raw === '') return 0;
-  const n = Math.round(Number(raw));
-  if (!Number.isFinite(n) || n < 0 || n > MAX_GC_AMOUNT) {
-    const err = new Error(`gcAmount must be a whole number between 0 and ${MAX_GC_AMOUNT}.`);
-    err.statusCode = 400;
-    throw err;
-  }
-  return n;
 }
 
 function normalizeSpinCount(raw) {
@@ -160,7 +133,6 @@ function normalizeDay(raw, index) {
     dayIndex,
     rewardType,
     amountSc: 0,
-    gcAmount: normalizeGcAmount(raw?.gcAmount ?? raw?.gc_amount),
     spinCount: 1,
     percentOff: 10,
     packageScope: 'all',
@@ -170,9 +142,8 @@ function normalizeDay(raw, index) {
 
   if (rewardType === 'sc_coins') {
     day.amountSc = normalizeAmountSc(raw?.amountSc ?? raw?.amount_sc ?? 0);
-    // A GC-only day (SC = 0) is fine as long as it still rewards something.
-    if (!(day.amountSc > 0) && !(day.gcAmount > 0)) {
-      const err = new Error(`Day ${dayIndex}: set Sweeps Coins or Gold Coins greater than 0.`);
+    if (!(day.amountSc > 0)) {
+      const err = new Error(`Day ${dayIndex}: amountSc must be greater than 0.`);
       err.statusCode = 400;
       throw err;
     }
@@ -299,7 +270,6 @@ function parseSettingsValue(value) {
       enabled: parsed.enabled === true,
       repeatAfterComplete:
         parsed.repeatAfterComplete === true || parsed.repeat_after_complete === true,
-      resetOnMiss: parsed.resetOnMiss === true || parsed.reset_on_miss === true,
       days,
       spinSegments: parseSpinSegments(parsed.spinSegments ?? parsed.spin_segments),
       updatedBy: typeof parsed.updatedBy === 'string' ? parsed.updatedBy : null,
@@ -315,7 +285,6 @@ function effectiveFromParsed(parsed) {
     return {
       enabled: DEFAULTS.enabled,
       repeatAfterComplete: DEFAULTS.repeatAfterComplete,
-      resetOnMiss: DEFAULTS.resetOnMiss,
       days: DEFAULTS.days.map((d) => ({ ...d, packageIds: [...(d.packageIds || [])] })),
       spinSegments: DEFAULTS.spinSegments.map((s) => ({ ...s })),
       hasOverride: false,
@@ -326,7 +295,6 @@ function effectiveFromParsed(parsed) {
   return {
     enabled: parsed.enabled === true,
     repeatAfterComplete: parsed.repeatAfterComplete === true,
-    resetOnMiss: parsed.resetOnMiss === true,
     days: parsed.days,
     spinSegments: parsed.spinSegments,
     hasOverride: true,
@@ -479,7 +447,6 @@ async function listAllStoreSettings() {
         isActive: s.isActive !== false,
         enabled: effective.enabled,
         repeatAfterComplete: effective.repeatAfterComplete === true,
-        resetOnMiss: effective.resetOnMiss === true,
         days: effective.days,
         spinSegments: effective.spinSegments,
         hasOverride: effective.hasOverride,
@@ -509,7 +476,6 @@ async function listOwnStoreSettings(scope) {
         isActive: store.isActive,
         enabled: effective.enabled,
         repeatAfterComplete: effective.repeatAfterComplete === true,
-        resetOnMiss: effective.resetOnMiss === true,
         days: effective.days,
         spinSegments: effective.spinSegments,
         hasOverride: effective.hasOverride,
@@ -557,10 +523,6 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
     payload.repeatAfterComplete ?? payload.repeat_after_complete,
     previous.repeatAfterComplete === true
   );
-  const resetOnMiss = normalizeResetOnMiss(
-    payload.resetOnMiss ?? payload.reset_on_miss,
-    previous.resetOnMiss === true
-  );
   const days = normalizeDays(payload.days);
   // Separate bonus-wheel segments are no longer used; keep optional for backward-compatible settings rows.
   let spinSegments = DEFAULT_SPIN_SEGMENTS.map((s) => ({ ...s }));
@@ -596,7 +558,6 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
   const valueObj = {
     enabled,
     repeatAfterComplete,
-    resetOnMiss,
     days,
     spinSegments,
     updatedBy: updatedBy || null,
@@ -623,8 +584,7 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
     distributorCode: store.distributorCode,
     updatedBy: updatedBy || null,
     enabled,
-    repeatAfterComplete,
-    resetOnMiss
+    repeatAfterComplete
   });
 
   return {
@@ -632,7 +592,6 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
     storeCode: store.storeCode,
     enabled,
     repeatAfterComplete,
-    resetOnMiss,
     days,
     spinSegments,
     hasOverride: true,

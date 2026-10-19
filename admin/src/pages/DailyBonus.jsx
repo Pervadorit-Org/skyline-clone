@@ -24,7 +24,6 @@ function toDraft(store) {
       dayIndex: i + 1,
       rewardType: src.rewardType || 'sc_coins',
       amountSc: src.amountSc != null ? String(src.amountSc) : '5',
-      gcAmount: src.gcAmount != null ? String(src.gcAmount) : '0',
       spinCount: src.spinCount != null ? String(src.spinCount) : '1',
       percentOff: src.percentOff != null ? String(src.percentOff) : '10',
       packageScope: src.packageScope || 'all',
@@ -35,7 +34,6 @@ function toDraft(store) {
   return {
     enabled: store.enabled === true,
     repeatAfterComplete: store.repeatAfterComplete === true,
-    resetOnMiss: store.resetOnMiss === true,
     days
   }
 }
@@ -154,12 +152,10 @@ export default function DailyBonus() {
         distributorCode: selectedStore.distributorCode,
         enabled: draft.enabled === true,
         repeatAfterComplete: draft.repeatAfterComplete === true,
-        resetOnMiss: draft.resetOnMiss === true,
         days: draft.days.map((d) => ({
           dayIndex: d.dayIndex,
           rewardType: d.rewardType,
           amountSc: Number(d.amountSc),
-          gcAmount: Math.max(0, Math.round(Number(d.gcAmount) || 0)),
           spinCount: Number(d.spinCount),
           percentOff: Number(d.percentOff),
           packageScope: d.packageScope,
@@ -176,7 +172,6 @@ export default function DailyBonus() {
                 ...s,
                 enabled: updated.enabled,
                 repeatAfterComplete: updated.repeatAfterComplete === true,
-                resetOnMiss: updated.resetOnMiss === true,
                 days: updated.days,
                 hasOverride: true,
                 updatedBy: updated.updatedBy,
@@ -294,19 +289,6 @@ export default function DailyBonus() {
                     <p className="daily-bonus-toggle-hint">
                       When on, users who claim all 7 days start again from Day 1 the next day.
                     </p>
-                    <label className="daily-bonus-enabled">
-                      <input
-                        type="checkbox"
-                        checked={draft.resetOnMiss}
-                        onChange={(e) =>
-                          setDraft((prev) => ({ ...prev, resetOnMiss: e.target.checked }))
-                        }
-                      />
-                      Missed day resets to Day 1
-                    </label>
-                    <p className="daily-bonus-toggle-hint">
-                      When on, a player who skips a full day (00:00 UTC) starts again from Day 1. Their earlier claims stay in the history. Off = a missed day changes nothing.
-                    </p>
                   </div>
                 </div>
 
@@ -337,24 +319,12 @@ export default function DailyBonus() {
                         </select>
                       </label>
 
-                      <label>
-                        Gold Coins (GC) credited on claim
-                        <input
-                          type="number"
-                          min="0"
-                          step="1"
-                          value={day.gcAmount}
-                          onChange={(e) => updateDay(day.dayIndex, { gcAmount: e.target.value })}
-                          aria-label={`Day ${day.dayIndex} Gold Coins`}
-                        />
-                      </label>
-
                       {day.rewardType === 'sc_coins' && (
                         <label>
-                          SC amount (0 = Gold Coins only)
+                          SC amount
                           <input
                             type="number"
-                            min="0"
+                            min="0.01"
                             step="0.01"
                             value={day.amountSc}
                             onChange={(e) => updateDay(day.dayIndex, { amountSc: e.target.value })}

@@ -37,52 +37,12 @@ async function getBalance(req, res) {
   }
 }
 
-/** Active currency (GC / SC) of the player. GC stores only; other stores always report SC. */
-async function getCurrencyMode(req, res) {
-  try {
-    const userId = req.user?.userId;
-    if (!userId) return sendError(res, 'Unauthorized', 401);
-    const gcWallet = require('../../services/wallet/gcWallet.service');
-    const enabled = await gcWallet.isGcStoreUser(userId);
-    const mode = await gcWallet.getCurrencyMode(userId);
-    sendSuccess(res, { gc_enabled: enabled, mode });
-  } catch (err) {
-    sendError(res, safeMessage(err, 'Unable to load currency mode.'), err.statusCode || 500);
-  }
-}
-
-/** Switch GC <-> SC. Only changes which balance gameplay uses; nothing is converted or moved. */
-async function setCurrencyMode(req, res) {
-  try {
-    const userId = req.user?.userId;
-    if (!userId) return sendError(res, 'Unauthorized', 401);
-    const gcWallet = require('../../services/wallet/gcWallet.service');
-    const mode = await gcWallet.setCurrencyMode(userId, req.body?.mode);
-    sendSuccess(res, { gc_enabled: true, mode });
-  } catch (err) {
-    sendError(res, safeMessage(err, 'Unable to switch currency.'), err.statusCode || 500);
-  }
-}
-
-const PROFILE_INCOMPLETE_MESSAGE = 'Please complete your profile first (add your first and last name) before making a payment.';
-
-/** Payment flows need the player's first and last name; names are optional at signup. */
-async function isProfileNameComplete(userId) {
-  const u = await db.User.findByPk(userId, { attributes: ['firstName', 'lastName'], raw: true });
-  return Boolean((u?.firstName || '').trim() && (u?.lastName || '').trim());
-}
-
-function sendProfileIncomplete(res) {
-  return sendError(res, PROFILE_INCOMPLETE_MESSAGE, 400, 'PROFILE_INCOMPLETE');
-}
-
 async function deposit(req, res) {
   try {
     paymentLog('--- POST /api/wallet/deposit (request) ---');
     paymentLog('request body:', req.body);
     const userId = req.user?.userId;
     if (!userId) return sendError(res, 'Unauthorized', 401);
-    if (!(await isProfileNameComplete(userId))) return sendProfileIncomplete(res);
     const provider = (req.body?.provider && typeof req.body.provider === 'string')
       ? req.body.provider.trim().toLowerCase()
       : 'orionstarspay';
@@ -338,7 +298,7 @@ async function withdraw(req, res) {
     const first = (user?.firstName || '').trim();
     const last = (user?.lastName || '').trim();
     if (!first || !last) {
-      return sendProfileIncomplete(res);
+      return sendError(res, 'Profile details need to be updated. Please update your profile before using this feature.', 400);
     }
     const data = await walletService.withdraw(userId, req.body);
     sendSuccess(res, data);
@@ -727,8 +687,6 @@ async function revealPaymentPassword(req, res) {
 
 module.exports = {
   getBalance,
-  getCurrencyMode,
-  setCurrencyMode,
   deposit,
   completeDeposit,
   syncDeposits,

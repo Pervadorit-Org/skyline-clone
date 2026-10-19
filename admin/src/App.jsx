@@ -80,10 +80,11 @@ import LandingPaymentLinks from './pages/LandingPaymentLinks'
 import BlogPosts from './pages/BlogPosts'
 import BlogPostForm from './pages/BlogPostForm'
 import HomeSchemaForm from './pages/HomeSchemaForm'
-import Pages from './pages/Pages'
+import CommonPageSeo from './pages/CommonPageSeo'
 import Link2PlayGames from './pages/Link2PlayGames'
 import Link2PlayGameForm from './pages/Link2PlayGameForm'
 import FooterPages from './pages/FooterPages'
+import GameSeoPageForm from './pages/GameSeoPageForm'
 import FooterPageForm from './pages/FooterPageForm'
 import LegalPageForm from './pages/LegalPageForm'
 import Bonus from './pages/Bonus'
@@ -257,10 +258,10 @@ export default function App() {
         <Route path="chime-deposits" element={<RoleRoute><ChimeDeposits /></RoleRoute>} />
         <Route path="chime-accounts" element={<RoleRoute><ChimeAccounts /></RoleRoute>} />
         <Route path="help" element={<RoleRoute><Help /></RoleRoute>} />
-        <Route path="pages" element={<RoleRoute><Pages /></RoleRoute>} />
         <Route path="support-tickets" element={<RoleRoute><SupportTickets /></RoleRoute>} />
         <Route path="social-links" element={<RoleRoute><SocialLinks /></RoleRoute>} />
         <Route path="landing-payment-links" element={<RoleRoute><LandingPaymentLinks /></RoleRoute>} />
+        <Route path="page-seo" element={<RoleRoute><CommonPageSeo /></RoleRoute>} />
         <Route path="blog" element={<RoleRoute><Outlet /></RoleRoute>}>
           <Route index element={<BlogPosts />} />
           <Route path="home-schema" element={<HomeSchemaForm />} />
@@ -277,6 +278,7 @@ export default function App() {
           <Route path="pages/new" element={<FooterPageForm />} />
           <Route path="pages/:id/edit" element={<FooterPageForm />} />
           <Route path="legal/:pageKey" element={<LegalPageForm />} />
+          <Route path="games/:slug" element={<GameSeoPageForm />} />
         </Route>
         <Route path="bonus" element={<RoleRoute><Bonus /></RoleRoute>} />
       </Route>

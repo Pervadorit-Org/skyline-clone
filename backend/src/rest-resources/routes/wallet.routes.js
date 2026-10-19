@@ -7,8 +7,6 @@ const router = express.Router();
 
 router.get('/limits', authMiddlewareOptional, walletController.getWalletLimits);
 router.get('/balance', authMiddleware, balanceRateLimiter, walletController.getBalance);
-router.get('/currency-mode', authMiddleware, balanceRateLimiter, walletController.getCurrencyMode);
-router.put('/currency-mode', authMiddleware, balanceRateLimiter, walletController.setCurrencyMode);
 router.post('/deposit', authMiddleware, walletController.deposit);
 router.post('/deposit/complete', authMiddleware, walletController.completeDeposit);
 router.get('/deposits', authMiddleware, walletController.getDeposits);

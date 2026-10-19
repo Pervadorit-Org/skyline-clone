@@ -12,7 +12,7 @@ function authMiddleware(req, res, next) {
     if (!secret) {
       return res.status(500).json({ message: 'Server configuration error' });
     }
-    const decoded = jwt.verify(token, secret, { algorithms: ['HS256'] });
+    const decoded = jwt.verify(token, secret);
     req.user = {
       userId: decoded.userId,
       username: decoded.username,
@@ -36,7 +36,7 @@ async function authMiddlewareOptional(req, res, next) {
   try {
     const secret = config.get('jwt.tokenSecret');
     if (!secret) return next();
-    const decoded = jwt.verify(token, secret, { algorithms: ['HS256'] });
+    const decoded = jwt.verify(token, secret);
     req.user = {
       userId: decoded.userId,
       username: decoded.username,
@@ -67,7 +67,7 @@ function authMiddlewareWithBodyToken(req, res, next) {
     if (!secret) {
       return res.status(500).json({ message: 'Server configuration error' });
     }
-    const decoded = jwt.verify(token, secret, { algorithms: ['HS256'] });
+    const decoded = jwt.verify(token, secret);
     req.user = {
       userId: decoded.userId,
       username: decoded.username,

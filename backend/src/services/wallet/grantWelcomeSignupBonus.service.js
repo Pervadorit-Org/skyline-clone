@@ -4,7 +4,6 @@ const db = require('../../db/models');
 const { createLogger } = require('../../libs/logger');
 const { BONUS_CURRENCY_CODE } = require('./getCurrencySetting.service');
 const { creditBonusSc } = require('./walletBuckets.service');
-const gcWallet = require('./gcWallet.service');
 const { isAdminPanelAccount, ROLES, normalizeRoleKey } = require('../../constants/roles');
 const { resolveStoreFromCode, normalizeStoreCode } = require('../auth/storeBinding.helpers');
 const { WELCOME_SIGNUP_TX_TYPE } = require('./bonusPlaythrough.constants');
@@ -79,11 +78,9 @@ async function grantWelcomeSignupBonus(userId, options = {}, transaction = null)
   if (!storeScope) return null;
 
   const settings = await getEffectiveSettings(storeScope.distributorCode, storeScope.storeCode);
-  // GC stores may also give Gold Coins with the welcome bonus (settings.amountGc).
-  const creditGcAmount = gcWallet.isGcStoreCode(storeScope.storeCode) ? Math.max(0, Number(settings.amountGc) || 0) : 0;
-  if (!settings.enabled || (!(Number(settings.amountSc) > 0) && !(creditGcAmount > 0))) return null;
+  if (!settings.enabled || !(Number(settings.amountSc) > 0)) return null;
 
-  const credit = Math.max(0, Number(settings.amountSc) || 0);
+  const credit = Number(settings.amountSc);
   const resolvedStoreCode = normalizeStoreCode(storeScope.storeCode);
 
   const run = async (t) => {
@@ -145,41 +142,23 @@ async function grantWelcomeSignupBonus(userId, options = {}, transaction = null)
       throw txErr;
     }
 
-    if (credit > 0) {
-      await creditBonusSc(userId, credit, {
-        transaction: t,
-        ledger: {
-          eventType: 'WELCOME_BONUS',
-          bonusType: 'WELCOME_BONUS',
-          sourceType: 'WELCOME_SIGNUP',
-          sourceId: userId,
-          remarks: 'Welcome signup bonus'
-        }
-      });
-    }
-
-    // Gold Coins: once per user (the welcome_signup guard row above already blocks repeats).
-    if (creditGcAmount > 0) {
-      await gcWallet.creditGc(userId, creditGcAmount, {
-        transaction: t,
-        // Not 'welcome_signup': that type is unique per user and already holds the SC guard row.
-        type: 'welcome_signup_gc',
-        reason: 'WELCOME_BONUS_GC',
-        referenceType: 'WELCOME_SIGNUP',
-        referenceId: String(userId),
-        idempotencyKey: `welcome_gc:${userId}`,
-        description: `Welcome signup bonus: ${creditGcAmount.toLocaleString('en-US')} GC`,
-        metadata: { source: 'welcome_signup', bonusGc: creditGcAmount, storeCode: resolvedStoreCode }
-      });
-    }
+    await creditBonusSc(userId, credit, {
+      transaction: t,
+      ledger: {
+        eventType: 'WELCOME_BONUS',
+        bonusType: 'WELCOME_BONUS',
+        sourceType: 'WELCOME_SIGNUP',
+        sourceId: userId,
+        remarks: 'Welcome signup bonus'
+      }
+    });
 
     log.info('Welcome signup bonus granted', {
       userId,
       amountSc: credit,
-      amountGc: creditGcAmount,
       storeCode: resolvedStoreCode
     });
-    return { granted: true, amount_sc: credit, amount_gc: creditGcAmount };
+    return { granted: true, amount_sc: credit };
   };
 
   if (transaction) return run(transaction);

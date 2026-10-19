@@ -93,10 +93,6 @@ async function resolveSignupCode(rawCode) {
         storeCode: storeAdmin.storeCode || null
       };
     }
-    const brand = require('./storeBinding.helpers').fallbackBrandStore(codeNormalized);
-    if (brand) {
-      return { referredByUserId: null, distributorCode: brand.distributorCode, storeCode: brand.storeCode };
-    }
   }
 
   const err = new Error('Wrong code or code does not exist. Please use your store code.');
@@ -242,7 +238,11 @@ async function register(body, options = {}) {
   const trimmedFirst = firstName ? String(firstName).trim() : '';
   const trimmedLast = lastName ? String(lastName).trim() : '';
   const payment = require('../payment');
-  // First/last name are optional at signup (only username, email, password and the consent checkboxes are required).
+  if (payment.isPaymentConfigured() && (!trimmedFirst || !trimmedLast)) {
+    const err = new Error('First name and last name are required for account creation.');
+    err.statusCode = 400;
+    throw err;
+  }
   const nameError = 'First and last name can only contain letters (a-z, A-Z); no numbers, spaces, hyphens, or special characters.';
   if (trimmedFirst && !nameLettersOnly.test(trimmedFirst)) {
     const err = new Error(nameError);
@@ -442,8 +442,7 @@ async function register(body, options = {}) {
     }),
     ...(welcomeBonusGrant?.granted && {
       welcome_bonus_granted: true,
-      welcome_bonus_amount_sc: welcomeBonusGrant.amount_sc,
-      welcome_bonus_amount_gc: welcomeBonusGrant.amount_gc || 0
+      welcome_bonus_amount_sc: welcomeBonusGrant.amount_sc
     }),
     ...(referralFriendBonusGrant?.granted && {
       referral_friend_bonus_granted: true,

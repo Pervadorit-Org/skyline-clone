@@ -1,6 +1,6 @@
 'use strict';
 
-const { schemaForBlogPost, isPlayjuwa, schemaForFooterPage } = require('../seo/pageSchema.service');
+const { schemaForBlogPost, schemaForFooterPage } = require('../seo/pageSchema.service');
 
 const blogPosts = require('./blogPosts.service');
 
@@ -16,7 +16,11 @@ const STATIC_SITEMAP_PATHS = [
   { path: '/privacy', changefreq: 'yearly', priority: '0.4' },
   { path: '/terms', changefreq: 'yearly', priority: '0.4' },
   { path: '/responsible-gaming', changefreq: 'yearly', priority: '0.4' },
-  { path: '/slots', changefreq: 'weekly', priority: '0.7' }
+  { path: '/slots', changefreq: 'weekly', priority: '0.7' },
+  { path: '/games', changefreq: 'weekly', priority: '0.9' },
+  { path: '/casino', changefreq: 'weekly', priority: '0.8' },
+  { path: '/bonus', changefreq: 'weekly', priority: '0.7' },
+  { path: '/platform', changefreq: 'weekly', priority: '0.7' }
 ];
 
 /** Public SPA paths that should return crawler HTML (not /blog — that has its own builders). */
@@ -263,11 +267,23 @@ async function listIndexablePosts(storeCode) {
   return (posts || []).filter((post) => post.allowIndex !== false && !String(post.permanentRedirect || '').trim());
 }
 
-function buildSitemapXml({ origin, posts }) {
+function buildSitemapXml({ origin, posts, gamePages }) {
   const urls = [];
+  const seen = new Set();
   for (const item of STATIC_SITEMAP_PATHS) {
+    seen.add(item.path);
     urls.push(
       `  <url>\n    <loc>${escapeHtml(originPath(origin, item.path))}</loc>\n    <changefreq>${item.changefreq}</changefreq>\n    <priority>${item.priority}</priority>\n  </url>`
+    );
+  }
+  for (const game of gamePages || []) {
+    const slug = String(game.slug || '').replace(/^\/+|\/+$/g, '').trim().toLowerCase();
+    if (!slug) continue;
+    const path = `/games/${slug}`;
+    if (seen.has(path)) continue;
+    seen.add(path);
+    urls.push(
+      `  <url>\n    <loc>${escapeHtml(originPath(origin, path))}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`
     );
   }
   for (const post of posts || []) {
@@ -315,26 +331,10 @@ function buildBlogPostHtml({ origin, storeLabel, post }) {
   const image = post.titleImage ? String(post.titleImage).trim() : '';
   const imageAlt = String(post.titleImageAlt || post.title_image_alt || post.title || '').trim();
   const published = w3cDate(post.createdAt);
-  const modified = w3cDate(post.updatedAt || post.createdAt);
-  let schemaScript = '';
-  if (isPlayjuwa(post.storeCode)) {
-    const managed = schemaForBlogPost({ origin, storeLabel, post });
-    if (managed) schemaScript = `  <script type="application/ld+json">${JSON.stringify(managed)}</script>`;
-  } else {
-    const schema = {
-      '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      headline: title,
-      description,
-      mainEntityOfPage: canonical,
-      datePublished: published || undefined,
-      dateModified: modified || undefined,
-      image: image || undefined,
-      author: { '@type': 'Organization', name: storeLabel },
-      publisher: { '@type': 'Organization', name: storeLabel }
-    };
-    schemaScript = `  <script type="application/ld+json">${JSON.stringify(schema)}</script>`;
-  }
+  const managed = schemaForBlogPost({ origin, storeLabel, post });
+  const schemaScript = managed
+    ? `  <script type="application/ld+json" id="pj-schema-page">${JSON.stringify(managed)}</script>`
+    : '';
   const extraHead = `${schemaScript}${
     image ? `\n  <meta property="og:image" content="${escapeAttr(image)}">` : ''
   }`;
@@ -386,6 +386,18 @@ function navLinks(origin, currentPath) {
 function fallbackCopyForPath(path) {
   if (MARKETING_PAGE_COPY[path]) return MARKETING_PAGE_COPY[path];
   if (path === '/casino') return MARKETING_PAGE_COPY['/slots'];
+  if (path === '/bonus' || path === '/platform') {
+    const heading = path === '/bonus' ? 'Bonuses' : 'Platforms';
+    return {
+      heading: () => heading,
+      title: (label) => `${heading} | ${label}`,
+      description: (label) => `${heading} on ${label}.`,
+      paragraphs: (label) => [
+        `Open ${heading.toLowerCase()} on ${label} from the official website.`,
+        'Sign in if you have an account. Availability depends on your location.'
+      ]
+    };
+  }
   return null;
 }
 
@@ -421,14 +433,17 @@ ${extra}`;
 }
 
 function buildFooterPageHtml({ origin, storeLabel, path, page }) {
-  const canonical = originPath(origin, path);
+  const customCanonical = String(page.canonicalUrl || page.canonical_url || '').trim();
+  const canonical = page.allowIndex === false ? '' : (customCanonical || originPath(origin, path));
   const managedSchema = schemaForFooterPage({ origin, storeLabel, page });
   const schemaTag = managedSchema
-    ? `  <script type="application/ld+json">${JSON.stringify(managedSchema)}</script>`
+    ? `  <script type="application/ld+json" id="pj-schema-webpage">${JSON.stringify(managedSchema)}</script>`
     : '';
   const title = String(page.metaTitle || page.title || storeLabel).trim();
   const description = String(page.metaDescription || '').trim() || `${page.title || 'Page'} | ${storeLabel}`;
-  const articleHtml = extractArticleHtml(page.content || '').trim();
+  const articleHtml = extractArticleHtml(page.content || '')
+    .replace(/<h1\b[^>]*>[\s\S]*?<\/h1>/i, '')
+    .trim();
   const body = `    <p>${navLinks(origin, path)}</p>
     <h1>${escapeHtml(page.title || title)}</h1>
     ${articleHtml || `<p>${escapeHtml(description)}</p>`}`;
@@ -464,7 +479,7 @@ function buildHomeHtml({ origin, storeLabel, posts, pageSchema }) {
 ${paragraphs}
 ${blogBlock}`;
   const homeSchemaScript = pageSchema
-    ? `\n  <script type="application/ld+json">${JSON.stringify(pageSchema)}</script>`
+    ? `\n  <script type="application/ld+json" id="pj-schema-webpage">${JSON.stringify(pageSchema)}</script>`
     : '';
   return htmlShell({
     title: copy.title(storeLabel),
@@ -489,5 +504,6 @@ module.exports = {
   buildMarketingFallbackHtml,
   buildFooterPageHtml,
   buildHomeHtml,
-  slugFromPath
+  slugFromPath,
+  originPath
 };

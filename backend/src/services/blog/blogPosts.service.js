@@ -4,9 +4,18 @@ const { Op } = require('sequelize');
 const db = require('../../db/models');
 const { ROLES } = require('../../constants/roles');
 const { ADMIN_FEATURE_KEYS } = require('../../constants/permissions');
-const { seoFromBody, seoToPlain } = require('../cms/seoFields');
-const { isPlayjuwa, schemaForBlogPost, PLAYJUWA_ORIGIN } = require('../seo/pageSchema.service');
-const { deletionWhere } = require('../cms/contentLifecycle');
+const { seoFromBody, seoToPlain, canonicalUrlFromBody } = require('../cms/seoFields');
+const { schemaFromBody, schemaForBlogPost, originForStore, hostFromOrigin } = require('../seo/pageSchema.service');
+const {
+  supportsLifecycle,
+  actorFromReq,
+  stampDelete,
+  stampRestore,
+  deletionWhere,
+  redirectPatch,
+  redirectResult,
+  lifecyclePlain
+} = require('../cms/contentLifecycle');
 
 function normalizeStoreCode(str) {
   if (!str || typeof str !== 'string') return '';
@@ -136,8 +145,15 @@ function toPlain(row) {
     content: p.content,
     category: p.category,
     titleImage: p.titleImage ?? p.title_image,
+    titleImageAlt: p.titleImageAlt ?? p.title_image_alt ?? '',
     ...seoToPlain(p),
+    canonicalUrl: p.canonicalUrl ?? p.canonical_url ?? null,
     allowIndex: p.allowIndex !== false && p.allow_index !== false,
+    schemaEnabled: p.schemaEnabled !== false && p.schema_enabled !== false,
+    schemaType: p.schemaType || p.schema_type || 'BlogPosting',
+    schemaFields: p.schemaFields || p.schema_fields || {},
+    schemaCustom: p.schemaCustom || p.schema_custom || '',
+    ...lifecyclePlain(p),
     isActive: p.isActive ?? p.is_active,
     createdAt: p.createdAt ?? p.created_at,
     updatedAt: p.updatedAt ?? p.updated_at
@@ -238,6 +254,9 @@ async function createAdmin(req, body = {}) {
   const titleImage = body.titleImage != null && String(body.titleImage).trim()
     ? String(body.titleImage).trim()
     : null;
+  const titleImageAltRaw = body.titleImageAlt !== undefined ? body.titleImageAlt : body.title_image_alt;
+  const titleImageAltText = titleImageAltRaw == null ? '' : String(titleImageAltRaw).trim().replace(/\s+/g, ' ');
+  const titleImageAlt = titleImageAltText ? titleImageAltText.slice(0, 512) : null;
   const isActive = body.isActive !== false && body.isActive !== 'false';
   const allowIndex = allowIndexFromBody(body) !== false;
 
@@ -259,7 +278,12 @@ async function createAdmin(req, body = {}) {
 
   await assertUniqueSlug(storeCode, slug);
 
+  const schemaPatch = (body.schemaEnabled !== undefined || body.schemaType || body.schemaFields || body.schemaCustom !== undefined)
+    ? schemaFromBody(body, 'BlogPosting')
+    : null;
   const seo = seoFromBody(body);
+  const canonicalUrl = canonicalUrlFromBody(body);
+  const permanentRedirect = redirectPatch(body, storeCode, 'blog', `/blog/${slug}`);
   const row = await db.BlogPost.create({
     storeCode,
     title,
@@ -267,9 +291,13 @@ async function createAdmin(req, body = {}) {
     content,
     category,
     titleImage,
+    titleImageAlt,
     metaTitle: seo.metaTitle ?? null,
     metaDescription: seo.metaDescription ?? null,
     metaTags: seo.metaTags ?? null,
+    canonicalUrl: canonicalUrl ?? null,
+    ...(schemaPatch || {}),
+    ...(permanentRedirect !== undefined ? { permanentRedirect } : {}),
     allowIndex,
     isActive
   });
@@ -326,12 +354,24 @@ async function updateAdmin(req, id, body = {}) {
     err.statusCode = 400;
     throw err;
   }
+  if (body.titleImageAlt !== undefined || body.title_image_alt !== undefined) {
+    const raw = body.titleImageAlt !== undefined ? body.titleImageAlt : body.title_image_alt;
+    const text = raw == null ? '' : String(raw).trim().replace(/\s+/g, ' ');
+    patch.titleImageAlt = text ? text.slice(0, 512) : null;
+  }
   if (body.isActive !== undefined) {
     patch.isActive = body.isActive !== false && body.isActive !== 'false';
   }
   const allowIndex = allowIndexFromBody(body);
   if (allowIndex !== undefined) patch.allowIndex = allowIndex;
   Object.assign(patch, seoFromBody(body));
+  const canonicalUrl = canonicalUrlFromBody(body);
+  if (canonicalUrl !== undefined) patch.canonicalUrl = canonicalUrl;
+  if (body.schemaEnabled !== undefined || body.schemaType || body.schemaFields || body.schemaCustom !== undefined) {
+    Object.assign(patch, schemaFromBody(body, 'BlogPosting'));
+  }
+  const hop = redirectPatch(body, row.storeCode, 'blog', `/blog/${patch.slug || row.slug}`);
+  if (hop !== undefined) patch.permanentRedirect = hop;
 
   if (req.role === ROLES.MASTER_ADMIN && body.storeCode != null) {
     const storeCode = normalizeStoreCode(body.storeCode);
@@ -371,8 +411,28 @@ async function deleteAdmin(req, id) {
     throw err;
   }
   assertScope(req, row);
+  if (supportsLifecycle('blog', row.storeCode)) {
+    if (!row.deletedAt) {
+      await row.update(stampDelete(await actorFromReq(req)));
+    }
+    return { deleted: true, id, soft: true };
+  }
   await row.destroy();
   return { deleted: true, id };
+}
+
+async function restoreAdmin(req, id) {
+  const row = await db.BlogPost.findByPk(id);
+  if (!row) {
+    const err = new Error('Blog post not found.');
+    err.statusCode = 404;
+    throw err;
+  }
+  assertScope(req, row);
+  if (row.deletedAt) {
+    await row.update(stampRestore(await actorFromReq(req)));
+  }
+  return toPlain(row);
 }
 
 /** Public list — active posts for a store only. */
@@ -384,7 +444,7 @@ async function listPublic(storeCodeRaw, query = {}) {
     throw err;
   }
 
-  const where = { storeCode, isActive: true };
+  const where = { storeCode, isActive: true, deletedAt: null };
   if (query.category && typeof query.category === 'string' && query.category.trim()) {
     where.category = query.category.trim();
   }
@@ -392,7 +452,7 @@ async function listPublic(storeCodeRaw, query = {}) {
   const rows = await db.BlogPost.findAll({
     where,
     order: [['created_at', 'DESC']],
-    attributes: ['id', 'title', 'slug', 'category', 'titleImage', 'metaDescription', 'allowIndex', 'created_at', 'updated_at']
+    attributes: ['id', 'title', 'slug', 'category', 'titleImage', 'titleImageAlt', 'metaDescription', 'allowIndex', 'permanentRedirect', 'created_at', 'updated_at']
   });
 
   return { blog_posts: rows.map(toPlain) };
@@ -430,19 +490,20 @@ async function getPublic(storeCodeRaw, { slug, id } = {}) {
     err.statusCode = 404;
     throw err;
   }
-  if (row.isActive === false) {
+  const hop = redirectResult(row.permanentRedirect);
+  if (hop) return hop;
+  if (row.deletedAt || row.isActive === false) {
     const err = new Error('Blog post not found.');
     err.statusCode = 404;
     throw err;
   }
   const blog_post = toPlain(row);
-  if (isPlayjuwa(storeCode)) {
-    blog_post.schema = schemaForBlogPost({
-      origin: PLAYJUWA_ORIGIN,
-      storeLabel: PLAYJUWA_ORIGIN.replace(/^https?:\/\//, '').replace(/\/$/, ''),
-      post: blog_post
-    });
-  }
+  const origin = originForStore(storeCode);
+  blog_post.schema = schemaForBlogPost({
+    origin,
+    storeLabel: hostFromOrigin(origin),
+    post: blog_post
+  });
   return { blog_post };
 }
 
@@ -455,6 +516,7 @@ module.exports = {
   updateAdmin,
   toggleAdmin,
   deleteAdmin,
+  restoreAdmin,
   listPublic,
   getPublic,
   assertAdminCanAccessStore

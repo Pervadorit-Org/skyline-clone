@@ -417,8 +417,7 @@ async function captureFrozenAndQueueManual({
  * @param {number} amount
  */
 async function depositGameAccount(userId, gameId, amount) {
-  // SC-only flow: the GC-mode free-play exemption must not apply here.
-  await assertUserCanPlayGames(userId, { scOnly: true });
+  await assertUserCanPlayGames(userId);
   assertGameDepositAmount(amount);
 
   const displayCurrencyCode = await getCurrencySetting();

@@ -15,18 +15,6 @@ if (process.env.PAYMENT_ERROR_LOG_ENABLED === 'true' || process.env.PAYMENT_ERRO
   paymentErrorLog('Payment error logging enabled');
 }
 
-// Refuse to boot in production with missing / weak signing secrets.
-if (config.get('env') === 'production') {
-  const weak = (v) => !v || String(v).length < 32 || /change-in-production|your-secret|your-refresh-secret/i.test(String(v));
-  const problems = [];
-  if (weak(config.get('jwt.tokenSecret'))) problems.push('JWT_LOGIN_SECRET');
-  if (weak(config.get('jwt.refreshTokenSecret'))) problems.push('JWT_REFRESH_TOKEN_SECRET');
-  if (problems.length) {
-    logger.error(`Refusing to start: set strong (32+ char) values for ${problems.join(', ')}`);
-    process.exit(1);
-  }
-}
-
 const port = config.get('port') || 8080;
 const server = http.createServer(app);
 

@@ -5,11 +5,17 @@ import {
   createAdminFooterMenu,
   updateAdminFooterMenu,
   deleteAdminFooterMenu,
+  restoreAdminFooterMenu,
   deleteAdminFooterPage,
+  restoreAdminFooterPage,
+  getAdminFooterPages,
   getAdminFooterSettings,
   updateAdminFooterSettings,
   getAdminLegalPages,
-  setAdminLegalPageVisibility,
+  getAdminGameSeoPages,
+  setAdminGameSeoPageVisibility,
+  deleteAdminGameSeoPage,
+  restoreAdminGameSeoPage,
   getStores
 } from '../api/admin'
 import { LEGAL_PAGE_OPTIONS } from '../constants/legalPages'
@@ -17,6 +23,7 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { useConfirm } from '../context/ConfirmContext'
 import { ROLES } from '../constants/roles'
+import { RecordActivity } from '../components/RecordActivity'
 import './BlogPosts.css'
 import './FooterPages.css'
 
@@ -30,6 +37,8 @@ export default function FooterPages() {
   const isMaster = user?.role === ROLES.MASTER_ADMIN
 
   const [menus, setMenus] = useState([])
+  const [orphanPages, setOrphanPages] = useState([])
+  const [recordStatus, setRecordStatus] = useState('live')
   const [loading, setLoading] = useState(true)
   const [storeDraft, setStoreDraft] = useState('')
   const [appliedStore, setAppliedStore] = useState('')
@@ -45,7 +54,9 @@ export default function FooterPages() {
   const [showDefaultMenus, setShowDefaultMenus] = useState(true)
   const [savingDefaults, setSavingDefaults] = useState(false)
   const [legalPages, setLegalPages] = useState(LEGAL_PAGE_OPTIONS)
-  const [legalBusyKey, setLegalBusyKey] = useState('')
+  const [gamePages, setGamePages] = useState([])
+  const [gamesLoading, setGamesLoading] = useState(false)
+  const [gameVisibilitySlug, setGameVisibilitySlug] = useState('')
   const menuFormRef = useRef(null)
   const menuNameRef = useRef(null)
 
@@ -55,16 +66,28 @@ export default function FooterPages() {
 
   const load = useCallback(() => {
     setLoading(true)
-    const params = {}
+    const params = { status: recordStatus }
     if (isMaster && appliedStore.trim()) params.storeCode = appliedStore.trim()
-    getAdminFooterMenus(params)
-      .then((menuRes) => setMenus(menuRes.footer_menus || []))
+    const menusReq = getAdminFooterMenus(params)
+    const pagesReq = recordStatus === 'deleted'
+      ? getAdminFooterPages(params).catch(() => ({ footer_pages: [] }))
+      : Promise.resolve({ footer_pages: [] })
+    Promise.all([menusReq, pagesReq])
+      .then(([menuRes, pageRes]) => {
+        const nextMenus = menuRes.footer_menus || []
+        setMenus(nextMenus)
+        const deletedMenuIds = new Set(nextMenus.map((menu) => menu.id))
+        setOrphanPages(
+          (pageRes.footer_pages || []).filter((page) => page.deletedAt && !page.menuDeletedAt && !deletedMenuIds.has(page.menuId))
+        )
+      })
       .catch((err) => {
         toast.error(err.message || 'Failed to load footer menus')
         setMenus([])
+        setOrphanPages([])
       })
       .finally(() => setLoading(false))
-  }, [appliedStore, isMaster, toast])
+  }, [appliedStore, isMaster, recordStatus, toast])
 
   const loadSettings = useCallback(() => {
     if (!settingsStoreCode) {
@@ -110,16 +133,77 @@ export default function FooterPages() {
     loadLegalPages()
   }, [loadLegalPages])
 
-  async function toggleLegalVisibility(page) {
-    setLegalBusyKey(page.pageKey)
+  const gameStoreCode = String(settingsStoreCode || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '')
+  const showGamePages = gameStoreCode === 'playjuwa' || gameStoreCode === 'dragonfury'
+  const gameStoreLabel = gameStoreCode === 'dragonfury' ? 'Dragon Fury' : 'PlayJuwa'
+
+  useEffect(() => {
+    if (!showGamePages) {
+      setGamePages([])
+      return
+    }
+    setGamesLoading(true)
+    getAdminGameSeoPages({ storeCode: settingsStoreCode, status: recordStatus })
+      .then((res) => setGamePages(res.game_pages || []))
+      .catch((err) => {
+        toast.error(err.message || 'Failed to load game pages')
+        setGamePages([])
+      })
+      .finally(() => setGamesLoading(false))
+  }, [showGamePages, settingsStoreCode, recordStatus, toast])
+
+  const toggleGameVisibility = async (page) => {
+    const nextActive = page.isActive === false
+    setGameVisibilitySlug(page.slug)
     try {
-      await setAdminLegalPageVisibility(page.pageKey, { storeCode: settingsStoreCode, isActive: page.isActive === false })
-      toast.success(page.isActive === false ? `${page.title} is visible again.` : `${page.title} is hidden from the website and footer.`)
-      loadLegalPages()
+      const res = await setAdminGameSeoPageVisibility(page.slug, {
+        storeCode: settingsStoreCode,
+        isActive: nextActive
+      })
+      const saved = res.game_page
+      setGamePages((rows) => rows.map((row) => (
+        row.slug === page.slug ? { ...row, isActive: saved ? saved.isActive !== false : nextActive } : row
+      )))
+      toast.success(nextActive
+        ? `${page.name} is visible on the games page and in the footer.`
+        : `${page.name} is hidden on the games page and in the footer.`)
     } catch (err) {
-      toast.error(err.message || 'Could not update this page.')
+      toast.error(err.message || 'Could not update this game page.')
     } finally {
-      setLegalBusyKey('')
+      setGameVisibilitySlug('')
+    }
+  }
+
+  const deleteGamePage = async (page) => {
+    const ok = await confirm({
+      title: 'Delete this game page?',
+      message: `Remove “${page.name}” from the website? You can restore it from Deleted. Set a permanent redirect on the edit screen first if /games/${page.slug} should send people somewhere else.`,
+      confirmLabel: 'Delete',
+      variant: 'danger'
+    })
+    if (!ok) return
+    setGameVisibilitySlug(page.slug)
+    try {
+      await deleteAdminGameSeoPage(page.slug, { storeCode: settingsStoreCode })
+      toast.success('Game page removed from the website.')
+      setGamePages((rows) => rows.filter((row) => row.slug !== page.slug))
+    } catch (err) {
+      toast.error(err.message || 'Could not delete this game page.')
+    } finally {
+      setGameVisibilitySlug('')
+    }
+  }
+
+  const restoreGamePage = async (page) => {
+    setGameVisibilitySlug(page.slug)
+    try {
+      await restoreAdminGameSeoPage(page.slug, { storeCode: settingsStoreCode })
+      toast.success('Game page restored.')
+      setGamePages((rows) => rows.filter((row) => row.slug !== page.slug))
+    } catch (err) {
+      toast.error(err.message || 'Could not restore this game page.')
+    } finally {
+      setGameVisibilitySlug('')
     }
   }
 
@@ -230,10 +314,23 @@ export default function FooterPages() {
     }
   }
 
+  const handleRestoreMenu = async (menu) => {
+    setBusyId(`menu-${menu.id}`)
+    try {
+      await restoreAdminFooterMenu(menu.id)
+      toast.success('Menu restored.')
+      load()
+    } catch (err) {
+      toast.error(err.message || 'Could not restore menu.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
   const handleDeleteMenu = async (menu) => {
     const ok = await confirm({
       title: 'Delete this menu?',
-      message: `Permanently delete “${menu.label}” and its pages? This cannot be undone.`,
+      message: `Remove “${menu.label}” and its pages from the website? You can restore them from Deleted.`,
       confirmLabel: 'Delete',
       variant: 'danger'
     })
@@ -250,10 +347,23 @@ export default function FooterPages() {
     }
   }
 
+  const handleRestorePage = async (page) => {
+    setBusyId(`page-${page.id}`)
+    try {
+      await restoreAdminFooterPage(page.id)
+      toast.success('Page restored.')
+      load()
+    } catch (err) {
+      toast.error(err.message || 'Could not restore page.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
   const handleDeletePage = async (page) => {
     const ok = await confirm({
       title: 'Delete this page?',
-      message: `Permanently delete “${page.title}”? This cannot be undone.`,
+      message: `Remove “${page.title}” from the website? You can restore it from Deleted. Set a permanent redirect on the edit screen first if this address should send people somewhere else.`,
       confirmLabel: 'Delete',
       variant: 'danger'
     })
@@ -354,6 +464,81 @@ export default function FooterPages() {
         Add a group, then add pages under it. Visitors open /page-name — the group name is only the footer heading.
       </p>
 
+      <form className="footer-store-bar" onSubmit={(e) => e.preventDefault()}>
+        <label>
+          Show
+          <select value={recordStatus} onChange={(e) => setRecordStatus(e.target.value)}>
+            <option value="live">Live</option>
+            <option value="deleted">Deleted</option>
+          </select>
+        </label>
+      </form>
+
+      {showGamePages && (
+        <section className="footer-menu-card">
+          <div className="footer-menu-card-header">
+            <h3>{gameStoreLabel} game pages</h3>
+          </div>
+          <p>These are the platform pages at /games. Hide removes a game from the games page and the footer. Edit changes the hero, buttons, sections, FAQ, and SEO.</p>
+          {gamesLoading ? <p>Loading games…</p> : (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Game</th>
+                    <th>Page</th>
+                    <th>Status</th>
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {gamePages.map((page) => (
+                    <tr key={page.slug}>
+                      <td>
+                        {page.name}
+                        <RecordActivity item={page} />
+                        {page.permanentRedirect ? <div><code className="footer-slug-code">301 → {page.permanentRedirect}</code></div> : null}
+                      </td>
+                      <td><code className="footer-slug-code">/games/{page.slug}</code></td>
+                      <td>
+                        <span className={`blog-admin-badge${recordStatus === 'deleted' ? '' : page.isActive !== false ? ' is-active' : ''}`}>
+                          {recordStatus === 'deleted' ? 'Deleted' : (page.isActive !== false ? 'Live' : 'Hidden')}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                          {recordStatus === 'deleted' ? (
+                            <button type="button" className="admin-btn admin-btn-primary" disabled={gameVisibilitySlug === page.slug} onClick={() => restoreGamePage(page)}>
+                              Restore
+                            </button>
+                          ) : (
+                            <>
+                              <button type="button" className="admin-btn admin-btn-secondary" disabled={gameVisibilitySlug === page.slug} onClick={() => toggleGameVisibility(page)}>
+                                {page.isActive === false ? 'Show' : 'Hide'}
+                              </button>
+                              <button type="button" className="admin-btn admin-btn-danger" disabled={gameVisibilitySlug === page.slug} onClick={() => deleteGamePage(page)}>
+                                Delete
+                              </button>
+                            </>
+                          )}
+                          <button
+                            type="button"
+                            className="admin-btn admin-btn-secondary"
+                            onClick={() => navigate(`/footer/games/${page.slug}?storeCode=${encodeURIComponent(settingsStoreCode || 'dragonfury')}`)}
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
+
       {isMaster && (
         <form
           className="footer-store-bar"
@@ -378,13 +563,13 @@ export default function FooterPages() {
       <div className="footer-legal-card">
         <div>
           <strong>Legal pages</strong>
-          <p>About Us, Privacy Policy, Terms &amp; Conditions, Bonus Terms, Sweep Policy, Responsible Gambling, AMOE, AML/CFT, Cookie Policy and SSL Encryption. Edit each with the visual editor, and Hide / Show it on the website and in the footer. All of them are listed in the website footer; a page with no text yet shows a short placeholder until you add content.</p>
+          <p>Privacy Policy, Terms &amp; Conditions, and Responsible Gaming. Edit with the visual editor or HTML palette.</p>
           {isMaster && !settingsStoreCode && (
             <p className="footer-defaults-hint">Select a store above to edit these pages.</p>
           )}
         </div>
         <div className="footer-legal-list">
-          {legalPages.filter((page) => page.pageKey !== 'contact-us').map((page) => {
+          {legalPages.map((page) => {
             const canEdit = Boolean(settingsStoreCode)
             const editTo = `/footer/legal/${page.pageKey}?storeCode=${encodeURIComponent(settingsStoreCode)}`
             return (
@@ -394,26 +579,16 @@ export default function FooterPages() {
                   <div className="footer-legal-row-meta">
                     <code>{page.path}</code>
                     <span className={`blog-admin-badge${page.hasContent && page.isActive !== false ? ' is-active' : ''}`}>
-                      {page.isActive === false
-                        ? 'Hidden'
-                        : (page.hasContent ? 'Live' : 'Empty')}
+                      {page.hasContent
+                        ? (page.isActive !== false ? 'Live' : 'Hidden')
+                        : 'Empty'}
                     </span>
                   </div>
                 </div>
                 {canEdit ? (
-                  <div style={{ display: 'flex', gap: '0.4rem' }}>
-                    <button
-                      type="button"
-                      className="admin-btn admin-btn-secondary"
-                      disabled={legalBusyKey === page.pageKey}
-                      onClick={() => toggleLegalVisibility(page)}
-                    >
-                      {page.isActive === false ? 'Show' : 'Hide'}
-                    </button>
-                    <Link to={editTo} className="admin-btn admin-btn-primary">
-                      Edit
-                    </Link>
-                  </div>
+                  <Link to={editTo} className="admin-btn admin-btn-primary">
+                    Edit
+                  </Link>
                 ) : (
                   <button type="button" className="admin-btn admin-btn-secondary" disabled>
                     Edit
@@ -448,15 +623,54 @@ export default function FooterPages() {
 
       {loading ? (
         <p>Loading…</p>
-      ) : menus.length === 0 ? (
+      ) : menus.length === 0 && orphanPages.length === 0 ? (
         <div className="footer-admin-empty-box">
-          <strong>No footer menus yet</strong>
+          <strong>{recordStatus === 'deleted' ? 'No deleted footer pages' : 'No footer menus yet'}</strong>
           <p className="footer-admin-empty">
-            Click “Add group”, then add pages under that group.
+            {recordStatus === 'deleted'
+              ? 'Deleted groups and pages will show here.'
+              : 'Click “Add group”, then add pages under that group.'}
           </p>
         </div>
       ) : (
         <div className="footer-menu-list">
+          {orphanPages.length > 0 && (
+            <section className="footer-menu-card">
+              <div className="footer-menu-card-header">
+                <h3>Deleted pages</h3>
+              </div>
+              <div className="table-wrap">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Page title</th>
+                      <th>Website link</th>
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orphanPages.map((page) => (
+                      <tr key={page.id}>
+                        <td>
+                          {page.title}
+                          <RecordActivity item={page} />
+                        </td>
+                        <td><code className="footer-slug-code">/{page.slug}</code></td>
+                        <td className="footer-page-row-actions">
+                          <button type="button" className="admin-btn admin-btn-secondary" onClick={() => navigate(`/footer/pages/${page.id}/edit`)}>
+                            Edit
+                          </button>
+                          <button type="button" className="admin-btn admin-btn-primary" disabled={busyId === `page-${page.id}`} onClick={() => handleRestorePage(page)}>
+                            Restore
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
           {menus.map((menu) => (
             <section key={menu.id} className="footer-menu-card">
               <div className="footer-menu-card-header">
@@ -471,9 +685,19 @@ export default function FooterPages() {
                     </span>
                     <span>Order {menu.sortOrder ?? 0}</span>
                   </p>
+                  <RecordActivity item={menu} />
                 </div>
                 <div className="footer-menu-actions">
-                  {(
+                  {recordStatus === 'deleted' ? (
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-primary"
+                      disabled={busyId === `menu-${menu.id}`}
+                      onClick={() => handleRestoreMenu(menu)}
+                    >
+                      Restore group
+                    </button>
+                  ) : (
                     <>
                       <button type="button" className="admin-btn admin-btn-secondary" onClick={() => openEditMenu(menu)}>
                         Edit group
@@ -517,6 +741,8 @@ export default function FooterPages() {
                         <tr key={page.id}>
                           <td>
                             {page.title}
+                            <RecordActivity item={page} />
+                            {page.permanentRedirect ? <div><code className="footer-slug-code">301 → {page.permanentRedirect}</code></div> : null}
                           </td>
                           <td>{page.redirectPath || page.linkType === 'redirect' ? 'Redirect' : 'Content'}</td>
                           <td>
@@ -538,7 +764,18 @@ export default function FooterPages() {
                             >
                               Edit
                             </button>
-                            {(
+                            {page.deletedAt || recordStatus === 'deleted' ? (
+                              page.deletedAt ? (
+                                <button
+                                  type="button"
+                                  className="admin-btn admin-btn-primary"
+                                  disabled={busyId === `page-${page.id}`}
+                                  onClick={() => handleRestorePage(page)}
+                                >
+                                  Restore
+                                </button>
+                              ) : null
+                            ) : (
                               <button
                                 type="button"
                                 className="admin-btn admin-btn-danger"

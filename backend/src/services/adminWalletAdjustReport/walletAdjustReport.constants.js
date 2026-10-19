@@ -13,7 +13,6 @@ const TYPE_HINTS = {
 };
 
 const WALLET_OPTIONS = [
-  { value: 'GC', label: 'Gold Coins (GC)', hint: 'Gold Coins (Gold Coin stores only)' },
   { value: 'PSC', label: 'Purchased SC (PSC)', hint: 'Purchased coins' },
   { value: 'BSC', label: 'Bonus SC (BSC)', hint: 'Bonus / free coins' },
   { value: 'RSC', label: 'Redeemable SC (RSC)', hint: 'Redeemable coins' },

@@ -1,6 +1,6 @@
 const db = require('../../db/models');
 
-/** Whitelist: only these fields can be updated. Never accept email, username, password. profileImageUrl is handled separately (preset gallery only). */
+/** Whitelist: only these fields can be updated. Never accept email, username, password, profileImageUrl. */
 const ALLOWED_KEYS = [
   'firstName',
   'lastName',
@@ -13,11 +13,8 @@ const ALLOWED_KEYS = [
   'zipCode'
 ];
 
-/** Profile pictures are chosen from a preset gallery; only these hosts/paths are accepted. */
-const AVATAR_URL_PATTERN = /^(https:\/\/api\.dicebear\.com\/[\w.\-]+\/[\w.\-]+\/(png|svg)\?[\w=&%.\-]+|\/avatars\/[\w.\-\/]+)$/;
-
-/** Nothing is mandatory on a profile save. Phone is verified in its own section; if sent, it cannot be blank. */
-const REQUIRED_KEYS = [];
+/** Only phone is mandatory for profile updates (purchase gate). Other fields are optional. */
+const REQUIRED_KEYS = ['phone'];
 
 const MAX_LENGTHS = {
   firstName: 100,
@@ -171,19 +168,6 @@ async function updateProfile(userId, body) {
         : trimmed.length > MAX_LENGTHS[key]
           ? trimmed.slice(0, MAX_LENGTHS[key])
           : trimmed;
-  }
-
-  if (Object.prototype.hasOwnProperty.call(body, 'profileImageUrl')) {
-    const img = trim(body.profileImageUrl);
-    if (img === '') {
-      updates.profileImageUrl = null;
-    } else if (img.length <= 255 && AVATAR_URL_PATTERN.test(img)) {
-      updates.profileImageUrl = img;
-    } else {
-      const err = new Error('Please choose a profile picture from the list.');
-      err.statusCode = 400;
-      throw err;
-    }
   }
 
   const fullUser = await db.User.findByPk(userId);
