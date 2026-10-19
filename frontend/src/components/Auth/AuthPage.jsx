@@ -175,10 +175,12 @@ export function AuthPage({ mode: initialMode }) {
           toast.error(
             "Signup completed. We're having trouble sending the verification email; please try again later from your profile."
           );
-        } else {
-          toast.success('Account created! Verification email sent to your inbox.');
+          setUnverifiedEmail(res.email || values.email.trim());
+          return;
         }
-        setUnverifiedEmail(res.email || values.email.trim());
+        toast.success('Account created! Verification email sent to your inbox.');
+        window.dispatchEvent(new CustomEvent('notifications:refresh'));
+        navigate('/', { replace: true });
         return;
       }
       window.dispatchEvent(new CustomEvent('notifications:refresh'));
