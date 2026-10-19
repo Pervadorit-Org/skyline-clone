@@ -187,6 +187,10 @@ async function ensureFooterMenusPagesSchema(sequelize) {
       ALTER TABLE footer_pages
       ADD COLUMN IF NOT EXISTS sections JSONB NULL
     `);
+    await sequelize.query(`
+      ALTER TABLE footer_pages
+      ADD COLUMN IF NOT EXISTS canonical_url VARCHAR(1024) NULL
+    `);
     return;
   }
 
@@ -243,6 +247,10 @@ async function ensureFooterMenusPagesSchema(sequelize) {
   await sequelize.query(`
     ALTER TABLE footer_pages
     ADD COLUMN IF NOT EXISTS sections JSONB NULL
+  `);
+  await sequelize.query(`
+    ALTER TABLE footer_pages
+    ADD COLUMN IF NOT EXISTS canonical_url VARCHAR(1024) NULL
   `);
   await sequelize.query(`
     CREATE UNIQUE INDEX IF NOT EXISTS footer_pages_store_slug_uidx
@@ -395,6 +403,36 @@ async function ensureLegalPagesSchema(sequelize) {
     CREATE UNIQUE INDEX IF NOT EXISTS legal_pages_store_code_page_key_uq
     ON legal_pages (store_code, page_key)
   `);
+  await sequelize.query(`
+    ALTER TABLE legal_pages
+    ADD COLUMN IF NOT EXISTS canonical_url VARCHAR(1024)
+  `);
+}
+
+
+async function ensurePageSeoSchema(sequelize) {
+  const has = await tableExists(sequelize, 'page_schemas');
+  if (!has) return;
+  await sequelize.query(`
+    ALTER TABLE page_schemas
+    ADD COLUMN IF NOT EXISTS meta_title VARCHAR(512) NULL
+  `);
+  await sequelize.query(`
+    ALTER TABLE page_schemas
+    ADD COLUMN IF NOT EXISTS meta_description TEXT NULL
+  `);
+  await sequelize.query(`
+    ALTER TABLE page_schemas
+    ADD COLUMN IF NOT EXISTS meta_tags VARCHAR(1024) NULL
+  `);
+  await sequelize.query(`
+    ALTER TABLE page_schemas
+    ADD COLUMN IF NOT EXISTS canonical_url VARCHAR(1024) NULL
+  `);
+  await sequelize.query(`
+    ALTER TABLE page_schemas
+    ADD COLUMN IF NOT EXISTS allow_index BOOLEAN NOT NULL DEFAULT TRUE
+  `);
 }
 
 async function runMigrations(sequelize) {
@@ -466,6 +504,7 @@ async function runMigrations(sequelize) {
   } finally {
     // Always heal missing schema (even when history bootstrap/repair skips ups).
     await ensureFooterMenusPagesSchema(sequelize);
+    await ensurePageSeoSchema(sequelize);
     await ensurePushCampaignsSchema(sequelize);
     await ensureLegalPagesSchema(sequelize);
     await ensureStoreStaffAttendanceSchema(sequelize);

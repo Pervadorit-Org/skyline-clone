@@ -60,7 +60,6 @@ async function requestDeposit(userId, options) {
   const maxDeposit = limits.depositMax;
   let amount = options?.amount != null ? Number(options.amount) : NaN;
   const packageId = options?.packageId ?? options?.package_id ?? null;
-  await require('./gcPurchase.service').assertPackageRequiredForGcStore(userId, packageId);
   let packageMeta = null;
   if (packageId != null && packageId !== '') {
     const voucherId = options?.voucherId ?? options?.voucher_id ?? null;

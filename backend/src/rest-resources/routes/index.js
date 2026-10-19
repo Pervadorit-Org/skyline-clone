@@ -25,12 +25,6 @@ const footerRoutes = require('./footer.routes');
 const gameSeoPagesController = require('../controllers/gameSeoPages.controller');
 const legalRoutes = require('./legal.routes');
 const socialLinksRoutes = require('./socialLinks.routes');
-const homePageContentRoutes = require('./homePageContent.routes');
-const lobbyContentRoutes = require('./lobbyContent.routes');
-// Favorites disabled (no backend management)
-const tasksRoutes = require('./tasks.routes');
-// const favoritesRoutes = require('./favorites.routes');
-const footerContentRoutes = require('./footerContent.routes');
 const slotProvidersRoutes = require('./slotProviders.routes');
 const landingPaymentLinksRoutes = require('./landingPaymentLinks.routes');
 const dashboardPromoModalsRoutes = require('./dashboardPromoModals.routes');
@@ -89,13 +83,21 @@ router.use('/api/cron', cronRoutes);
 router.use('/api/help', helpRoutes);
 router.get('/api/game-pages', gameSeoPagesController.list);
 router.get('/api/game-pages/:slug', gameSeoPagesController.getOne);
+router.get('/api/page-seo', (req, res) => {
+  const pageSeo = require('../../services/seo/pageSeo.service');
+  const storeCode = String(req.query.store_code || req.query.storeCode || '').trim();
+  if (!storeCode) return res.json({ pages: {} });
+  return pageSeo.listPublic(storeCode)
+    .then((data) => res.json(data))
+    .catch((err) => res.status(err.statusCode || 500).json({ message: err.message || 'Could not load page SEO.' }));
+});
 router.get('/api/page-schema/home', (req, res) => {
   const homeSchema = require('../../services/seo/homeSchema.service');
-  const storeCode = req.query.store_code || req.query.storeCode || '';
-  if (!homeSchema.isPlayjuwa(storeCode)) {
+  const storeCode = String(req.query.store_code || req.query.storeCode || '').trim();
+  if (!storeCode) {
     return res.json({ schema: null });
   }
-  return homeSchema.getHome()
+  return homeSchema.getHome(storeCode)
     .then((data) => res.json({ schema: data.schema || null }))
     .catch((err) => res.status(err.statusCode || 500).json({ message: err.message || 'Could not load schema.' }));
 });
@@ -104,11 +106,6 @@ router.use('/api/link2play', link2playRoutes);
 router.use('/api/footer', footerRoutes);
 router.use('/api/legal', legalRoutes);
 router.use('/api/social-links', socialLinksRoutes);
-router.use('/api/home-page', homePageContentRoutes);
-router.use('/api/lobby-content', lobbyContentRoutes);
-router.use('/api/tasks', tasksRoutes);
-// router.use('/api/favorites', favoritesRoutes);
-router.use('/api/footer-content', footerContentRoutes);
 router.use('/api/slot-providers', slotProvidersRoutes);
 router.use('/api/landing-payment-links', landingPaymentLinksRoutes);
 router.use('/api/dashboard-promo-modals', dashboardPromoModalsRoutes);

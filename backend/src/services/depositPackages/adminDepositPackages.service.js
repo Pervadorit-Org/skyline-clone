@@ -1,7 +1,5 @@
 'use strict';
 
-const { isGcStoreCode } = require('../wallet/gcWallet.service');
-
 const { Op } = require('sequelize');
 const db = require('../../db/models');
 const { ROLES } = require('../../constants/roles');
@@ -171,16 +169,7 @@ async function createPackage(req, scope, body) {
   }
   const { group, scope: normalized } = await assertGroupScope(req, groupId, scope);
 
-  // GC stores sell Gold Coins (gc_coin); final_sc is then the optional FREE promotional SC (0 = none).
-  const gcStore = isGcStoreCode(normalized.storeCode);
-  const rawFinalSc = body.final_sc ?? body.finalSc;
-  const finalSc = gcStore && (rawFinalSc == null || rawFinalSc === '') ? 0 : parseMoney(rawFinalSc, 'final_sc');
-  const gcCoin = gcStore ? parseMoney(body.gc_coin ?? body.gcCoin ?? 0, 'gc_coin') : 0;
-  if (gcStore && !(gcCoin > 0)) {
-    const err = new Error('gc_coin must be greater than 0 for a Gold Coin package.');
-    err.statusCode = 400;
-    throw err;
-  }
+  const finalSc = parseMoney(body.final_sc ?? body.finalSc, 'final_sc');
   const actualPrice = parseMoney(body.actual_price ?? body.actualPrice, 'actual_price');
   const finalPrice = parseMoney(body.final_price ?? body.finalPrice, 'final_price');
 
@@ -198,7 +187,6 @@ async function createPackage(req, scope, body) {
     storeCode: normalized.storeCode,
     title: body.title != null ? String(body.title).trim().slice(0, 128) || null : null,
     finalSc,
-    gcCoin,
     actualPrice,
     finalPrice,
     discountLabel: body.discount_label ?? body.discountLabel
@@ -220,15 +208,6 @@ async function updatePackage(req, scope, packageId, body) {
   const updates = {};
   if (body.title !== undefined) updates.title = body.title ? String(body.title).trim().slice(0, 128) : null;
   if (body.final_sc != null || body.finalSc != null) updates.finalSc = parseMoney(body.final_sc ?? body.finalSc, 'final_sc');
-  if ((body.gc_coin != null || body.gcCoin != null) && isGcStoreCode(pkg.storeCode)) {
-    const gcCoin = parseMoney(body.gc_coin ?? body.gcCoin, 'gc_coin');
-    if (!(gcCoin > 0)) {
-      const err = new Error('gc_coin must be greater than 0 for a Gold Coin package.');
-      err.statusCode = 400;
-      throw err;
-    }
-    updates.gcCoin = gcCoin;
-  }
   if (body.actual_price != null || body.actualPrice != null) {
     updates.actualPrice = parseMoney(body.actual_price ?? body.actualPrice, 'actual_price');
   }

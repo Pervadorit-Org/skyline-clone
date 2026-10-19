@@ -8,6 +8,9 @@ import {
   getStores
 } from '../api/admin'
 import { SeoMetaFields } from '../components/SeoMetaFields'
+import { SchemaEditor, schemaErrorFor } from '../components/SchemaEditor'
+import { PermanentRedirectField } from '../components/RecordActivity'
+import { footerSchemaAuto, originForStore } from '../utils/pageSchema'
 import { FooterPageLayoutEditor } from '../components/FooterPageLayoutEditor'
 import { emptySections, layoutHasContent, sectionsToHtml } from '../components/footerPageLayoutDefaults'
 import { useAuth } from '../context/AuthContext'
@@ -51,8 +54,14 @@ const EMPTY = {
   metaTitle: '',
   metaDescription: '',
   metaTags: '',
+  canonicalUrl: '',
+  permanentRedirect: '',
   allowIndex: true,
   sections: emptySections(),
+  schemaEnabled: true,
+  schemaType: 'WebPage',
+  schemaFields: {},
+  schemaCustom: '',
   createdAt: '',
   updatedAt: ''
 }
@@ -138,8 +147,14 @@ export default function FooterPageForm() {
           metaTitle: page.metaTitle || '',
           metaDescription: page.metaDescription || '',
           metaTags: page.metaTags || '',
+          canonicalUrl: page.canonicalUrl || '',
+          permanentRedirect: page.permanentRedirect || '',
           allowIndex: page.allowIndex !== false,
           sections: page.sections || emptySections(),
+          schemaEnabled: page.schemaEnabled !== false,
+          schemaType: page.schemaType || 'WebPage',
+          schemaFields: page.schemaFields || {},
+          schemaCustom: page.schemaCustom || '',
           createdAt: page.createdAt || '',
           updatedAt: page.updatedAt || ''
         })
@@ -203,6 +218,14 @@ export default function FooterPageForm() {
       }
     }
 
+    if (!isRedirect) {
+      const schemaError = schemaErrorFor(form, footerSchemaAuto(form, originForStore(form.storeCode)))
+      if (schemaError) {
+        toast.error(schemaError)
+        return
+      }
+    }
+
     setSaving(true)
     try {
       const body = {
@@ -216,7 +239,15 @@ export default function FooterPageForm() {
         metaTitle: form.metaTitle.trim() || null,
         metaDescription: form.metaDescription.trim() || null,
         metaTags: form.metaTags.trim() || null,
+        canonicalUrl: form.canonicalUrl.trim() || null,
         allowIndex: form.allowIndex !== false,
+        permanentRedirect: isRedirect ? '' : form.permanentRedirect.trim(),
+        ...(isRedirect ? {} : {
+          schemaEnabled: form.schemaEnabled !== false,
+          schemaType: form.schemaType || 'WebPage',
+          schemaFields: form.schemaFields || {},
+          schemaCustom: form.schemaCustom || ''
+        }),
         sections: isRedirect ? emptySections() : (form.sections || emptySections()),
         content: isRedirect
           ? ''
@@ -406,9 +437,23 @@ export default function FooterPageForm() {
                 setField={setField}
                 hideHeading
                 showIndexControl
+                showCanonical
                 indexControlName="footer-google-index"
                 indexNoun="page"
                 titleHint="Shown in the browser tab and Google. Leave blank to use the page title."
+              />
+              <PermanentRedirectField
+                value={form.permanentRedirect}
+                onChange={(value) => setField('permanentRedirect', value)}
+              />
+            </div>
+            <div className="footer-form-panel">
+              <p className="footer-form-panel-title">Schema</p>
+              <SchemaEditor
+                value={form}
+                auto={footerSchemaAuto(form, originForStore(form.storeCode))}
+                defaultType="WebPage"
+                onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
               />
             </div>
             <div className="footer-form-panel">

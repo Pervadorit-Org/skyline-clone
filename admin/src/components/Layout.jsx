@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { Outlet, useNavigate, useLocation, NavLink } from 'react-router-dom'
-import PagesNavGroup from './PagesNavGroup'
 import { useAuth } from '../context/AuthContext'
 import { logout } from '../api/auth'
 import { useStaffAttendance } from '../context/StaffAttendanceContext'
@@ -444,9 +443,7 @@ export default function Layout() {
         />
         <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
           <nav className="admin-sidebar-nav">
-            {visibleNavRoutes.map((route) => (route.path === '/pages' ? (
-              <PagesNavGroup key={route.path} user={user} label={route.label} onNavigate={closeSidebar} />
-            ) : (
+            {visibleNavRoutes.map((route) => (
               <NavLink
                 key={route.path}
                 to={route.path}
@@ -461,7 +458,7 @@ export default function Layout() {
               >
                 {route.label}
               </NavLink>
-            )))}
+            ))}
           </nav>
         </aside>
         <main className="admin-main">

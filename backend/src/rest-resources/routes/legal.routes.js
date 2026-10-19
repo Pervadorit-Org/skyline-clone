@@ -5,7 +5,6 @@ const legalController = require('../controllers/legal.controller');
 
 const router = express.Router();
 
-router.get('/', legalController.list);
 router.get('/:pageKey', legalController.getOne);
 
 module.exports = router;

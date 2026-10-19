@@ -1013,14 +1013,32 @@ export function updateAdminBlogPost(id, body) {
   })
 }
 
-export function getAdminHomeSchema() {
-  return request(`${ADMIN}/page-schema/home`)
+export function getAdminHomeSchema(storeCode) {
+  const q = storeCode ? `?storeCode=${encodeURIComponent(storeCode)}` : ''
+  return request(`${ADMIN}/page-schema/home${q}`)
 }
 
-export function saveAdminHomeSchema(body) {
+export function getAdminPageSeo(storeCode) {
+  const q = storeCode ? `?storeCode=${encodeURIComponent(storeCode)}` : ''
+  return request(`${ADMIN}/page-seo${q}`)
+}
+
+export function getAdminPageSeoOne(pageKey, storeCode) {
+  const q = storeCode ? `?storeCode=${encodeURIComponent(storeCode)}` : ''
+  return request(`${ADMIN}/page-seo/${encodeURIComponent(pageKey)}${q}`)
+}
+
+export function saveAdminPageSeo(pageKey, body, storeCode) {
+  return request(`${ADMIN}/page-seo/${encodeURIComponent(pageKey)}`, {
+    method: 'PUT',
+    body: JSON.stringify({ ...(body || {}), ...(storeCode ? { storeCode } : {}) })
+  })
+}
+
+export function saveAdminHomeSchema(body, storeCode) {
   return request(`${ADMIN}/page-schema/home`, {
     method: 'PUT',
-    body: JSON.stringify(body || {})
+    body: JSON.stringify({ ...(body || {}), ...(storeCode ? { storeCode } : {}) })
   })
 }
 
@@ -1033,6 +1051,10 @@ export function toggleAdminBlogPost(id, status) {
 
 export function deleteAdminBlogPost(id) {
   return request(`${ADMIN}/blog/${encodeURIComponent(id)}`, { method: 'DELETE' })
+}
+
+export function restoreAdminBlogPost(id) {
+  return request(`${ADMIN}/blog/${encodeURIComponent(id)}/restore`, { method: 'POST' })
 }
 
 /** Footer menus — store-scoped. Query: storeCode?, isActive? */
@@ -1058,6 +1080,10 @@ export function deleteAdminFooterMenu(id) {
   return request(`${ADMIN}/footer/menus/${encodeURIComponent(id)}`, { method: 'DELETE' })
 }
 
+export function restoreAdminFooterMenu(id) {
+  return request(`${ADMIN}/footer/menus/${encodeURIComponent(id)}/restore`, { method: 'POST' })
+}
+
 /** Footer pages — store-scoped. Query: storeCode?, menuId?, search?, isActive? */
 export function getAdminFooterPages(params = {}) {
   const q = new URLSearchParams(
@@ -1081,8 +1107,58 @@ export function updateAdminFooterPage(id, body) {
   })
 }
 
+export function getAdminGameSeoPages(params = {}) {
+  const q = new URLSearchParams()
+  if (params.storeCode) q.set('storeCode', params.storeCode)
+  const query = q.toString()
+  return request(`${ADMIN}/footer/game-pages${query ? `?${query}` : ''}`)
+}
+
+export function getAdminGameSeoPage(slug, params = {}) {
+  const q = new URLSearchParams()
+  if (params.storeCode) q.set('storeCode', params.storeCode)
+  const query = q.toString()
+  return request(`${ADMIN}/footer/game-pages/${encodeURIComponent(slug)}${query ? `?${query}` : ''}`)
+}
+
+export function updateAdminGameSeoPage(slug, body) {
+  return request(`${ADMIN}/footer/game-pages/${encodeURIComponent(slug)}`, {
+    method: 'PUT',
+    body: JSON.stringify(body)
+  })
+}
+
+export function setAdminGameSeoPageVisibility(slug, body) {
+  return request(`${ADMIN}/footer/game-pages/${encodeURIComponent(slug)}/visibility`, {
+    method: 'PATCH',
+    body: JSON.stringify(body || {})
+  })
+}
+
+export function deleteAdminGameSeoPage(slug, params = {}) {
+  const q = new URLSearchParams(
+    Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''))
+  ).toString()
+  return request(`${ADMIN}/footer/game-pages/${encodeURIComponent(slug)}${q ? `?${q}` : ''}`, {
+    method: 'DELETE'
+  })
+}
+
+export function restoreAdminGameSeoPage(slug, params = {}) {
+  const q = new URLSearchParams(
+    Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''))
+  ).toString()
+  return request(`${ADMIN}/footer/game-pages/${encodeURIComponent(slug)}/restore${q ? `?${q}` : ''}`, {
+    method: 'POST'
+  })
+}
+
 export function deleteAdminFooterPage(id) {
   return request(`${ADMIN}/footer/pages/${encodeURIComponent(id)}`, { method: 'DELETE' })
+}
+
+export function restoreAdminFooterPage(id) {
+  return request(`${ADMIN}/footer/pages/${encodeURIComponent(id)}/restore`, { method: 'POST' })
 }
 
 const MAX_FOOTER_IMAGE_BYTES = 5 * 1024 * 1024
@@ -1149,14 +1225,6 @@ export function getAdminLegalPage(pageKey, params = {}) {
     Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''))
   ).toString()
   return request(`${ADMIN}/footer/legal/${encodeURIComponent(pageKey)}${q ? `?${q}` : ''}`)
-}
-
-/** Show / hide one legal page on the website and in the footer (keeps its text). */
-export function setAdminLegalPageVisibility(pageKey, body) {
-  return request(`${ADMIN}/footer/legal/${encodeURIComponent(pageKey)}/visibility`, {
-    method: 'PATCH',
-    body: JSON.stringify(body || {})
-  })
 }
 
 export function updateAdminLegalPage(pageKey, body) {

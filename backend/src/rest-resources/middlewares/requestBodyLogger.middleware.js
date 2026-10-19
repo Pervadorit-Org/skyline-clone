@@ -10,10 +10,7 @@ const SENSITIVE_KEYS = [
   'id_token',
   'accesstoken',
   'access_token',
-  'secret',
-  'code',
-  'otp',
-  'key'
+  'secret'
 ];
 
 function sanitize(obj) {
@@ -34,7 +31,7 @@ function requestBodyLogger(req, res, next) {
   const method = req.method;
   const path = req.originalUrl || req.url;
   const body = req.body && Object.keys(req.body).length ? sanitize(req.body) : undefined;
-  const query = req.query && Object.keys(req.query).length ? sanitize(req.query) : undefined;
+  const query = req.query && Object.keys(req.query).length ? req.query : undefined;
   const payload = body || query;
   const methodPart = `${GREEN}${method}${RESET}`;
   const pathPart = `${CYAN}${path}${RESET}`;

@@ -13,7 +13,6 @@ export const MODAL_TYPE_OPTIONS = [
   { value: 'spin_wheel', label: 'Spin Wheel Ready' },
   { value: 'first_deposit', label: 'First Deposit Bonus' },
   { value: 'invite_friends', label: 'Invite Friends' },
-  { value: 'store', label: 'Store popup (Buy / Redeem / Bonus)' },
   { value: 'custom', label: 'Custom image modal' },
 ]
 
@@ -38,11 +37,6 @@ export const MODAL_TYPE_META = {
     label: 'Invite Friends',
     emoji: '👥',
     description: 'Asks the player to invite friends.',
-  },
-  store: {
-    label: 'Store popup',
-    emoji: '🛒',
-    description: 'Opens the Store popup (Buy, Redeem, Bonus).',
   },
   custom: {
     label: 'Your own picture',

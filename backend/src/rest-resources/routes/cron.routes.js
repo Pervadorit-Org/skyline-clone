@@ -1,6 +1,5 @@
 'use strict';
 
-const crypto = require('crypto');
 const express = require('express');
 const config = require('../../configs/app.config');
 const { runExpiringSoonEmails } = require('../../services/subscriptionNotifications/runExpiringSoonEmails.service');
@@ -25,11 +24,8 @@ function checkCronSecret(req) {
     if (process.env.NODE_ENV === 'production') return false;
     return true;
   }
-  const provided = String(req.headers['x-cron-secret'] || req.query.secret || '');
-  const a = Buffer.from(provided);
-  const b = Buffer.from(secret);
-  // Constant-time compare (and length check first: timingSafeEqual needs equal lengths).
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
+  const provided = req.query.secret || req.headers['x-cron-secret'] || '';
+  return provided === secret;
 }
 
 router.get('/subscription-expiring', async (req, res) => {

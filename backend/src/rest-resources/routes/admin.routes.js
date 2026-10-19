@@ -29,6 +29,7 @@ const adminRedeemPercentageController = require('../controllers/adminRedeemPerce
 const adminTransactionFeesController = require('../controllers/adminTransactionFees.controller');
 const adminHelpController = require('../controllers/adminHelp.controller');
 const adminBlogController = require('../controllers/adminBlog.controller');
+const adminPageSeoController = require('../controllers/adminPageSeo.controller');
 const adminLink2PlayController = require('../controllers/adminLink2Play.controller');
 const adminFooterController = require('../controllers/adminFooter.controller');
 const adminChimeCashappWithdrawalsController = require('../controllers/adminChimeCashappWithdrawals.controller');
@@ -406,11 +407,15 @@ router.post(
 );
 router.get('/blog', adminBlogController.list);
 router.get('/page-schema/home', adminBlogController.getHomeSchema);
+router.get('/page-seo', adminPageSeoController.list);
+router.get('/page-seo/:pageKey', adminPageSeoController.getOne);
+router.put('/page-seo/:pageKey', adminPageSeoController.save);
 router.put('/page-schema/home', adminBlogController.saveHomeSchema);
 router.get('/blog/:id', adminBlogController.getOne);
 router.post('/blog', adminBlogController.create);
 router.put('/blog/:id', adminBlogController.update);
 router.put('/blog/:id/toggle', adminBlogController.toggle);
+router.post('/blog/:id/restore', adminBlogController.restore);
 router.delete('/blog/:id', adminBlogController.remove);
 
 // Link2Play catalog – PlayJuwa only
@@ -459,17 +464,24 @@ router.put('/footer/settings', adminFooterController.updateSettings);
 router.get('/footer/legal', adminFooterController.listLegalPages);
 router.get('/footer/legal/:pageKey', adminFooterController.getLegalPage);
 router.put('/footer/legal/:pageKey', adminFooterController.updateLegalPage);
-router.patch('/footer/legal/:pageKey/visibility', adminFooterController.setLegalPageVisibility);
 router.get('/footer/menus', adminFooterController.listMenus);
 router.get('/footer/menus/:id', adminFooterController.getMenu);
 router.post('/footer/menus', adminFooterController.createMenu);
 router.put('/footer/menus/:id', adminFooterController.updateMenu);
 router.delete('/footer/menus/:id', adminFooterController.removeMenu);
+router.post('/footer/menus/:id/restore', adminFooterController.restoreMenu);
+router.get('/footer/game-pages', adminFooterController.listGamePages);
+router.get('/footer/game-pages/:slug', adminFooterController.getGamePage);
+router.patch('/footer/game-pages/:slug/visibility', adminFooterController.setGamePageVisibility);
+router.post('/footer/game-pages/:slug/restore', adminFooterController.restoreGamePage);
+router.delete('/footer/game-pages/:slug', adminFooterController.removeGamePage);
+router.put('/footer/game-pages/:slug', adminFooterController.updateGamePage);
 router.get('/footer/pages', adminFooterController.listPages);
 router.get('/footer/pages/:id', adminFooterController.getPage);
 router.post('/footer/pages', adminFooterController.createPage);
 router.put('/footer/pages/:id', adminFooterController.updatePage);
 router.delete('/footer/pages/:id', adminFooterController.removePage);
+router.post('/footer/pages/:id/restore', adminFooterController.restorePage);
 
 // User wallet deposits (deposit_requests + user scope; read-only)
 router.get('/deposit-requests/store-codes', adminDepositRequestsController.listStoreCodes);

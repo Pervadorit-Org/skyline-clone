@@ -29,7 +29,7 @@ async function hasTierGrant(userId, depositTier, transaction) {
       type: 'promotion',
       [Op.and]: [
         db.sequelize.literal("metadata->>'source' = 'new_user_deposit'"),
-        db.sequelize.literal(`metadata->>'deposit_tier' = ${db.sequelize.escape(String(depositTier))}`)
+        db.sequelize.literal(`metadata->>'deposit_tier' = '${depositTier}'`)
       ]
     },
     transaction

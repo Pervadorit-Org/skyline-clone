@@ -6,20 +6,22 @@ const { seoFromBody, seoToPlain } = require('../cms/seoFields');
 const footer = require('../footer/footer.service');
 
 const LEGAL_PAGES = [
-  { pageKey: 'about-us', path: '/about-us', title: 'About Us' },
-  { pageKey: 'privacy', path: '/privacy', title: 'Privacy Policy' },
-  { pageKey: 'terms', path: '/terms', title: 'Terms & Conditions' },
-  { pageKey: 'bonus-terms', path: '/bonus-terms', title: 'Bonus Terms' },
-  { pageKey: 'sweep-policy', path: '/sweep-policy', title: 'Sweep Policy' },
-  { pageKey: 'responsible-gaming', path: '/responsible-gaming', title: 'Responsible Gambling' },
-  { pageKey: 'amoe', path: '/amoe', title: 'AMOE' },
-  { pageKey: 'aml-cft-policy', path: '/aml-cft-policy', title: 'AML/CFT Policy' },
-  { pageKey: 'cookie-policy', path: '/cookie-policy', title: 'Cookie Policy' },
-  { pageKey: 'ssl-encryption', path: '/ssl-encryption', title: 'SSL Encryption' },
-  // Intro text for the Contact Us page (the page itself, with email and chat, is built in). Not a footer link of its own.
-  { pageKey: 'contact-us', path: '/contact', title: 'Contact Us', notInFooterList: true }
+  {
+    pageKey: 'privacy',
+    path: '/privacy',
+    title: 'Privacy Policy'
+  },
+  {
+    pageKey: 'terms',
+    path: '/terms',
+    title: 'Terms & Conditions'
+  },
+  {
+    pageKey: 'responsible-gaming',
+    path: '/responsible-gaming',
+    title: 'Responsible Gaming'
+  }
 ];
-
 
 const LEGAL_PAGE_MAP = Object.fromEntries(LEGAL_PAGES.map((page) => [page.pageKey, page]));
 
@@ -30,10 +32,7 @@ const PAGE_KEY_ALIASES = {
   'terms-and-conditions': 'terms',
   'terms-of-service': 'terms',
   'responsible-gaming': 'responsible-gaming',
-  'responsiblegaming': 'responsible-gaming',
-  'responsible-gambling': 'responsible-gaming',
-  'terms-conditions': 'terms',
-  ...Object.fromEntries(LEGAL_PAGES.map((page) => [page.pageKey, page.pageKey]))
+  'responsiblegaming': 'responsible-gaming'
 };
 
 function normalizePageKey(raw) {
@@ -115,6 +114,7 @@ function emptyPlain(storeCode, catalog) {
     metaTitle: null,
     metaDescription: null,
     metaTags: null,
+    canonicalUrl: null,
     allowIndex: true,
     isActive: true,
     createdAt: null,
@@ -126,7 +126,7 @@ function assertKnownPageKey(pageKeyRaw) {
   const pageKey = normalizePageKey(pageKeyRaw);
   const catalog = pageKey ? catalogPage(pageKey) : null;
   if (!catalog) {
-    const err = new Error(`Unknown legal page. Use one of: ${LEGAL_PAGES.map((p) => p.pageKey).join(', ')}.`);
+    const err = new Error('Unknown legal page. Use privacy, terms, or responsible-gaming.');
     err.statusCode = 400;
     throw err;
   }
@@ -219,6 +219,7 @@ async function upsertAdmin(req, pageKeyRaw, body = {}) {
       metaTitle: seo.metaTitle ?? null,
       metaDescription: seo.metaDescription ?? null,
       metaTags: seo.metaTags ?? null,
+      canonicalUrl: seo.canonicalUrl ?? null,
       allowIndex: allowIndex !== false,
       isActive
     }
@@ -262,6 +263,7 @@ async function getPublic(storeCodeRaw, pageKeyRaw) {
       metaTitle: published ? plain.metaTitle : null,
       metaDescription: published ? plain.metaDescription : null,
       metaTags: published ? plain.metaTags : null,
+      canonicalUrl: published ? plain.canonicalUrl : null,
       allowIndex: published ? plain.allowIndex : true,
       isActive: plain.isActive !== false,
       updatedAt: published ? plain.updatedAt : null
@@ -269,44 +271,8 @@ async function getPublic(storeCodeRaw, pageKeyRaw) {
   };
 }
 
-/** Show / hide one page on the website and in the footer, keeping its text. */
-async function setVisibilityAdmin(req, pageKeyRaw, body = {}) {
-  const catalog = assertKnownPageKey(pageKeyRaw);
-  const storeCode = await resolveStoreCodeAdmin(req, body);
-  const isActive = !(body.isActive === false || body.isActive === 'false' || body.isActive === 0);
-  const [row] = await db.LegalPage.findOrCreate({
-    where: { storeCode, pageKey: catalog.pageKey },
-    defaults: { storeCode, pageKey: catalog.pageKey, title: catalog.title, content: '', allowIndex: true, isActive }
-  });
-  if (row.isActive !== isActive) await row.update({ isActive });
-  return { storeCode, legal_page: toPlain(row, catalog) };
-}
-
-/** Public: the pages the footer should link to, in catalog order (only pages an admin hid are left out). */
-async function listPublic(storeCodeRaw) {
-  const storeCode = footer.normalizeStoreCode(storeCodeRaw || '');
-  if (!storeCode) {
-    const err = new Error('store_code is required.');
-    err.statusCode = 400;
-    throw err;
-  }
-  const rows = await db.LegalPage.findAll({ where: { storeCode } });
-  const byKey = new Map(rows.map((row) => [row.pageKey, row]));
-  return {
-    store_code: storeCode,
-    legal_pages: LEGAL_PAGES.filter((c) => !c.notInFooterList).map((catalog) => {
-      const row = byKey.get(catalog.pageKey);
-      const plain = row ? toPlain(row, catalog) : emptyPlain(storeCode, catalog);
-      const visible = plain.isActive !== false;
-      return { pageKey: catalog.pageKey, path: catalog.path, title: plain.title, visible };
-    })
-  };
-}
-
 module.exports = {
   LEGAL_PAGES,
-  setVisibilityAdmin,
-  listPublic,
   normalizePageKey,
   listAdmin,
   getAdmin,

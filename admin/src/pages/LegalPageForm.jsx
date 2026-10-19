@@ -26,17 +26,13 @@ function defaultForm(catalog, storeCode = '') {
     metaTitle: '',
     metaDescription: '',
     metaTags: '',
+    canonicalUrl: '',
     allowIndex: true
   }
 }
 
-/**
- * Legal page editor. As a route (/footer/legal/:pageKey) it reads the key from the URL;
- * inside the Pages hub it is embedded with an explicit `pageKey` and stays on the same screen.
- */
-export default function LegalPageForm({ pageKey: pageKeyProp, embedded = false } = {}) {
-  const routeParams = useParams()
-  const pageKey = pageKeyProp || routeParams.pageKey
+export default function LegalPageForm() {
+  const { pageKey } = useParams()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -103,13 +99,14 @@ export default function LegalPageForm({ pageKey: pageKeyProp, embedded = false }
           metaTitle: page.metaTitle || '',
           metaDescription: page.metaDescription || '',
           metaTags: page.metaTags || '',
+          canonicalUrl: page.canonicalUrl || '',
           allowIndex: page.allowIndex !== false
         })
       })
       .catch((err) => {
         if (cancelled) return
         toast.error(err.message || 'Failed to load legal page.')
-        if (!embedded) navigate('/footer')
+        navigate('/footer')
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -117,7 +114,7 @@ export default function LegalPageForm({ pageKey: pageKeyProp, embedded = false }
     return () => {
       cancelled = true
     }
-  }, [catalog, isMaster, pageKey, loadStoreCode, user?.storeCode, navigate, embedded, toast])
+  }, [catalog, isMaster, pageKey, loadStoreCode, user?.storeCode, navigate, toast])
 
   const setField = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -155,15 +152,15 @@ export default function LegalPageForm({ pageKey: pageKeyProp, embedded = false }
         metaTitle: form.metaTitle.trim() || null,
         metaDescription: form.metaDescription.trim() || null,
         metaTags: form.metaTags.trim() || null,
+        canonicalUrl: form.canonicalUrl.trim() || null,
         allowIndex: form.allowIndex !== false
       }
       if (isMaster) body.storeCode = form.storeCode.trim()
       await updateAdminLegalPage(pageKey, body)
       toast.success(`${catalog.title} saved.`)
-      if (!embedded) navigate('/footer')
+      navigate('/footer')
     } catch (err) {
       toast.error(err.message || 'Save failed.')
-    } finally {
       setSaving(false)
     }
   }
@@ -172,7 +169,7 @@ export default function LegalPageForm({ pageKey: pageKeyProp, embedded = false }
     return (
       <div className="blog-admin-page">
         <p>Unknown legal page.</p>
-        {!embedded && <Link to="/footer" className="admin-btn admin-btn-secondary">Back</Link>}
+        <Link to="/footer" className="admin-btn admin-btn-secondary">Back</Link>
       </div>
     )
   }
@@ -190,7 +187,7 @@ export default function LegalPageForm({ pageKey: pageKeyProp, embedded = false }
             Use the visual editor or HTML / code palette. Live URL is <code>{catalog.path}</code>.
           </p>
         </div>
-        {!embedded && <Link to="/footer" className="admin-btn admin-btn-secondary">Back</Link>}
+        <Link to="/footer" className="admin-btn admin-btn-secondary">Back</Link>
       </div>
 
       <form className="blog-admin-form footer-form-steps" onSubmit={handleSubmit}>
@@ -241,6 +238,7 @@ export default function LegalPageForm({ pageKey: pageKeyProp, embedded = false }
             setField={setField}
             hideHeading
             showIndexControl
+            showCanonical
             indexControlName={`legal-google-index-${pageKey}`}
             indexNoun="page"
             titleHint="Shown in the browser tab and Google. Leave blank to use the page title."
@@ -266,11 +264,9 @@ export default function LegalPageForm({ pageKey: pageKeyProp, embedded = false }
           <button type="submit" className="admin-btn admin-btn-primary" disabled={saving}>
             {saving ? 'Saving…' : 'Save page'}
           </button>
-          {!embedded && (
-            <button type="button" className="admin-btn admin-btn-secondary" onClick={() => navigate('/footer')}>
-              Cancel
-            </button>
-          )}
+          <button type="button" className="admin-btn admin-btn-secondary" onClick={() => navigate('/footer')}>
+            Cancel
+          </button>
         </div>
       </form>
     </div>
