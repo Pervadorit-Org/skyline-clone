@@ -238,11 +238,6 @@ async function register(body, options = {}) {
   const trimmedFirst = firstName ? String(firstName).trim() : '';
   const trimmedLast = lastName ? String(lastName).trim() : '';
   const payment = require('../payment');
-  if (payment.isPaymentConfigured() && (!trimmedFirst || !trimmedLast)) {
-    const err = new Error('First name and last name are required for account creation.');
-    err.statusCode = 400;
-    throw err;
-  }
   const nameError = 'First and last name can only contain letters (a-z, A-Z); no numbers, spaces, hyphens, or special characters.';
   if (trimmedFirst && !nameLettersOnly.test(trimmedFirst)) {
     const err = new Error(nameError);
