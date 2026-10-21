@@ -35,7 +35,7 @@ Status: all tasks below are implemented and browser-checked (Vite dev server, po
 - Slugs: bingo, crash-game, fishing, instant-win, keno, live-dealer, lottery, scratch-cards, shooting, slots, table-games, virtual-game.
 - Page layout: category strip, gold title, search box, game grid.
 - `/category` redirects to `/casino`; `AllSlotGames` redirects known categories; lobby tabs and sidebar game links use `getGameCategoryPath`.
-- Files: `config/gameCategories.js`, `hooks/useCategoryPageGames.js`, `pages/Category/CategoryPage.jsx`, `styles/category-page.css`, `utils/gitslotparkLandingGames.js` (`buildCategoryPageGames`), `App.jsx`, `pages/SlotGames/AllSlotGames.jsx`, `components/Casino/CasinoLobby.jsx`, `config/casinoLobbyConfig.js`, `public/df-online/club-icons/virtual.svg`.
+- Files: `config/gameCategories.js`, `hooks/useCategoryPageGames.js`, `pages/Category/CategoryPage.jsx`, `styles/category-page.css`, `utils/slotLobbyGames.js` (`buildCategoryPageGames`), `App.jsx`, `pages/SlotGames/AllSlotGames.jsx`, `components/Casino/CasinoLobby.jsx`, `config/casinoLobbyConfig.js`, `public/df-online/club-icons/virtual.svg`.
 
 ### 7. Sound popup re-theme
 - Popup restyled to the dark + gold theme (`#14151f` / `#1a1b2b` / `#ebc567`, Montserrat).

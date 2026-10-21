@@ -5,17 +5,15 @@ import { STORE_CODE } from '../config/site';
 const SLOT_PROVIDERS_BASE = `${API_BASE}/api/slot-providers`;
 
 export const DEFAULT_SLOT_PROVIDERS = {
-  gitslotpark: true,
   bona: true,
-  onegamehub: true,
+  onegamehub: false,
   scorpio: true,
 };
 
 export function normalizeSlotProviders(data) {
   return {
-    gitslotpark: data?.gitslotpark !== false,
     bona: data?.bona !== false,
-    onegamehub: data?.onegamehub !== false,
+    onegamehub: data?.onegamehub === true,
     scorpio: data?.scorpio !== false,
   };
 }
@@ -23,7 +21,7 @@ export function normalizeSlotProviders(data) {
 function pickProvidersPayload(res) {
   if (res?.providers && typeof res.providers === 'object') return res.providers;
   if (res?.data?.providers && typeof res.data.providers === 'object') return res.data.providers;
-  if (res && typeof res === 'object' && ('onegamehub' in res || 'gitslotpark' in res || 'bona' in res || 'scorpio' in res)) {
+  if (res && typeof res === 'object' && ('onegamehub' in res || 'bona' in res || 'scorpio' in res)) {
     return res;
   }
   return null;

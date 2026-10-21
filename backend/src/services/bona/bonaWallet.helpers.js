@@ -1,11 +1,11 @@
 'use strict';
 
 const db = require('../../db/models');
-const { formatBalance } = require('../gitslotpark/gitslotparkSign.helpers');
+const { formatBalance } = require('../wallet/formatBalance.helpers');
 const {
   getPlayableBalance,
   applyBalanceDelta
-} = require('../gitslotpark/callbacks/gitslotparkCallbackWallet.service');
+} = require('../wallet/slotsCallbackWallet.service');
 
 function platformTxId() {
   return `bona_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;

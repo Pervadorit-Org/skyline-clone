@@ -101,15 +101,24 @@ export function getAllCachedProviderSlotGames() {
   return out;
 }
 
+/** Fired whenever the cached catalog changes, so category lists can re-check which have games. */
+export const SLOT_GAMES_CACHE_EVENT = 'df:slot-games-cache';
+
+function notifyCacheChanged() {
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(SLOT_GAMES_CACHE_EVENT));
+}
+
 export function setCachedProviderSlotGames(provider, games) {
   providerCache.set(provider, { games, cachedAt: Date.now() });
   persistCache();
+  notifyCacheChanged();
 }
 
 export function clearCachedProviderSlotGames(provider) {
   if (!providerCache.has(provider)) return;
   providerCache.delete(provider);
   persistCache();
+  notifyCacheChanged();
 }
 
 export function clearDashboardSlotGamesCache() {

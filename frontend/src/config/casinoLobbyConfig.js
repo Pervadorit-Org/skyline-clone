@@ -22,11 +22,22 @@ export const casinoLobbyConfig = {
       id: 'daily-spin',
       kicker: 'FREE EVERY DAY',
       title: 'SPIN THE WHEEL',
-      body: 'Win Gold and Sweep Coins — free spins every day.',
+      body: 'Win Gold and Sweep Coins — free spins every 24 hours.',
       ctaLabel: 'SPIN NOW',
       href: '/spinwheel',
       art: '/df-online/dragons/tier-fury.webp',
       from: '#10264a',
+      to: '#0e0b1c',
+    },
+    {
+      id: 'community',
+      kicker: 'JOIN OUR COMMUNITY',
+      title: 'FOR EVEN MORE...',
+      body: `Refer a friend and claim your daily rewards on ${site.platformName}.`,
+      ctaLabel: 'JOIN NOW',
+      href: '/account/affiliate',
+      art: '/df-online/dragons/tier-drake.webp',
+      from: '#2b1450',
       to: '#0e0b1c',
     },
     {
@@ -45,7 +56,14 @@ export const casinoLobbyConfig = {
 
   // Image banners for signed-in players are managed in Admin → Pages → Lobby (banners). While none are
   // uploaded, the three built-in slides above (our own art) are shown for everyone.
-  imageBanners: [],
+  imageBanners: [
+    { id: 'img-first-purchase', label: 'First Purchase', href: '/store', desktop: '/ref/lobby/banners/first-purchase-d.webp', mobile: '/ref/lobby/banners/first-purchase-m.webp' },
+    { id: 'img-daily-tasks', label: 'Daily Rewards', href: '/daily-bonus', desktop: '/ref/lobby/banners/daily-tasks-d.webp', mobile: '/ref/lobby/banners/daily-tasks-m.webp' },
+    { id: 'img-spin-wheel', label: 'Spin the Wheel', href: '/spinwheel', desktop: '/ref/lobby/banners/spin-wheel-d.webp', mobile: '/ref/lobby/banners/spin-wheel-m.webp' },
+    { id: 'img-referral', label: 'Refer a Friend', href: '/account/affiliate', desktop: '/ref/lobby/banners/referral-d.webp', mobile: '/ref/lobby/banners/referral-m.webp' },
+    { id: 'img-vip', label: 'VIP', href: '/account/vip', desktop: '/ref/lobby/banners/vip-d.webp', mobile: '/ref/lobby/banners/vip-m.webp' },
+    { id: 'img-community', label: 'Community', href: '', desktop: '/ref/lobby/banners/community-d.webp', mobile: '/ref/lobby/banners/community-m.webp' },
+  ],
 
   promoCards: [
     {
@@ -63,15 +81,15 @@ export const casinoLobbyConfig = {
       id: 'spin',
       title: 'Spin the Wheel',
       subtitle: 'Win Gold and Sweep Coins',
-      note: 'Get free spins every day!',
+      note: 'Get free spins every 24 hours!',
       ctaLabel: 'SPIN',
       href: '/spinwheel',
       // Card background artwork (dragon wall).
       bg: '/df-online/skyline.webp',
       // Wheel artwork: the segments spin slowly behind the fixed outer ring.
       wheel: {
-        segments: '/df-online/wheel-segments.svg',
-        ring: '/df-wheel-overlay.svg',
+        segments: '/ref/lobby/wheel-segments.webp',
+        ring: '/ref/lobby/wheel-ring.webp',
       },
       variant: 'spin',
     },

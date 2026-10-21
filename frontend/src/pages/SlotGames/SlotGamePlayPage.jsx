@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import * as gitslotparkApi from '../../api/gitslotpark';
 import * as bonaApi from '../../api/bona';
 import * as onegamehubApi from '../../api/onegamehub';
 import * as win568Api from '../../api/win568';
@@ -21,7 +20,7 @@ import { SlotGameSwipeUpOverlay } from '../../components/SlotGames/SlotGameSwipe
 import { SlotGameFullscreenToggle } from '../../components/SlotGames/SlotGameFullscreenToggle';
 import { BonaPortraitRequiredOverlay } from '../../components/SlotGames/BonaPortraitRequiredOverlay';
 import { FishingLandscapeRequiredOverlay } from '../../components/SlotGames/FishingLandscapeRequiredOverlay';
-import { isOneGameHubFishingPlayGame } from '../../utils/gitslotparkLandingGames';
+import { isOneGameHubFishingPlayGame } from '../../utils/slotLobbyGames';
 import {
   applyIOSChromeLandscapeGameScroll,
   applyIOSChromePortraitGameScroll,
@@ -59,13 +58,13 @@ function getDefaultReturnTo() {
 }
 
 function resolvePlayProvider(raw) {
-  const value = String(raw || 'pragmatic').trim().toLowerCase();
+  const value = String(raw || '').trim().toLowerCase();
   if (value === 'bona') return 'bona';
   if (value === 'onegamehub' || value === '1gamehub') return 'onegamehub';
   if (value === 'firekirin') return 'firekirin';
   if (isWin568PlayProvider(value)) return 'win568';
   if (isScorpioPlayProvider(value)) return 'scorpio';
-  return gitslotparkApi.normalizeGitslotparkProvider(value);
+  return value;
 }
 
 export function SlotGamePlayPage() {
@@ -338,7 +337,9 @@ export function SlotGamePlayPage() {
               ? await onegamehubApi.launchOneGameHubGame(gameId)
               : provider === 'firekirin'
                 ? await gamesApi.enterFirekirinExclusiveGame(gameId)
-                : await gitslotparkApi.launchSlotGame(gameId, provider);
+                : (() => {
+                    throw new Error('This game cannot be launched right now. Please try another title.');
+                  })();
         const url = res?.url ? sanitizeWin568PlayUrl(String(res.url).trim()) : '';
         if (!url) {
           throw new Error('Game launch URL not returned');

@@ -3,7 +3,7 @@ import { AppLoader } from '../../components/AppLoader';
 import { Navigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { CasinoLobby } from '../../components/Casino/CasinoLobby';
-import { isHiddenSlotCategoryId } from '../../utils/gitslotparkLandingGames';
+import { isHiddenSlotCategoryId } from '../../utils/slotLobbyGames';
 import { getGameCategory } from '../../config/gameCategories';
 
 const GamesSection = lazy(() =>

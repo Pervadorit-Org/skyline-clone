@@ -111,42 +111,6 @@ const config = convict({
     secretToken: { format: String, default: '', env: 'GAMEHUB1_SECRET_TOKEN' },
     hmacSalt: { format: String, default: '', env: 'GAMEHUB1_HMAC_SALT' }
   },
-  gitslotpark: {
-    /** Pragmatic Play via GitSlotPark (default provider). */
-    baseUrl: {
-      format: String,
-      default: 'https://ptapi.loginxgamesapi.com',
-      env: 'GIT_SLOTPARK_API_BASE_URL'
-    },
-    authToken: { format: String, default: '', env: 'GIT_SLOTPARK_AUTH_TOKEN' },
-    agentId: { format: String, default: '', env: 'GIT_SLOTPARK_AGENT_ID' },
-    lobbyUrl: { format: String, default: '', env: 'GIT_SLOTPARK_LOBBY_URL' },
-    secretKey: { format: String, default: '', env: 'GIT_SLOTPARK_SECRET_KEY' },
-    /** PG Soft via GitSlotPark — same API paths, separate credentials. */
-    pgsoft: {
-      baseUrl: { format: String, default: '', env: 'GIT_SLOTPARK_PGSOFT_API_BASE_URL' },
-      authToken: { format: String, default: '', env: 'GIT_SLOTPARK_PGSOFT_AUTH_TOKEN' },
-      agentId: { format: String, default: '', env: 'GIT_SLOTPARK_PGSOFT_AGENT_ID' },
-      lobbyUrl: { format: String, default: '', env: 'GIT_SLOTPARK_PGSOFT_LOBBY_URL' },
-      secretKey: { format: String, default: '', env: 'GIT_SLOTPARK_PGSOFT_SECRET_KEY' }
-    },
-    /** Amatic via GitSlotPark — same API paths, separate credentials. */
-    amatic: {
-      baseUrl: { format: String, default: '', env: 'GIT_SLOTPARK_AMATIC_API_BASE_URL' },
-      authToken: { format: String, default: '', env: 'GIT_SLOTPARK_AMATIC_AUTH_TOKEN' },
-      agentId: { format: String, default: '', env: 'GIT_SLOTPARK_AMATIC_AGENT_ID' },
-      lobbyUrl: { format: String, default: '', env: 'GIT_SLOTPARK_AMATIC_LOBBY_URL' },
-      secretKey: { format: String, default: '', env: 'GIT_SLOTPARK_AMATIC_SECRET_KEY' }
-    },
-    /** Amusnet via GitSlotPark — same API paths, separate credentials. */
-    amusnet: {
-      baseUrl: { format: String, default: '', env: 'GIT_SLOTPARK_AMUSNET_API_BASE_URL' },
-      authToken: { format: String, default: '', env: 'GIT_SLOTPARK_AMUSNET_AUTH_TOKEN' },
-      agentId: { format: String, default: '', env: 'GIT_SLOTPARK_AMUSNET_AGENT_ID' },
-      lobbyUrl: { format: String, default: '', env: 'GIT_SLOTPARK_AMUSNET_LOBBY_URL' },
-      secretKey: { format: String, default: '', env: 'GIT_SLOTPARK_AMUSNET_SECRET_KEY' }
-    }
-  },
   cron: {
     secret: { format: String, default: '', env: 'CRON_SECRET' }
   },

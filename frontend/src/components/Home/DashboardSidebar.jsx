@@ -3,10 +3,9 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { openSupportWidget } from '../intercomApi';
-import { openTaskList } from '../Tasks/TaskListModal';
-import { useClaimableTaskCount } from '../Tasks/useClaimableTaskCount';
 import { warmupCasino } from '../../utils/preloadCasino';
 import { getGameCategoryPath } from '../../config/gameCategories';
+import { useAvailableGameCategories } from '../../hooks/useAvailableGameCategories';
 import '../../styles/dashboard-sidebar.css';
 import { site } from '../../config/site';
 import { useLobbyShell } from '../../hooks/useLobbyShell';
@@ -201,7 +200,6 @@ export const RAIL_ITEMS = [
   { id: 'vip', label: 'VIP', icon: ICON.vip, to: '/account/vip', authRequired: true },
   // Favorites disabled (no backend management)
   // { id: 'favorites', label: 'Favorites', icon: ICON.favorites, to: '/favorites', authRequired: true },
-  { id: 'tasks', label: 'Task List', icon: ICON.tasks, action: 'tasks' },
   { id: 'faq', label: 'FAQ', icon: ICON.faq, to: '/faq' },
   { divider: true },
   ...GAME_ITEMS.map((g) => ({ id: g.id, label: g.label, icon: g.icon, to: getGameCategoryPath(g.id) })),
@@ -235,10 +233,10 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { balanceSc, balanceGc, logout } = useAuth();
-  const claimableTasks = useClaimableTaskCount(isAuthenticated);
   const [gamesOpen, setGamesOpen] = useState(false);
   const [bonusesOpen, setBonusesOpen] = useState(false);
   const shell = useLobbyShell();
+  const isCategoryAvailable = useAvailableGameCategories();
   const { vipStatus } = useVipStatus();
   const vipLevels = Array.isArray(vipStatus?.levels) ? vipStatus.levels : [];
   const vipIdx = Number(vipStatus?.level_index) || 0;
@@ -350,7 +348,6 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
           {/* Favorites disabled (no backend management)
           <Row id="favorites" icon={ICON.favorites} label="Favorites" to="/favorites" />
           */}
-          <Row id="tasks" icon={ICON.tasks} label="Task List" onClick={() => { if (!isAuthenticated) { go('/register'); return; } openTaskList(); onNavigate?.(); }} badge={claimableTasks > 0 ? String(claimableTasks) : undefined} />
           <Row id="faq" icon={ICON.faq} label="FAQ" to="/faq" />
 
           <div className="dgs__divider" aria-hidden />
@@ -373,7 +370,7 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
               {ICON.chevron}
             </button>
             <div className="dgs__group-body">
-              {GAME_ITEMS.filter((g) => !shell.hidden('sidebar', g.id)).map((g) => (
+              {GAME_ITEMS.filter((g) => !shell.hidden('sidebar', g.id) && isCategoryAvailable(g.id)).map((g) => (
                 <button
                   key={g.id}
                   type="button"

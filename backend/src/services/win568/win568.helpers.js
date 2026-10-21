@@ -1,6 +1,6 @@
 'use strict';
 
-const { formatBalance } = require('../gitslotpark/gitslotparkSign.helpers');
+const { formatBalance } = require('../wallet/formatBalance.helpers');
 const { ERROR } = require('./win568.constants');
 const { resolveWin568Config } = require('./win568.config');
 

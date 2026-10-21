@@ -1117,3 +1117,39 @@
 .df-gcpkg__ribbon--purple { background: #7c2fd6; }
 .df-gcpkg__ribbon--popular { background: #ee6a1b; }
 .df-gcpkg__ribbon--gold { background: #f3a90f; }
+
+/* Corner badges over the image banners (Flash Sale / Refer a Friend / Daily Rewards / Join Now) */
+.df-lobby__badges { position: absolute; inset: 0; pointer-events: none; }
+.df-lobby__badge {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+.df-lobby__badge:hover { transform: scale(1.06); }
+.df-lobby__badge img { width: clamp(40px, 5.5vw, 72px); height: auto; filter: drop-shadow(0 0 8px rgba(255, 201, 79, 0.45)); }
+.df-lobby__badge span {
+  margin-top: 2px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: clamp(9px, 1vw, 12px);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: #d97706;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.df-lobby__badge span.is-sale { background: #e11d48; }
+.df-lobby__badge span.is-ref { background: #ca8a04; }
+.df-lobby__badge span.is-daily { background: #92602a; }
+.df-lobby__badge span.is-join { background: #d97706; }
+.df-lobby__badge--tl { top: 14%; left: 3%; }
+.df-lobby__badge--bl { bottom: 12%; left: 3%; }
+.df-lobby__badge--tr { top: 14%; right: 3%; }
+.df-lobby__badge--br { bottom: 12%; right: 3%; }
+@media (max-width: 767px) { .df-lobby__badges { display: none; } }

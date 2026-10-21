@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useDeferredValue } f
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import * as gitslotparkApi from '../../api/gitslotpark';
+import { getSlotLaunchMode } from '../../config/slotLaunch';
 import * as onegamehubApi from '../../api/onegamehub';
 import * as bonaApi from '../../api/bona';
 import * as scorpioApi from '../../api/scorpio';
@@ -10,9 +10,7 @@ import {
   appendBonaToSlotCategories,
   buildOrionstarSlotCategories,
   dedupeCarouselGames,
-  extractGitslotparkGamesList,
   isBlockedOneGameHubBrand,
-  mapGitslotparkToCarouselGame,
   mapOneGameHubToCarouselGame,
   mapBonaToCarouselGame,
   mapScorpioToCarouselGame,
@@ -23,7 +21,7 @@ import {
   prepareDashboardSlotGames,
   resolveLaunchGameId,
   isOneGameHubFishingPlayGame,
-} from '../../utils/gitslotparkLandingGames';
+} from '../../utils/slotLobbyGames';
 import {
   getCachedProviderSlotGames,
   getAllCachedProviderSlotGames,
@@ -72,8 +70,7 @@ function getProviderSearchText(provider) {
   if (provider === 'onegamehub' || provider === '1gamehub') return '1gamehub games';
   if (provider === 'bona') return 'bona games';
   if (isScorpioPlayProvider(provider)) return 'scorpio games';
-  const label = gitslotparkApi.getGitslotparkProviderMeta(provider)?.label || '';
-  return `${provider} ${label}`.trim().toLowerCase();
+  return String(provider || '').trim().toLowerCase();
 }
 
 function rankSearchMatch(game, query) {
@@ -114,22 +111,6 @@ function withRecentlyPlayedCategory(allGames, categories, recentRows) {
   const withoutRecent = (categories || []).filter((c) => c.id !== 'recently-played');
   if (!recent) return withoutRecent;
   return [recent, ...withoutRecent];
-}
-
-function fetchProviderSlotGames(provider) {
-  const cached = getCachedProviderSlotGames(provider);
-
-  return gitslotparkApi
-    .getSlotGames(provider)
-    .then((res) => {
-      const list = extractGitslotparkGamesList(res);
-      const mapped = list.map((game) => mapGitslotparkToCarouselGame(game, provider));
-      if (mapped.length) {
-        setCachedProviderSlotGames(provider, mapped);
-      }
-      return mapped.length ? mapped : cached || [];
-    })
-    .catch(() => cached || []);
 }
 
 let hubGamesInflight = null;
@@ -280,16 +261,6 @@ async function fetchScorpioSlotGames() {
   }
 }
 
-function getSlotProvidersLoadOrder(gitslotparkEnabled = true) {
-  if (!gitslotparkEnabled) return [];
-  const configured = gitslotparkApi.listConfiguredGitslotparkProviders();
-  const providers = configured.length ? configured : gitslotparkApi.GIT_SLOTPARK_PROVIDERS;
-  return [
-    ...providers.filter((provider) => provider !== 'pragmatic'),
-    ...providers.filter((provider) => provider === 'pragmatic'),
-  ];
-}
-
 function mergeProviderGames(gamesByProvider) {
   const hub = gamesByProvider.get(ONEGAMEHUB_CACHE_KEY) || [];
   const bona = gamesByProvider.get(BONA_CACHE_KEY) || [];
@@ -315,11 +286,6 @@ export async function prefetchLobbySlotGames(onUpdate) {
     };
     if (providers.onegamehub) watch(fetchOneGameHubSlotGames());
     if (providers.bona) watch(fetchBonaSlotGames());
-    if (providers.gitslotpark) {
-      for (const provider of getSlotProvidersLoadOrder(true)) {
-        watch(fetchProviderSlotGames(provider));
-      }
-    }
     if (providers.scorpio) watch(fetchScorpioSlotGames());
     if (!tasks.length) return [];
     return Promise.all(tasks);
@@ -433,18 +399,6 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
         clearCachedProviderSlotGames(SCORPIO_CACHE_KEY);
       }
 
-      const gitslotparkProviders = getSlotProvidersLoadOrder(enabledProviders.gitslotpark);
-      if (enabledProviders.gitslotpark) {
-        for (const provider of gitslotparkProviders) {
-          const cached = getCachedProviderSlotGames(provider);
-          if (cached?.length) gamesByProvider.set(provider, cached);
-        }
-      } else {
-        for (const provider of gitslotparkApi.GIT_SLOTPARK_PROVIDERS) {
-          clearCachedProviderSlotGames(provider);
-        }
-      }
-
       const publish = () => {
         if (cancelled) return;
         applyLobbyGamesToState(
@@ -503,9 +457,6 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
       if (enabledProviders.scorpio) {
         watch(SCORPIO_CACHE_KEY, fetchScorpioSlotGames());
       }
-      for (const provider of gitslotparkProviders) {
-        watch(provider, fetchProviderSlotGames(provider));
-      }
 
       if (!fetches.length) {
         publish();
@@ -534,7 +485,6 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
   }, [
     applyCategories,
     enabledProviders.bona,
-    enabledProviders.gitslotpark,
     enabledProviders.onegamehub,
     enabledProviders.scorpio,
     hasSlotProviders,
@@ -600,24 +550,16 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
       }
 
       try {
-        const gitslotparkRes = enabledProviders.gitslotpark
-          ? await gitslotparkApi.getRecentlyPlayedSlotGames({ limit: 12 }).catch(() => ({ games: [] }))
-          : { games: [] };
         const onegamehubRes = enabledProviders.onegamehub === true
           ? await onegamehubApi.getOneGameHubRecentlyPlayed({ limit: 12 }).catch(() => ({ games: [] }))
           : { games: [] };
         if (cancelled) return;
-        const gitslotparkRows = Array.isArray(gitslotparkRes?.games)
-          ? gitslotparkRes.games
-          : Array.isArray(gitslotparkRes?.data?.games)
-            ? gitslotparkRes.data.games
-            : [];
         const onegamehubRows = Array.isArray(onegamehubRes?.games)
           ? onegamehubRes.games
           : Array.isArray(onegamehubRes?.data?.games)
             ? onegamehubRes.data.games
             : [];
-        const rows = [...gitslotparkRows, ...onegamehubRows];
+        const rows = onegamehubRows;
         recentRowsRef.current = rows;
         // Only merge when catalog games exist so we don't flash Game Vault stubs.
         if (allGamesRef.current.length) {
@@ -634,7 +576,7 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
     return () => {
       cancelled = true;
     };
-  }, [authLoading, isAuthenticated, userId, applyCategories, location.pathname, enabledProviders.gitslotpark, enabledProviders.onegamehub, providersLoaded]);
+  }, [authLoading, isAuthenticated, userId, applyCategories, location.pathname, enabledProviders.onegamehub, providersLoaded]);
 
   const handlePlayGame = useCallback(
     async (game) => {
@@ -656,10 +598,10 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
         setLaunchingGameId(gameid);
 
         try {
-          const provider = game.provider || 'pragmatic';
+          const provider = game.provider || '';
 
           if (provider === 'bona') {
-            if (gitslotparkApi.getGitslotparkLaunchMode() === 'tab') {
+            if (getSlotLaunchMode() === 'tab') {
               const res = await bonaApi.launchBonaGame(gameid);
               const url = res?.url ? String(res.url).trim() : '';
               if (!url) throw new Error('Game launch URL not returned');
@@ -687,7 +629,7 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
             if (!gameCode || !Number.isFinite(providerId) || providerId <= 0) {
               throw new Error('This game cannot be launched right now. Please try another title.');
             }
-            if (gitslotparkApi.getGitslotparkLaunchMode() === 'tab') {
+            if (getSlotLaunchMode() === 'tab') {
               const res = await scorpioApi.launchScorpioGame({ gameCode, providerId });
               const url = res?.url ? String(res.url).trim() : '';
               if (!url) throw new Error('Game launch URL not returned');
@@ -718,7 +660,7 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
               gameid,
               lobbyCategoryId: resolvedCategoryId,
             });
-            if (gitslotparkApi.getGitslotparkLaunchMode() === 'tab') {
+            if (getSlotLaunchMode() === 'tab') {
               const res = await onegamehubApi.launchOneGameHubGame(gameid);
               const url = res?.url ? String(res.url).trim() : '';
               if (!url) throw new Error('Game launch URL not returned');
@@ -744,24 +686,7 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
             return;
           }
 
-          if (gitslotparkApi.getGitslotparkLaunchMode() === 'tab') {
-            const res = await gitslotparkApi.launchSlotGame(gameid, provider);
-            const url = res?.url ? String(res.url).trim() : '';
-            if (!url) throw new Error('Game launch URL not returned');
-            window.open(url, '_blank', 'noopener,noreferrer');
-            return;
-          }
-
-          navigate(`/play/${encodeURIComponent(gameid)}`, {
-            state: {
-              provider,
-              name: game.title || 'Casino game',
-              returnTo: location.pathname,
-              image: game.image || '',
-              iconUrls: game.iconUrls || [],
-              symbol: game.symbol || '',
-            },
-          });
+          throw new Error('This game cannot be launched right now. Please try another title.');
         } catch (e) {
           if (isDepositRequiredError(e)) {
             openDepositRequiredModal();

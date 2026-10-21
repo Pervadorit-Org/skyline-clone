@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { prefetchLobbySlotGames } from '../components/Home/DashboardSlotGamesSection';
 import { getAllCachedProviderSlotGames } from '../utils/dashboardSlotGamesCache';
-import { prepareDashboardSlotGames } from '../utils/gitslotparkLandingGames';
+import { prepareDashboardSlotGames } from '../utils/slotLobbyGames';
 
 const POLL_MS = 1500;
 const POLL_MAX_MS = 20000;

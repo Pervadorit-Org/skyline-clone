@@ -65,13 +65,10 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Domain-root wallet: GitSlotPark + 568Win share POST /GetBalance (payload dispatcher).
+// Domain-root wallet callbacks (568Win).
 // 568Win unique methods (Deduct/Settle/...) also live at root so BO Domain can be https://dragonfury.com/
 const walletRootCallbackRoutes = require('./routes/walletRootCallback.routes');
 app.use(walletRootCallbackRoutes);
-
-const gitslotparkCallbackRoutes = require('./routes/gitslotparkCallback.routes');
-app.use(gitslotparkCallbackRoutes);
 
 // 568Win also stays under /api/568win if BO Domain is that prefix.
 const win568CallbackRoutes = require('./routes/win568Callback.routes');

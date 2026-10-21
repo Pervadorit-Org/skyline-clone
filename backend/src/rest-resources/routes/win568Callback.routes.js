@@ -8,7 +8,6 @@ const router = express.Router();
 /**
  * 568Win Seamless Wallet 2.0 callbacks.
  * Mounted at /api/568win and also at domain root (see walletRootCallback.routes.js).
- * GitSlotPark shares POST /GetBalance — root dispatcher routes by CompanyKey.
  *
  * Back office 3.3 Domain (WITH trailing slash), either:
  *   https://dragonfury.com/

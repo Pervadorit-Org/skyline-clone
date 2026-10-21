@@ -6,12 +6,12 @@ const { ROLES } = require('../../constants/roles');
 
 const KEY = 'slot_providers';
 
-const PROVIDER_KEYS = ['gitslotpark', 'bona', 'onegamehub', 'scorpio'];
+const PROVIDER_KEYS = ['bona', 'onegamehub', 'scorpio'];
 
 const DEFAULTS = {
-  gitslotpark: true,
   bona: true,
-  onegamehub: true,
+  // No One Game Hub API keys yet: off unless a store explicitly enables it.
+  onegamehub: false,
   scorpio: true
 };
 
@@ -27,7 +27,6 @@ function parseRow(row) {
   try {
     const parsed = JSON.parse(row.value);
     return {
-      gitslotpark: parseBool(parsed.gitslotpark, DEFAULTS.gitslotpark),
       bona: parseBool(parsed.bona, DEFAULTS.bona),
       onegamehub: parseBool(parsed.onegamehub, DEFAULTS.onegamehub),
       scorpio: parseBool(parsed.scorpio, DEFAULTS.scorpio)
@@ -39,7 +38,6 @@ function parseRow(row) {
 
 function normalizePayload(payload = {}) {
   return {
-    gitslotpark: parseBool(payload.gitslotpark, DEFAULTS.gitslotpark),
     bona: parseBool(payload.bona, DEFAULTS.bona),
     onegamehub: parseBool(payload.onegamehub, DEFAULTS.onegamehub),
     scorpio: parseBool(payload.scorpio, DEFAULTS.scorpio)

@@ -1,12 +1,12 @@
 'use strict';
 
 const db = require('../../db/models');
-const { formatBalance } = require('../gitslotpark/gitslotparkSign.helpers');
+const { formatBalance } = require('../wallet/formatBalance.helpers');
 const {
   getPlayableBalance,
   applyBalanceDelta,
   applyRollbackDelta
-} = require('../gitslotpark/callbacks/gitslotparkCallbackWallet.service');
+} = require('../wallet/slotsCallbackWallet.service');
 const { canUserPlayGames } = require('../games/gamePlayEligibility.service');
 const { notifyUserBalanceChanged } = require('../realtime/notifyBalance.service');
 const { resolveBonaConfig } = require('./bona.config');

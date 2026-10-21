@@ -1,23 +1,23 @@
 'use strict';
 
 const { Op } = require('sequelize');
-const db = require('../../../db/models');
+const db = require('../../db/models');
 const {
   PURCHASED_CURRENCY_CODE,
   BONUS_CURRENCY_CODE,
   REDEEMABLE_CURRENCY_CODE,
   DEFAULT_CURRENCY
-} = require('../../wallet/getCurrencySetting.service');
+} = require('./getCurrencySetting.service');
 const {
   ensureWallet,
   usableOf,
   splitPlayDebit,
   roundMoney
-} = require('../../wallet/walletBuckets.service');
-const { resolveLockedBonusSc } = require('../../wallet/bonusScLock.service');
-const { formatBalance } = require('../gitslotparkSign.helpers');
-const { RESULT } = require('./gitslotparkCallback.helpers');
-const { createLogger } = require('../../../libs/logger');
+} = require('./walletBuckets.service');
+const { resolveLockedBonusSc } = require('./bonusScLock.service');
+const { formatBalance } = require('./formatBalance.helpers');
+const { RESULT } = require('./slotsCallback.helpers');
+const { createLogger } = require('../../libs/logger');
 
 const log = createLogger('slotsCallbackWallet');
 
@@ -130,7 +130,7 @@ async function writeSlotsLedger(userId, {
   meta,
   transaction
 }) {
-  const { recordWalletChange, recordRscWin } = require('../../wallet/scLedger.service');
+  const { recordWalletChange, recordRscWin } = require('./scLedger.service');
   const rawGameId = meta?.gameId ?? meta?.metadata?.gameId ?? null;
   const numericGameId = ledgerIntegerGameId(rawGameId);
   const ledgerBase = {
@@ -387,7 +387,7 @@ function buildSlotsWalletImpact({ delta, betAmount, winAmount, pscUsable, bscUsa
 }
 
 /**
- * Apply a GitSlotPark balance delta under PSC→BSC→RSC slots rules.
+ * Apply a slots-provider balance delta under PSC→BSC→RSC slots rules.
  */
 async function applyBalanceDelta(userId, delta, meta, transaction, options = {}) {
   const [pscWallet, bscWallet, rscWallet, legacyWallet] = await Promise.all([

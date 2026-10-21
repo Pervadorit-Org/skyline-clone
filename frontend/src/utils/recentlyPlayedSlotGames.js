@@ -12,7 +12,7 @@ function sameGameId(a, b) {
 
 /**
  * Match a transaction row (gameId + provider) to a catalog carousel game.
- * `gitslotpark` / empty provider matches any non-bona catalog provider.
+ * An empty provider matches any non-bona catalog provider.
  * Only returns catalog hits (with real artwork) — never image-less stubs.
  */
 export function matchCatalogGameForRecentPlay(allGames, recent) {
@@ -28,7 +28,7 @@ export function matchCatalogGameForRecentPlay(allGames, recent) {
   );
   if (exact) return exact;
 
-  if (!provider || provider === 'gitslotpark') {
+  if (!provider) {
     return (
       catalog.find(
         (game) =>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { GAME_PLACEHOLDER } from '../../utils/gitslotparkLandingGames';
+import { GAME_PLACEHOLDER } from '../../utils/slotLobbyGames';
 
 const SLIDE_MS = 3000;
 const ANIM_MS = 650;
