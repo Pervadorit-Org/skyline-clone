@@ -2,17 +2,25 @@ import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '../../context/ToastContext';
 import * as transactionsApi from '../../api/transactions';
 import { usePageContentReady } from '../../context/PageReadyContext';
-import { useAuth } from '../../context/AuthContext';
 import { formatSc } from '../../utils/currency';
 import './transactions-page.css';
 
 const DEFAULT_LIMIT = 20;
 
+const PAY_LOGOS = [
+  { src: '/df-online/payment-logos/bitcoin.webp', alt: 'Bitcoin' },
+  { src: '/df-online/payment-logos/card.webp', alt: 'Card' },
+  { src: '/df-online/payment-logos/bank.webp', alt: 'Bank transfer' },
+  { src: '/df-online/payment-logos/google-pay.webp', alt: 'Google Pay' },
+  { src: '/df-online/payment-logos/apple-pay.webp', alt: 'Apple Pay' },
+  { src: '/df-online/payment-logos/cash-app-official.svg', alt: 'Cash App' }
+];
+
 function formatDate(d) {
   if (!d) return '—';
   const date = new Date(d);
   const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
   return `${dateStr} ${timeStr}`;
 }
 
@@ -80,11 +88,11 @@ function toneForType(type) {
   return 'out';
 }
 
-function CoinAmount({ icon, value }) {
+function CoinAmount({ kind, value }) {
   if (value == null || value === '') return <span className="tx-dash">-</span>;
   return (
     <span className="tx-coin">
-      <img src={icon} alt="" aria-hidden="true" width="24" height="24" loading="lazy" />
+      <span className={`tx-coin-ic tx-coin-ic--${kind}`} aria-hidden="true">{kind === 'gc' ? 'G' : 'S'}</span>
       {value}
     </span>
   );
@@ -126,10 +134,9 @@ function actionLabel(type) {
 
 export function AccountTransactions() {
   const { toast } = useToast();
-  const { gcEnabled } = useAuth();
   const [data, setData] = useState({ transactions: [], total: 0, page: 1, limit: DEFAULT_LIMIT, total_pages: 1 });
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ dateFrom: '', dateTo: '', category: '', currency: '' });
+  const [filters, setFilters] = useState({ dateFrom: '', dateTo: '', category: '' });
   const [page, setPage] = useState(1);
 
   usePageContentReady(!loading);
@@ -141,7 +148,6 @@ export function AccountTransactions() {
       if (filters.dateFrom) params.dateFrom = filters.dateFrom;
       if (filters.dateTo) params.dateTo = filters.dateTo;
       if (filters.category) params.category = filters.category;
-      if (gcEnabled && filters.currency) params.currency = filters.currency;
       const res = await transactionsApi.getTransactions(params);
       const total = res.total ?? 0;
       setData({
@@ -157,7 +163,7 @@ export function AccountTransactions() {
     } finally {
       setLoading(false);
     }
-  }, [page, filters, toast, gcEnabled]);
+  }, [page, filters, toast]);
 
   useEffect(() => {
     fetchTransactions();
@@ -189,19 +195,6 @@ export function AccountTransactions() {
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
             </span>
           </label>
-          {gcEnabled ? (
-            <label className="tx-field">
-              <span>Wallet</span>
-              <span className="tx-select-wrap">
-                <select value={filters.currency} onChange={(e) => setFilter('currency', e.target.value)}>
-                  <option value="">GC &amp; SC</option>
-                  <option value="GC">GC only</option>
-                  <option value="SC">SC only</option>
-                </select>
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-              </span>
-            </label>
-          ) : null}
           <label className="tx-field">
             <span>From Date</span>
             <input type="date" value={filters.dateFrom} max={filters.dateTo || undefined} onChange={(e) => setFilter('dateFrom', e.target.value)} />
@@ -238,8 +231,8 @@ export function AccountTransactions() {
                       <td><time className="tx-muted">{formatDate(getTransactionDate(tx))}</time></td>
                       <td><span className="tx-reason">{typeLabel(tx.type)}</span></td>
                       <td><span className={actionLabel(tx.type) === 'Credit' ? 'tx-credit' : 'tx-debit'}>{actionLabel(tx.type)}</span></td>
-                      <td><CoinAmount icon="/icons/coin.png" value={gcValue(tx)} /></td>
-                      <td><CoinAmount icon="/df-online/sc-coin.webp" value={scValue(tx)} /></td>
+                      <td><CoinAmount kind="gc" value={gcValue(tx)} /></td>
+                      <td><CoinAmount kind="sc" value={scValue(tx)} /></td>
                       <td><TxId id={tx.id} /></td>
                       <td><span className="tx-muted">{tx.status || '-'}</span></td>
                       <td><span className="tx-muted">{detailsText(tx)}</span></td>
@@ -259,8 +252,8 @@ export function AccountTransactions() {
                     <span className={actionLabel(tx.type) === 'Credit' ? 'tx-credit' : 'tx-debit'}>{actionLabel(tx.type)}</span>
                   </div>
                   <div className="tx-mcard-r">
-                    <CoinAmount icon="/df-online/sc-coin.webp" value={scValue(tx)} />
-                    <CoinAmount icon="/icons/coin.png" value={gcValue(tx)} />
+                    <CoinAmount kind="sc" value={scValue(tx)} />
+                    <CoinAmount kind="gc" value={gcValue(tx)} />
                   </div>
                 </div>
               ))}
@@ -278,6 +271,12 @@ export function AccountTransactions() {
           </button>
         </div>
       </div>
+
+      <ul className="tx-pay" aria-label="Accepted payment methods">
+        {PAY_LOGOS.map((l) => (
+          <li key={l.src}><img src={l.src} alt={l.alt} loading="lazy" /></li>
+        ))}
+      </ul>
     </main>
   );
 }
