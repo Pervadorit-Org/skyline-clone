@@ -1,0 +1,4482 @@
+commit 19544d270f11bb4f6d02eeb31c8484a2521a9fae
+Author: harshpervadorit123 <YOUR_GITHUB_EMAIL>
+Date:   Wed Oct 21 21:12:27 2026 +0530
+
+    feat: add lobby images API, slot launch mode config, and hook for available game categories
+    
+    - Implemented `getLobbyImages` function to fetch lobby images from the backend.
+    - Created `getSlotLaunchMode` function to determine the launch mode for slots (iframe or tab).
+    - Developed `useAvailableGameCategories` hook to check the availability of game categories based on cached provider slot games.
+
+diff --git a/admin/src/components/SlotProvidersEditor.jsx b/admin/src/components/SlotProvidersEditor.jsx
+index 9e3b4a6..da37239 100644
+--- a/admin/src/components/SlotProvidersEditor.jsx
++++ b/admin/src/components/SlotProvidersEditor.jsx
+@@ -6,9 +6,8 @@ import {
+ } from '../api/slotProviders'
+ 
+ const DEFAULTS = {
+-  onegamehub: true,
++  onegamehub: false,
+   bona: true,
+-  gitslotpark: true,
+   scorpio: true,
+ }
+ 
+@@ -25,12 +24,6 @@ const FIELDS = [
+     label: 'Bona games',
+     help: 'Show Bona games on the slots page.',
+   },
+-  {
+-    id: 'gitslotpark',
+-    emoji: '🎰',
+-    label: 'GitSlotPark games',
+-    help: 'Show GitSlotPark games (Pragmatic, PG Soft, and more).',
+-  },
+   {
+     id: 'scorpio',
+     emoji: '🦂',
+@@ -41,9 +34,8 @@ const FIELDS = [
+ 
+ function normalize(data) {
+   return {
+-    onegamehub: data?.onegamehub !== false,
++    onegamehub: data?.onegamehub === true,
+     bona: data?.bona !== false,
+-    gitslotpark: data?.gitslotpark !== false,
+     scorpio: data?.scorpio !== false,
+   }
+ }
+diff --git a/backend/env.sample b/backend/env.sample
+index e444ef8..b83a64a 100644
+--- a/backend/env.sample
++++ b/backend/env.sample
+@@ -119,41 +119,6 @@ BACKEND_PUBLIC_URL=https://your-api.example.com
+ # ENFORCE_ADMIN_HOST_BINDING=false
+ # ADMIN_DEFAULT_STORE_CODE=
+ 
+-# GitSlotPark — unsuffixed keys are the fallback for stores without their own suffix.
+-# Per-store keys: append _{STORE_CODE} uppercased (same pattern as GAMEHUB1_*_{STORE}).
+-# Example store codes: SWEEPSTAKEBET, CASINOSLOTS, DRAGONFURY, GOODGDRAGON, MYVEPOWER.
+-# SECRET_KEY must never be in frontend. Agent ID here must match that store's VITE_GIT_SLOTPARK_AGENT_ID.
+-#
+-# Optional per-store launch fallback (used if the store frontend does not send headers):
+-# GIT_SLOTPARK_API_BASE_URL_{STORE}=
+-# GIT_SLOTPARK_AUTH_TOKEN_{STORE}=
+-# GIT_SLOTPARK_LOBBY_URL_{STORE}=
+-# GIT_SLOTPARK_PGSOFT_AUTH_TOKEN_{STORE}=  (and AMATIC_ / AMUSNET_ the same way)
+-
+-# Pragmatic Play (default provider) — fallback
+-GIT_SLOTPARK_AGENT_ID=
+-GIT_SLOTPARK_SECRET_KEY=
+-# GIT_SLOTPARK_AGENT_ID_SWEEPSTAKEBET=
+-# GIT_SLOTPARK_SECRET_KEY_SWEEPSTAKEBET=
+-
+-# PG Soft
+-GIT_SLOTPARK_PGSOFT_AGENT_ID=
+-GIT_SLOTPARK_PGSOFT_SECRET_KEY=
+-# GIT_SLOTPARK_PGSOFT_AGENT_ID_SWEEPSTAKEBET=
+-# GIT_SLOTPARK_PGSOFT_SECRET_KEY_SWEEPSTAKEBET=
+-
+-# Amatic
+-GIT_SLOTPARK_AMATIC_AGENT_ID=
+-GIT_SLOTPARK_AMATIC_SECRET_KEY=
+-# GIT_SLOTPARK_AMATIC_AGENT_ID_SWEEPSTAKEBET=
+-# GIT_SLOTPARK_AMATIC_SECRET_KEY_SWEEPSTAKEBET=
+-
+-# Amusnet
+-GIT_SLOTPARK_AMUSNET_AGENT_ID=
+-GIT_SLOTPARK_AMUSNET_SECRET_KEY=
+-# GIT_SLOTPARK_AMUSNET_AGENT_ID_SWEEPSTAKEBET=
+-# GIT_SLOTPARK_AMUSNET_SECRET_KEY_SWEEPSTAKEBET=
+-
+ # Bona Games (Seamless Wallet V8 — live Bet/Win on platform SC)
+ # App ID / Secret from Bona; whitelist this server's public IP with Bona.
+ BONA_API_BASE_URL=https://sg.bona.games
+diff --git a/backend/src/configs/app.config.js b/backend/src/configs/app.config.js
+index 8f09289..f970267 100644
+--- a/backend/src/configs/app.config.js
++++ b/backend/src/configs/app.config.js
+@@ -111,42 +111,6 @@ const config = convict({
+     secretToken: { format: String, default: '', env: 'GAMEHUB1_SECRET_TOKEN' },
+     hmacSalt: { format: String, default: '', env: 'GAMEHUB1_HMAC_SALT' }
+   },
+-  gitslotpark: {
+-    /** Pragmatic Play via GitSlotPark (default provider). */
+-    baseUrl: {
+-      format: String,
+-      default: 'https://ptapi.loginxgamesapi.com',
+-      env: 'GIT_SLOTPARK_API_BASE_URL'
+-    },
+-    authToken: { format: String, default: '', env: 'GIT_SLOTPARK_AUTH_TOKEN' },
+-    agentId: { format: String, default: '', env: 'GIT_SLOTPARK_AGENT_ID' },
+-    lobbyUrl: { format: String, default: '', env: 'GIT_SLOTPARK_LOBBY_URL' },
+-    secretKey: { format: String, default: '', env: 'GIT_SLOTPARK_SECRET_KEY' },
+-    /** PG Soft via GitSlotPark — same API paths, separate credentials. */
+-    pgsoft: {
+-      baseUrl: { format: String, default: '', env: 'GIT_SLOTPARK_PGSOFT_API_BASE_URL' },
+-      authToken: { format: String, default: '', env: 'GIT_SLOTPARK_PGSOFT_AUTH_TOKEN' },
+-      agentId: { format: String, default: '', env: 'GIT_SLOTPARK_PGSOFT_AGENT_ID' },
+-      lobbyUrl: { format: String, default: '', env: 'GIT_SLOTPARK_PGSOFT_LOBBY_URL' },
+-      secretKey: { format: String, default: '', env: 'GIT_SLOTPARK_PGSOFT_SECRET_KEY' }
+-    },
+-    /** Amatic via GitSlotPark — same API paths, separate credentials. */
+-    amatic: {
+-      baseUrl: { format: String, default: '', env: 'GIT_SLOTPARK_AMATIC_API_BASE_URL' },
+-      authToken: { format: String, default: '', env: 'GIT_SLOTPARK_AMATIC_AUTH_TOKEN' },
+-      agentId: { format: String, default: '', env: 'GIT_SLOTPARK_AMATIC_AGENT_ID' },
+-      lobbyUrl: { format: String, default: '', env: 'GIT_SLOTPARK_AMATIC_LOBBY_URL' },
+-      secretKey: { format: String, default: '', env: 'GIT_SLOTPARK_AMATIC_SECRET_KEY' }
+-    },
+-    /** Amusnet via GitSlotPark — same API paths, separate credentials. */
+-    amusnet: {
+-      baseUrl: { format: String, default: '', env: 'GIT_SLOTPARK_AMUSNET_API_BASE_URL' },
+-      authToken: { format: String, default: '', env: 'GIT_SLOTPARK_AMUSNET_AUTH_TOKEN' },
+-      agentId: { format: String, default: '', env: 'GIT_SLOTPARK_AMUSNET_AGENT_ID' },
+-      lobbyUrl: { format: String, default: '', env: 'GIT_SLOTPARK_AMUSNET_LOBBY_URL' },
+-      secretKey: { format: String, default: '', env: 'GIT_SLOTPARK_AMUSNET_SECRET_KEY' }
+-    }
+-  },
+   cron: {
+     secret: { format: String, default: '', env: 'CRON_SECRET' }
+   },
+diff --git a/backend/src/constants/slotsCategoryGames.js b/backend/src/constants/slotsCategoryGames.js
+index 1c34f91..0074d8a 100644
+--- a/backend/src/constants/slotsCategoryGames.js
++++ b/backend/src/constants/slotsCategoryGames.js
+@@ -3,54 +3,40 @@
+ const SCORPIO_POPULAR_SLOT_NAMES = require('./scorpioPopularSlots');
+ const { isHiddenBrokenProviderGame } = require('./hiddenBrokenGames');
+ 
+-/** Curated Slots category: GitSlotPark only, ranked by live play (12 Aug–12 Sept). */
+-const SLOTS_CATEGORY_GAMES = [
+-  { provider: 'gitslotpark', gameid: '33', title: 'Hip Hop Panda' },
+-  { provider: 'gitslotpark', gameid: '104', title: 'Wild Bandito' },
+-  { provider: 'gitslotpark', gameid: '36', title: 'Prosperity Lion' },
+-  { provider: 'gitslotpark', gameid: '29', title: 'Dragon Legend' },
+-  { provider: 'gitslotpark', gameid: '3', title: 'Fortune Gods' },
+-  { provider: 'gitslotpark', gameid: '60', title: 'Leprechaun Riches' },
+-  { provider: 'gitslotpark', gameid: '37', title: "Santa's Gift Rush" },
+-  { provider: 'gitslotpark', gameid: '82', title: 'Phoenix Rises' },
+-  { provider: 'gitslotpark', gameid: '54', title: 'Captain Bounty' },
+-  { provider: 'gitslotpark', gameid: '1', title: 'Honey Trap Of Diao Chan' },
+-  { provider: 'gitslotpark', gameid: '83', title: 'Wild Fireworks' },
+-  { provider: 'gitslotpark', gameid: '7', title: 'Medusa' },
+-  { provider: 'gitslotpark', gameid: '1473388', title: 'Cruise Royale' },
+-  { provider: 'gitslotpark', gameid: '35', title: 'Mr. Hallow-Win' },
+-  { provider: 'gitslotpark', gameid: '25', title: 'Plushie Frenzy' },
+-  { provider: 'gitslotpark', gameid: '4704' },
+-  { provider: 'gitslotpark', gameid: '85', title: 'Ganesha Gold' },
+-  { provider: 'gitslotpark', gameid: '6', title: 'Medusa II' },
+-  { provider: 'gitslotpark', gameid: '75', title: 'Candy Burst' },
+-  { provider: 'gitslotpark', gameid: '108', title: 'Buffalo Win' },
+-  { provider: 'gitslotpark', gameid: '4528' },
+-  { provider: 'gitslotpark', gameid: '4516' },
+-  { provider: 'gitslotpark', gameid: '105', title: 'Heist Stakes' },
+-  { provider: 'gitslotpark', gameid: '42', title: 'Gem Saviour Sword' },
+-  { provider: 'gitslotpark', gameid: '48', title: 'Double Fortune' },
+-  { provider: 'gitslotpark', gameid: '126', title: 'Forge of Wealth' },
+-  { provider: 'gitslotpark', gameid: '1695365' },
+-  { provider: 'gitslotpark', gameid: '73', title: "Egypt's Book of Mystery" },
+-  { provider: 'gitslotpark', gameid: '121', title: 'Destined for Riches' },
+-  { provider: 'gitslotpark', gameid: '1381200' },
+-  { provider: 'gitslotpark', gameid: '4629' },
+-  { provider: 'gitslotpark', gameid: '117', title: 'Cocktail Nights' },
+-  { provider: 'gitslotpark', gameid: '123', title: 'Rooster Rumble' },
+-  { provider: 'gitslotpark', gameid: '87', title: 'Treasures of Aztec' },
+-  { provider: 'gitslotpark', gameid: '34', title: 'Legend of Hou Yi' }
++/** Extra slot titles merged into the Scorpio lobby ordering (kept from the retired curated Slots list). */
++const SLOTS_EXTRA_LOBBY_TITLES = [
++  'Hip Hop Panda',
++  'Wild Bandito',
++  'Prosperity Lion',
++  'Dragon Legend',
++  'Fortune Gods',
++  'Leprechaun Riches',
++  "Santa's Gift Rush",
++  'Phoenix Rises',
++  'Captain Bounty',
++  'Honey Trap Of Diao Chan',
++  'Wild Fireworks',
++  'Medusa',
++  'Cruise Royale',
++  'Mr. Hallow-Win',
++  'Plushie Frenzy',
++  'Ganesha Gold',
++  'Medusa II',
++  'Candy Burst',
++  'Buffalo Win',
++  'Heist Stakes',
++  'Gem Saviour Sword',
++  'Double Fortune',
++  'Forge of Wealth',
++  "Egypt's Book of Mystery",
++  'Destined for Riches',
++  'Cocktail Nights',
++  'Rooster Rumble',
++  'Treasures of Aztec',
++  'Legend of Hou Yi'
+ ];
+ 
+-const GITSLOTPARK_SLOT_IDS = new Set(
+-  SLOTS_CATEGORY_GAMES.filter((game) => game.provider === 'gitslotpark').map((game) => String(game.gameid))
+-);
+-
+-const ONEGAMEHUB_SLOT_IDS = new Set(
+-  SLOTS_CATEGORY_GAMES.filter((game) => game.provider === 'onegamehub').map((game) =>
+-    String(game.gameid).toLowerCase()
+-  )
+-);
++const ONEGAMEHUB_SLOT_IDS = new Set();
+ 
+ const SLOT_CATEGORY_ALIASES = new Set(['slot', 'slots']);
+ 
+@@ -58,10 +44,6 @@ function catalogGameId(game) {
+   return String(game?.id ?? game?.gameId ?? game?.gameid ?? game?.game_id ?? '').trim();
+ }
+ 
+-function recentlyPlayedGameId(row) {
+-  return String(row?.gameId ?? row?.game_id ?? row?.id ?? '').trim();
+-}
+-
+ function oneGameHubCategoryId(game) {
+   const raw =
+     (Array.isArray(game?.categories) && game.categories[0]) ||
+@@ -80,25 +62,6 @@ function isOneGameHubSlotCategory(game) {
+   return !slug || SLOT_CATEGORY_ALIASES.has(slug);
+ }
+ 
+-function filterGitslotparkUserGames(games, provider) {
+-  if (!Array.isArray(games)) return [];
+-  const allowlisted = [];
+-  const extras = [];
+-  for (const game of games) {
+-    if (isHiddenBrokenProviderGame(game)) continue;
+-    if (GITSLOTPARK_SLOT_IDS.has(catalogGameId(game))) allowlisted.push(game);
+-    else extras.push(game);
+-  }
+-  return [...allowlisted, ...extras.slice(0, 20)];
+-}
+-
+-function filterGitslotparkRecentlyPlayed(games) {
+-  if (!Array.isArray(games)) return [];
+-  return games.filter(
+-    (row) => GITSLOTPARK_SLOT_IDS.has(recentlyPlayedGameId(row)) && !isHiddenBrokenProviderGame(row)
+-  );
+-}
+-
+ function filterOneGameHubUserGames(games) {
+   if (!Array.isArray(games)) return [];
+   const visible = games.filter((game) => !isHiddenBrokenProviderGame(game));
+@@ -138,7 +101,7 @@ function isScorpioSlotGame(game) {
+ 
+ const SCORPIO_LOBBY_TITLES = [
+   ...SCORPIO_POPULAR_SLOT_NAMES,
+-  ...SLOTS_CATEGORY_GAMES.map((game) => game.title)
++  ...SLOTS_EXTRA_LOBBY_TITLES
+ ]
+   .map(compactSlotTitle)
+   .filter(Boolean);
+@@ -163,11 +126,8 @@ function filterScorpioUserGames(games) {
+ }
+ 
+ module.exports = {
+-  SLOTS_CATEGORY_GAMES,
+-  GITSLOTPARK_SLOT_IDS,
++  SLOTS_EXTRA_LOBBY_TITLES,
+   ONEGAMEHUB_SLOT_IDS,
+-  filterGitslotparkUserGames,
+-  filterGitslotparkRecentlyPlayed,
+   filterOneGameHubUserGames,
+   filterScorpioUserGames
+ };
+diff --git a/backend/src/db/models/gitslotparkUserMapping.js b/backend/src/db/models/gitslotparkUserMapping.js
+deleted file mode 100644
+index 0c73a4c..0000000
+--- a/backend/src/db/models/gitslotparkUserMapping.js
++++ /dev/null
+@@ -1,42 +0,0 @@
+-'use strict';
+-
+-module.exports = function (sequelize, DataTypes) {
+-  const GitslotparkUserMapping = sequelize.define('GitslotparkUserMapping', {
+-    id: {
+-      type: DataTypes.INTEGER,
+-      autoIncrement: true,
+-      primaryKey: true,
+-      allowNull: false
+-    },
+-    userId: {
+-      type: DataTypes.INTEGER,
+-      allowNull: false,
+-      field: 'user_id',
+-      references: { model: 'users', key: 'user_id' }
+-    },
+-    gitslotparkUserId: {
+-      type: DataTypes.STRING(48),
+-      allowNull: false,
+-      field: 'gitslotpark_user_id'
+-    }
+-  }, {
+-    sequelize,
+-    tableName: 'gitslotpark_user_mappings',
+-    timestamps: true,
+-    createdAt: 'created_at',
+-    updatedAt: 'updated_at',
+-    underscored: true,
+-    indexes: [
+-      { unique: true, fields: ['user_id'] },
+-      { unique: true, fields: ['gitslotpark_user_id'] }
+-    ]
+-  });
+-
+-  GitslotparkUserMapping.associate = function (models) {
+-    if (models.User) {
+-      GitslotparkUserMapping.belongsTo(models.User, { foreignKey: 'userId' });
+-    }
+-  };
+-
+-  return GitslotparkUserMapping;
+-};
+diff --git a/backend/src/rest-resources/controllers/adminUserManagement.controller.js b/backend/src/rest-resources/controllers/adminUserManagement.controller.js
+index 39f60af..1cafe05 100644
+--- a/backend/src/rest-resources/controllers/adminUserManagement.controller.js
++++ b/backend/src/rest-resources/controllers/adminUserManagement.controller.js
+@@ -31,7 +31,6 @@ const {
+   isGameUsernameTakenDbError,
+   isGameUsernameTakenError
+ } = require('../../services/games/assertGameUsernameAvailable.service');
+-const { getGamesList } = require('../../services/gitslotpark/getGamesList.service');
+ const { getGamesList: getScorpioGamesList } = require('../../services/scorpioplay/getGamesList.service');
+ 
+ function getOperationDoneBy(role) {
+@@ -541,19 +540,7 @@ async function listGitslotparkTransactions(req, res) {
+       { replacements: { userId, limit, offset }, type: db.Sequelize.QueryTypes.SELECT }
+     );
+ 
+-    let gamesMap = {};
+-    try {
+-      const { games } = await getGamesList(req);
+-      if (Array.isArray(games)) {
+-        games.forEach((g) => {
+-          const gId = g.id || g.gameId || g.gameid;
+-          const gName = g.name || g.title || g.gameName;
+-          if (gId) gamesMap[String(gId)] = gName;
+-        });
+-      }
+-    } catch (err) {
+-      // Ignore errors if config is missing or API fails, fallback to ID
+-    }
++    const gamesMap = {};
+ 
+     let scorpioGamesMap = {};
+     try {
+diff --git a/backend/src/rest-resources/controllers/gitslotpark.controller.js b/backend/src/rest-resources/controllers/gitslotpark.controller.js
+deleted file mode 100644
+index 7cdf0eb..0000000
+--- a/backend/src/rest-resources/controllers/gitslotpark.controller.js
++++ /dev/null
+@@ -1,79 +0,0 @@
+-'use strict';
+-
+-const gitslotparkService = require('../../services/gitslotpark');
+-const { getRecentlyPlayedSlots } = require('../../services/gitslotpark/getRecentlyPlayedSlots.service');
+-const {
+-  filterGitslotparkUserGames,
+-  filterGitslotparkRecentlyPlayed
+-} = require('../../constants/slotsCategoryGames');
+-const { resolveGitslotparkConfig } = require('../../services/gitslotpark/gitslotpark.config');
+-const { sendSuccess, sendError } = require('../../helpers/response.helpers');
+-const {
+-  isSlotProviderEnabled,
+-  assertSlotProviderEnabled
+-} = require('../../services/slotProviders/slotProvidersSettings.service');
+-
+-/**
+- * GET /api/gitslotpark/games
+- * Proxy GitSlotPark game catalog. Credentials: per-store backend env
+- * (GIT_SLOTPARK_*_{STORECODE}), then request headers, then unsuffixed GIT_SLOTPARK_*.
+- */
+-async function getGames(req, res) {
+-  try {
+-    const enabled = await isSlotProviderEnabled(req, 'gitslotpark');
+-    if (!enabled) {
+-      return sendSuccess(res, { games: [], enabled: false });
+-    }
+-    const data = await gitslotparkService.getGamesList(req);
+-    const { provider } = resolveGitslotparkConfig(req);
+-    sendSuccess(res, {
+-      ...data,
+-      games: filterGitslotparkUserGames(data?.games, provider)
+-    });
+-  } catch (err) {
+-    sendError(res, err.message || 'Failed to fetch GitSlotPark games', err.statusCode || 500);
+-  }
+-}
+-
+-/**
+- * POST /api/gitslotpark/launch
+- * Body: { gameid: number }
+- */
+-async function launchGame(req, res) {
+-  try {
+-    await assertSlotProviderEnabled(req, 'gitslotpark');
+-    const data = await gitslotparkService.launchGame(req);
+-    sendSuccess(res, data);
+-  } catch (err) {
+-    sendError(res, err.message || 'Failed to launch GitSlotPark game', err.statusCode || 500, err.code || null);
+-  }
+-}
+-
+-/**
+- * GET /api/gitslotpark/recently-played
+- * Distinct slot games the authenticated user has bet on (from gitslotpark_transactions).
+- */
+-async function getRecentlyPlayed(req, res) {
+-  try {
+-    const enabled = await isSlotProviderEnabled(req, 'gitslotpark');
+-    if (!enabled) {
+-      return sendSuccess(res, { games: [], enabled: false });
+-    }
+-    const userId = req.user && req.user.userId != null ? req.user.userId : null;
+-    if (!userId) {
+-      return sendError(res, 'Unauthorized', 401);
+-    }
+-    const data = await getRecentlyPlayedSlots({
+-      userId,
+-      limit: req.query?.limit
+-    });
+-    sendSuccess(res, {
+-      ...data,
+-      games: filterGitslotparkRecentlyPlayed(data?.games)
+-    });
+-  } catch (err) {
+-    sendError(res, err.message || 'Failed to load recently played games', err.statusCode || 500);
+-  }
+-}
+-
+-module.exports = { getGames, launchGame, getRecentlyPlayed };
+diff --git a/backend/src/rest-resources/controllers/gitslotparkCallback.controller.js b/backend/src/rest-resources/controllers/gitslotparkCallback.controller.js
+deleted file mode 100644
+index 6e2b581..0000000
+--- a/backend/src/rest-resources/controllers/gitslotparkCallback.controller.js
++++ /dev/null
+@@ -1,52 +0,0 @@
+-'use strict';
+-
+-const gitslotparkCallbacks = require('../../services/gitslotpark/callbacks/gitslotparkCallbacks.service');
+-const { createLogger } = require('../../libs/logger');
+-
+-const log = createLogger('gitslotparkCallback');
+-
+-function sendCallback(res, payload) {
+-  res.status(200).json(payload);
+-}
+-
+-async function handleCallback(req, res, handler) {
+-  try {
+-    const payload = await handler(req.body || {});
+-    sendCallback(res, payload);
+-  } catch (err) {
+-    log.error('GitSlotPark callback failed', {
+-      path: req.path,
+-      message: err.message,
+-      stack: err.stack
+-    });
+-    sendCallback(res, { code: 1, message: err.message || 'General error' });
+-  }
+-}
+-
+-async function getBalance(req, res) {
+-  await handleCallback(req, res, gitslotparkCallbacks.getBalanceCallback);
+-}
+-
+-async function withdraw(req, res) {
+-  await handleCallback(req, res, gitslotparkCallbacks.withdrawCallback);
+-}
+-
+-async function deposit(req, res) {
+-  await handleCallback(req, res, gitslotparkCallbacks.depositCallback);
+-}
+-
+-async function betWin(req, res) {
+-  await handleCallback(req, res, gitslotparkCallbacks.betWinCallback);
+-}
+-
+-async function rollbackTransaction(req, res) {
+-  await handleCallback(req, res, gitslotparkCallbacks.rollbackCallback);
+-}
+-
+-module.exports = {
+-  getBalance,
+-  withdraw,
+-  deposit,
+-  betWin,
+-  rollbackTransaction
+-};
+diff --git a/backend/src/rest-resources/controllers/lobbyImages.controller.js b/backend/src/rest-resources/controllers/lobbyImages.controller.js
+new file mode 100644
+index 0000000..a89240a
+--- /dev/null
++++ b/backend/src/rest-resources/controllers/lobbyImages.controller.js
+@@ -0,0 +1,89 @@
++'use strict';
++
++const lobbyImages = require('../../services/lobbyImages/lobbyImagesSettings.service');
++const promoModals = require('../../services/dashboardPromoModals');
++const { sendSuccess, sendError } = require('../../helpers/response.helpers');
++const { isMasterAdmin, isStoreAdmin, isDistributorAdmin } = require('../../constants/roles');
++const { can } = require('../../utils/permissionHelpers');
++const { STORE_FEATURE_KEYS } = require('../../constants/permissions');
++const { uploadImageBuffer } = require('../../utils/s3Upload');
++const { DESKTOP_MAX_BYTES, assertWebpUpload } = require('../../utils/adminImageUploadConstraints');
++
++function assertCanEdit(req) {
++  if (isMasterAdmin(req.role) || isDistributorAdmin(req.role)) return true;
++  return isStoreAdmin(req.role) && can(req, STORE_FEATURE_KEYS.DASHBOARD_PROMO_MODALS);
++}
++
++/** Store admins edit their own store; master/distributor admins pass ?store_code=. */
++async function resolveAdminScope(req) {
++  if (isStoreAdmin(req.role) && req.distributorCode != null && req.storeCode != null) {
++    return { distributorCode: req.distributorCode, storeCode: req.storeCode };
++  }
++  const code = req.query?.store_code || req.query?.storeCode || req.body?.storeCode;
++  if (!code) {
++    const err = new Error('store_code is required.');
++    err.statusCode = 400;
++    throw err;
++  }
++  return promoModals.resolveScopeFromStoreCode(code);
++}
++
++/** Public: the images shown on the lobby for a store. */
++async function getPublic(req, res) {
++  try {
++    const code = req.query?.store_code || req.query?.storeCode || '';
++    const scope = code ? await promoModals.resolveScopeFromStoreCode(code) : null;
++    const data = await lobbyImages.getLobbyImages(scope);
++    sendSuccess(res, { lobbyImages: data });
++  } catch (err) {
++    sendError(res, err.message || 'Unable to load lobby images.', err.statusCode || 500);
++  }
++}
++
++async function getAdmin(req, res) {
++  try {
++    if (!assertCanEdit(req)) return sendError(res, 'You do not have permission to manage lobby images.', 403);
++    const data = await lobbyImages.getLobbyImages(await resolveAdminScope(req));
++    sendSuccess(res, { lobbyImages: data });
++  } catch (err) {
++    sendError(res, err.message || 'Unable to load lobby images.', err.statusCode || 500);
++  }
++}
++
++async function updateAdmin(req, res) {
++  try {
++    if (!assertCanEdit(req)) return sendError(res, 'You do not have permission to manage lobby images.', 403);
++    const data = await lobbyImages.updateLobbyImages(
++      req.body?.lobbyImages ?? req.body ?? {},
++      await resolveAdminScope(req)
++    );
++    sendSuccess(res, { lobbyImages: data, message: 'Lobby images saved.' });
++  } catch (err) {
++    sendError(res, err.message || 'Unable to save lobby images.', err.statusCode || 500);
++  }
++}
++
++async function resetAdmin(req, res) {
++  try {
++    if (!assertCanEdit(req)) return sendError(res, 'You do not have permission to manage lobby images.', 403);
++    const data = await lobbyImages.resetLobbyImages(await resolveAdminScope(req));
++    sendSuccess(res, { lobbyImages: data, message: 'Lobby images reset to the built-in artwork.' });
++  } catch (err) {
++    sendError(res, err.message || 'Unable to reset lobby images.', err.statusCode || 500);
++  }
++}
++
++async function uploadImage(req, res) {
++  try {
++    if (!assertCanEdit(req)) return sendError(res, 'You do not have permission to manage lobby images.', 403);
++    const file = req.file;
++    if (!file || !file.buffer) return sendError(res, 'No image file provided.', 400);
++    assertWebpUpload(file, { maxBytes: DESKTOP_MAX_BYTES, label: 'Image' });
++    const url = await uploadImageBuffer(file.buffer, { contentType: 'image/webp', keyPrefix: 'lobby-images' });
++    return sendSuccess(res, { data: { url } });
++  } catch (err) {
++    return sendError(res, err.message || 'Upload failed.', err.statusCode || 500);
++  }
++}
++
++module.exports = { getPublic, getAdmin, updateAdmin, resetAdmin, uploadImage };
+diff --git a/backend/src/rest-resources/index.js b/backend/src/rest-resources/index.js
+index 060548b..02eebb7 100644
+--- a/backend/src/rest-resources/index.js
++++ b/backend/src/rest-resources/index.js
+@@ -65,14 +65,11 @@ app.use(
+ app.use(bodyParser.json());
+ app.use(bodyParser.urlencoded({ extended: true }));
+ 
+-// Domain-root wallet: GitSlotPark + 568Win share POST /GetBalance (payload dispatcher).
++// Domain-root wallet callbacks (568Win).
+ // 568Win unique methods (Deduct/Settle/...) also live at root so BO Domain can be https://dragonfury.com/
+ const walletRootCallbackRoutes = require('./routes/walletRootCallback.routes');
+ app.use(walletRootCallbackRoutes);
+ 
+-const gitslotparkCallbackRoutes = require('./routes/gitslotparkCallback.routes');
+-app.use(gitslotparkCallbackRoutes);
+-
+ // 568Win also stays under /api/568win if BO Domain is that prefix.
+ const win568CallbackRoutes = require('./routes/win568Callback.routes');
+ app.use('/api/568win/sw-v2', win568CallbackRoutes);
+diff --git a/backend/src/rest-resources/routes/gitslotpark.routes.js b/backend/src/rest-resources/routes/gitslotpark.routes.js
+deleted file mode 100644
+index 54ba652..0000000
+--- a/backend/src/rest-resources/routes/gitslotpark.routes.js
++++ /dev/null
+@@ -1,13 +0,0 @@
+-'use strict';
+-
+-const express = require('express');
+-const gitslotparkController = require('../controllers/gitslotpark.controller');
+-const { authMiddleware, authMiddlewareOptional } = require('../middlewares/auth.middleware');
+-
+-const router = express.Router();
+-
+-router.get('/games', authMiddlewareOptional, gitslotparkController.getGames);
+-router.get('/recently-played', authMiddleware, gitslotparkController.getRecentlyPlayed);
+-router.post('/launch', authMiddleware, gitslotparkController.launchGame);
+-
+-module.exports = router;
+diff --git a/backend/src/rest-resources/routes/gitslotparkCallback.routes.js b/backend/src/rest-resources/routes/gitslotparkCallback.routes.js
+deleted file mode 100644
+index 5f0593c..0000000
+--- a/backend/src/rest-resources/routes/gitslotparkCallback.routes.js
++++ /dev/null
+@@ -1,15 +0,0 @@
+-'use strict';
+-
+-const express = require('express');
+-const gitslotparkCallbackController = require('../controllers/gitslotparkCallback.controller');
+-
+-const router = express.Router();
+-
+-/** GitSlotPark seamless wallet callbacks — mounted at domain root (no /api prefix). */
+-router.post('/GetBalance', gitslotparkCallbackController.getBalance);
+-router.post('/Withdraw', gitslotparkCallbackController.withdraw);
+-router.post('/Deposit', gitslotparkCallbackController.deposit);
+-router.post('/BetWin', gitslotparkCallbackController.betWin);
+-router.post('/RollbackTransaction', gitslotparkCallbackController.rollbackTransaction);
+-
+-module.exports = router;
+diff --git a/backend/src/rest-resources/routes/index.js b/backend/src/rest-resources/routes/index.js
+index f074cfa..3e82829 100644
+--- a/backend/src/rest-resources/routes/index.js
++++ b/backend/src/rest-resources/routes/index.js
+@@ -36,7 +36,6 @@ const landingWinnersRoutes = require('./landingWinners.routes');
+ const dailyBonusRoutes = require('./dailyBonus.routes');
+ const emailCampaignsRoutes = require('./emailCampaigns.routes');
+ const pushCampaignsRoutes = require('./pushCampaigns.routes');
+-const gitslotparkRoutes = require('./gitslotpark.routes');
+ const bonaRoutes = require('./bona.routes');
+ const onegamehubRoutes = require('./onegamehub.routes');
+ const win568Routes = require('./win568.routes');
+@@ -109,6 +108,7 @@ router.use('/api/social-links', socialLinksRoutes);
+ router.use('/api/slot-providers', slotProvidersRoutes);
+ router.use('/api/landing-payment-links', landingPaymentLinksRoutes);
+ router.use('/api/dashboard-promo-modals', dashboardPromoModalsRoutes);
++router.use('/api/lobby-images', require('./lobbyImages.routes'));
+ router.use('/api/deposit-bonuses', depositBonusesRoutes);
+ router.use('/api/deposit-packages', depositPackagesRoutes);
+ router.use('/api/welcome-signup-bonus', welcomeSignupBonusRoutes);
+@@ -117,7 +117,6 @@ router.use('/api/landing-winners', landingWinnersRoutes);
+ router.use('/api/daily-bonus', dailyBonusRoutes);
+ router.use('/api/email-campaigns', emailCampaignsRoutes);
+ router.use('/api/push-campaigns', pushCampaignsRoutes);
+-router.use('/api/gitslotpark', gitslotparkRoutes);
+ router.use('/api/bona', bonaRoutes);
+ router.use('/api/onegamehub', onegamehubRoutes);
+ router.use('/api/win568', win568Routes);
+diff --git a/backend/src/rest-resources/routes/lobbyImages.routes.js b/backend/src/rest-resources/routes/lobbyImages.routes.js
+new file mode 100644
+index 0000000..e0588a0
+--- /dev/null
++++ b/backend/src/rest-resources/routes/lobbyImages.routes.js
+@@ -0,0 +1,40 @@
++'use strict';
++
++const express = require('express');
++const multer = require('multer');
++const controller = require('../controllers/lobbyImages.controller');
++const { authMiddleware } = require('../middlewares/auth.middleware');
++const { adminMiddleware } = require('../middlewares/admin.middleware');
++const { DESKTOP_MAX_BYTES, webpMulterFilter, multerLimitMessage } = require('../../utils/adminImageUploadConstraints');
++
++const router = express.Router();
++
++const imageUpload = multer({
++  storage: multer.memoryStorage(),
++  limits: { fileSize: DESKTOP_MAX_BYTES },
++  fileFilter: webpMulterFilter
++});
++
++// Public: images the lobby shows (banners + Daily Rewards / Spin card backgrounds).
++router.get('/config', controller.getPublic);
++
++router.get('/admin/settings', authMiddleware, adminMiddleware, controller.getAdmin);
++router.put('/admin/settings', authMiddleware, adminMiddleware, controller.updateAdmin);
++router.delete('/admin/settings', authMiddleware, adminMiddleware, controller.resetAdmin);
++router.post(
++  '/admin/image-upload',
++  authMiddleware,
++  adminMiddleware,
++  (req, res, next) => {
++    imageUpload.single('file')(req, res, (err) => {
++      if (err) {
++        const message = err.code === 'LIMIT_FILE_SIZE' ? multerLimitMessage(DESKTOP_MAX_BYTES) : err.message || 'Upload failed.';
++        return res.status(400).json({ message });
++      }
++      return next();
++    });
++  },
++  controller.uploadImage
++);
++
++module.exports = router;
+diff --git a/backend/src/rest-resources/routes/walletRootCallback.routes.js b/backend/src/rest-resources/routes/walletRootCallback.routes.js
+index 7fd5db6..31378d7 100644
+--- a/backend/src/rest-resources/routes/walletRootCallback.routes.js
++++ b/backend/src/rest-resources/routes/walletRootCallback.routes.js
+@@ -1,36 +1,14 @@
+ 'use strict';
+ 
+ const express = require('express');
+-const gitslotparkCallbackController = require('../controllers/gitslotparkCallback.controller');
+ const win568CallbackController = require('../controllers/win568Callback.controller');
+ 
+ const router = express.Router();
+ 
+ /**
+  * Domain-root wallet callbacks.
+- * GitSlotPark: /GetBalance /Withdraw /Deposit /BetWin /RollbackTransaction
+- * 568Win:     /GetBalance /Deduct /Settle /Rollback /Cancel ...
+- *
+- * Both providers use POST /GetBalance. Route by payload:
+- *   CompanyKey + Username → 568Win
+- *   agentID + userID + sign → GitSlotPark
++ * 568Win: /GetBalance /Deduct /Settle /Rollback /Cancel ...
+  */
+-function looksLikeWin568Wallet(body) {
+-  if (!body || typeof body !== 'object') return false;
+-  const keys = Object.keys(body).map((key) => String(key).toLowerCase());
+-  const hasCompanyKey = keys.includes('companykey');
+-  const hasUser = keys.includes('username') || keys.includes('accountname');
+-  if (hasCompanyKey) return true;
+-  if (hasUser && !keys.includes('agentid')) return true;
+-  return false;
+-}
+-
+-function dispatchGetBalance(req, res) {
+-  if (looksLikeWin568Wallet(req.body || {})) {
+-    return win568CallbackController.getBalance(req, res);
+-  }
+-  return gitslotparkCallbackController.getBalance(req, res);
+-}
+ 
+ function postBoth(path, handler) {
+   router.post(path, handler);
+@@ -38,7 +16,7 @@ function postBoth(path, handler) {
+   if (lower !== path) router.post(lower, handler);
+ }
+ 
+-postBoth('/GetBalance', dispatchGetBalance);
++postBoth('/GetBalance', win568CallbackController.getBalance);
+ 
+ postBoth('/Deduct', win568CallbackController.deduct);
+ postBoth('/Settle', win568CallbackController.settle);
+diff --git a/backend/src/rest-resources/routes/win568Callback.routes.js b/backend/src/rest-resources/routes/win568Callback.routes.js
+index 37999df..9a0c392 100644
+--- a/backend/src/rest-resources/routes/win568Callback.routes.js
++++ b/backend/src/rest-resources/routes/win568Callback.routes.js
+@@ -8,7 +8,6 @@ const router = express.Router();
+ /**
+  * 568Win Seamless Wallet 2.0 callbacks.
+  * Mounted at /api/568win and also at domain root (see walletRootCallback.routes.js).
+- * GitSlotPark shares POST /GetBalance — root dispatcher routes by CompanyKey.
+  *
+  * Back office 3.3 Domain (WITH trailing slash), either:
+  *   https://dragonfury.com/
+diff --git a/backend/src/rest-resources/swagger/generateFromRoutes.js b/backend/src/rest-resources/swagger/generateFromRoutes.js
+index 7a5dca5..9ed12f8 100644
+--- a/backend/src/rest-resources/swagger/generateFromRoutes.js
++++ b/backend/src/rest-resources/swagger/generateFromRoutes.js
+@@ -29,7 +29,6 @@ const TAG_META = [
+   { name: 'Withdraw', description: 'Speed / payout status' },
+   { name: 'Transactions', description: 'Transaction history' },
+   { name: 'Games', description: 'Platform games, register, top-up, redeem' },
+-  { name: 'GitSlotPark', description: 'Iframe slots (GitSlotPark)' },
+   { name: 'Bona', description: 'Iframe slots (Bona)' },
+   { name: '568Win', description: '568Win Seamless Game Provider catalog and launch' },
+   { name: 'Spin Wheel', description: 'Spin wheel config, status, spin, admin settings' },
+@@ -69,7 +68,6 @@ const TAG_BY_PREFIX = {
+   withdraw: 'Withdraw',
+   transactions: 'Transactions',
+   games: 'Games',
+-  gitslotpark: 'GitSlotPark',
+   bona: 'Bona',
+   win568: '568Win',
+   '568win': '568Win',
+@@ -147,9 +145,6 @@ function tagForPath(fullPath) {
+   const cleaned = String(fullPath || '').split('?')[0];
+   const parts = cleaned.split('/').filter(Boolean);
+   if (parts[0] !== 'api') {
+-    if (['GetBalance', 'Withdraw', 'Deposit', 'BetWin', 'RollbackTransaction'].includes(parts[0])) {
+-      return 'GitSlotPark';
+-    }
+     return 'Other';
+   }
+   return TAG_BY_PREFIX[parts[1]] || 'Other';
+@@ -259,8 +254,7 @@ function buildOpenApiSpec() {
+   const extras = [
+     { prefix: '/api/webhooks', router: require('../routes/webhook.routes') },
+     { prefix: '/api/bona/callback', router: require('../routes/bonaCallback.routes') },
+-    { prefix: '/api/568win', router: require('../routes/win568Callback.routes') },
+-    { prefix: '', router: require('../routes/gitslotparkCallback.routes') }
++    { prefix: '/api/568win', router: require('../routes/win568Callback.routes') }
+   ];
+   for (const extra of extras) {
+     collectFromRouter(extra.router, extra.prefix, collected);
+diff --git a/backend/src/services/adminGameLogs/getGameLogsTransactions.service.js b/backend/src/services/adminGameLogs/getGameLogsTransactions.service.js
+index c47dbf9..7e01ff0 100644
+--- a/backend/src/services/adminGameLogs/getGameLogsTransactions.service.js
++++ b/backend/src/services/adminGameLogs/getGameLogsTransactions.service.js
+@@ -3,7 +3,6 @@
+ const db = require('../../db/models');
+ const { Op } = require('sequelize');
+ const { toDateRangeStart, toDateRangeEnd } = require('../../utils/dateRangeFilters');
+-const { getGamesList } = require('../gitslotpark/getGamesList.service');
+ 
+ const DEFAULT_LIMIT = 25;
+ const MAX_LIMIT = 100;
+@@ -288,20 +287,6 @@ function buildUserWhere(scope, username) {
+ 
+ async function buildGamesMap(req) {
+   const gamesMap = {};
+-  try {
+-    const { games } = await getGamesList(req || {});
+-    if (Array.isArray(games)) {
+-      for (const g of games) {
+-        const gId = g.id ?? g.gameId ?? g.gameid;
+-        const gName = g.name || g.title || g.gameName;
+-        if (gId != null && gName) {
+-          gamesMap[String(gId)] = String(gName);
+-        }
+-      }
+-    }
+-  } catch (_) {
+-    // Catalog is optional enrichment; report still works with Game {id}.
+-  }
+ 
+   try {
+     const bona = require('../bona');
+diff --git a/backend/src/services/adminGameReport/getGameReport.service.js b/backend/src/services/adminGameReport/getGameReport.service.js
+index daae11c..cfe2dc4 100644
+--- a/backend/src/services/adminGameReport/getGameReport.service.js
++++ b/backend/src/services/adminGameReport/getGameReport.service.js
+@@ -4,9 +4,6 @@ const { QueryTypes } = require('sequelize');
+ const db = require('../../db/models');
+ const { ROLES } = require('../../constants/roles');
+ const { toDateRangeStart, toDateRangeEnd } = require('../../utils/dateRangeFilters');
+-const { getGamesList: getGitslotparkGamesList } = require('../gitslotpark/getGamesList.service');
+-const { GIT_SLOTPARK_PROVIDERS } = require('../gitslotpark/gitslotpark.config');
+-const { SLOTS_CATEGORY_GAMES } = require('../../constants/slotsCategoryGames');
+ 
+ const DEFAULT_LIMIT = 25;
+ const MAX_LIMIT = 100;
+@@ -256,52 +253,8 @@ function catalogGameId(game) {
+   return String(raw).trim();
+ }
+ 
+-function gitslotparkListReq(req, provider) {
+-  return {
+-    user: req?.user,
+-    headers: {
+-      ...(req?.headers || {}),
+-      'x-gitslotpark-provider': provider
+-    },
+-    query: {
+-      store_code: req?.query?.store_code || req?.query?.storeCode || req?.storeCode,
+-      storeCode: req?.query?.storeCode || req?.query?.store_code || req?.storeCode
+-    },
+-    body: {}
+-  };
+-}
+-
+-function addGitslotparkGamesToMap(gamesMap, games) {
+-  if (!Array.isArray(games)) return;
+-  for (const g of games) {
+-    const gId = catalogGameId(g);
+-    const gName = g?.name || g?.title || g?.gameName;
+-    if (gId != null) {
+-      setGameMeta(gamesMap, 'gitslotpark', gId, gName, categoryFromCatalogGame(g, 'gitslotpark'));
+-    }
+-  }
+-}
+-
+-async function loadGitslotparkCatalogs(req, gamesMap) {
+-  await Promise.all(GIT_SLOTPARK_PROVIDERS.map(async (provider) => {
+-    try {
+-      const { games } = await getGitslotparkGamesList(gitslotparkListReq(req, provider));
+-      addGitslotparkGamesToMap(gamesMap, games);
+-    } catch (_) {
+-      /* catalog is optional enrichment */
+-    }
+-  }));
+-
+-  for (const g of SLOTS_CATEGORY_GAMES) {
+-    if (g.provider !== 'gitslotpark' || !g.gameid || !g.title) continue;
+-    setGameMeta(gamesMap, 'gitslotpark', g.gameid, g.title, 'slots');
+-  }
+-}
+-
+ async function buildGamesMap(req) {
+   const gamesMap = {};
+-  await loadGitslotparkCatalogs(req, gamesMap);
+-
+   try {
+     const bona = require('../bona');
+     if (bona.isBonaConfigured()) {
+diff --git a/backend/src/services/bona/bonaCallbacks.service.js b/backend/src/services/bona/bonaCallbacks.service.js
+index 13abd0e..e463644 100644
+--- a/backend/src/services/bona/bonaCallbacks.service.js
++++ b/backend/src/services/bona/bonaCallbacks.service.js
+@@ -1,12 +1,12 @@
+ 'use strict';
+ 
+ const db = require('../../db/models');
+-const { formatBalance } = require('../gitslotpark/gitslotparkSign.helpers');
++const { formatBalance } = require('../wallet/formatBalance.helpers');
+ const {
+   getPlayableBalance,
+   applyBalanceDelta,
+   applyRollbackDelta
+-} = require('../gitslotpark/callbacks/gitslotparkCallbackWallet.service');
++} = require('../wallet/slotsCallbackWallet.service');
+ const { canUserPlayGames } = require('../games/gamePlayEligibility.service');
+ const { notifyUserBalanceChanged } = require('../realtime/notifyBalance.service');
+ const { resolveBonaConfig } = require('./bona.config');
+diff --git a/backend/src/services/bona/bonaWallet.helpers.js b/backend/src/services/bona/bonaWallet.helpers.js
+index 642c7f6..fc0943b 100644
+--- a/backend/src/services/bona/bonaWallet.helpers.js
++++ b/backend/src/services/bona/bonaWallet.helpers.js
+@@ -1,11 +1,11 @@
+ 'use strict';
+ 
+ const db = require('../../db/models');
+-const { formatBalance } = require('../gitslotpark/gitslotparkSign.helpers');
++const { formatBalance } = require('../wallet/formatBalance.helpers');
+ const {
+   getPlayableBalance,
+   applyBalanceDelta
+-} = require('../gitslotpark/callbacks/gitslotparkCallbackWallet.service');
++} = require('../wallet/slotsCallbackWallet.service');
+ 
+ function platformTxId() {
+   return `bona_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+diff --git a/backend/src/services/bona/syncGameRecords.service.js b/backend/src/services/bona/syncGameRecords.service.js
+index 363116a..9979604 100644
+--- a/backend/src/services/bona/syncGameRecords.service.js
++++ b/backend/src/services/bona/syncGameRecords.service.js
+@@ -1,7 +1,7 @@
+ 'use strict';
+ 
+ const db = require('../../db/models');
+-const { formatBalance } = require('../gitslotpark/gitslotparkSign.helpers');
++const { formatBalance } = require('../wallet/formatBalance.helpers');
+ const { resolveBonaConfig } = require('./bona.config');
+ const bonaClient = require('./bona.client');
+ const { getBonaUsernameForUser } = require('./bonaUser.helpers');
+diff --git a/backend/src/services/gitslotpark/callbacks/gitslotparkCallbacks.service.js b/backend/src/services/gitslotpark/callbacks/gitslotparkCallbacks.service.js
+deleted file mode 100644
+index aeea3ac..0000000
+--- a/backend/src/services/gitslotpark/callbacks/gitslotparkCallbacks.service.js
++++ /dev/null
+@@ -1,389 +0,0 @@
+-'use strict';
+-
+-const db = require('../../../db/models');
+-const {
+-  listGitslotparkCallbackConfigsByAgentId,
+-  resolveGitslotparkCallbackConfigByAgentIdAndSign,
+-  isGitslotparkCallbackConfigured
+-} = require('../gitslotpark.config');
+-const {
+-  buildGetBalanceSignMessage,
+-  buildBetWinSignMessage,
+-  buildWithdrawSignMessage,
+-  buildDepositSignMessage,
+-  buildRollbackSignMessage,
+-  formatBalance,
+-  newPlatformTransactionId
+-} = require('../gitslotparkSign.helpers');
+-const {
+-  RESULT,
+-  errorPayload,
+-  successPayload,
+-  parseCallbackBody
+-} = require('./gitslotparkCallback.helpers');
+-const { resolveUserIdFromGitslotparkUserId } = require('./resolveGitslotparkUser.service');
+-const {
+-  getPlayableBalance,
+-  applyBalanceDelta,
+-  applyRollbackDelta
+-} = require('./gitslotparkCallbackWallet.service');
+-const { canUserPlayGames } = require('../../games/gamePlayEligibility.service');
+-
+-function validateConfigured() {
+-  if (!isGitslotparkCallbackConfigured()) {
+-    return errorPayload(RESULT.GENERAL, 'GitSlotPark callbacks are not configured');
+-  }
+-  return null;
+-}
+-
+-function validateAgent(agentID) {
+-  if (!listGitslotparkCallbackConfigsByAgentId(agentID).length) {
+-    return errorPayload(RESULT.INVALID_AGENT, 'Invalid agent id');
+-  }
+-  return null;
+-}
+-
+-function validateSign(signMessage, sign, agentID) {
+-  if (!resolveGitslotparkCallbackConfigByAgentIdAndSign(agentID, signMessage, sign)) {
+-    return errorPayload(RESULT.INVALID_SIGN, 'Invalid sign');
+-  }
+-  return null;
+-}
+-
+-async function resolveUser(userID) {
+-  const userId = await resolveUserIdFromGitslotparkUserId(userID);
+-  if (!userId) {
+-    return { error: errorPayload(RESULT.USER_NOT_FOUND, 'Cannot find specified user id') };
+-  }
+-  return { userId };
+-}
+-
+-async function findTransaction(transactionID) {
+-  if (!db.GitslotparkTransaction) return null;
+-  return db.GitslotparkTransaction.findOne({ where: { transactionId: transactionID } });
+-}
+-
+-async function recordTransaction(record, transaction) {
+-  if (!db.GitslotparkTransaction) return;
+-  await db.GitslotparkTransaction.create(record, { transaction });
+-}
+-
+-async function getBalanceCallback(body) {
+-  const configError = validateConfigured();
+-  if (configError) return configError;
+-
+-  const parsed = parseCallbackBody(body);
+-  const { agentID, sign, userID, gameID } = parsed;
+-
+-  if (!agentID || !sign || !userID || !gameID) {
+-    return errorPayload(RESULT.INVALID_PARAMS, 'Missing required parameters');
+-  }
+-
+-  const agentError = validateAgent(agentID);
+-  if (agentError) return agentError;
+-
+-  const signError = validateSign(buildGetBalanceSignMessage(agentID, userID, gameID), sign, agentID);
+-  if (signError) return signError;
+-
+-  const userResult = await resolveUser(userID);
+-  if (userResult.error) return userResult.error;
+-
+-  const balance = await getPlayableBalance(userResult.userId);
+-  return successPayload({ balance });
+-}
+-
+-async function processWalletMutation(body, options) {
+-  const configError = validateConfigured();
+-  if (configError) return configError;
+-
+-  const parsed = parseCallbackBody(body);
+-  const agentError = validateAgent(parsed.agentID);
+-  if (agentError) return agentError;
+-
+-  const signError = validateSign(options.buildSignMessage(parsed), parsed.sign, parsed.agentID);
+-  if (signError) return signError;
+-
+-  const validationError = options.validate(parsed);
+-  if (validationError) return validationError;
+-
+-  const userResult = await resolveUser(parsed.userID);
+-  if (userResult.error) return userResult.error;
+-
+-  const requiresDeposit = ['withdraw', 'betwin', 'deposit'].includes(options.operation);
+-  if (requiresDeposit) {
+-    const canPlay = await canUserPlayGames(userResult.userId);
+-    if (!canPlay) {
+-      return errorPayload(RESULT.INSUFFICIENT_FUNDS, 'Deposit required to play');
+-    }
+-  }
+-
+-  const existing = await findTransaction(parsed.transactionID);
+-  if (existing) {
+-    return errorPayload(RESULT.DUPLICATE, 'Duplicate transaction', {
+-      platformTransactionID: existing.platformTransactionId,
+-      balance: formatBalance(existing.balanceAfter)
+-    });
+-  }
+-
+-  try {
+-    return await db.sequelize.transaction(async (t) => {
+-      const applyOptions = options.getApplyOptions ? options.getApplyOptions(parsed) : undefined;
+-      const balanceAfter = await applyBalanceDelta(
+-        userResult.userId,
+-        options.getDelta(parsed),
+-        options.userTransactionMeta(parsed),
+-        t,
+-        applyOptions
+-      );
+-
+-      const platformTransactionId = newPlatformTransactionId();
+-      await recordTransaction(
+-        {
+-          transactionId: parsed.transactionID,
+-          refTransactionId: parsed.refTransactionID || null,
+-          platformTransactionId,
+-          userId: userResult.userId,
+-          operation: options.operation,
+-          amount: formatBalance(Math.abs(options.getDelta(parsed))),
+-          betAmount: parsed.betAmount != null ? formatBalance(parsed.betAmount) : null,
+-          winAmount: parsed.winAmount != null ? formatBalance(parsed.winAmount) : null,
+-          balanceAfter,
+-          gameId: parsed.gameID,
+-          roundId: parsed.roundID || null,
+-          status: 'completed'
+-        },
+-        t
+-      );
+-
+-      return successPayload({
+-        platformTransactionID: platformTransactionId,
+-        balance: balanceAfter
+-      });
+-    });
+-  } catch (err) {
+-    if (err.code === RESULT.INSUFFICIENT_FUNDS) {
+-      return errorPayload(RESULT.INSUFFICIENT_FUNDS, 'Insufficient funds');
+-    }
+-    throw err;
+-  }
+-}
+-
+-async function withdrawCallback(body) {
+-  return processWalletMutation(body, {
+-    operation: 'withdraw',
+-    buildSignMessage: (parsed) =>
+-      buildWithdrawSignMessage(
+-        parsed.agentID,
+-        parsed.userID,
+-        parsed.amount,
+-        parsed.transactionID,
+-        parsed.roundID,
+-        parsed.gameID
+-      ),
+-    validate: (parsed) => {
+-      if (!parsed.sign || !parsed.userID || !parsed.transactionID || !parsed.roundID || !parsed.gameID) {
+-        return errorPayload(RESULT.INVALID_PARAMS, 'Missing required parameters');
+-      }
+-      if (parsed.amount == null || parsed.amount < 0) {
+-        return errorPayload(RESULT.INVALID_PARAMS, 'Invalid amount');
+-      }
+-      return null;
+-    },
+-    getDelta: (parsed) => -formatBalance(parsed.amount),
+-    userTransactionMeta: (parsed) => ({
+-      type: 'gitslotpark_withdraw',
+-      description: `GitSlotPark withdraw ${parsed.transactionID}`,
+-      metadata: {
+-        transactionId: parsed.transactionID,
+-        roundId: parsed.roundID,
+-        gameId: parsed.gameID
+-      }
+-    })
+-  });
+-}
+-
+-async function depositCallback(body) {
+-  return processWalletMutation(body, {
+-    operation: 'deposit',
+-    buildSignMessage: (parsed) =>
+-      buildDepositSignMessage(
+-        parsed.agentID,
+-        parsed.userID,
+-        parsed.amount,
+-        parsed.refTransactionID,
+-        parsed.transactionID,
+-        parsed.roundID,
+-        parsed.gameID
+-      ),
+-    validate: (parsed) => {
+-      if (
+-        !parsed.sign ||
+-        !parsed.userID ||
+-        !parsed.refTransactionID ||
+-        !parsed.transactionID ||
+-        !parsed.roundID ||
+-        !parsed.gameID
+-      ) {
+-        return errorPayload(RESULT.INVALID_PARAMS, 'Missing required parameters');
+-      }
+-      if (parsed.amount == null || parsed.amount < 0) {
+-        return errorPayload(RESULT.INVALID_PARAMS, 'Invalid amount');
+-      }
+-      return null;
+-    },
+-    getDelta: (parsed) => formatBalance(parsed.amount),
+-    userTransactionMeta: (parsed) => ({
+-      type: 'gitslotpark_deposit',
+-      description: `GitSlotPark deposit ${parsed.transactionID}`,
+-      metadata: {
+-        transactionId: parsed.transactionID,
+-        refTransactionId: parsed.refTransactionID,
+-        roundId: parsed.roundID,
+-        gameId: parsed.gameID
+-      }
+-    })
+-  });
+-}
+-
+-async function betWinCallback(body) {
+-  return processWalletMutation(body, {
+-    operation: 'betwin',
+-    buildSignMessage: (parsed) =>
+-      buildBetWinSignMessage(
+-        parsed.agentID,
+-        parsed.userID,
+-        parsed.betAmount,
+-        parsed.winAmount,
+-        parsed.transactionID,
+-        parsed.roundID,
+-        parsed.gameID
+-      ),
+-    validate: (parsed) => {
+-      if (!parsed.sign || !parsed.userID || !parsed.transactionID || !parsed.roundID || !parsed.gameID) {
+-        return errorPayload(RESULT.INVALID_PARAMS, 'Missing required parameters');
+-      }
+-      if (parsed.betAmount == null || parsed.betAmount < 0 || parsed.winAmount == null || parsed.winAmount < 0) {
+-        return errorPayload(RESULT.INVALID_PARAMS, 'Invalid bet or win amount');
+-      }
+-      return null;
+-    },
+-    getDelta: (parsed) => formatBalance(parsed.winAmount - parsed.betAmount),
+-    getApplyOptions: (parsed) => ({
+-      betAmount: parsed.betAmount,
+-      winAmount: parsed.winAmount
+-    }),
+-    userTransactionMeta: (parsed) => ({
+-      type: 'gitslotpark_betwin',
+-      description: `GitSlotPark bet/win ${parsed.transactionID}`,
+-      metadata: {
+-        transactionId: parsed.transactionID,
+-        roundId: parsed.roundID,
+-        gameId: parsed.gameID,
+-        betAmount: parsed.betAmount,
+-        winAmount: parsed.winAmount
+-      }
+-    })
+-  });
+-}
+-
+-async function rollbackCallback(body) {
+-  const configError = validateConfigured();
+-  if (configError) return configError;
+-
+-  const parsed = parseCallbackBody(body);
+-  const { agentID, sign, userID, refTransactionID, gameID } = parsed;
+-
+-  if (!agentID || !sign || !userID || !refTransactionID || !gameID) {
+-    return errorPayload(RESULT.INVALID_PARAMS, 'Missing required parameters');
+-  }
+-
+-  const agentError = validateAgent(agentID);
+-  if (agentError) return agentError;
+-
+-  const signError = validateSign(buildRollbackSignMessage(agentID, userID, refTransactionID, gameID), sign, agentID);
+-  if (signError) return signError;
+-
+-  const userResult = await resolveUser(userID);
+-  if (userResult.error) return userResult.error;
+-
+-  const original = await findTransaction(refTransactionID);
+-  if (!original) {
+-    return errorPayload(RESULT.REF_NOT_FOUND, 'Could not find reference transaction id');
+-  }
+-
+-  if (original.status === 'rolled_back') {
+-    return errorPayload(RESULT.ALREADY_ROLLED_BACK, 'Transaction is already rolled back');
+-  }
+-
+-  const rollbackId = `rollback:${refTransactionID}`;
+-  const existingRollback = await findTransaction(rollbackId);
+-  if (existingRollback) {
+-    return successPayload({
+-      platformTransactionID: existingRollback.platformTransactionId,
+-      balance: formatBalance(existingRollback.balanceAfter)
+-    });
+-  }
+-
+-  const originalDelta = original.operation === 'withdraw'
+-    ? -formatBalance(original.amount)
+-    : original.operation === 'deposit'
+-      ? formatBalance(original.amount)
+-      : formatBalance((original.winAmount || 0) - (original.betAmount || 0));
+-
+-  const reverseDelta = -originalDelta;
+-
+-  try {
+-    return await db.sequelize.transaction(async (t) => {
+-      const balanceAfter = await applyRollbackDelta(
+-        userResult.userId,
+-        original.transactionId,
+-        reverseDelta,
+-        {
+-          type: 'gitslotpark_rollback',
+-          description: `GitSlotPark rollback ${refTransactionID}`,
+-          metadata: {
+-            transactionId: rollbackId,
+-            refTransactionId: refTransactionID,
+-            gameId: gameID
+-          }
+-        },
+-        t
+-      );
+-
+-      const platformTransactionId = newPlatformTransactionId();
+-      await original.update({ status: 'rolled_back' }, { transaction: t });
+-      await recordTransaction(
+-        {
+-          transactionId: rollbackId,
+-          refTransactionId: refTransactionID,
+-          platformTransactionId,
+-          userId: userResult.userId,
+-          operation: 'rollback',
+-          amount: formatBalance(Math.abs(reverseDelta)),
+-          balanceAfter,
+-          gameId: gameID,
+-          status: 'completed'
+-        },
+-        t
+-      );
+-
+-      return successPayload({
+-        platformTransactionID: platformTransactionId,
+-        balance: balanceAfter
+-      });
+-    });
+-  } catch (err) {
+-    if (err.code === RESULT.INSUFFICIENT_FUNDS) {
+-      return errorPayload(RESULT.INSUFFICIENT_FUNDS, 'Insufficient funds');
+-    }
+-    throw err;
+-  }
+-}
+-
+-module.exports = {
+-  getBalanceCallback,
+-  withdrawCallback,
+-  depositCallback,
+-  betWinCallback,
+-  rollbackCallback
+-};
+diff --git a/backend/src/services/gitslotpark/callbacks/resolveGitslotparkUser.service.js b/backend/src/services/gitslotpark/callbacks/resolveGitslotparkUser.service.js
+deleted file mode 100644
+index b7e5678..0000000
+--- a/backend/src/services/gitslotpark/callbacks/resolveGitslotparkUser.service.js
++++ /dev/null
+@@ -1,59 +0,0 @@
+-'use strict';
+-
+-const db = require('../../../db/models');
+-const { buildGitslotparkUserId } = require('../gitslotparkUserId.helpers');
+-
+-async function upsertGitslotparkUserMapping(userId, gitslotparkUserId) {
+-  if (!db.GitslotparkUserMapping || !userId || !gitslotparkUserId) return;
+-
+-  const existing = await db.GitslotparkUserMapping.findOne({
+-    where: { gitslotparkUserId }
+-  });
+-
+-  if (existing) {
+-    if (existing.userId !== userId) {
+-      await existing.update({ userId });
+-    }
+-    return;
+-  }
+-
+-  await db.GitslotparkUserMapping.create({ userId, gitslotparkUserId }).catch(async (err) => {
+-    if (err.name !== 'SequelizeUniqueConstraintError') throw err;
+-    await db.GitslotparkUserMapping.update(
+-      { userId },
+-      { where: { gitslotparkUserId } }
+-    );
+-  });
+-}
+-
+-async function resolveUserIdFromGitslotparkUserId(gitslotparkUserId) {
+-  if (!gitslotparkUserId) return null;
+-
+-  if (db.GitslotparkUserMapping) {
+-    const mapping = await db.GitslotparkUserMapping.findOne({
+-      where: { gitslotparkUserId },
+-      attributes: ['userId']
+-    });
+-    if (mapping) return mapping.userId;
+-  }
+-
+-  const users = await db.User.findAll({
+-    attributes: ['userId', 'username'],
+-    raw: true
+-  });
+-
+-  for (const user of users) {
+-    const built = buildGitslotparkUserId(user.username, user.userId);
+-    if (built === gitslotparkUserId) {
+-      await upsertGitslotparkUserMapping(user.userId, gitslotparkUserId);
+-      return user.userId;
+-    }
+-  }
+-
+-  return null;
+-}
+-
+-module.exports = {
+-  upsertGitslotparkUserMapping,
+-  resolveUserIdFromGitslotparkUserId
+-};
+diff --git a/backend/src/services/gitslotpark/client.js b/backend/src/services/gitslotpark/client.js
+deleted file mode 100644
+index 6ff0f46..0000000
+--- a/backend/src/services/gitslotpark/client.js
++++ /dev/null
+@@ -1,55 +0,0 @@
+-'use strict';
+-
+-const axios = require('axios');
+-const { resolveGitslotparkConfig } = require('./gitslotpark.config');
+-const { THIRD_PARTY_HTTP_TIMEOUT_MS } = require('../../constants/httpTimeouts');
+-
+-/**
+- * GitSlotPark low-level HTTP client.
+- */
+-async function request(req, method, path, options = {}) {
+-  const { baseUrl, authToken } = resolveGitslotparkConfig(req);
+-  const url = path.startsWith('http') ? path : `${baseUrl}/${path.replace(/^\//, '')}`;
+-  const headers = {
+-    Accept: 'application/json',
+-    ...options.headers
+-  };
+-
+-  if (options.body != null) {
+-    headers['Content-Type'] = 'application/json';
+-  }
+-
+-  if (authToken) {
+-    headers.Authorization = `Bearer ${authToken}`;
+-  }
+-
+-  const axiosConfig = {
+-    method,
+-    url,
+-    headers,
+-    timeout: THIRD_PARTY_HTTP_TIMEOUT_MS,
+-    validateStatus: () => true,
+-    ...(options.body != null && { data: options.body })
+-  };
+-
+-  try {
+-    const res = await axios(axiosConfig);
+-    if (res.status >= 400) {
+-      const data = res.data;
+-      const wrapped = new Error(
+-        (data && (data.message || data.error)) || `GitSlotPark API error: ${res.status}`
+-      );
+-      wrapped.statusCode = res.status;
+-      wrapped.response = data;
+-      throw wrapped;
+-    }
+-    return res.data;
+-  } catch (err) {
+-    if (err.response || err.statusCode) throw err;
+-    const wrapped = new Error(err.message || 'GitSlotPark API request failed');
+-    wrapped.statusCode = 502;
+-    throw wrapped;
+-  }
+-}
+-
+-module.exports = { request };
+diff --git a/backend/src/services/gitslotpark/getGamesList.service.js b/backend/src/services/gitslotpark/getGamesList.service.js
+deleted file mode 100644
+index 8cb64ca..0000000
+--- a/backend/src/services/gitslotpark/getGamesList.service.js
++++ /dev/null
+@@ -1,75 +0,0 @@
+-'use strict';
+-
+-const crypto = require('crypto');
+-const { request } = require('./client');
+-const { isGitslotparkConfigured, resolveGitslotparkConfig } = require('./gitslotpark.config');
+-
+-const CACHE_TTL_MS = 15 * 60 * 1000;
+-const cacheByKey = new Map();
+-const inflightByKey = new Map();
+-
+-function cacheKey(req) {
+-  const { provider, authToken, baseUrl } = resolveGitslotparkConfig(req);
+-  const tokenHash = crypto.createHash('sha1').update(String(authToken || '')).digest('hex').slice(0, 12);
+-  return `${provider}|${baseUrl}|${tokenHash}`;
+-}
+-
+-async function loadGamesList(req, key) {
+-  if (inflightByKey.has(key)) return inflightByKey.get(key);
+-
+-  const promise = (async () => {
+-    const payload = await request(req, 'GET', '/gamelist');
+-    const code = payload && payload.code;
+-    const message = (payload && payload.message) || 'OK';
+-
+-    if (code !== 0) {
+-      const err = new Error(message || 'Failed to fetch GitSlotPark games');
+-      err.statusCode = 502;
+-      err.response = payload;
+-      throw err;
+-    }
+-
+-    const data = {
+-      games: Array.isArray(payload.data) ? payload.data : [],
+-      message
+-    };
+-    cacheByKey.set(key, { at: Date.now(), data });
+-    return data;
+-  })().finally(() => {
+-    inflightByKey.delete(key);
+-  });
+-
+-  inflightByKey.set(key, promise);
+-  return promise;
+-}
+-
+-/**
+- * Fetch the full game catalog from GitSlotPark.
+- * @param {import('express').Request} req
+- * @returns {Promise<{ games: object[], message: string }>}
+- */
+-async function getGamesList(req) {
+-  if (!isGitslotparkConfigured(req)) {
+-    const err = new Error('GitSlotPark is not configured');
+-    err.statusCode = 503;
+-    throw err;
+-  }
+-
+-  const key = cacheKey(req);
+-  const cached = cacheByKey.get(key);
+-  if (cached?.data) {
+-    if (Date.now() - cached.at >= CACHE_TTL_MS) {
+-      loadGamesList(req, key).catch(() => {});
+-    }
+-    return cached.data;
+-  }
+-
+-  try {
+-    return await loadGamesList(req, key);
+-  } catch (err) {
+-    if (cached?.data) return cached.data;
+-    throw err;
+-  }
+-}
+-
+-module.exports = { getGamesList };
+diff --git a/backend/src/services/gitslotpark/getRecentlyPlayedSlots.service.js b/backend/src/services/gitslotpark/getRecentlyPlayedSlots.service.js
+deleted file mode 100644
+index 0922368..0000000
+--- a/backend/src/services/gitslotpark/getRecentlyPlayedSlots.service.js
++++ /dev/null
+@@ -1,71 +0,0 @@
+-'use strict';
+-
+-const { QueryTypes } = require('sequelize');
+-const db = require('../../db/models');
+-
+-const DEFAULT_LIMIT = 12;
+-const MAX_LIMIT = 24;
+-
+-/**
+- * Distinct games the user has actually bet on in the last 7 days (from slots transactions), newest first.
+- * @param {number} userId
+- * @param {{ limit?: number }} [options]
+- * @returns {Promise<{ games: Array<{ gameId: number, provider: string, playedAt: string }> }>}
+- */
+-async function getRecentlyPlayedSlots({ userId, limit = DEFAULT_LIMIT } = {}) {
+-  const id = userId != null ? Number(userId) : null;
+-  if (!Number.isInteger(id) || id <= 0) {
+-    return { games: [] };
+-  }
+-
+-  if (!db.sequelize) {
+-    return { games: [] };
+-  }
+-
+-  const limitNum = Math.min(MAX_LIMIT, Math.max(1, parseInt(limit, 10) || DEFAULT_LIMIT));
+-
+-  const rows = await db.sequelize.query(
+-    `
+-      SELECT
+-        game_id AS "gameId",
+-        COALESCE(NULLIF(TRIM(provider), ''), 'gitslotpark') AS provider,
+-        MAX(created_at) AS "playedAt"
+-      FROM gitslotpark_transactions
+-      WHERE user_id = :userId
+-        AND game_id IS NOT NULL
+-        AND status = 'completed'
+-        AND created_at >= NOW() - INTERVAL '7 days'
+-        AND (
+-          operation IN ('withdraw', 'betwin')
+-          OR (bet_amount IS NOT NULL AND bet_amount > 0)
+-        )
+-      GROUP BY game_id, COALESCE(NULLIF(TRIM(provider), ''), 'gitslotpark')
+-      ORDER BY MAX(created_at) DESC
+-      LIMIT :limitNum
+-    `,
+-    {
+-      replacements: { userId: id, limitNum },
+-      type: QueryTypes.SELECT
+-    }
+-  );
+-
+-  const games = (rows || [])
+-    .map((row) => {
+-      const gameId = row.gameId != null ? Number(row.gameId) : null;
+-      if (!Number.isFinite(gameId) || gameId <= 0) return null;
+-      return {
+-        gameId,
+-        provider: String(row.provider || 'gitslotpark').trim().toLowerCase() || 'gitslotpark',
+-        playedAt: row.playedAt ? new Date(row.playedAt).toISOString() : null
+-      };
+-    })
+-    .filter(Boolean);
+-
+-  return { games };
+-}
+-
+-module.exports = {
+-  getRecentlyPlayedSlots,
+-  DEFAULT_LIMIT,
+-  MAX_LIMIT
+-};
+diff --git a/backend/src/services/gitslotpark/gitslotpark.config.js b/backend/src/services/gitslotpark/gitslotpark.config.js
+deleted file mode 100644
+index 44e53db..0000000
+--- a/backend/src/services/gitslotpark/gitslotpark.config.js
++++ /dev/null
+@@ -1,248 +0,0 @@
+-'use strict';
+-
+-const config = require('../../configs/app.config');
+-const { verifySign } = require('./gitslotparkSign.helpers');
+-
+-const DEFAULT_BASE_URL = 'https://ptapi.loginxgamesapi.com';
+-const GIT_SLOTPARK_PROVIDERS = ['pragmatic', 'pgsoft', 'amatic', 'amusnet'];
+-const PROVIDER_ENV_INFIX = {
+-  pragmatic: '',
+-  pgsoft: 'PGSOFT_',
+-  amatic: 'AMATIC_',
+-  amusnet: 'AMUSNET_'
+-};
+-const AGENT_ID_ENV_RE = /^GIT_SLOTPARK_(?:(PGSOFT|AMATIC|AMUSNET)_)?AGENT_ID(?:_([A-Z0-9_]+))?$/;
+-
+-function headerValue(req, name) {
+-  const raw = req && req.headers && req.headers[name];
+-  return typeof raw === 'string' ? raw.trim() : '';
+-}
+-
+-function envSuffix(storeCode) {
+-  return String(storeCode || '')
+-    .trim()
+-    .toUpperCase()
+-    .replace(/[^A-Z0-9]+/g, '_');
+-}
+-
+-function envName(provider, field, storeCode) {
+-  const infix = PROVIDER_ENV_INFIX[provider] || '';
+-  const suffix = envSuffix(storeCode);
+-  const tail = suffix ? `_${suffix}` : '';
+-  return `GIT_SLOTPARK_${infix}${field}${tail}`;
+-}
+-
+-function readProcessEnv(name) {
+-  return String(process.env[name] || '').trim();
+-}
+-
+-function normalizeProvider(raw) {
+-  const provider = String(raw || 'pragmatic').trim().toLowerCase();
+-  return GIT_SLOTPARK_PROVIDERS.includes(provider) ? provider : 'pragmatic';
+-}
+-
+-function resolveProviderFromRequest(req) {
+-  const fromHeader = headerValue(req, 'x-gitslotpark-provider');
+-  const fromQuery = req && req.query && req.query.provider;
+-  const fromBody = req && req.body && req.body.provider;
+-  return normalizeProvider(fromHeader || fromQuery || fromBody);
+-}
+-
+-function resolveStoreCodeFromReq(req) {
+-  const fromUser = req?.user?.storeCode != null ? String(req.user.storeCode).trim() : '';
+-  const header = req?.headers && (req.headers['x-store-code'] || req.headers['x-storecode']);
+-  const fromHeader = header != null ? String(header).trim() : '';
+-  const fromQuery = req?.query?.store_code != null ? String(req.query.store_code).trim() : '';
+-  return fromUser || fromHeader || fromQuery || '';
+-}
+-
+-/** Until DragonFury has its own GitSlotPark agents, reuse PlayJuwa store credentials. */
+-const GITSLOTPARK_STORE_CREDENTIAL_ALIAS = {
+-  dragonfury: 'playjuwa'
+-};
+-
+-function resolveCredentialStoreCode(storeCode) {
+-  const code = String(storeCode || '').trim().toLowerCase();
+-  return GITSLOTPARK_STORE_CREDENTIAL_ALIAS[code] || code;
+-}
+-
+-function emptyProviderConfig() {
+-  return { baseUrl: '', authToken: '', agentId: '', lobbyUrl: '', secretKey: '' };
+-}
+-
+-function readNamedProviderConfig(provider, storeCode) {
+-  return {
+-    baseUrl: readProcessEnv(envName(provider, 'API_BASE_URL', storeCode)),
+-    authToken: readProcessEnv(envName(provider, 'AUTH_TOKEN', storeCode)),
+-    agentId: readProcessEnv(envName(provider, 'AGENT_ID', storeCode)),
+-    lobbyUrl: readProcessEnv(envName(provider, 'LOBBY_URL', storeCode)),
+-    secretKey: readProcessEnv(envName(provider, 'SECRET_KEY', storeCode))
+-  };
+-}
+-
+-function readStoreProviderConfig(storeCode, provider) {
+-  if (!envSuffix(storeCode)) return emptyProviderConfig();
+-  return readNamedProviderConfig(provider, storeCode);
+-}
+-
+-function readEnvProviderConfig(provider) {
+-  if (provider === 'pgsoft') {
+-    return {
+-      baseUrl: String(config.get('gitslotpark.pgsoft.baseUrl') || '').trim(),
+-      authToken: String(config.get('gitslotpark.pgsoft.authToken') || '').trim(),
+-      agentId: String(config.get('gitslotpark.pgsoft.agentId') || '').trim(),
+-      lobbyUrl: String(config.get('gitslotpark.pgsoft.lobbyUrl') || '').trim(),
+-      secretKey: String(config.get('gitslotpark.pgsoft.secretKey') || '').trim()
+-    };
+-  }
+-
+-  if (provider === 'amatic') {
+-    return {
+-      baseUrl: String(config.get('gitslotpark.amatic.baseUrl') || '').trim(),
+-      authToken: String(config.get('gitslotpark.amatic.authToken') || '').trim(),
+-      agentId: String(config.get('gitslotpark.amatic.agentId') || '').trim(),
+-      lobbyUrl: String(config.get('gitslotpark.amatic.lobbyUrl') || '').trim(),
+-      secretKey: String(config.get('gitslotpark.amatic.secretKey') || '').trim()
+-    };
+-  }
+-
+-  if (provider === 'amusnet') {
+-    return {
+-      baseUrl: String(config.get('gitslotpark.amusnet.baseUrl') || '').trim(),
+-      authToken: String(config.get('gitslotpark.amusnet.authToken') || '').trim(),
+-      agentId: String(config.get('gitslotpark.amusnet.agentId') || '').trim(),
+-      lobbyUrl: String(config.get('gitslotpark.amusnet.lobbyUrl') || '').trim(),
+-      secretKey: String(config.get('gitslotpark.amusnet.secretKey') || '').trim()
+-    };
+-  }
+-
+-  return {
+-    baseUrl: String(config.get('gitslotpark.baseUrl') || DEFAULT_BASE_URL).trim(),
+-    authToken: String(config.get('gitslotpark.authToken') || '').trim(),
+-    agentId: String(config.get('gitslotpark.agentId') || '').trim(),
+-    lobbyUrl: String(config.get('gitslotpark.lobbyUrl') || '').trim(),
+-    secretKey: String(config.get('gitslotpark.secretKey') || '').trim()
+-  };
+-}
+-
+-function firstNonEmpty(...values) {
+-  for (const value of values) {
+-    if (value) return value;
+-  }
+-  return '';
+-}
+-
+-/**
+- * Resolve GitSlotPark credentials for launch/catalog:
+- * per-store backend env, then frontend headers, then unsuffixed backend env.
+- */
+-function resolveGitslotparkConfig(req) {
+-  const provider = resolveProviderFromRequest(req);
+-  const storeCode = resolveStoreCodeFromReq(req);
+-  const credentialStore = resolveCredentialStoreCode(storeCode);
+-  const storeCfg = readStoreProviderConfig(credentialStore, provider);
+-  const envCfg = readEnvProviderConfig(provider);
+-
+-  const headerLobbyUrl = headerValue(req, 'x-gitslotpark-lobby-url');
+-
+-  const defaultBase = provider === 'pragmatic' ? DEFAULT_BASE_URL : '';
+-  const rawBase = firstNonEmpty(storeCfg.baseUrl, envCfg.baseUrl, defaultBase).replace(/\/+$/, '');
+-  const baseUrl = rawBase.replace(/^http:\/\//i, 'https://');
+-  const authToken = firstNonEmpty(storeCfg.authToken, envCfg.authToken);
+-  const agentId = firstNonEmpty(storeCfg.agentId, envCfg.agentId);
+-  const lobbyUrl = firstNonEmpty(storeCfg.lobbyUrl, headerLobbyUrl, envCfg.lobbyUrl).replace(/\/+$/, '');
+-  const secretKey = firstNonEmpty(storeCfg.secretKey, envCfg.secretKey);
+-
+-  return { provider, storeCode, baseUrl, authToken, agentId, lobbyUrl, secretKey };
+-}
+-
+-function infixToProvider(infix) {
+-  const key = String(infix || '').toLowerCase();
+-  return GIT_SLOTPARK_PROVIDERS.includes(key) ? key : 'pragmatic';
+-}
+-
+-function listAllCallbackCredentials() {
+-  const seen = new Set();
+-  const out = [];
+-
+-  function add(provider, agentId, secretKey, storeCode) {
+-    if (!agentId || !secretKey) return;
+-    const key = `${provider}|${storeCode || ''}|${agentId}|${secretKey}`;
+-    if (seen.has(key)) return;
+-    seen.add(key);
+-    out.push({ provider, agentId, secretKey, storeCode: storeCode || '' });
+-  }
+-
+-  for (const provider of GIT_SLOTPARK_PROVIDERS) {
+-    const cfg = readEnvProviderConfig(provider);
+-    add(provider, cfg.agentId, cfg.secretKey, '');
+-  }
+-
+-  for (const key of Object.keys(process.env)) {
+-    const match = key.match(AGENT_ID_ENV_RE);
+-    if (!match) continue;
+-    const provider = infixToProvider(match[1]);
+-    const storeSuffix = match[2] || '';
+-    const agentId = readProcessEnv(key);
+-    const secretName = envName(provider, 'SECRET_KEY', storeSuffix);
+-    const secretKey = readProcessEnv(secretName);
+-    add(provider, agentId, secretKey, storeSuffix);
+-  }
+-
+-  return out;
+-}
+-
+-function listGitslotparkCallbackConfigsByAgentId(agentID) {
+-  if (!agentID) return [];
+-  return listAllCallbackCredentials().filter((cfg) => cfg.agentId === agentID);
+-}
+-
+-function resolveGitslotparkCallbackConfigByAgentId(agentID) {
+-  const matches = listGitslotparkCallbackConfigsByAgentId(agentID);
+-  return matches[0] || null;
+-}
+-
+-/** When multiple providers/stores share the same agentID, pick the one whose secret validates the sign. */
+-function resolveGitslotparkCallbackConfigByAgentIdAndSign(agentID, signMessage, sign) {
+-  const matches = listGitslotparkCallbackConfigsByAgentId(agentID);
+-  if (!matches.length || !signMessage || !sign) return null;
+-
+-  return matches.find((cfg) => verifySign(cfg.secretKey, signMessage, sign)) || null;
+-}
+-
+-/** @deprecated Use resolveGitslotparkCallbackConfigByAgentId for multi-provider callbacks. */
+-function resolveGitslotparkCallbackConfig() {
+-  const all = listAllCallbackCredentials();
+-  if (all.length) return all[0];
+-
+-  const pragmatic = readEnvProviderConfig('pragmatic');
+-  return { provider: 'pragmatic', ...pragmatic };
+-}
+-
+-function isGitslotparkConfigured(req) {
+-  return Boolean(resolveGitslotparkConfig(req).authToken);
+-}
+-
+-function isGitslotparkLaunchConfigured(req) {
+-  const { authToken, agentId, lobbyUrl } = resolveGitslotparkConfig(req);
+-  return Boolean(authToken && agentId && lobbyUrl);
+-}
+-
+-function isGitslotparkCallbackConfigured() {
+-  return listAllCallbackCredentials().length > 0;
+-}
+-
+-module.exports = {
+-  GIT_SLOTPARK_PROVIDERS,
+-  normalizeProvider,
+-  resolveProviderFromRequest,
+-  resolveStoreCodeFromReq,
+-  resolveGitslotparkConfig,
+-  resolveGitslotparkCallbackConfig,
+-  listGitslotparkCallbackConfigsByAgentId,
+-  resolveGitslotparkCallbackConfigByAgentId,
+-  resolveGitslotparkCallbackConfigByAgentIdAndSign,
+-  isGitslotparkConfigured,
+-  isGitslotparkLaunchConfigured,
+-  isGitslotparkCallbackConfigured
+-};
+diff --git a/backend/src/services/gitslotpark/gitslotparkSign.helpers.js b/backend/src/services/gitslotpark/gitslotparkSign.helpers.js
+deleted file mode 100644
+index beca5e1..0000000
+--- a/backend/src/services/gitslotpark/gitslotparkSign.helpers.js
++++ /dev/null
+@@ -1,71 +0,0 @@
+-'use strict';
+-
+-const crypto = require('crypto');
+-
+-/**
+- * HMAC-SHA256 sign (uppercase hex), per GitSlotPark spec.
+- */
+-function getSign(key, message) {
+-  const hmac = crypto.createHmac('sha256', Buffer.from(key, 'utf8'));
+-  hmac.update(Buffer.from(message, 'utf8'));
+-  return hmac.digest('hex').toUpperCase();
+-}
+-
+-function formatAmount(value) {
+-  const num = Number(value);
+-  if (!Number.isFinite(num)) return '0.00';
+-  return num.toFixed(2);
+-}
+-
+-function buildGetBalanceSignMessage(agentID, userID, gameID) {
+-  return `${agentID}${userID}${gameID}`;
+-}
+-
+-function buildBetWinSignMessage(agentID, userID, betAmount, winAmount, transactionID, roundID, gameID) {
+-  return `${agentID}${userID}${formatAmount(betAmount)}${formatAmount(winAmount)}${transactionID}${roundID}${gameID}`;
+-}
+-
+-function buildWithdrawSignMessage(agentID, userID, amount, transactionID, roundID, gameID) {
+-  return `${agentID}${userID}${formatAmount(amount)}${transactionID}${roundID}${gameID}`;
+-}
+-
+-function buildDepositSignMessage(agentID, userID, amount, refTransactionID, transactionID, roundID, gameID) {
+-  return `${agentID}${userID}${formatAmount(amount)}${refTransactionID}${transactionID}${roundID}${gameID}`;
+-}
+-
+-function buildRollbackSignMessage(agentID, userID, refTransactionID, gameID) {
+-  return `${agentID}${userID}${refTransactionID}${gameID}`;
+-}
+-
+-function verifySign(secretKey, expectedMessage, providedSign) {
+-  if (!secretKey || !providedSign) return false;
+-  const expected = getSign(secretKey, expectedMessage);
+-  const provided = String(providedSign).trim().toUpperCase();
+-  if (expected.length !== provided.length) return false;
+-  try {
+-    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(provided));
+-  } catch {
+-    return false;
+-  }
+-}
+-
+-function formatBalance(value) {
+-  return Number(formatAmount(value));
+-}
+-
+-function newPlatformTransactionId() {
+-  return (crypto.randomUUID && crypto.randomUUID()) || crypto.randomBytes(16).toString('hex');
+-}
+-
+-module.exports = {
+-  getSign,
+-  formatAmount,
+-  formatBalance,
+-  verifySign,
+-  newPlatformTransactionId,
+-  buildGetBalanceSignMessage,
+-  buildBetWinSignMessage,
+-  buildWithdrawSignMessage,
+-  buildDepositSignMessage,
+-  buildRollbackSignMessage
+-};
+diff --git a/backend/src/services/gitslotpark/gitslotparkUserId.helpers.js b/backend/src/services/gitslotpark/gitslotparkUserId.helpers.js
+deleted file mode 100644
+index 0e0e3b4..0000000
+--- a/backend/src/services/gitslotpark/gitslotparkUserId.helpers.js
++++ /dev/null
+@@ -1,58 +0,0 @@
+-'use strict';
+-
+-const MIN_LENGTH = 4;
+-const MAX_LENGTH = 48;
+-const ALPHANUMERIC = /^[a-zA-Z0-9]+$/;
+-
+-function stripNonAlphanumeric(value) {
+-  return String(value ?? '').replace(/[^a-zA-Z0-9]/g, '');
+-}
+-
+-function padToMinLength(value) {
+-  let result = value;
+-  while (result.length > 0 && result.length < MIN_LENGTH) {
+-    result += '0';
+-  }
+-  return result;
+-}
+-
+-/**
+- * Build a GitSlotPark-compatible userID from platform identity.
+- * Rules: alphanumeric only, 4–48 characters. Output is stable per user.
+- *
+- * @param {string|null|undefined} username
+- * @param {number|string|null|undefined} userId
+- * @returns {string|null}
+- */
+-function buildGitslotparkUserId(username, userId) {
+-  const cleanName = stripNonAlphanumeric(username);
+-  const cleanId = stripNonAlphanumeric(userId);
+-
+-  let userID = cleanName;
+-
+-  if (userID.length < MIN_LENGTH) {
+-    userID = cleanName + cleanId;
+-  }
+-
+-  if (userID.length > 0 && userID.length < MIN_LENGTH) {
+-    userID = padToMinLength(userID);
+-  }
+-
+-  if (userID.length < MIN_LENGTH) {
+-    userID = padToMinLength(`u${cleanId || '0'}`);
+-  }
+-
+-  userID = userID.slice(0, MAX_LENGTH);
+-
+-  if (userID.length < MIN_LENGTH || userID.length > MAX_LENGTH || !ALPHANUMERIC.test(userID)) {
+-    return null;
+-  }
+-
+-  return userID;
+-}
+-
+-module.exports = {
+-  MIN_LENGTH,
+-  MAX_LENGTH,
+-  buildGitslotparkUserId
+-};
+diff --git a/backend/src/services/gitslotpark/index.js b/backend/src/services/gitslotpark/index.js
+deleted file mode 100644
+index 66eb4db..0000000
+--- a/backend/src/services/gitslotpark/index.js
++++ /dev/null
+@@ -1,9 +0,0 @@
+-'use strict';
+-
+-const { getGamesList } = require('./getGamesList.service');
+-const { launchGame } = require('./launchGame.service');
+-
+-module.exports = {
+-  getGamesList,
+-  launchGame
+-};
+diff --git a/backend/src/services/gitslotpark/launchGame.service.js b/backend/src/services/gitslotpark/launchGame.service.js
+deleted file mode 100644
+index d526ade..0000000
+--- a/backend/src/services/gitslotpark/launchGame.service.js
++++ /dev/null
+@@ -1,86 +0,0 @@
+-'use strict';
+-
+-const { request } = require('./client');
+-const { isGitslotparkLaunchConfigured, resolveGitslotparkConfig } = require('./gitslotpark.config');
+-const { buildGitslotparkUserId } = require('./gitslotparkUserId.helpers');
+-const { upsertGitslotparkUserMapping } = require('./callbacks/resolveGitslotparkUser.service');
+-const { assertUserCanPlayGames } = require('../games/gamePlayEligibility.service');
+-
+-/**
+- * Launch a GitSlotPark game session and return the playable URL.
+- * @param {import('express').Request} req
+- * @returns {Promise<{ url: string, message: string }>}
+- */
+-async function launchGame(req) {
+-  if (!isGitslotparkLaunchConfigured(req)) {
+-    const err = new Error('GitSlotPark launch is not configured');
+-    err.statusCode = 503;
+-    throw err;
+-  }
+-
+-  const userId = req.user && req.user.userId != null ? req.user.userId : null;
+-  const username = req.user && req.user.username ? String(req.user.username).trim() : '';
+-  if (!userId && !username) {
+-    const err = new Error('Unauthorized');
+-    err.statusCode = 401;
+-    throw err;
+-  }
+-
+-  const gitslotparkUserId = buildGitslotparkUserId(username, userId);
+-  if (!gitslotparkUserId) {
+-    const err = new Error('Unable to build a valid game user id for this account');
+-    err.statusCode = 400;
+-    throw err;
+-  }
+-
+-  if (!userId) {
+-    const err = new Error('Unauthorized');
+-    err.statusCode = 401;
+-    throw err;
+-  }
+-
+-  await assertUserCanPlayGames(userId);
+-
+-  const gameid = parseInt(req.body && req.body.gameid, 10);
+-  if (!Number.isFinite(gameid) || gameid < 1) {
+-    const err = new Error('Invalid game id');
+-    err.statusCode = 400;
+-    throw err;
+-  }
+-
+-  const { agentId, lobbyUrl } = resolveGitslotparkConfig(req);
+-
+-  const payload = await request(req, 'POST', '/userAuth', {
+-    body: {
+-      agentID: agentId,
+-      userID: gitslotparkUserId,
+-      lang: 'en',
+-      gameid,
+-      isaffiliate: false,
+-      lobbyUrl
+-    }
+-  });
+-
+-  const code = payload && payload.code;
+-  const message = (payload && payload.message) || 'OK';
+-
+-  if (code !== 0) {
+-    const err = new Error(message || 'Failed to launch GitSlotPark game');
+-    err.statusCode = 502;
+-    err.response = payload;
+-    throw err;
+-  }
+-
+-  const url = payload && typeof payload.url === 'string' ? payload.url.trim() : '';
+-  if (!url) {
+-    const err = new Error('Game launch URL not returned');
+-    err.statusCode = 502;
+-    throw err;
+-  }
+-
+-  await upsertGitslotparkUserMapping(userId, gitslotparkUserId);
+-
+-  return { url, message };
+-}
+-
+-module.exports = { launchGame };
+diff --git a/backend/src/services/lobbyImages/lobbyImagesSettings.service.js b/backend/src/services/lobbyImages/lobbyImagesSettings.service.js
+new file mode 100644
+index 0000000..f9004f4
+--- /dev/null
++++ b/backend/src/services/lobbyImages/lobbyImagesSettings.service.js
+@@ -0,0 +1,101 @@
++'use strict';
++
++const db = require('../../db/models');
++
++const KEY = 'lobby_images';
++const MAX_BANNERS = 10;
++
++const DEFAULTS = {
++  dailyCardBg: '',
++  spinCardBg: '',
++  banners: []
++};
++
++function cleanUrl(value, label) {
++  const url = typeof value === 'string' ? value.trim() : '';
++  if (!url) return '';
++  if (url.length > 2048 || !/^(https?:\/\/|\/)/i.test(url) || /^\/\//.test(url)) {
++    const err = new Error(`${label} must be an http(s) URL or a site path starting with /.`);
++    err.statusCode = 400;
++    throw err;
++  }
++  return url;
++}
++
++function normalizePayload(payload = {}) {
++  const rawBanners = Array.isArray(payload.banners) ? payload.banners : [];
++  if (rawBanners.length > MAX_BANNERS) {
++    const err = new Error(`At most ${MAX_BANNERS} banners are allowed.`);
++    err.statusCode = 400;
++    throw err;
++  }
++  const banners = [];
++  rawBanners.forEach((b, i) => {
++    const desktop = cleanUrl(b?.desktop, `Banner ${i + 1} desktop image`);
++    const mobile = cleanUrl(b?.mobile, `Banner ${i + 1} mobile image`);
++    if (!desktop && !mobile) return;
++    banners.push({
++      id: String(b?.id || `banner-${i + 1}`).slice(0, 40),
++      desktop: desktop || mobile,
++      mobile: mobile || desktop,
++      href: cleanUrl(b?.href, `Banner ${i + 1} link`),
++      label: String(b?.label || '').trim().slice(0, 120)
++    });
++  });
++  return {
++    dailyCardBg: cleanUrl(payload.dailyCardBg, 'Daily Rewards card image'),
++    spinCardBg: cleanUrl(payload.spinCardBg, 'Spin the Wheel card image'),
++    banners
++  };
++}
++
++function parseRow(row) {
++  if (!row?.value) return null;
++  try {
++    const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
++    return parsed && typeof parsed === 'object' ? normalizePayload(parsed) : null;
++  } catch (_) {
++    return null;
++  }
++}
++
++async function readFromSetting(distributorCode, storeCode) {
++  const row = await db.Setting.findOne({
++    where: { key: KEY, distributorCode: distributorCode ?? null, storeCode: storeCode ?? null }
++  });
++  return parseRow(row);
++}
++
++/** Saved images for the store (empty defaults until an admin saves some). */
++async function getLobbyImages(scope = null) {
++  if (scope && (scope.distributorCode != null || scope.storeCode != null)) {
++    const own = await readFromSetting(scope.distributorCode, scope.storeCode);
++    if (own) return own;
++  }
++  return { ...DEFAULTS, banners: [] };
++}
++
++async function updateLobbyImages(payload, scope) {
++  const settings = normalizePayload(payload);
++  const distributorCode = scope && scope.distributorCode != null ? scope.distributorCode : null;
++  const storeCode = scope && scope.storeCode != null ? scope.storeCode : null;
++  const [row] = await db.Setting.findOrCreate({
++    where: { key: KEY, distributorCode, storeCode },
++    defaults: { key: KEY, distributorCode, storeCode, value: JSON.stringify(settings) }
++  });
++  await row.update({ value: JSON.stringify(settings) });
++  return settings;
++}
++
++async function resetLobbyImages(scope) {
++  await db.Setting.destroy({
++    where: {
++      key: KEY,
++      distributorCode: scope?.distributorCode ?? null,
++      storeCode: scope?.storeCode ?? null
++    }
++  });
++  return { ...DEFAULTS, banners: [] };
++}
++
++module.exports = { KEY, getLobbyImages, updateLobbyImages, resetLobbyImages };
+diff --git a/backend/src/services/onegamehub/callbacks/wallet.helpers.js b/backend/src/services/onegamehub/callbacks/wallet.helpers.js
+index 60a4268..a40f9d4 100644
+--- a/backend/src/services/onegamehub/callbacks/wallet.helpers.js
++++ b/backend/src/services/onegamehub/callbacks/wallet.helpers.js
+@@ -1,12 +1,12 @@
+ 'use strict';
+ 
+-const { RESULT } = require('../../gitslotpark/callbacks/gitslotparkCallback.helpers');
+-const { formatBalance } = require('../../gitslotpark/gitslotparkSign.helpers');
++const { RESULT } = require('../../wallet/slotsCallback.helpers');
++const { formatBalance } = require('../../wallet/formatBalance.helpers');
+ const {
+   getPlayableBalance,
+   applyBalanceDelta,
+   applyRollbackDelta
+-} = require('../../gitslotpark/callbacks/gitslotparkCallbackWallet.service');
++} = require('../../wallet/slotsCallbackWallet.service');
+ const { HUB_CURRENCY } = require('../onegamehub.constants');
+ 
+ function centsToSc(amount) {
+diff --git a/backend/src/services/scorpioplay/scorpioWallet.service.js b/backend/src/services/scorpioplay/scorpioWallet.service.js
+index 0170c48..8f2edd4 100644
+--- a/backend/src/services/scorpioplay/scorpioWallet.service.js
++++ b/backend/src/services/scorpioplay/scorpioWallet.service.js
+@@ -4,8 +4,8 @@ const {
+   getPlayableBalance,
+   applyBalanceDelta,
+   applyRollbackDelta
+-} = require('../gitslotpark/callbacks/gitslotparkCallbackWallet.service');
+-const { formatBalance } = require('../gitslotpark/gitslotparkSign.helpers');
++} = require('../wallet/slotsCallbackWallet.service');
++const { formatBalance } = require('../wallet/formatBalance.helpers');
+ 
+ function money(value) {
+   return formatBalance(value);
+diff --git a/backend/src/services/slotProviders/slotProvidersSettings.service.js b/backend/src/services/slotProviders/slotProvidersSettings.service.js
+index a31bae1..1fccb56 100644
+--- a/backend/src/services/slotProviders/slotProvidersSettings.service.js
++++ b/backend/src/services/slotProviders/slotProvidersSettings.service.js
+@@ -6,12 +6,12 @@ const { ROLES } = require('../../constants/roles');
+ 
+ const KEY = 'slot_providers';
+ 
+-const PROVIDER_KEYS = ['gitslotpark', 'bona', 'onegamehub', 'scorpio'];
++const PROVIDER_KEYS = ['bona', 'onegamehub', 'scorpio'];
+ 
+ const DEFAULTS = {
+-  gitslotpark: true,
+   bona: true,
+-  onegamehub: true,
++  // No One Game Hub API keys yet: off unless a store explicitly enables it.
++  onegamehub: false,
+   scorpio: true
+ };
+ 
+@@ -27,7 +27,6 @@ function parseRow(row) {
+   try {
+     const parsed = JSON.parse(row.value);
+     return {
+-      gitslotpark: parseBool(parsed.gitslotpark, DEFAULTS.gitslotpark),
+       bona: parseBool(parsed.bona, DEFAULTS.bona),
+       onegamehub: parseBool(parsed.onegamehub, DEFAULTS.onegamehub),
+       scorpio: parseBool(parsed.scorpio, DEFAULTS.scorpio)
+@@ -39,7 +38,6 @@ function parseRow(row) {
+ 
+ function normalizePayload(payload = {}) {
+   return {
+-    gitslotpark: parseBool(payload.gitslotpark, DEFAULTS.gitslotpark),
+     bona: parseBool(payload.bona, DEFAULTS.bona),
+     onegamehub: parseBool(payload.onegamehub, DEFAULTS.onegamehub),
+     scorpio: parseBool(payload.scorpio, DEFAULTS.scorpio)
+diff --git a/backend/src/services/wallet/formatBalance.helpers.js b/backend/src/services/wallet/formatBalance.helpers.js
+new file mode 100644
+index 0000000..71e7f29
+--- /dev/null
++++ b/backend/src/services/wallet/formatBalance.helpers.js
+@@ -0,0 +1,13 @@
++'use strict';
++
++function formatAmount(value) {
++  const num = Number(value);
++  if (!Number.isFinite(num)) return '0.00';
++  return num.toFixed(2);
++}
++
++function formatBalance(value) {
++  return Number(formatAmount(value));
++}
++
++module.exports = { formatAmount, formatBalance };
+diff --git a/backend/src/services/gitslotpark/callbacks/gitslotparkCallback.helpers.js b/backend/src/services/wallet/slotsCallback.helpers.js
+similarity index 100%
+rename from backend/src/services/gitslotpark/callbacks/gitslotparkCallback.helpers.js
+rename to backend/src/services/wallet/slotsCallback.helpers.js
+diff --git a/backend/src/services/gitslotpark/callbacks/gitslotparkCallbackWallet.service.js b/backend/src/services/wallet/slotsCallbackWallet.service.js
+similarity index 96%
+rename from backend/src/services/gitslotpark/callbacks/gitslotparkCallbackWallet.service.js
+rename to backend/src/services/wallet/slotsCallbackWallet.service.js
+index 3f70ec0..229c7f6 100644
+--- a/backend/src/services/gitslotpark/callbacks/gitslotparkCallbackWallet.service.js
++++ b/backend/src/services/wallet/slotsCallbackWallet.service.js
+@@ -1,23 +1,23 @@
+ 'use strict';
+ 
+ const { Op } = require('sequelize');
+-const db = require('../../../db/models');
++const db = require('../../db/models');
+ const {
+   PURCHASED_CURRENCY_CODE,
+   BONUS_CURRENCY_CODE,
+   REDEEMABLE_CURRENCY_CODE,
+   DEFAULT_CURRENCY
+-} = require('../../wallet/getCurrencySetting.service');
++} = require('./getCurrencySetting.service');
+ const {
+   ensureWallet,
+   usableOf,
+   splitPlayDebit,
+   roundMoney
+-} = require('../../wallet/walletBuckets.service');
+-const { resolveLockedBonusSc } = require('../../wallet/bonusScLock.service');
+-const { formatBalance } = require('../gitslotparkSign.helpers');
+-const { RESULT } = require('./gitslotparkCallback.helpers');
+-const { createLogger } = require('../../../libs/logger');
++} = require('./walletBuckets.service');
++const { resolveLockedBonusSc } = require('./bonusScLock.service');
++const { formatBalance } = require('./formatBalance.helpers');
++const { RESULT } = require('./slotsCallback.helpers');
++const { createLogger } = require('../../libs/logger');
+ 
+ const log = createLogger('slotsCallbackWallet');
+ 
+@@ -130,7 +130,7 @@ async function writeSlotsLedger(userId, {
+   meta,
+   transaction
+ }) {
+-  const { recordWalletChange, recordRscWin } = require('../../wallet/scLedger.service');
++  const { recordWalletChange, recordRscWin } = require('./scLedger.service');
+   const rawGameId = meta?.gameId ?? meta?.metadata?.gameId ?? null;
+   const numericGameId = ledgerIntegerGameId(rawGameId);
+   const ledgerBase = {
+@@ -387,7 +387,7 @@ function buildSlotsWalletImpact({ delta, betAmount, winAmount, pscUsable, bscUsa
+ }
+ 
+ /**
+- * Apply a GitSlotPark balance delta under PSC→BSC→RSC slots rules.
++ * Apply a slots-provider balance delta under PSC→BSC→RSC slots rules.
+  */
+ async function applyBalanceDelta(userId, delta, meta, transaction, options = {}) {
+   const [pscWallet, bscWallet, rscWallet, legacyWallet] = await Promise.all([
+diff --git a/backend/src/services/win568/win568.helpers.js b/backend/src/services/win568/win568.helpers.js
+index 7fe3df8..62418c3 100644
+--- a/backend/src/services/win568/win568.helpers.js
++++ b/backend/src/services/win568/win568.helpers.js
+@@ -1,6 +1,6 @@
+ 'use strict';
+ 
+-const { formatBalance } = require('../gitslotpark/gitslotparkSign.helpers');
++const { formatBalance } = require('../wallet/formatBalance.helpers');
+ const { ERROR } = require('./win568.constants');
+ const { resolveWin568Config } = require('./win568.config');
+ 
+diff --git a/backend/src/services/win568/win568Wallet.service.js b/backend/src/services/win568/win568Wallet.service.js
+index 50f672e..6150493 100644
+--- a/backend/src/services/win568/win568Wallet.service.js
++++ b/backend/src/services/win568/win568Wallet.service.js
+@@ -11,8 +11,8 @@ const db = require('../../db/models');
+ const {
+   getPlayableBalance,
+   applyBalanceDelta
+-} = require('../gitslotpark/callbacks/gitslotparkCallbackWallet.service');
+-const { formatBalance } = require('../gitslotpark/gitslotparkSign.helpers');
++} = require('../wallet/slotsCallbackWallet.service');
++const { formatBalance } = require('../wallet/formatBalance.helpers');
+ 
+ function money(value) {
+   return formatBalance(value);
+diff --git a/frontend/.env.sample b/frontend/.env.sample
+index 383ea5b..129ba38 100644
+--- a/frontend/.env.sample
++++ b/frontend/.env.sample
+@@ -30,30 +30,8 @@ VITE_PAYMENT_PARTNER_CODE=goodwork
+ # Identity Verification must be OFF in Intercom (Messenger → Security) or logged-in boots get 403.
+ VITE_INTERCOM_APP_ID=
+ 
+-# GitSlotPark — this store's own keys (never put SECRET_KEY here).
+-# AGENT_ID must match backend GIT_SLOTPARK_AGENT_ID_{STORE_CODE} (e.g. GIT_SLOTPARK_AGENT_ID_DRAGONFURY).
+ # Launch mode: iframe (default) or tab (opens provider URL in a new browser tab)
+-# VITE_GIT_SLOTPARK_LAUNCH_MODE=iframe
+-# Pragmatic Play (default provider)
+-VITE_GIT_SLOTPARK_API_BASE_URL=https://apipt.slotgamesapi.com
+-VITE_GIT_SLOTPARK_AUTH_TOKEN=
+-VITE_GIT_SLOTPARK_AGENT_ID=
+-VITE_GIT_SLOTPARK_LOBBY_URL=http://localhost:5173
+-# PG Soft
+-VITE_GIT_SLOTPARK_PGSOFT_API_BASE_URL=https://apigg.slotgamesapi.com
+-VITE_GIT_SLOTPARK_PGSOFT_AUTH_TOKEN=
+-VITE_GIT_SLOTPARK_PGSOFT_AGENT_ID=
+-VITE_GIT_SLOTPARK_PGSOFT_LOBBY_URL=http://localhost:5173
+-# Amatic
+-VITE_GIT_SLOTPARK_AMATIC_API_BASE_URL=https://api.amaticgame.net
+-VITE_GIT_SLOTPARK_AMATIC_AUTH_TOKEN=
+-VITE_GIT_SLOTPARK_AMATIC_AGENT_ID=
+-VITE_GIT_SLOTPARK_AMATIC_LOBBY_URL=http://localhost:5173
+-# Amusnet
+-VITE_GIT_SLOTPARK_AMUSNET_API_BASE_URL=
+-VITE_GIT_SLOTPARK_AMUSNET_AUTH_TOKEN=
+-VITE_GIT_SLOTPARK_AMUSNET_AGENT_ID=
+-VITE_GIT_SLOTPARK_AMUSNET_LOBBY_URL=http://localhost:5173
++# VITE_SLOT_LAUNCH_MODE=iframe
+ 
+ # Firebase Cloud Messaging (realtime push). Same web app config as admin panel.
+ # VITE_FIREBASE_API_KEY=
+diff --git a/frontend/public/ref/lobby/badge-basket.webp b/frontend/public/ref/lobby/badge-basket.webp
+new file mode 100644
+index 0000000..8a70373
+Binary files /dev/null and b/frontend/public/ref/lobby/badge-basket.webp differ
+diff --git a/frontend/public/ref/lobby/badge-clipboard.webp b/frontend/public/ref/lobby/badge-clipboard.webp
+new file mode 100644
+index 0000000..a1c5a04
+Binary files /dev/null and b/frontend/public/ref/lobby/badge-clipboard.webp differ
+diff --git a/frontend/public/ref/lobby/badge-phone-share.webp b/frontend/public/ref/lobby/badge-phone-share.webp
+new file mode 100644
+index 0000000..005af6f
+Binary files /dev/null and b/frontend/public/ref/lobby/badge-phone-share.webp differ
+diff --git a/frontend/public/ref/lobby/badge-trophy.webp b/frontend/public/ref/lobby/badge-trophy.webp
+new file mode 100644
+index 0000000..d13fc2c
+Binary files /dev/null and b/frontend/public/ref/lobby/badge-trophy.webp differ
+diff --git a/frontend/public/ref/lobby/banners/community-d.webp b/frontend/public/ref/lobby/banners/community-d.webp
+new file mode 100644
+index 0000000..d5978d9
+Binary files /dev/null and b/frontend/public/ref/lobby/banners/community-d.webp differ
+diff --git a/frontend/public/ref/lobby/banners/community-m.webp b/frontend/public/ref/lobby/banners/community-m.webp
+new file mode 100644
+index 0000000..2022c18
+Binary files /dev/null and b/frontend/public/ref/lobby/banners/community-m.webp differ
+diff --git a/frontend/public/ref/lobby/banners/daily-tasks-d.webp b/frontend/public/ref/lobby/banners/daily-tasks-d.webp
+new file mode 100644
+index 0000000..2895ee4
+Binary files /dev/null and b/frontend/public/ref/lobby/banners/daily-tasks-d.webp differ
+diff --git a/frontend/public/ref/lobby/banners/daily-tasks-m.webp b/frontend/public/ref/lobby/banners/daily-tasks-m.webp
+new file mode 100644
+index 0000000..5a19cf3
+Binary files /dev/null and b/frontend/public/ref/lobby/banners/daily-tasks-m.webp differ
+diff --git a/frontend/public/ref/lobby/banners/first-purchase-d.webp b/frontend/public/ref/lobby/banners/first-purchase-d.webp
+new file mode 100644
+index 0000000..c520220
+Binary files /dev/null and b/frontend/public/ref/lobby/banners/first-purchase-d.webp differ
+diff --git a/frontend/public/ref/lobby/banners/first-purchase-m.webp b/frontend/public/ref/lobby/banners/first-purchase-m.webp
+new file mode 100644
+index 0000000..857fddf
+Binary files /dev/null and b/frontend/public/ref/lobby/banners/first-purchase-m.webp differ
+diff --git a/frontend/public/ref/lobby/banners/referral-d.webp b/frontend/public/ref/lobby/banners/referral-d.webp
+new file mode 100644
+index 0000000..ed30246
+Binary files /dev/null and b/frontend/public/ref/lobby/banners/referral-d.webp differ
+diff --git a/frontend/public/ref/lobby/banners/referral-m.webp b/frontend/public/ref/lobby/banners/referral-m.webp
+new file mode 100644
+index 0000000..042567b
+Binary files /dev/null and b/frontend/public/ref/lobby/banners/referral-m.webp differ
+diff --git a/frontend/public/ref/lobby/banners/spin-wheel-d.webp b/frontend/public/ref/lobby/banners/spin-wheel-d.webp
+new file mode 100644
+index 0000000..f278cec
+Binary files /dev/null and b/frontend/public/ref/lobby/banners/spin-wheel-d.webp differ
+diff --git a/frontend/public/ref/lobby/banners/spin-wheel-m.webp b/frontend/public/ref/lobby/banners/spin-wheel-m.webp
+new file mode 100644
+index 0000000..01162e4
+Binary files /dev/null and b/frontend/public/ref/lobby/banners/spin-wheel-m.webp differ
+diff --git a/frontend/public/ref/lobby/banners/vip-d.webp b/frontend/public/ref/lobby/banners/vip-d.webp
+new file mode 100644
+index 0000000..c46c74b
+Binary files /dev/null and b/frontend/public/ref/lobby/banners/vip-d.webp differ
+diff --git a/frontend/public/ref/lobby/banners/vip-m.webp b/frontend/public/ref/lobby/banners/vip-m.webp
+new file mode 100644
+index 0000000..4000990
+Binary files /dev/null and b/frontend/public/ref/lobby/banners/vip-m.webp differ
+diff --git a/frontend/public/ref/lobby/wheel-ring.webp b/frontend/public/ref/lobby/wheel-ring.webp
+new file mode 100644
+index 0000000..65b5eee
+Binary files /dev/null and b/frontend/public/ref/lobby/wheel-ring.webp differ
+diff --git a/frontend/public/ref/lobby/wheel-segments.webp b/frontend/public/ref/lobby/wheel-segments.webp
+new file mode 100644
+index 0000000..e424329
+Binary files /dev/null and b/frontend/public/ref/lobby/wheel-segments.webp differ
+diff --git a/frontend/src/TASKS.md b/frontend/src/TASKS.md
+index 21f8610..e12a22a 100644
+--- a/frontend/src/TASKS.md
++++ b/frontend/src/TASKS.md
+@@ -35,7 +35,7 @@ Status: all tasks below are implemented and browser-checked (Vite dev server, po
+ - Slugs: bingo, crash-game, fishing, instant-win, keno, live-dealer, lottery, scratch-cards, shooting, slots, table-games, virtual-game.
+ - Page layout: category strip, gold title, search box, game grid.
+ - `/category` redirects to `/casino`; `AllSlotGames` redirects known categories; lobby tabs and sidebar game links use `getGameCategoryPath`.
+-- Files: `config/gameCategories.js`, `hooks/useCategoryPageGames.js`, `pages/Category/CategoryPage.jsx`, `styles/category-page.css`, `utils/gitslotparkLandingGames.js` (`buildCategoryPageGames`), `App.jsx`, `pages/SlotGames/AllSlotGames.jsx`, `components/Casino/CasinoLobby.jsx`, `config/casinoLobbyConfig.js`, `public/df-online/club-icons/virtual.svg`.
++- Files: `config/gameCategories.js`, `hooks/useCategoryPageGames.js`, `pages/Category/CategoryPage.jsx`, `styles/category-page.css`, `utils/slotLobbyGames.js` (`buildCategoryPageGames`), `App.jsx`, `pages/SlotGames/AllSlotGames.jsx`, `components/Casino/CasinoLobby.jsx`, `config/casinoLobbyConfig.js`, `public/df-online/club-icons/virtual.svg`.
+ 
+ ### 7. Sound popup re-theme
+ - Popup restyled to the dark + gold theme (`#14151f` / `#1a1b2b` / `#ebc567`, Montserrat).
+diff --git a/frontend/src/api/footerContent.js b/frontend/src/api/footerContent.js
+deleted file mode 100644
+index 89be36c..0000000
+--- a/frontend/src/api/footerContent.js
++++ /dev/null
+@@ -1,18 +0,0 @@
+-import { API_BASE } from '../config/api';
+-import { getRequest } from '../services/request';
+-import { STORE_CODE } from '../config/site';
+-
+-const BASE = `${API_BASE}/api/footer-content`;
+-
+-/**
+- * Admin-managed footer content for this store.
+- * Returns the stored partial object, or {} when nothing is saved yet.
+- * The caller merges it over the built-in footerConfig defaults.
+- */
+-export function getFooterContentConfig(storeCode = STORE_CODE) {
+-  const query = storeCode ? { store_code: storeCode } : undefined;
+-  return getRequest(`${BASE}/config`, query).then((res) => {
+-    const content = res?.footer ?? res;
+-    return content && typeof content === 'object' ? content : {};
+-  });
+-}
+diff --git a/frontend/src/api/lobbyContent.js b/frontend/src/api/lobbyContent.js
+deleted file mode 100644
+index 9ca1680..0000000
+--- a/frontend/src/api/lobbyContent.js
++++ /dev/null
+@@ -1,20 +0,0 @@
+-import { API_BASE } from '../config/api';
+-import { getRequest } from '../services/request';
+-import { STORE_CODE } from '../config/site';
+-
+-const BASE = `${API_BASE}/api/lobby-content`;
+-
+-/** Admin-managed lobby content for this store ({} when nothing is saved yet). */
+-export function getLobbyContentConfig(storeCode = STORE_CODE) {
+-  const query = storeCode ? { store_code: storeCode } : undefined;
+-  return getRequest(`${BASE}/config`, query).then((res) => {
+-    const content = res?.lobby ?? res;
+-    return content && typeof content === 'object' ? content : {};
+-  });
+-}
+-
+-/** Game ids ranked by real play history for this store, most played first ([] when unknown). */
+-export function getLobbyPopular(storeCode = STORE_CODE) {
+-  const query = storeCode ? { store_code: storeCode } : undefined;
+-  return getRequest(`${BASE}/popular`, query).then((res) => (Array.isArray(res?.ids) ? res.ids.map(String) : []));
+-}
+diff --git a/frontend/src/api/lobbyImages.js b/frontend/src/api/lobbyImages.js
+new file mode 100644
+index 0000000..d0b7a95
+--- /dev/null
++++ b/frontend/src/api/lobbyImages.js
+@@ -0,0 +1,14 @@
++import { API_BASE } from '../config/api';
++import { getRequest } from '../services/request';
++import { STORE_CODE } from '../config/site';
++
++const BASE = `${API_BASE}/api/lobby-images`;
++
++/** Lobby images managed from the backend for this store (empty values = built-in artwork). */
++export function getLobbyImages(storeCode = STORE_CODE) {
++  const query = storeCode ? { store_code: storeCode } : undefined;
++  return getRequest(`${BASE}/config`, query).then((res) => {
++    const images = res?.lobbyImages ?? res;
++    return images && typeof images === 'object' ? images : {};
++  });
++}
+diff --git a/frontend/src/api/slotProviders.js b/frontend/src/api/slotProviders.js
+index 2dbbaf2..a8e5a2e 100644
+--- a/frontend/src/api/slotProviders.js
++++ b/frontend/src/api/slotProviders.js
+@@ -5,17 +5,15 @@ import { STORE_CODE } from '../config/site';
+ const SLOT_PROVIDERS_BASE = `${API_BASE}/api/slot-providers`;
+ 
+ export const DEFAULT_SLOT_PROVIDERS = {
+-  gitslotpark: true,
+   bona: true,
+-  onegamehub: true,
++  onegamehub: false,
+   scorpio: true,
+ };
+ 
+ export function normalizeSlotProviders(data) {
+   return {
+-    gitslotpark: data?.gitslotpark !== false,
+     bona: data?.bona !== false,
+-    onegamehub: data?.onegamehub !== false,
++    onegamehub: data?.onegamehub === true,
+     scorpio: data?.scorpio !== false,
+   };
+ }
+@@ -23,7 +21,7 @@ export function normalizeSlotProviders(data) {
+ function pickProvidersPayload(res) {
+   if (res?.providers && typeof res.providers === 'object') return res.providers;
+   if (res?.data?.providers && typeof res.data.providers === 'object') return res.data.providers;
+-  if (res && typeof res === 'object' && ('onegamehub' in res || 'gitslotpark' in res || 'bona' in res || 'scorpio' in res)) {
++  if (res && typeof res === 'object' && ('onegamehub' in res || 'bona' in res || 'scorpio' in res)) {
+     return res;
+   }
+   return null;
+diff --git a/frontend/src/api/tasks.js b/frontend/src/api/tasks.js
+deleted file mode 100644
+index 848a5e1..0000000
+--- a/frontend/src/api/tasks.js
++++ /dev/null
+@@ -1,14 +0,0 @@
+-import { API_BASE } from '../config/api';
+-import { getRequest, postRequest } from '../services/request';
+-
+-const BASE = `${API_BASE}/api/tasks`;
+-
+-/** Per-task state for the signed-in user: { tasks: [{ id, group, eligible, claimed, reward_sc, reward_gc }], claimed, reset_at }. */
+-export function getTaskStatus() {
+-  return getRequest(BASE);
+-}
+-
+-/** Claim a task reward. group is 'regular' or 'daily'. */
+-export function claimTask(group, taskId) {
+-  return postRequest(`${BASE}/${encodeURIComponent(taskId)}/claim`, { group });
+-}
+diff --git a/frontend/src/components/Casino/CasinoLobby.jsx b/frontend/src/components/Casino/CasinoLobby.jsx
+index a7e25f0..46d429a 100644
+--- a/frontend/src/components/Casino/CasinoLobby.jsx
++++ b/frontend/src/components/Casino/CasinoLobby.jsx
+@@ -4,6 +4,7 @@ import { LOBBY_INSERT_AFTER } from '../../config/lobbyDefaults';
+ import { useLobbyContent } from '../../hooks/useLobbyContent';
+ import { useLobbyConfig } from '../../hooks/useLobbyConfig';
+ import { getGameCategoryPath } from '../../config/gameCategories';
++import { useAvailableGameCategories } from '../../hooks/useAvailableGameCategories';
+ import { useAuth } from '../../context/AuthContext';
+ import { useCasinoLobbyCategories } from '../Home/homeCasinoLobbyMix';
+ import { useLaunchDashboardSlotGame } from '../../hooks/useLaunchDashboardSlotGame';
+@@ -57,7 +58,7 @@ function BannerCarousel() {
+   const [active, setActive] = useState(0);
+   // Signed-in players get the image banners; guests keep the built-in slides.
+   const content = useLobbyContent();
+-  // Banners the admin uploaded (Admin → Pages → Lobby) win; otherwise the built-in slides.
++  // Banners saved from the backend (/api/lobby-images) win; otherwise the built-in slides.
+   const adminBanners = (content.banners || []).filter((b) => b && (b.desktop || b.mobile));
+   const imageBanners = adminBanners.length ? adminBanners : cfg.imageBanners;
+   const imageMode = isAuthenticated && imageBanners?.length > 0;
+@@ -95,6 +96,14 @@ function BannerCarousel() {
+           </div>
+         ))}
+       </div>
++      {imageMode ? (
++        <div className="df-lobby__badges">
++          <Link to="/store" className="df-lobby__badge df-lobby__badge--tl"><img src="/ref/lobby/badge-basket.webp" alt="" /><span className="is-sale">Flash Sale</span></Link>
++          <Link to="/account/affiliate" className="df-lobby__badge df-lobby__badge--tr"><img src="/ref/lobby/badge-phone-share.webp" alt="" /><span className="is-ref">Refer a Friend</span></Link>
++          <Link to="/daily-bonus" className="df-lobby__badge df-lobby__badge--br"><img src="/ref/lobby/badge-clipboard.webp" alt="" /><span className="is-daily">Daily Rewards</span></Link>
++          <Link to="/spinwheel" className="df-lobby__badge df-lobby__badge--bl"><img src="/ref/lobby/badge-trophy.webp" alt="" /><span className="is-join">Join Now</span></Link>
++        </div>
++      ) : null}
+       <div className="df-lobby__dots">
+         {slides.map((s, i) => (
+           <button
+@@ -113,9 +122,14 @@ function BannerCarousel() {
+ /* ---------- daily rewards / spin cards ---------- */
+ function PromoCards() {
+   const cfg = useLobbyConfig();
++  const content = useLobbyContent();
++  // Card backgrounds the backend saved win over the built-in artwork.
++  const backendBg = { daily: content.dailyCardBg, spin: content.spinCardBg };
+   return (
+     <section className="df-lobby__promos">
+-      {cfg.promoCards.map((c) => (
++      {cfg.promoCards.map((card) => {
++        const c = backendBg[card.id] ? { ...card, bg: backendBg[card.id] } : card;
++        return (
+         <div
+           key={c.id}
+           className={`df-lobby__promo df-lobby__promo--${c.variant}`}
+@@ -138,7 +152,8 @@ function PromoCards() {
+             <img className="df-lobby__promo-art" src={c.art} alt="" loading="lazy" draggable="false" />
+           )}
+         </div>
+-      ))}
++        );
++      })}
+     </section>
+   );
+ }
+@@ -146,6 +161,7 @@ function PromoCards() {
+ /* ---------- category pills ---------- */
+ function CategoryTabs() {
+   const cfg = useLobbyConfig();
++  const isCategoryAvailable = useAvailableGameCategories();
+   return (
+     <nav className="df-lobby__tabs" aria-label="Game categories">
+       <Link to="/casino" className="df-lobby__tabs-search" aria-label="Search games">
+@@ -154,7 +170,7 @@ function CategoryTabs() {
+           <path d="m20 20-3.5-3.5" />
+         </svg>
+       </Link>
+-      {cfg.categories.map((c, i) => (
++      {cfg.categories.filter((c) => !c.id || isCategoryAvailable(c.id)).map((c, i) => (
+         <Link
+           key={c.label}
+           to={c.id ? getGameCategoryPath(c.id) : '/casino'}
+diff --git a/frontend/src/components/Casino/GoldenLobbySections.jsx b/frontend/src/components/Casino/GoldenLobbySections.jsx
+index 376e090..8d8ae5c 100644
+--- a/frontend/src/components/Casino/GoldenLobbySections.jsx
++++ b/frontend/src/components/Casino/GoldenLobbySections.jsx
+@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
+ import { useLobbyCatalog } from '../../hooks/useLobbyCatalog';
+ import { useLobbyContent } from '../../hooks/useLobbyContent';
+ import { useLobbyPopular } from '../../hooks/useLobbyPopular';
+-import { buildCategoryGameIndex, prepareDashboardSlotGames } from '../../utils/gitslotparkLandingGames';
++import { buildCategoryGameIndex, prepareDashboardSlotGames } from '../../utils/slotLobbyGames';
+ import { buildLobbySections } from './lobbyBuilder';
+ import '../../styles/golden-lobby.css';
+ 
+diff --git a/frontend/src/components/Games/WithdrawPromptModal.jsx b/frontend/src/components/Games/WithdrawPromptModal.jsx
+index ea790f3..3f5f04a 100644
+--- a/frontend/src/components/Games/WithdrawPromptModal.jsx
++++ b/frontend/src/components/Games/WithdrawPromptModal.jsx
+@@ -4,13 +4,12 @@ import * as Dialog from '../ui/Dialog';
+ import { useHideIntercomForGameTransferModal } from '../intercomApi';
+ import { GiftIcon, ReferEarnIcon } from '../../assets/icons';
+ import * as affiliateApi from '../../api/affiliate';
+-import { GIT_SLOTPARK_PROVIDERS } from '../../api/gitslotpark';
+ import { shareOptionsFromAffiliateStats } from '../../utils/socialShare';
+ import { getAllCachedProviderSlotGames } from '../../utils/dashboardSlotGamesCache';
+ import {
+   prepareDashboardSlotGames,
+   resolveLaunchGameId,
+-} from '../../utils/gitslotparkLandingGames';
++} from '../../utils/slotLobbyGames';
+ import { useEnabledSlotProviders } from '../../hooks/useEnabledSlotProviders';
+ import { useLaunchDashboardSlotGame } from '../../hooks/useLaunchDashboardSlotGame';
+ import { DepositRequiredModal } from './DepositRequiredModal';
+@@ -63,9 +62,6 @@ function isEnabledSlotGame(game, flags) {
+   if (!provider || !flags) return false;
+   if (provider === 'onegamehub' || provider === '1gamehub') return flags.onegamehub === true;
+   if (provider === 'bona') return flags.bona === true;
+-  if (provider === 'gitslotpark' || GIT_SLOTPARK_PROVIDERS.includes(provider)) {
+-    return flags.gitslotpark === true;
+-  }
+   return false;
+ }
+ 
+diff --git a/frontend/src/components/Home/CasinoCrossSellPanel.jsx b/frontend/src/components/Home/CasinoCrossSellPanel.jsx
+index 9113459..f1a506b 100644
+--- a/frontend/src/components/Home/CasinoCrossSellPanel.jsx
++++ b/frontend/src/components/Home/CasinoCrossSellPanel.jsx
+@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+ import { Link } from 'react-router-dom';
+ import { prefetchLobbySlotGames } from './DashboardSlotGamesSection';
+ import { getCachedProviderSlotGames } from '../../utils/dashboardSlotGamesCache';
+-import { getGameLobbyCategoryLabel, resolveLaunchGameId } from '../../utils/gitslotparkLandingGames';
++import { getGameLobbyCategoryLabel, resolveLaunchGameId } from '../../utils/slotLobbyGames';
+ import { useLaunchDashboardSlotGame } from '../../hooks/useLaunchDashboardSlotGame';
+ import { DepositRequiredModal } from '../Games/DepositRequiredModal';
+ 
+diff --git a/frontend/src/components/Home/DashboardSidebar.jsx b/frontend/src/components/Home/DashboardSidebar.jsx
+index f6123a1..23c10e9 100644
+--- a/frontend/src/components/Home/DashboardSidebar.jsx
++++ b/frontend/src/components/Home/DashboardSidebar.jsx
+@@ -3,10 +3,9 @@ import { useState } from 'react';
+ import { Link, useLocation, useNavigate } from 'react-router-dom';
+ import { useAuth } from '../../context/AuthContext';
+ import { openSupportWidget } from '../intercomApi';
+-import { openTaskList } from '../Tasks/TaskListModal';
+-import { useClaimableTaskCount } from '../Tasks/useClaimableTaskCount';
+ import { warmupCasino } from '../../utils/preloadCasino';
+ import { getGameCategoryPath } from '../../config/gameCategories';
++import { useAvailableGameCategories } from '../../hooks/useAvailableGameCategories';
+ import '../../styles/dashboard-sidebar.css';
+ import { site } from '../../config/site';
+ import { useLobbyShell } from '../../hooks/useLobbyShell';
+@@ -201,7 +200,6 @@ export const RAIL_ITEMS = [
+   { id: 'vip', label: 'VIP', icon: ICON.vip, to: '/account/vip', authRequired: true },
+   // Favorites disabled (no backend management)
+   // { id: 'favorites', label: 'Favorites', icon: ICON.favorites, to: '/favorites', authRequired: true },
+-  { id: 'tasks', label: 'Task List', icon: ICON.tasks, action: 'tasks' },
+   { id: 'faq', label: 'FAQ', icon: ICON.faq, to: '/faq' },
+   { divider: true },
+   ...GAME_ITEMS.map((g) => ({ id: g.id, label: g.label, icon: g.icon, to: getGameCategoryPath(g.id) })),
+@@ -235,10 +233,10 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
+   const navigate = useNavigate();
+   const { pathname } = useLocation();
+   const { balanceSc, balanceGc, logout } = useAuth();
+-  const claimableTasks = useClaimableTaskCount(isAuthenticated);
+   const [gamesOpen, setGamesOpen] = useState(false);
+   const [bonusesOpen, setBonusesOpen] = useState(false);
+   const shell = useLobbyShell();
++  const isCategoryAvailable = useAvailableGameCategories();
+   const { vipStatus } = useVipStatus();
+   const vipLevels = Array.isArray(vipStatus?.levels) ? vipStatus.levels : [];
+   const vipIdx = Number(vipStatus?.level_index) || 0;
+@@ -350,7 +348,6 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
+           {/* Favorites disabled (no backend management)
+           <Row id="favorites" icon={ICON.favorites} label="Favorites" to="/favorites" />
+           */}
+-          <Row id="tasks" icon={ICON.tasks} label="Task List" onClick={() => { if (!isAuthenticated) { go('/register'); return; } openTaskList(); onNavigate?.(); }} badge={claimableTasks > 0 ? String(claimableTasks) : undefined} />
+           <Row id="faq" icon={ICON.faq} label="FAQ" to="/faq" />
+ 
+           <div className="dgs__divider" aria-hidden />
+@@ -373,7 +370,7 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
+               {ICON.chevron}
+             </button>
+             <div className="dgs__group-body">
+-              {GAME_ITEMS.filter((g) => !shell.hidden('sidebar', g.id)).map((g) => (
++              {GAME_ITEMS.filter((g) => !shell.hidden('sidebar', g.id) && isCategoryAvailable(g.id)).map((g) => (
+                 <button
+                   key={g.id}
+                   type="button"
+diff --git a/frontend/src/components/Home/DashboardSlotGamesSection.jsx b/frontend/src/components/Home/DashboardSlotGamesSection.jsx
+index 0bad19d..7043f3d 100644
+--- a/frontend/src/components/Home/DashboardSlotGamesSection.jsx
++++ b/frontend/src/components/Home/DashboardSlotGamesSection.jsx
+@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useDeferredValue } f
+ import { useLocation, useNavigate } from 'react-router-dom';
+ import { useAuth } from '../../context/AuthContext';
+ import { useToast } from '../../context/ToastContext';
+-import * as gitslotparkApi from '../../api/gitslotpark';
++import { getSlotLaunchMode } from '../../config/slotLaunch';
+ import * as onegamehubApi from '../../api/onegamehub';
+ import * as bonaApi from '../../api/bona';
+ import * as scorpioApi from '../../api/scorpio';
+@@ -10,9 +10,7 @@ import {
+   appendBonaToSlotCategories,
+   buildOrionstarSlotCategories,
+   dedupeCarouselGames,
+-  extractGitslotparkGamesList,
+   isBlockedOneGameHubBrand,
+-  mapGitslotparkToCarouselGame,
+   mapOneGameHubToCarouselGame,
+   mapBonaToCarouselGame,
+   mapScorpioToCarouselGame,
+@@ -23,7 +21,7 @@ import {
+   prepareDashboardSlotGames,
+   resolveLaunchGameId,
+   isOneGameHubFishingPlayGame,
+-} from '../../utils/gitslotparkLandingGames';
++} from '../../utils/slotLobbyGames';
+ import {
+   getCachedProviderSlotGames,
+   getAllCachedProviderSlotGames,
+@@ -72,8 +70,7 @@ function getProviderSearchText(provider) {
+   if (provider === 'onegamehub' || provider === '1gamehub') return '1gamehub games';
+   if (provider === 'bona') return 'bona games';
+   if (isScorpioPlayProvider(provider)) return 'scorpio games';
+-  const label = gitslotparkApi.getGitslotparkProviderMeta(provider)?.label || '';
+-  return `${provider} ${label}`.trim().toLowerCase();
++  return String(provider || '').trim().toLowerCase();
+ }
+ 
+ function rankSearchMatch(game, query) {
+@@ -116,22 +113,6 @@ function withRecentlyPlayedCategory(allGames, categories, recentRows) {
+   return [recent, ...withoutRecent];
+ }
+ 
+-function fetchProviderSlotGames(provider) {
+-  const cached = getCachedProviderSlotGames(provider);
+-
+-  return gitslotparkApi
+-    .getSlotGames(provider)
+-    .then((res) => {
+-      const list = extractGitslotparkGamesList(res);
+-      const mapped = list.map((game) => mapGitslotparkToCarouselGame(game, provider));
+-      if (mapped.length) {
+-        setCachedProviderSlotGames(provider, mapped);
+-      }
+-      return mapped.length ? mapped : cached || [];
+-    })
+-    .catch(() => cached || []);
+-}
+-
+ let hubGamesInflight = null;
+ let hubBackgroundRefreshStarted = false;
+ 
+@@ -280,16 +261,6 @@ async function fetchScorpioSlotGames() {
+   }
+ }
+ 
+-function getSlotProvidersLoadOrder(gitslotparkEnabled = true) {
+-  if (!gitslotparkEnabled) return [];
+-  const configured = gitslotparkApi.listConfiguredGitslotparkProviders();
+-  const providers = configured.length ? configured : gitslotparkApi.GIT_SLOTPARK_PROVIDERS;
+-  return [
+-    ...providers.filter((provider) => provider !== 'pragmatic'),
+-    ...providers.filter((provider) => provider === 'pragmatic'),
+-  ];
+-}
+-
+ function mergeProviderGames(gamesByProvider) {
+   const hub = gamesByProvider.get(ONEGAMEHUB_CACHE_KEY) || [];
+   const bona = gamesByProvider.get(BONA_CACHE_KEY) || [];
+@@ -315,11 +286,6 @@ export async function prefetchLobbySlotGames(onUpdate) {
+     };
+     if (providers.onegamehub) watch(fetchOneGameHubSlotGames());
+     if (providers.bona) watch(fetchBonaSlotGames());
+-    if (providers.gitslotpark) {
+-      for (const provider of getSlotProvidersLoadOrder(true)) {
+-        watch(fetchProviderSlotGames(provider));
+-      }
+-    }
+     if (providers.scorpio) watch(fetchScorpioSlotGames());
+     if (!tasks.length) return [];
+     return Promise.all(tasks);
+@@ -433,18 +399,6 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
+         clearCachedProviderSlotGames(SCORPIO_CACHE_KEY);
+       }
+ 
+-      const gitslotparkProviders = getSlotProvidersLoadOrder(enabledProviders.gitslotpark);
+-      if (enabledProviders.gitslotpark) {
+-        for (const provider of gitslotparkProviders) {
+-          const cached = getCachedProviderSlotGames(provider);
+-          if (cached?.length) gamesByProvider.set(provider, cached);
+-        }
+-      } else {
+-        for (const provider of gitslotparkApi.GIT_SLOTPARK_PROVIDERS) {
+-          clearCachedProviderSlotGames(provider);
+-        }
+-      }
+-
+       const publish = () => {
+         if (cancelled) return;
+         applyLobbyGamesToState(
+@@ -503,9 +457,6 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
+       if (enabledProviders.scorpio) {
+         watch(SCORPIO_CACHE_KEY, fetchScorpioSlotGames());
+       }
+-      for (const provider of gitslotparkProviders) {
+-        watch(provider, fetchProviderSlotGames(provider));
+-      }
+ 
+       if (!fetches.length) {
+         publish();
+@@ -534,7 +485,6 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
+   }, [
+     applyCategories,
+     enabledProviders.bona,
+-    enabledProviders.gitslotpark,
+     enabledProviders.onegamehub,
+     enabledProviders.scorpio,
+     hasSlotProviders,
+@@ -600,24 +550,16 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
+       }
+ 
+       try {
+-        const gitslotparkRes = enabledProviders.gitslotpark
+-          ? await gitslotparkApi.getRecentlyPlayedSlotGames({ limit: 12 }).catch(() => ({ games: [] }))
+-          : { games: [] };
+         const onegamehubRes = enabledProviders.onegamehub === true
+           ? await onegamehubApi.getOneGameHubRecentlyPlayed({ limit: 12 }).catch(() => ({ games: [] }))
+           : { games: [] };
+         if (cancelled) return;
+-        const gitslotparkRows = Array.isArray(gitslotparkRes?.games)
+-          ? gitslotparkRes.games
+-          : Array.isArray(gitslotparkRes?.data?.games)
+-            ? gitslotparkRes.data.games
+-            : [];
+         const onegamehubRows = Array.isArray(onegamehubRes?.games)
+           ? onegamehubRes.games
+           : Array.isArray(onegamehubRes?.data?.games)
+             ? onegamehubRes.data.games
+             : [];
+-        const rows = [...gitslotparkRows, ...onegamehubRows];
++        const rows = onegamehubRows;
+         recentRowsRef.current = rows;
+         // Only merge when catalog games exist so we don't flash Game Vault stubs.
+         if (allGamesRef.current.length) {
+@@ -634,7 +576,7 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
+     return () => {
+       cancelled = true;
+     };
+-  }, [authLoading, isAuthenticated, userId, applyCategories, location.pathname, enabledProviders.gitslotpark, enabledProviders.onegamehub, providersLoaded]);
++  }, [authLoading, isAuthenticated, userId, applyCategories, location.pathname, enabledProviders.onegamehub, providersLoaded]);
+ 
+   const handlePlayGame = useCallback(
+     async (game) => {
+@@ -656,10 +598,10 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
+         setLaunchingGameId(gameid);
+ 
+         try {
+-          const provider = game.provider || 'pragmatic';
++          const provider = game.provider || '';
+ 
+           if (provider === 'bona') {
+-            if (gitslotparkApi.getGitslotparkLaunchMode() === 'tab') {
++            if (getSlotLaunchMode() === 'tab') {
+               const res = await bonaApi.launchBonaGame(gameid);
+               const url = res?.url ? String(res.url).trim() : '';
+               if (!url) throw new Error('Game launch URL not returned');
+@@ -687,7 +629,7 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
+             if (!gameCode || !Number.isFinite(providerId) || providerId <= 0) {
+               throw new Error('This game cannot be launched right now. Please try another title.');
+             }
+-            if (gitslotparkApi.getGitslotparkLaunchMode() === 'tab') {
++            if (getSlotLaunchMode() === 'tab') {
+               const res = await scorpioApi.launchScorpioGame({ gameCode, providerId });
+               const url = res?.url ? String(res.url).trim() : '';
+               if (!url) throw new Error('Game launch URL not returned');
+@@ -718,7 +660,7 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
+               gameid,
+               lobbyCategoryId: resolvedCategoryId,
+             });
+-            if (gitslotparkApi.getGitslotparkLaunchMode() === 'tab') {
++            if (getSlotLaunchMode() === 'tab') {
+               const res = await onegamehubApi.launchOneGameHubGame(gameid);
+               const url = res?.url ? String(res.url).trim() : '';
+               if (!url) throw new Error('Game launch URL not returned');
+@@ -744,24 +686,7 @@ export function DashboardSlotGamesSection({ catalogOnly = false, categoryId = nu
+             return;
+           }
+ 
+-          if (gitslotparkApi.getGitslotparkLaunchMode() === 'tab') {
+-            const res = await gitslotparkApi.launchSlotGame(gameid, provider);
+-            const url = res?.url ? String(res.url).trim() : '';
+-            if (!url) throw new Error('Game launch URL not returned');
+-            window.open(url, '_blank', 'noopener,noreferrer');
+-            return;
+-          }
+-
+-          navigate(`/play/${encodeURIComponent(gameid)}`, {
+-            state: {
+-              provider,
+-              name: game.title || 'Casino game',
+-              returnTo: location.pathname,
+-              image: game.image || '',
+-              iconUrls: game.iconUrls || [],
+-              symbol: game.symbol || '',
+-            },
+-          });
++          throw new Error('This game cannot be launched right now. Please try another title.');
+         } catch (e) {
+           if (isDepositRequiredError(e)) {
+             openDepositRequiredModal();
+diff --git a/frontend/src/components/Home/GamesSection/index.jsx b/frontend/src/components/Home/GamesSection/index.jsx
+index 4928258..4eae84a 100644
+--- a/frontend/src/components/Home/GamesSection/index.jsx
++++ b/frontend/src/components/Home/GamesSection/index.jsx
+@@ -40,7 +40,7 @@ import { SlotGamesCatalogGrid } from '../SlotGamesCatalogGrid';
+ import {
+   appendBonaToSlotCategories,
+   buildOrionstarSlotCategories,
+-} from '../../../utils/gitslotparkLandingGames';
++} from '../../../utils/slotLobbyGames';
+ import {
+   getAllCachedProviderSlotGames,
+ } from '../../../utils/dashboardSlotGamesCache';
+@@ -217,7 +217,6 @@ export function GamesSection({ pageMode = false, initialFilter = null } = {}) {
+       .then((providers) => {
+         if (cancelled) return null;
+         const flags = {
+-          gitslotpark: Boolean(providers?.gitslotpark),
+           onegamehub: Boolean(providers?.onegamehub),
+         };
+         refreshCasino(flags);
+diff --git a/frontend/src/components/Home/HomeCasinoCoverflow.jsx b/frontend/src/components/Home/HomeCasinoCoverflow.jsx
+index 75aef5e..5c67bc4 100644
+--- a/frontend/src/components/Home/HomeCasinoCoverflow.jsx
++++ b/frontend/src/components/Home/HomeCasinoCoverflow.jsx
+@@ -1,5 +1,5 @@
+ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+-import { GAME_PLACEHOLDER } from '../../utils/gitslotparkLandingGames';
++import { GAME_PLACEHOLDER } from '../../utils/slotLobbyGames';
+ 
+ const SLIDE_MS = 3000;
+ const ANIM_MS = 650;
+diff --git a/frontend/src/components/Home/LiveWinPopup.jsx b/frontend/src/components/Home/LiveWinPopup.jsx
+index 127d062..541bc71 100644
+--- a/frontend/src/components/Home/LiveWinPopup.jsx
++++ b/frontend/src/components/Home/LiveWinPopup.jsx
+@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
+ import { useLocation } from 'react-router-dom';
+ import { useAuth } from '../../context/AuthContext';
+ import { useBlockingOverlayOpen } from '../../hooks/useBlockingOverlayOpen';
+-import * as gitslotparkApi from '../../api/gitslotpark';
+ import { getCachedProviderSlotGames } from '../../utils/dashboardSlotGamesCache';
+ import {
+   LIVE_WIN_ACTIONS,
+@@ -51,10 +50,7 @@ function LiveWinThumb({ src }) {
+ }
+ 
+ function readCachedSlotGames() {
+-  const providers = [
+-    ...gitslotparkApi.listConfiguredGitslotparkProviders(),
+-    'bona',
+-  ];
++  const providers = ['bona'];
+   return collectLiveWinSlotGamesFromCache(getCachedProviderSlotGames, providers);
+ }
+ 
+diff --git a/frontend/src/components/Home/homeCasinoLobbyMix.js b/frontend/src/components/Home/homeCasinoLobbyMix.js
+index d28cc3f..1a9a1f1 100644
+--- a/frontend/src/components/Home/homeCasinoLobbyMix.js
++++ b/frontend/src/components/Home/homeCasinoLobbyMix.js
+@@ -7,7 +7,7 @@ import {
+   buildOrionstarSlotCategories,
+   getSlotCategoryPath,
+   isHiddenSlotCategoryId,
+-} from '../../utils/gitslotparkLandingGames';
++} from '../../utils/slotLobbyGames';
+ import { fetchEnabledSlotProviders } from '../../hooks/useEnabledSlotProviders';
+ 
+ export const IS_PLAYJUWA_STORE =
+@@ -94,7 +94,6 @@ function useHomeCasinoCategories({ enabled = false, allowed = false } = {}) {
+       .then((providers) => {
+         if (cancelled) return null;
+         const flags = {
+-          gitslotpark: Boolean(providers?.gitslotpark),
+           onegamehub: Boolean(providers?.onegamehub),
+         };
+         apply(flags);
+diff --git a/frontend/src/components/Layout.jsx b/frontend/src/components/Layout.jsx
+index e5ea0c6..d0aff98 100644
+--- a/frontend/src/components/Layout.jsx
++++ b/frontend/src/components/Layout.jsx
+@@ -5,7 +5,6 @@ import { DragonFuryHelpLauncher } from './Home/DragonFuryHelpLauncher';
+ import { WebsiteTour } from './WebsiteTour/WebsiteTour';
+ import { Navbar } from './Navbar';
+ import { SpinzySidebar } from './SpinzySidebar';
+-import { TaskListModal } from './Tasks/TaskListModal';
+ import '../styles/spinzy-layout.css';
+ import '../styles/site-pages.css';
+ import '../styles/site-header.css';
+@@ -256,7 +255,6 @@ export function Layout({ children }) {
+       {/* <a href="#main-content" className="skip-link">Skip to main content</a> */}
+       <Navbar />
+       <SpinzySidebar />
+-      <TaskListModal />
+       <main
+         id="main-content"
+         tabIndex={-1}
+diff --git a/frontend/src/components/SlotGames/SlotGamesCarousel/index.jsx b/frontend/src/components/SlotGames/SlotGamesCarousel/index.jsx
+index 5061bbc..6a4d4b5 100644
+--- a/frontend/src/components/SlotGames/SlotGamesCarousel/index.jsx
++++ b/frontend/src/components/SlotGames/SlotGamesCarousel/index.jsx
+@@ -1,6 +1,6 @@
+ import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
+ import { Link } from 'react-router-dom';
+-import { GAME_PLACEHOLDER } from '../../../utils/gitslotparkLandingGames';
++import { GAME_PLACEHOLDER } from '../../../utils/slotLobbyGames';
+ import { isScorpioPlayProvider } from '../../../config/scorpio';
+ import { getSlotLobbyCategoryMeta, SlotLobbyIcon } from '../slotLobbyMeta';
+ import './slot-games-carousel.css';
+diff --git a/frontend/src/components/SpinzySidebar.jsx b/frontend/src/components/SpinzySidebar.jsx
+index ee3af1b..e23f243 100644
+--- a/frontend/src/components/SpinzySidebar.jsx
++++ b/frontend/src/components/SpinzySidebar.jsx
+@@ -1,9 +1,7 @@
+ import { useEffect, useState } from 'react';
+ import { useNavigate, useLocation } from 'react-router-dom';
+ import { useAuth } from '../context/AuthContext';
+-import { useClaimableTaskCount } from './Tasks/useClaimableTaskCount';
+ import { openSupportWidget } from './intercomApi';
+-import { openTaskList } from './Tasks/TaskListModal';
+ import { DashboardSidebar, RAIL_ITEMS, applyRailShell } from './Home/DashboardSidebar';
+ import { useLobbyShell } from '../hooks/useLobbyShell';
+ import '../styles/dashboard-sidebar.css';
+@@ -15,7 +13,6 @@ function IconRail({ onNavigate, isGuest = false }) {
+   const navigate = useNavigate();
+   const { pathname, search } = useLocation();
+   const { logout } = useAuth();
+-  const claimableTasks = useClaimableTaskCount(!isGuest);
+   const shell = useLobbyShell();
+ 
+   const isActive = (to) => {
+@@ -25,7 +22,7 @@ function IconRail({ onNavigate, isGuest = false }) {
+   const handle = (it) => {
+     if (isGuest) {
+       // Login-gated features (account, rewards, tasks) → open the login modal.
+-      if (it.action === 'tasks' || it.authRequired) {
++      if (it.authRequired) {
+         navigate(`/login${search || ''}`);
+       } else if (it.action === 'support') {
+         openSupportWidget();
+@@ -37,8 +34,6 @@ function IconRail({ onNavigate, isGuest = false }) {
+     }
+     if (it.action === 'support') {
+       openSupportWidget();
+-    } else if (it.action === 'tasks') {
+-      openTaskList();
+     } else if (it.action === 'logout') {
+       logout?.();
+     } else if (it.to) {
+@@ -70,7 +65,7 @@ function IconRail({ onNavigate, isGuest = false }) {
+             >
+               {it.icon}
+               {(() => {
+-                const badge = it.id === 'tasks' ? (claimableTasks > 0 ? String(claimableTasks) : '') : it.badge;
++                const badge = it.badge;
+                 return badge && !isGuest ? <span className="dgs-rail__badge">{badge}</span> : null;
+               })()}
+             </button>
+diff --git a/frontend/src/components/Tasks/TaskListModal.jsx b/frontend/src/components/Tasks/TaskListModal.jsx
+deleted file mode 100644
+index 77a455f..0000000
+--- a/frontend/src/components/Tasks/TaskListModal.jsx
++++ /dev/null
+@@ -1,343 +0,0 @@
+-import { useCallback, useEffect, useState } from 'react';
+-import { createPortal } from 'react-dom';
+-import { Link } from 'react-router-dom';
+-import { useAuth } from '../../context/AuthContext';
+-import { site } from '../../config/site';
+-import { useLobbyContent } from '../../hooks/useLobbyContent';
+-import { useToast } from '../../context/ToastContext';
+-import { useStoreSocialLinks } from '../../hooks/useStoreSocialLinks';
+-import { getTaskStatus, claimTask } from '../../api/tasks';
+-import { TASKS_CHANGED_EVENT } from './useClaimableTaskCount';
+-import './task-list-modal.css';
+-
+-export const OPEN_TASK_LIST_EVENT = 'df:open-task-list';
+-export function openTaskList() {
+-  window.dispatchEvent(new CustomEvent(OPEN_TASK_LIST_EVENT));
+-}
+-
+-const GC = '/icons/coin.png';
+-const SC = '/df-online/sc-coin.webp';
+-const envSocial = site?.socialLinks || {};
+-
+-const buildRegular = (social) => [
+-  { id: 'fb', title: 'Click Link', desc: 'Follow us on Facebook', target: 'Visit the link', url: social.facebook, gc: '1,000', sc: '0.2' },
+-  { id: 'x', title: 'Click Link', desc: 'Follow us on X', target: 'Visit the link', url: social.twitter, gc: '10,000', sc: '0.2' },
+-  { id: 'phone', title: 'Verify Phone', desc: 'Verify Your Phone Number and get rewards', target: 'Verify your phone number', action: 'phone', gc: '10,000', sc: '0.5' },
+-  { id: 'ig', title: 'Click Link', desc: 'Follow us on Instagram', target: 'Visit the link', url: social.instagram, gc: '10,000', sc: '0.2' },
+-  { id: 'dc', title: 'Click Link', desc: 'Join our Discord community', target: 'Visit the link', url: social.discord, gc: '10,000', sc: '0.2' },
+-  { id: 'email', title: 'Setup Email Address', desc: 'Add and verify your email address', target: 'Set up your email address', action: 'email', gc: '100', sc: '1' },
+-];
+-
+-const DAILY = [
+-  { id: 'purchase', title: 'Purchase Package', desc: 'Purchase a package worth $30 and get rewards.', target: 'Purchase a package worth $30', to: '/store', cta: 'Visit Store', gc: '50,000', sc: '1' },
+-  { id: 'referral', title: 'Referral Completed', desc: 'Refer a friend and earn bonus.', target: 'Refer a friend', to: '/account/affiliate', cta: 'Invite Friends', gc: '10,000', sc: '0.5' },
+-  { id: 'active', title: 'Stay Active', desc: '', target: 'Log in and stay active today', gc: '1,000', sc: '0.1' },
+-  { id: 'play', title: 'Play Games', desc: 'Play 5 games today', target: 'Play 5 games today', to: '/casino', cta: 'Play Games', gc: '2,500', sc: '0.25' },
+-];
+-
+-/** Admin-managed tasks replace a built-in list; hidden ones are dropped; social tasks fall back to the site's links. */
+-function resolveTasks(custom, builtIn, social) {
+-  if (!Array.isArray(custom) || custom.length === 0) return builtIn;
+-  return custom
+-    .filter((t) => t && t.enabled !== false)
+-    .map((t) => ({ ...t, url: t.url || (t.social ? social[t.social] : '') || undefined, to: t.to || undefined }));
+-}
+-
+-const CheckIcon = ({ done }) => (
+-  <span className={`tl-check${done ? ' is-done' : ''}`} aria-label={done ? 'Completed' : undefined}>
+-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+-      <circle cx="12" cy="12" r="10.5" stroke="currentColor" strokeWidth="3" />
+-      <path d="M8 12l3.150 3.150L17.400 8.850" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+-    </svg>
+-  </span>
+-);
+-
+-function TaskCard({ task, done, claimable, claiming, onClaim, onClose }) {
+-  const [open, setOpen] = useState(false);
+-  const [visited, setVisited] = useState(false);
+-  const cta = (() => {
+-    if (task.url) {
+-      return (
+-        <a href={task.url} target="_blank" rel="noopener noreferrer" className="tl-cta" onClick={() => setVisited(true)}>
+-          Open Link
+-        </a>
+-      );
+-    }
+-    if (task.action === 'phone' && !done) {
+-      return <Link to="/settings" className="tl-cta" onClick={onClose}>Verify Phone</Link>;
+-    }
+-    if (task.action === 'email' && !done) {
+-      return <Link to="/account/profile#profile" className="tl-cta" onClick={onClose}>Complete profile</Link>;
+-    }
+-    if (task.to) {
+-      return <Link to={task.to} className="tl-cta" onClick={onClose}>{task.cta}</Link>;
+-    }
+-    return null;
+-  })();
+-
+-  return (
+-    <div className="tl-card">
+-      <button type="button" className="tl-card-head" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+-        <span className="tl-card-l">
+-          <img src={GC} alt="" aria-hidden="true" draggable="false" className="tl-card-icon" />
+-          <span className="tl-card-txt">
+-            <span className="tl-card-title">
+-              <span>{task.title}</span>
+-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="tl-info" aria-hidden="true">
+-                <circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />
+-              </svg>
+-            </span>
+-            <span className="tl-card-desc">{task.desc}</span>
+-          </span>
+-        </span>
+-        <CheckIcon done={done} />
+-      </button>
+-      <div className={`tl-collapse${open ? ' is-open' : ''}`}>
+-        <div className="tl-collapse-in" {...(open ? {} : { inert: '' })}>
+-          <div className="tl-details">
+-            {task.desc ? <p className="tl-d-desc">{task.desc}</p> : null}
+-            <div>
+-              <p className="tl-d-h">Mission Target</p>
+-              <p className="tl-d-sub">{task.target}</p>
+-            </div>
+-            {cta}
+-            <div className="tl-rewards">
+-              <p className="tl-d-h">Rewards</p>
+-              <div className="tl-rewards-row">
+-                <span className="tl-gc"><img src={GC} alt="" aria-hidden="true" />{task.gc} GC</span>
+-                <span className="tl-sc"><img src={SC} alt="" aria-hidden="true" />{task.sc} SC</span>
+-              </div>
+-            </div>
+-            <button
+-              type="button"
+-              className="tl-claim"
+-              disabled={done || !claimable || claiming || (task.kind === 'link' && (!task.url || !visited))}
+-              onClick={() => onClaim(task)}
+-            >
+-              {done ? 'Claimed' : claiming ? 'Claiming…' : 'Claim Now'}
+-            </button>
+-          </div>
+-        </div>
+-      </div>
+-      <button type="button" className="tl-toggle" aria-label="Toggle details" onClick={() => setOpen((o) => !o)}>
+-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: open ? 'rotate(180deg)' : undefined }} aria-hidden="true">
+-          <path d="m6 9 6 6 6-6" />
+-        </svg>
+-      </button>
+-    </div>
+-  );
+-}
+-
+-function useResetCountdown(active, resetAt) {
+-  const calc = () => {
+-    const now = new Date();
+-    const end = resetAt ? new Date(resetAt) : new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+-    const s = Math.max(0, Math.floor((end - now) / 1000));
+-    return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m ${s % 60}s`;
+-  };
+-  const [text, setText] = useState(calc);
+-  useEffect(() => {
+-    if (!active) return undefined;
+-    setText(calc());
+-    const id = setInterval(() => setText(calc()), 1000);
+-    return () => clearInterval(id);
+-  }, [active, resetAt]);
+-  return text;
+-}
+-
+-export function TaskListModal() {
+-  const { isAuthenticated } = useAuth();
+-  const { toast } = useToast();
+-  const [open, setOpen] = useState(false);
+-  const [tab, setTab] = useState('regular');
+-  const [status, setStatus] = useState({});
+-  const [claimedList, setClaimedList] = useState([]);
+-  const [resetAt, setResetAt] = useState(null);
+-  const [claimingId, setClaimingId] = useState(null);
+-  const { tasks: adminTasks } = useLobbyContent();
+-  const { socialLinks: adminSocial } = useStoreSocialLinks();
+-  // Admin-managed links (Social Links page) win over the build-time env links.
+-  const social = { ...envSocial };
+-  Object.entries(adminSocial || {}).forEach(([k, v]) => {
+-    if (v) social[k] = v;
+-  });
+-  const regularTasks = resolveTasks(adminTasks?.regular, buildRegular(social), social);
+-  const dailyTasks = resolveTasks(adminTasks?.daily, DAILY, social);
+-  const reset = useResetCountdown(open && tab === 'daily', resetAt);
+-
+-  const loadStatus = useCallback(async () => {
+-    try {
+-      const res = await getTaskStatus();
+-      const map = {};
+-      (res?.tasks || []).forEach((t) => {
+-        map[`${t.group}:${t.id}`] = t;
+-      });
+-      setStatus(map);
+-      setClaimedList(res?.claimed || []);
+-      setResetAt(res?.reset_at || null);
+-    } catch {
+-      /* keep the last known state; claim buttons stay disabled until status loads */
+-    }
+-  }, []);
+-
+-  useEffect(() => {
+-    if (open && isAuthenticated) loadStatus();
+-  }, [open, isAuthenticated, loadStatus]);
+-
+-  const handleClaim = async (task) => {
+-    setClaimingId(`${task.group}:${task.id}`);
+-    try {
+-      const res = await claimTask(task.group, task.id);
+-      const parts = [];
+-      if (res?.reward_sc > 0) parts.push(`${res.reward_sc} SC`);
+-      if (res?.reward_gc > 0) parts.push(`${res.reward_gc.toLocaleString()} GC`);
+-      toast.success(parts.length ? `Reward claimed: ${parts.join(' + ')}` : 'Reward claimed.');
+-      window.dispatchEvent(new CustomEvent('wallet:refresh'));
+-    } catch (err) {
+-      toast.error(err?.message || 'Could not claim this reward.');
+-    } finally {
+-      setClaimingId(null);
+-      loadStatus();
+-      window.dispatchEvent(new CustomEvent(TASKS_CHANGED_EVENT));
+-    }
+-  };
+-
+-  useEffect(() => {
+-    const onOpen = () => {
+-      setTab('regular');
+-      setOpen(true);
+-    };
+-    window.addEventListener(OPEN_TASK_LIST_EVENT, onOpen);
+-    return () => window.removeEventListener(OPEN_TASK_LIST_EVENT, onOpen);
+-  }, []);
+-
+-  useEffect(() => {
+-    if (!open) return undefined;
+-    const onKey = (e) => e.key === 'Escape' && setOpen(false);
+-    document.addEventListener('keydown', onKey);
+-    const prev = document.body.style.overflow;
+-    document.body.style.overflow = 'hidden';
+-    return () => {
+-      document.removeEventListener('keydown', onKey);
+-      document.body.style.overflow = prev;
+-    };
+-  }, [open]);
+-
+-  if (!open || !isAuthenticated) return null;
+-
+-  const close = () => setOpen(false);
+-  const stateOf = (t, group) => status[`${group}:${t.id}`] || {};
+-  const withReward = (t, group) => {
+-    const st = stateOf(t, group);
+-    return {
+-      ...t,
+-      group,
+-      kind: st.kind,
+-      sc: st.reward_sc != null ? String(st.reward_sc) : t.sc,
+-      gc: st.reward_gc != null ? Number(st.reward_gc).toLocaleString() : t.gc,
+-    };
+-  };
+-  const renderTask = (t, group) => {
+-    const st = stateOf(t, group);
+-    const task = withReward(t, group);
+-    return (
+-      <TaskCard
+-        key={t.id}
+-        task={task}
+-        done={Boolean(st.claimed)}
+-        claimable={Boolean(st.eligible) && !st.claimed}
+-        claiming={claimingId === `${group}:${t.id}`}
+-        onClaim={handleClaim}
+-        onClose={close}
+-      />
+-    );
+-  };
+-  const allTasks = [...regularTasks.map((t) => ({ ...t, group: 'regular' })), ...dailyTasks.map((t) => ({ ...t, group: 'daily' }))];
+-  const tabs = [['regular', 'Regular Tasks'], ['daily', 'Daily'], ['claimed', 'Claimed']];
+-  const heading = { regular: 'Regular Tasks', daily: 'Daily Tasks', claimed: 'Claimed Tasks' }[tab];
+-
+-  return createPortal(
+-    <div className="tl-overlay" onMouseDown={(e) => e.target === e.currentTarget && close()}>
+-      <div className="tl-modal" role="dialog" aria-modal="true" aria-labelledby="tl-title">
+-        <div className="tl-top">
+-          <div className="tl-title-wrap">
+-            <svg viewBox="0 0 24 24" fill="none" stroke="#d9b45a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="tl-title-ic" aria-hidden="true">
+-              <rect x="5" y="4" width="14" height="18" rx="2.500" /><path d="M9 4V3h6v1" /><path d="M9 10h6M9 14h6M9 18h3" />
+-            </svg>
+-            <h2 id="tl-title" className="tl-title">Task List</h2>
+-          </div>
+-          <button type="button" className="tl-close" aria-label="Close" onClick={close}>
+-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+-              <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+-            </svg>
+-          </button>
+-        </div>
+-
+-        <div className="tl-tabs-wrap">
+-          <div className="tl-tabs" role="tablist">
+-            {tabs.map(([id, label]) => (
+-              <button key={id} type="button" role="tab" aria-selected={tab === id} className={`tl-tab${tab === id ? ' is-on' : ''}`} onClick={() => setTab(id)}>
+-                {label}
+-              </button>
+-            ))}
+-          </div>
+-        </div>
+-
+-        <div className="tl-heading">
+-          <h3>{heading}</h3>
+-          {tab === 'daily' ? (
+-            <span className="tl-reset">
+-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+-                <path d="M10 2h4" /><path d="M12 14l3-3" /><circle cx="12" cy="14" r="8" />
+-              </svg>
+-              Resets in {reset}
+-            </span>
+-          ) : null}
+-        </div>
+-
+-        <div className="tl-scroll">
+-          {tab === 'regular' && (
+-            <div className="tl-list">
+-              {regularTasks.map((t) => renderTask(t, 'regular'))}
+-            </div>
+-          )}
+-          {tab === 'daily' && (
+-            <div className="tl-list">
+-              {dailyTasks.map((t) => renderTask(t, 'daily'))}
+-            </div>
+-          )}
+-          {tab === 'claimed' && (
+-            claimedList.length === 0 ? (
+-              <p className="tl-empty">No claimed tasks</p>
+-            ) : (
+-              <div className="tl-list">
+-                {claimedList.map((c) => {
+-                  const base = allTasks.find((t) => t.id === c.task_id && t.group === c.group);
+-                  return (
+-                    <div key={c.task_key} className="tl-card">
+-                      <div className="tl-card-head">
+-                        <span className="tl-card-l">
+-                          <img src={GC} alt="" aria-hidden="true" draggable="false" className="tl-card-icon" />
+-                          <span className="tl-card-txt">
+-                            <span className="tl-card-title"><span>{base?.title || c.task_id}</span></span>
+-                            <span className="tl-card-desc">
+-                              {[c.reward_sc > 0 ? `${c.reward_sc} SC` : '', c.reward_gc > 0 ? `${Number(c.reward_gc).toLocaleString()} GC` : ''].filter(Boolean).join(' + ')}
+-                              {' · '}
+-                              {new Date(c.claimed_at).toLocaleDateString()}
+-                            </span>
+-                          </span>
+-                        </span>
+-                        <CheckIcon done />
+-                      </div>
+-                    </div>
+-                  );
+-                })}
+-              </div>
+-            )
+-          )}
+-        </div>
+-      </div>
+-    </div>,
+-    document.body
+-  );
+-}
+diff --git a/frontend/src/components/Tasks/task-list-modal.css b/frontend/src/components/Tasks/task-list-modal.css
+deleted file mode 100644
+index bf0ba05..0000000
+--- a/frontend/src/components/Tasks/task-list-modal.css
++++ /dev/null
+@@ -1,68 +0,0 @@
+-.tl-overlay{position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);font-family:"Montserrat",system-ui,sans-serif}
+-.tl-modal{position:relative;display:flex;flex-direction:column;width:100%;height:100%;max-width:42rem;overflow:hidden;color:#fff;background-color:#000;background-image:radial-gradient(circle at 20% 10%,rgba(80,60,140,.12),transparent 50%),radial-gradient(circle at 80% 90%,rgba(80,60,140,.1),transparent 50%);animation:tl-in .22s ease-out}
+-@keyframes tl-in{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+-.tl-top{position:relative;display:flex;align-items:center;justify-content:center;padding:.75rem .75rem 0}
+-.tl-title-wrap{display:flex;align-items:center;gap:.5rem;margin-top:.5rem}
+-.tl-title-ic{width:2.25rem;height:2.25rem}
+-.tl-title{margin:0;font-size:1.5rem;font-weight:800;text-transform:uppercase;background:linear-gradient(180deg,#f3dc9a,#c9a35a);-webkit-background-clip:text;background-clip:text;color:transparent}
+-.tl-close{position:absolute;top:1.25rem;right:1.25rem;display:flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border:0;border-radius:.25rem;background:rgba(255,255,255,.12);color:#fff;cursor:pointer}
+-.tl-close svg{width:1.25rem;height:1.25rem}
+-.tl-tabs-wrap{display:flex;justify-content:center;margin:.75rem 0;padding:0 .75rem}
+-.tl-tabs{display:flex;gap:.25rem;width:100%;max-width:32rem;padding:.25rem;border-radius:.5rem;background:#1a1a1c}
+-.tl-tab{flex:1;padding:.4rem .6rem;border:0;border-radius:.375rem;background:transparent;color:rgba(255,255,255,.6);font:800 .875rem "Montserrat",system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background .2s,color .2s}
+-.tl-tab:hover{color:#fff}
+-.tl-tab.is-on{background:linear-gradient(180deg,#fff0a8,#f5c542 55%,#d9951b);color:#14110a;box-shadow:0 2px 0 rgba(0,0,0,.3)}
+-.tl-heading{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.75rem;padding:0 .75rem}
+-.tl-heading h3{margin:0;font-size:1.1rem;font-weight:700}
+-.tl-reset{display:inline-flex;align-items:center;gap:.4rem;font-size:.95rem;font-weight:700}
+-.tl-reset svg{width:1.1rem;height:1.1rem}
+-.tl-scroll{flex:1;min-height:0;overflow-y:auto;padding:0 .75rem .75rem;scrollbar-width:thin;scrollbar-color:#d9b45a transparent}
+-.tl-scroll::-webkit-scrollbar{display:block;width:4px}
+-.tl-scroll::-webkit-scrollbar-thumb{background:#d9b45a;border-radius:4px}
+-.tl-list{display:flex;flex-direction:column;gap:.625rem}
+-.tl-warn{margin:0;padding:.5rem .75rem;border-radius:.5rem;background:rgba(245,181,43,.1);text-align:center;font-size:.875rem;font-weight:700}
+-.tl-warn a{color:#f3d57a;font-weight:800;text-decoration:underline}
+-.tl-card{padding:.625rem .875rem;border:2px solid rgba(255,255,255,.28);border-radius:1.1rem;background:linear-gradient(160deg,#2a2a2d,#1c1c1f 45%,#4a4a50 130%);user-select:none}
+-.tl-card-head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;width:100%;padding:0;border:0;background:none;color:inherit;text-align:left;cursor:pointer;font-family:inherit}
+-.tl-card-l{display:flex;align-items:center;gap:.5rem;min-width:0}
+-.tl-card-icon{flex-shrink:0;width:2.25rem;height:2.25rem;object-fit:contain}
+-.tl-card-txt{min-width:0}
+-.tl-card-title{display:flex;align-items:center;gap:.375rem;font-size:.875rem;font-weight:800}
+-.tl-card-title span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+-.tl-info{flex-shrink:0;width:1rem;height:1rem;color:rgba(255,255,255,.6)}
+-.tl-card-desc{display:block;margin-top:.125rem;min-height:1em;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+-.tl-check{flex-shrink:0;width:1.5rem;height:1.5rem;color:rgba(255,255,255,.3)}
+-.tl-check.is-done{color:#4ade80}
+-.tl-check svg{width:100%;height:100%}
+-.tl-collapse{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease-out}
+-.tl-collapse.is-open{grid-template-rows:1fr}
+-.tl-collapse-in{overflow:hidden}
+-.tl-details{display:flex;flex-direction:column;gap:1rem;margin-top:.75rem;padding:1rem;border-radius:.5rem;background:rgba(0,0,0,.25)}
+-.tl-details p{margin:0}
+-.tl-d-desc{font-size:.875rem}
+-.tl-d-h{font-size:.875rem;font-weight:700}
+-.tl-d-sub{margin-top:.375rem!important;font-size:.875rem;color:rgba(255,255,255,.7)}
+-.tl-cta{display:inline-flex;align-items:center;justify-content:center;width:100%;padding:.625rem 1rem;border:0;border-radius:.5rem;background:linear-gradient(180deg,#fff0a8,#f5c542 50%,#d9951b);color:#1a0f00;font-size:.875rem;font-weight:700;text-decoration:none}
+-.tl-cta:hover{filter:brightness(1.05)}
+-.tl-rewards{display:flex;flex-direction:column;align-items:center;gap:.5rem}
+-.tl-rewards-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem 1.5rem;font-size:1.1rem;font-weight:700}
+-.tl-gc,.tl-sc{display:inline-flex;align-items:center;gap:.5rem}
+-.tl-gc{color:#ffd54a}.tl-sc{color:#4ade80}
+-.tl-gc img,.tl-sc img{width:1.25rem;height:1.25rem;object-fit:contain}
+-.tl-claim{width:100%;padding:.6rem;border:0;border-radius:999px;background:linear-gradient(180deg,#ffe58a,#e0a52b);color:#1a0f00;font:800 .95rem "Montserrat",system-ui,sans-serif;cursor:pointer}
+-.tl-claim:disabled{opacity:.5;cursor:not-allowed}
+-.tl-toggle{display:flex;justify-content:center;width:100%;margin-top:.5rem;padding:0;border:0;background:none;color:rgba(255,255,255,.6);cursor:pointer}
+-.tl-toggle:hover{color:#fff}
+-.tl-toggle svg{width:1rem;height:1rem;transition:transform .3s}
+-.tl-empty{margin:3rem 0;text-align:center;font-size:1.25rem;font-weight:700}
+-@media(min-width:640px){
+- .tl-overlay{padding:1rem}
+- .tl-modal{height:auto;max-height:45rem;border-radius:1rem}
+-}
+-@media(min-width:768px){
+- .tl-top{padding:2rem 2.5rem 0}.tl-title{font-size:1.875rem}
+- .tl-tabs-wrap,.tl-heading{padding:0 2rem}.tl-scroll{padding:0 2rem 2rem}
+- .tl-tab{padding:.375rem 1.25rem}
+- .tl-card{padding:.625rem 1rem}.tl-card-icon{width:3rem;height:3rem}
+- .tl-card-title{font-size:1.1rem}.tl-card-desc{font-size:.875rem}.tl-check{width:1.75rem;height:1.75rem}
+-}
+diff --git a/frontend/src/components/Tasks/useClaimableTaskCount.js b/frontend/src/components/Tasks/useClaimableTaskCount.js
+deleted file mode 100644
+index 0d2877c..0000000
+--- a/frontend/src/components/Tasks/useClaimableTaskCount.js
++++ /dev/null
+@@ -1,33 +0,0 @@
+-import { useCallback, useEffect, useState } from 'react';
+-import { getTaskStatus } from '../../api/tasks';
+-
+-export const TASKS_CHANGED_EVENT = 'df:tasks-changed';
+-
+-/**
+- * Number of tasks the signed-in user can claim right now (drives the Task List badge).
+- * Follow-a-link tasks are left out: they only become claimable after the user opens the link.
+- */
+-export function useClaimableTaskCount(enabled) {
+-  const [count, setCount] = useState(0);
+-
+-  const load = useCallback(async () => {
+-    try {
+-      const res = await getTaskStatus();
+-      setCount((res?.tasks || []).filter((t) => t.eligible && !t.claimed && t.kind !== 'link').length);
+-    } catch {
+-      setCount(0);
+-    }
+-  }, []);
+-
+-  useEffect(() => {
+-    if (!enabled) {
+-      setCount(0);
+-      return undefined;
+-    }
+-    load();
+-    window.addEventListener(TASKS_CHANGED_EVENT, load);
+-    return () => window.removeEventListener(TASKS_CHANGED_EVENT, load);
+-  }, [enabled, load]);
+-
+-  return count;
+-}
+diff --git a/frontend/src/config/casinoLobbyConfig.js b/frontend/src/config/casinoLobbyConfig.js
+index cb4aed8..52a32f8 100644
+--- a/frontend/src/config/casinoLobbyConfig.js
++++ b/frontend/src/config/casinoLobbyConfig.js
+@@ -22,13 +22,24 @@ export const casinoLobbyConfig = {
+       id: 'daily-spin',
+       kicker: 'FREE EVERY DAY',
+       title: 'SPIN THE WHEEL',
+-      body: 'Win Gold and Sweep Coins — free spins every day.',
++      body: 'Win Gold and Sweep Coins — free spins every 24 hours.',
+       ctaLabel: 'SPIN NOW',
+       href: '/spinwheel',
+       art: '/df-online/dragons/tier-fury.webp',
+       from: '#10264a',
+       to: '#0e0b1c',
+     },
++    {
++      id: 'community',
++      kicker: 'JOIN OUR COMMUNITY',
++      title: 'FOR EVEN MORE...',
++      body: `Refer a friend and claim your daily rewards on ${site.platformName}.`,
++      ctaLabel: 'JOIN NOW',
++      href: '/account/affiliate',
++      art: '/df-online/dragons/tier-drake.webp',
++      from: '#2b1450',
++      to: '#0e0b1c',
++    },
+     {
+       id: 'refer',
+       kicker: 'INVITE FRIENDS',
+@@ -45,7 +56,14 @@ export const casinoLobbyConfig = {
+ 
+   // Image banners for signed-in players are managed in Admin → Pages → Lobby (banners). While none are
+   // uploaded, the three built-in slides above (our own art) are shown for everyone.
+-  imageBanners: [],
++  imageBanners: [
++    { id: 'img-first-purchase', label: 'First Purchase', href: '/store', desktop: '/ref/lobby/banners/first-purchase-d.webp', mobile: '/ref/lobby/banners/first-purchase-m.webp' },
++    { id: 'img-daily-tasks', label: 'Daily Rewards', href: '/daily-bonus', desktop: '/ref/lobby/banners/daily-tasks-d.webp', mobile: '/ref/lobby/banners/daily-tasks-m.webp' },
++    { id: 'img-spin-wheel', label: 'Spin the Wheel', href: '/spinwheel', desktop: '/ref/lobby/banners/spin-wheel-d.webp', mobile: '/ref/lobby/banners/spin-wheel-m.webp' },
++    { id: 'img-referral', label: 'Refer a Friend', href: '/account/affiliate', desktop: '/ref/lobby/banners/referral-d.webp', mobile: '/ref/lobby/banners/referral-m.webp' },
++    { id: 'img-vip', label: 'VIP', href: '/account/vip', desktop: '/ref/lobby/banners/vip-d.webp', mobile: '/ref/lobby/banners/vip-m.webp' },
++    { id: 'img-community', label: 'Community', href: '', desktop: '/ref/lobby/banners/community-d.webp', mobile: '/ref/lobby/banners/community-m.webp' },
++  ],
+ 
+   promoCards: [
+     {
+@@ -63,15 +81,15 @@ export const casinoLobbyConfig = {
+       id: 'spin',
+       title: 'Spin the Wheel',
+       subtitle: 'Win Gold and Sweep Coins',
+-      note: 'Get free spins every day!',
++      note: 'Get free spins every 24 hours!',
+       ctaLabel: 'SPIN',
+       href: '/spinwheel',
+       // Card background artwork (dragon wall).
+       bg: '/df-online/skyline.webp',
+       // Wheel artwork: the segments spin slowly behind the fixed outer ring.
+       wheel: {
+-        segments: '/df-online/wheel-segments.svg',
+-        ring: '/df-wheel-overlay.svg',
++        segments: '/ref/lobby/wheel-segments.webp',
++        ring: '/ref/lobby/wheel-ring.webp',
+       },
+       variant: 'spin',
+     },
+diff --git a/frontend/src/config/slotLaunch.js b/frontend/src/config/slotLaunch.js
+new file mode 100644
+index 0000000..1675933
+--- /dev/null
++++ b/frontend/src/config/slotLaunch.js
+@@ -0,0 +1,9 @@
++/** iframe (default) or tab — tab opens the provider URL in a new browser tab instead of the overlay. */
++export function getSlotLaunchMode() {
++  const mode = String(
++    import.meta.env.VITE_SLOT_LAUNCH_MODE || import.meta.env.VITE_GIT_SLOTPARK_LAUNCH_MODE || 'iframe'
++  )
++    .trim()
++    .toLowerCase();
++  return mode === 'tab' ? 'tab' : 'iframe';
++}
+diff --git a/frontend/src/config/topLobbyGames.js b/frontend/src/config/topLobbyGames.js
+index 5d6055c..0e4cbe8 100644
+--- a/frontend/src/config/topLobbyGames.js
++++ b/frontend/src/config/topLobbyGames.js
+@@ -16,20 +16,6 @@ export const TOP_GAMES_BUFFALO_NAMES = [
+   'Buffalo King Untamed Megaways',
+ ];
+ 
+-/** @deprecated Prefer TOP_GAMES_LEAD_NAMES. Kept for older imports. */
+-export const GITSLOTPARK_TOP_GAMES = [
+-  { gameid: '33' },
+-  { gameid: '104' },
+-  { gameid: '3' },
+-  { gameid: '29' },
+-  { gameid: '60' },
+-  { gameid: '36' },
+-  { gameid: '54' },
+-  { gameid: '83' },
+-  { gameid: '82' },
+-  { gameid: '1473388' },
+-];
+-
+ /** @deprecated Prefer TOP_GAMES_LEAD_NAMES. Kept for older imports. */
+ export const ONEGAMEHUB_TOP_GAMES = [
+   { gameid: 'kagaming2-BonusManiaPlinko', title: 'Bonus Mania Plinko' },
+diff --git a/frontend/src/hooks/useAvailableGameCategories.js b/frontend/src/hooks/useAvailableGameCategories.js
+new file mode 100644
+index 0000000..776a881
+--- /dev/null
++++ b/frontend/src/hooks/useAvailableGameCategories.js
+@@ -0,0 +1,34 @@
++import { useEffect, useState } from 'react';
++import { getGameCategory } from '../config/gameCategories';
++import { getAllCachedProviderSlotGames, SLOT_GAMES_CACHE_EVENT } from '../utils/dashboardSlotGamesCache';
++import { buildCategoryGameIndex } from '../utils/slotLobbyGames';
++
++function readAvailability() {
++  const games = getAllCachedProviderSlotGames();
++  if (!games.length) return null; // catalog not loaded yet: don't hide anything
++  const index = buildCategoryGameIndex(games);
++  return (catalogId) => (index.get(catalogId)?.length || 0) > 0;
++}
++
++/**
++ * Which game categories actually have games. Returns `isAvailable(slugOrId)`:
++ * true for categories with games, false for empty ones, and true for everything
++ * until the game catalog has loaded (so nothing flickers away on first paint).
++ * Reads the shared catalog cache only; it never triggers a fetch itself.
++ */
++export function useAvailableGameCategories() {
++  const [check, setCheck] = useState(() => readAvailability());
++
++  useEffect(() => {
++    const update = () => setCheck(() => readAvailability());
++    window.addEventListener(SLOT_GAMES_CACHE_EVENT, update);
++    return () => window.removeEventListener(SLOT_GAMES_CACHE_EVENT, update);
++  }, []);
++
++  return (slugOrId) => {
++    if (!check) return true;
++    const category = getGameCategory(slugOrId);
++    // Unknown ids (not a game category) are never hidden here.
++    return category ? check(category.catalogId) : true;
++  };
++}
+diff --git a/frontend/src/hooks/useCategoryPageGames.js b/frontend/src/hooks/useCategoryPageGames.js
+index d691fa0..779e3c7 100644
+--- a/frontend/src/hooks/useCategoryPageGames.js
++++ b/frontend/src/hooks/useCategoryPageGames.js
+@@ -1,7 +1,7 @@
+ import { useEffect, useState } from 'react';
+ import { prefetchLobbySlotGames } from '../components/Home/DashboardSlotGamesSection';
+ import { getAllCachedProviderSlotGames } from '../utils/dashboardSlotGamesCache';
+-import { buildCategoryPageGames } from '../utils/gitslotparkLandingGames';
++import { buildCategoryPageGames } from '../utils/slotLobbyGames';
+ 
+ function readGames(catalogId) {
+   return buildCategoryPageGames(getAllCachedProviderSlotGames(), catalogId);
+diff --git a/frontend/src/hooks/useEnabledSlotProviders.js b/frontend/src/hooks/useEnabledSlotProviders.js
+index 3fb4aff..8db84af 100644
+--- a/frontend/src/hooks/useEnabledSlotProviders.js
++++ b/frontend/src/hooks/useEnabledSlotProviders.js
+@@ -23,7 +23,7 @@ export async function fetchEnabledSlotProviders() {
+ 
+ export function hasVisibleSlotProviders(flags = DEFAULT_SLOT_PROVIDERS) {
+   const providers = normalizeSlotProviders(flags);
+-  return Boolean(providers.gitslotpark || providers.onegamehub || providers.bona || providers.scorpio);
++  return Boolean(providers.onegamehub || providers.bona || providers.scorpio);
+ }
+ 
+ export function useEnabledSlotProviders({ enabled = true } = {}) {
+diff --git a/frontend/src/hooks/useFirekirinExclusiveGames.js b/frontend/src/hooks/useFirekirinExclusiveGames.js
+index fc54675..401c009 100644
+--- a/frontend/src/hooks/useFirekirinExclusiveGames.js
++++ b/frontend/src/hooks/useFirekirinExclusiveGames.js
+@@ -6,7 +6,7 @@ import * as gamesApi from '../api/games';
+ import { useDepositRequiredGate } from './useDepositRequiredGate';
+ import { isDepositRequiredError } from '../utils/depositRequired';
+ import { scrollToGamesSection } from '../utils/scrollToGames';
+-import { GAME_PLACEHOLDER } from '../utils/gitslotparkLandingGames';
++import { GAME_PLACEHOLDER } from '../utils/slotLobbyGames';
+ 
+ export const FIREKIRIN_EXCLUSIVE_PATH = '/firekirin-exclusive';
+ const COVERFLOW_GAME_COUNT = 24;
+diff --git a/frontend/src/hooks/useFooterContent.js b/frontend/src/hooks/useFooterContent.js
+index 02f7c10..275ce7a 100644
+--- a/frontend/src/hooks/useFooterContent.js
++++ b/frontend/src/hooks/useFooterContent.js
+@@ -1,39 +1,6 @@
+-import { useEffect, useState } from 'react';
+-import { getFooterContentConfig } from '../api/footerContent';
+-import { defaultFooterConfig, mergeFooterConfig } from '../config/footerConfig';
+-import { STORE_CODE } from '../config/site';
++import { defaultFooterConfig } from '../config/footerConfig';
+ 
+-// The footer is mounted on nearly every route, so share one fetch between mounts
+-// and re-use it for a short while instead of calling the API on each navigation.
+-const CACHE_MS = 60 * 1000;
+-let cache = { at: 0, config: defaultFooterConfig, pending: null };
+-
+-function loadFooterConfig() {
+-  if (Date.now() - cache.at < CACHE_MS) return Promise.resolve(cache.config);
+-  if (cache.pending) return cache.pending;
+-  cache.pending = getFooterContentConfig(STORE_CODE)
+-    .then((saved) => mergeFooterConfig(saved))
+-    .catch(() => defaultFooterConfig) // API down: keep the built-in footer
+-    .then((config) => {
+-      cache = { at: Date.now(), config, pending: null };
+-      return config;
+-    });
+-  return cache.pending;
+-}
+-
+-/** Footer content: admin-managed values over the built-in defaults (defaults until loaded). */
++/** Footer content: the built-in defaults (the admin-managed footer-content API is not used). */
+ export function useFooterContent() {
+-  const [config, setConfig] = useState(cache.config);
+-
+-  useEffect(() => {
+-    let cancelled = false;
+-    loadFooterConfig().then((c) => {
+-      if (!cancelled) setConfig(c);
+-    });
+-    return () => {
+-      cancelled = true;
+-    };
+-  }, []);
+-
+-  return config;
++  return defaultFooterConfig;
+ }
+diff --git a/frontend/src/hooks/useLaunchDashboardSlotGame.js b/frontend/src/hooks/useLaunchDashboardSlotGame.js
+index ad7ef33..1fe4765 100644
+--- a/frontend/src/hooks/useLaunchDashboardSlotGame.js
++++ b/frontend/src/hooks/useLaunchDashboardSlotGame.js
+@@ -2,10 +2,10 @@ import { useCallback, useRef, useState } from 'react';
+ import { useLocation, useNavigate } from 'react-router-dom';
+ import { useAuth } from '../context/AuthContext';
+ import { useToast } from '../context/ToastContext';
+-import * as gitslotparkApi from '../api/gitslotpark';
++import { getSlotLaunchMode } from '../config/slotLaunch';
+ import * as onegamehubApi from '../api/onegamehub';
+ import * as bonaApi from '../api/bona';
+-import { resolveLaunchGameId, isOneGameHubFishingPlayGame } from '../utils/gitslotparkLandingGames';
++import { resolveLaunchGameId, isOneGameHubFishingPlayGame } from '../utils/slotLobbyGames';
+ import { useDepositRequiredGate } from './useDepositRequiredGate';
+ import { isDepositRequiredError } from '../utils/depositRequired';
+ 
+@@ -47,10 +47,10 @@ export function useLaunchDashboardSlotGame() {
+         setLaunchingGameId(gameid);
+ 
+         try {
+-          const provider = game.provider || 'pragmatic';
++          const provider = game.provider || '';
+ 
+           if (provider === 'bona') {
+-            if (gitslotparkApi.getGitslotparkLaunchMode() === 'tab') {
++            if (getSlotLaunchMode() === 'tab') {
+               const res = await bonaApi.launchBonaGame(gameid);
+               const url = res?.url ? String(res.url).trim() : '';
+               if (!url) throw new Error('Game launch URL not returned');
+@@ -78,7 +78,7 @@ export function useLaunchDashboardSlotGame() {
+               provider,
+               gameid,
+             });
+-            if (gitslotparkApi.getGitslotparkLaunchMode() === 'tab') {
++            if (getSlotLaunchMode() === 'tab') {
+               const res = await onegamehubApi.launchOneGameHubGame(gameid);
+               const url = res?.url ? String(res.url).trim() : '';
+               if (!url) throw new Error('Game launch URL not returned');
+@@ -103,24 +103,7 @@ export function useLaunchDashboardSlotGame() {
+             return;
+           }
+ 
+-          if (gitslotparkApi.getGitslotparkLaunchMode() === 'tab') {
+-            const res = await gitslotparkApi.launchSlotGame(gameid, provider);
+-            const url = res?.url ? String(res.url).trim() : '';
+-            if (!url) throw new Error('Game launch URL not returned');
+-            window.open(url, '_blank', 'noopener,noreferrer');
+-            return;
+-          }
+-
+-          navigate(`/play/${encodeURIComponent(gameid)}`, {
+-            state: {
+-              provider,
+-              name: game.title || 'Casino game',
+-              returnTo: location.pathname,
+-              image: game.image || '',
+-              iconUrls: game.iconUrls || [],
+-              symbol: game.symbol || '',
+-            },
+-          });
++          throw new Error('This game cannot be launched right now. Please try another title.');
+         } catch (e) {
+           if (isDepositRequiredError(e)) {
+             openDepositRequiredModal();
+diff --git a/frontend/src/hooks/useLobbyCatalog.js b/frontend/src/hooks/useLobbyCatalog.js
+index d30928b..2ee4913 100644
+--- a/frontend/src/hooks/useLobbyCatalog.js
++++ b/frontend/src/hooks/useLobbyCatalog.js
+@@ -1,7 +1,7 @@
+ import { useEffect, useState } from 'react';
+ import { prefetchLobbySlotGames } from '../components/Home/DashboardSlotGamesSection';
+ import { getAllCachedProviderSlotGames } from '../utils/dashboardSlotGamesCache';
+-import { prepareDashboardSlotGames } from '../utils/gitslotparkLandingGames';
++import { prepareDashboardSlotGames } from '../utils/slotLobbyGames';
+ 
+ const POLL_MS = 1500;
+ const POLL_MAX_MS = 20000;
+diff --git a/frontend/src/hooks/useLobbyContent.js b/frontend/src/hooks/useLobbyContent.js
+index 66a0a18..2cfa614 100644
+--- a/frontend/src/hooks/useLobbyContent.js
++++ b/frontend/src/hooks/useLobbyContent.js
+@@ -1,5 +1,5 @@
+ import { useEffect, useState } from 'react';
+-import { getLobbyContentConfig } from '../api/lobbyContent';
++import { getLobbyImages } from '../api/lobbyImages';
+ 
+ // The lobby can mount several times (route changes), so share one fetch for a short while.
+ const CACHE_MS = 60 * 1000;
+@@ -8,8 +8,8 @@ let cache = { at: 0, content: {}, pending: null };
+ function load() {
+   if (Date.now() - cache.at < CACHE_MS) return Promise.resolve(cache.content);
+   if (cache.pending) return cache.pending;
+-  cache.pending = getLobbyContentConfig()
+-    .catch(() => ({})) // API down / not set up: the built-in lobby layout
++  cache.pending = getLobbyImages()
++    .catch(() => ({})) // API down / nothing saved: the built-in artwork
+     .then((content) => {
+       cache = { at: Date.now(), content, pending: null };
+       return content;
+@@ -17,7 +17,7 @@ function load() {
+   return cache.pending;
+ }
+ 
+-/** Admin-managed lobby content (an empty object until loaded, or when nothing is saved). */
++/** Backend-managed lobby images: { banners, dailyCardBg, spinCardBg } (empty until loaded or saved). */
+ export function useLobbyContent() {
+   const [content, setContent] = useState(cache.content);
+   useEffect(() => {
+diff --git a/frontend/src/hooks/useLobbyPopular.js b/frontend/src/hooks/useLobbyPopular.js
+index 35b3c63..38f8af7 100644
+--- a/frontend/src/hooks/useLobbyPopular.js
++++ b/frontend/src/hooks/useLobbyPopular.js
+@@ -1,33 +1,6 @@
+-import { useEffect, useState } from 'react';
+-import { getLobbyPopular } from '../api/lobbyContent';
++/** Game ids, most played first: always empty, so Top 10 / Trending keep the game-list order. */
++const EMPTY = [];
+ 
+-// One ranking fetch per few minutes, shared by every lobby mount.
+-const CACHE_MS = 5 * 60 * 1000;
+-let cache = { at: 0, ids: [], pending: null };
+-
+-function load() {
+-  if (Date.now() - cache.at < CACHE_MS) return Promise.resolve(cache.ids);
+-  if (cache.pending) return cache.pending;
+-  cache.pending = getLobbyPopular()
+-    .catch(() => []) // not available: Top 10 / Trending keep the game-list order
+-    .then((ids) => {
+-      cache = { at: Date.now(), ids, pending: null };
+-      return ids;
+-    });
+-  return cache.pending;
+-}
+-
+-/** Game ids, most played first (an empty list until loaded, or when there is no play history). */
+ export function useLobbyPopular() {
+-  const [ids, setIds] = useState(cache.ids);
+-  useEffect(() => {
+-    let cancelled = false;
+-    load().then((v) => {
+-      if (!cancelled) setIds(v);
+-    });
+-    return () => {
+-      cancelled = true;
+-    };
+-  }, []);
+-  return ids;
++  return EMPTY;
+ }
+diff --git a/frontend/src/pages/Category/CategoryPage.jsx b/frontend/src/pages/Category/CategoryPage.jsx
+index a6d6032..4cfe724 100644
+--- a/frontend/src/pages/Category/CategoryPage.jsx
++++ b/frontend/src/pages/Category/CategoryPage.jsx
+@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
+ import { Link, Navigate, useParams } from 'react-router-dom';
+ import { GAME_CATEGORIES, getGameCategory } from '../../config/gameCategories';
+ import { useCategoryPageGames } from '../../hooks/useCategoryPageGames';
++import { useAvailableGameCategories } from '../../hooks/useAvailableGameCategories';
+ import { useLaunchDashboardSlotGame } from '../../hooks/useLaunchDashboardSlotGame';
+ import { DepositRequiredModal } from '../../components/Games/DepositRequiredModal';
+ import '../../styles/category-page.css';
+@@ -32,6 +33,7 @@ function GameCard({ game, onPlay, playing }) {
+ 
+ function CategoryStrip({ activeSlug }) {
+   const activeRef = useRef(null);
++  const isAvailable = useAvailableGameCategories();
+ 
+   useEffect(() => {
+     activeRef.current?.scrollIntoView?.({ block: 'nearest', inline: 'center' });
+@@ -44,7 +46,7 @@ function CategoryStrip({ activeSlug }) {
+           <img src="/df-online/club-icons/gamepad.svg" alt="" width="24" height="24" />
+           <span>Home</span>
+         </Link>
+-        {GAME_CATEGORIES.map((c) => {
++        {GAME_CATEGORIES.filter((c) => c.slug === activeSlug || isAvailable(c.slug)).map((c) => {
+           const active = c.slug === activeSlug;
+           return (
+             <Link
+diff --git a/frontend/src/pages/SlotGames/AllSlotGames.jsx b/frontend/src/pages/SlotGames/AllSlotGames.jsx
+index 37ef6a5..efbfe46 100644
+--- a/frontend/src/pages/SlotGames/AllSlotGames.jsx
++++ b/frontend/src/pages/SlotGames/AllSlotGames.jsx
+@@ -3,7 +3,7 @@ import { AppLoader } from '../../components/AppLoader';
+ import { Navigate, useParams } from 'react-router-dom';
+ import { useAuth } from '../../context/AuthContext';
+ import { CasinoLobby } from '../../components/Casino/CasinoLobby';
+-import { isHiddenSlotCategoryId } from '../../utils/gitslotparkLandingGames';
++import { isHiddenSlotCategoryId } from '../../utils/slotLobbyGames';
+ import { getGameCategory } from '../../config/gameCategories';
+ 
+ const GamesSection = lazy(() =>
+diff --git a/frontend/src/pages/SlotGames/SlotGamePlayPage.jsx b/frontend/src/pages/SlotGames/SlotGamePlayPage.jsx
+index 4802767..436510e 100644
+--- a/frontend/src/pages/SlotGames/SlotGamePlayPage.jsx
++++ b/frontend/src/pages/SlotGames/SlotGamePlayPage.jsx
+@@ -1,6 +1,5 @@
+ import { useCallback, useEffect, useRef, useState } from 'react';
+ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+-import * as gitslotparkApi from '../../api/gitslotpark';
+ import * as bonaApi from '../../api/bona';
+ import * as onegamehubApi from '../../api/onegamehub';
+ import * as win568Api from '../../api/win568';
+@@ -21,7 +20,7 @@ import { SlotGameSwipeUpOverlay } from '../../components/SlotGames/SlotGameSwipe
+ import { SlotGameFullscreenToggle } from '../../components/SlotGames/SlotGameFullscreenToggle';
+ import { BonaPortraitRequiredOverlay } from '../../components/SlotGames/BonaPortraitRequiredOverlay';
+ import { FishingLandscapeRequiredOverlay } from '../../components/SlotGames/FishingLandscapeRequiredOverlay';
+-import { isOneGameHubFishingPlayGame } from '../../utils/gitslotparkLandingGames';
++import { isOneGameHubFishingPlayGame } from '../../utils/slotLobbyGames';
+ import {
+   applyIOSChromeLandscapeGameScroll,
+   applyIOSChromePortraitGameScroll,
+@@ -59,13 +58,13 @@ function getDefaultReturnTo() {
+ }
+ 
+ function resolvePlayProvider(raw) {
+-  const value = String(raw || 'pragmatic').trim().toLowerCase();
++  const value = String(raw || '').trim().toLowerCase();
+   if (value === 'bona') return 'bona';
+   if (value === 'onegamehub' || value === '1gamehub') return 'onegamehub';
+   if (value === 'firekirin') return 'firekirin';
+   if (isWin568PlayProvider(value)) return 'win568';
+   if (isScorpioPlayProvider(value)) return 'scorpio';
+-  return gitslotparkApi.normalizeGitslotparkProvider(value);
++  return value;
+ }
+ 
+ export function SlotGamePlayPage() {
+@@ -338,7 +337,9 @@ export function SlotGamePlayPage() {
+               ? await onegamehubApi.launchOneGameHubGame(gameId)
+               : provider === 'firekirin'
+                 ? await gamesApi.enterFirekirinExclusiveGame(gameId)
+-                : await gitslotparkApi.launchSlotGame(gameId, provider);
++                : (() => {
++                    throw new Error('This game cannot be launched right now. Please try another title.');
++                  })();
+         const url = res?.url ? sanitizeWin568PlayUrl(String(res.url).trim()) : '';
+         if (!url) {
+           throw new Error('Game launch URL not returned');
+diff --git a/frontend/src/pages/Win568Games/index.jsx b/frontend/src/pages/Win568Games/index.jsx
+index 94e355a..adec1c2 100644
+--- a/frontend/src/pages/Win568Games/index.jsx
++++ b/frontend/src/pages/Win568Games/index.jsx
+@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
+ import { useToast } from '../../context/ToastContext';
+ import * as win568Api from '../../api/win568';
+ import { WIN568_GAMES_SLUG } from '../../config/win568';
+-import { mapWin568ToCarouselGame } from '../../utils/gitslotparkLandingGames';
++import { mapWin568ToCarouselGame } from '../../utils/slotLobbyGames';
+ import { SlotGameCard } from '../../components/SlotGames/SlotGameCard';
+ import { SlotGameCardSkeleton } from '../../components/SlotGames/SlotGameCardSkeleton';
+ import { applyRobotsMeta } from '../../utils/pageSeo';
+diff --git a/frontend/src/styles/casino-lobby.css b/frontend/src/styles/casino-lobby.css
+index 3ab96d0..06c5d23 100644
+--- a/frontend/src/styles/casino-lobby.css
++++ b/frontend/src/styles/casino-lobby.css
+@@ -1117,3 +1117,39 @@
+ .df-gcpkg__ribbon--purple { background: #7c2fd6; }
+ .df-gcpkg__ribbon--popular { background: #ee6a1b; }
+ .df-gcpkg__ribbon--gold { background: #f3a90f; }
++
++/* Corner badges over the image banners (Flash Sale / Refer a Friend / Daily Rewards / Join Now) */
++.df-lobby__badges { position: absolute; inset: 0; pointer-events: none; }
++.df-lobby__badge {
++  position: absolute;
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  pointer-events: auto;
++  text-decoration: none;
++  transition: transform 0.2s ease;
++}
++.df-lobby__badge:hover { transform: scale(1.06); }
++.df-lobby__badge img { width: clamp(40px, 5.5vw, 72px); height: auto; filter: drop-shadow(0 0 8px rgba(255, 201, 79, 0.45)); }
++.df-lobby__badge span {
++  margin-top: 2px;
++  padding: 2px 8px;
++  border-radius: 8px;
++  color: #fff;
++  font-size: clamp(9px, 1vw, 12px);
++  font-weight: 900;
++  letter-spacing: 0.02em;
++  text-transform: uppercase;
++  white-space: nowrap;
++  background: #d97706;
++  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
++}
++.df-lobby__badge span.is-sale { background: #e11d48; }
++.df-lobby__badge span.is-ref { background: #ca8a04; }
++.df-lobby__badge span.is-daily { background: #92602a; }
++.df-lobby__badge span.is-join { background: #d97706; }
++.df-lobby__badge--tl { top: 14%; left: 3%; }
++.df-lobby__badge--bl { bottom: 12%; left: 3%; }
++.df-lobby__badge--tr { top: 14%; right: 3%; }
++.df-lobby__badge--br { bottom: 12%; right: 3%; }
++@media (max-width: 767px) { .df-lobby__badges { display: none; } }
+diff --git a/frontend/src/utils/dashboardSlotGamesCache.js b/frontend/src/utils/dashboardSlotGamesCache.js
+index 65194ee..6dc1949 100644
+--- a/frontend/src/utils/dashboardSlotGamesCache.js
++++ b/frontend/src/utils/dashboardSlotGamesCache.js
+@@ -101,15 +101,24 @@ export function getAllCachedProviderSlotGames() {
+   return out;
+ }
+ 
++/** Fired whenever the cached catalog changes, so category lists can re-check which have games. */
++export const SLOT_GAMES_CACHE_EVENT = 'df:slot-games-cache';
++
++function notifyCacheChanged() {
++  if (typeof window !== 'undefined') window.dispatchEvent(new Event(SLOT_GAMES_CACHE_EVENT));
++}
++
+ export function setCachedProviderSlotGames(provider, games) {
+   providerCache.set(provider, { games, cachedAt: Date.now() });
+   persistCache();
++  notifyCacheChanged();
+ }
+ 
+ export function clearCachedProviderSlotGames(provider) {
+   if (!providerCache.has(provider)) return;
+   providerCache.delete(provider);
+   persistCache();
++  notifyCacheChanged();
+ }
+ 
+ export function clearDashboardSlotGamesCache() {
+diff --git a/frontend/src/utils/recentlyPlayedSlotGames.js b/frontend/src/utils/recentlyPlayedSlotGames.js
+index 84d030e..1bc7547 100644
+--- a/frontend/src/utils/recentlyPlayedSlotGames.js
++++ b/frontend/src/utils/recentlyPlayedSlotGames.js
+@@ -12,7 +12,7 @@ function sameGameId(a, b) {
+ 
+ /**
+  * Match a transaction row (gameId + provider) to a catalog carousel game.
+- * `gitslotpark` / empty provider matches any non-bona catalog provider.
++ * An empty provider matches any non-bona catalog provider.
+  * Only returns catalog hits (with real artwork) — never image-less stubs.
+  */
+ export function matchCatalogGameForRecentPlay(allGames, recent) {
+@@ -28,7 +28,7 @@ export function matchCatalogGameForRecentPlay(allGames, recent) {
+   );
+   if (exact) return exact;
+ 
+-  if (!provider || provider === 'gitslotpark') {
++  if (!provider) {
+     return (
+       catalog.find(
+         (game) =>
+diff --git a/frontend/src/utils/slotLobbyGames.js b/frontend/src/utils/slotLobbyGames.js
+index 7ec7fdb..3c07c4c 100644
+--- a/frontend/src/utils/slotLobbyGames.js
++++ b/frontend/src/utils/slotLobbyGames.js
+@@ -1,4 +1,3 @@
+-import { SLOTS_CATEGORY_GAMES } from '../config/slotsCategoryGames';
+ import { SCORPIO_POPULAR_SLOT_NAMES } from '../config/scorpioPopularSlots';
+ import { isScorpioPlayProvider } from '../config/scorpio';
+ import { ONEGAMEHUB_FISHING_GAMES } from '../config/onegamehubFishingGames';
+@@ -14,7 +13,6 @@ import {
+ import { ONEGAMEHUB_TABLE_GAMES } from '../config/onegamehubTableGames';
+ import { ONEGAMEHUB_INSTANT_WIN_GAMES } from '../config/onegamehubInstantWinGames';
+ import { ONEGAMEHUB_SCRATCH_CARD_GAMES } from '../config/onegamehubScratchCardGames';
+-import { GIT_SLOTPARK_PROVIDERS } from '../config/gitslotpark';
+ import { getSlotLocalIcon } from '../config/slotLocalIcons';
+ 
+ const GAME_PLACEHOLDER = '/logo.webp';
+@@ -56,14 +54,7 @@ export function isGenericGameImage(url) {
+ 
+ const imageShapeCache = new Map();
+ 
+-export function extractGitslotparkGamesList(res) {
+-  if (Array.isArray(res?.games)) return res.games;
+-  if (Array.isArray(res?.data?.games)) return res.data.games;
+-  if (Array.isArray(res?.data)) return res.data;
+-  return [];
+-}
+-
+-export function getGitslotparkIconUrls(game) {
++export function getGameIconUrls(game) {
+   return [
+     game.iconurl,
+     game.iconUrl,
+@@ -133,25 +124,6 @@ export async function enrichGamesWithImageShapes(games) {
+   return Promise.all(games.map((game) => resolveGameImages(game)));
+ }
+ 
+-export function mapGitslotparkToCarouselGame(game, provider) {
+-  const iconUrls = getGitslotparkIconUrls(game);
+-  const image = iconUrls[0] || '';
+-
+-  const rawGameId = game.gameid ?? game.gameId ?? game.id;
+-  const gameid =
+-    rawGameId != null && String(rawGameId).trim() !== '' ? rawGameId : null;
+-
+-  return {
+-    id: `${provider}-${gameid ?? game.symbol ?? game.name}`,
+-    gameid,
+-    provider,
+-    symbol: String(game.symbol || gameid || game.name || '').trim().toLowerCase(),
+-    title: game.name || 'Game',
+-    image,
+-    iconUrls,
+-  };
+-}
+-
+ /** Map Bona gameList item → carousel game (provider = bona). */
+ export function mapBonaToCarouselGame(game) {
+   const rawGameId = game.id ?? game.gameId ?? game.gameid;
+@@ -496,23 +468,6 @@ function isOneGameHubProvider(provider) {
+   return value === 'onegamehub' || value === '1gamehub';
+ }
+ 
+-function isGitslotparkProvider(provider) {
+-  const value = String(provider || '').trim().toLowerCase();
+-  return value === 'gitslotpark' || GIT_SLOTPARK_PROVIDERS.includes(value);
+-}
+-
+-function indexGitslotparkGames(allGames) {
+-  const byId = new Map();
+-  for (const game of allGames || []) {
+-    if (!isGitslotparkProvider(game?.provider)) continue;
+-    const id = String(game.gameid ?? '').trim();
+-    if (id && !byId.has(id)) byId.set(id, game);
+-    const lower = id.toLowerCase();
+-    if (lower && !byId.has(lower)) byId.set(lower, game);
+-  }
+-  return byId;
+-}
+-
+ function indexOneGameHubGames(allGames) {
+   const byId = new Map();
+   for (const game of allGames || []) {
+@@ -885,19 +840,17 @@ export function buildOtherLobbyCategory(allGames, occupiedGames = []) {
+   };
+ 
+   const scorpioGames = pushUnique((allGames || []).filter(isScorpioLobbyGame), OTHER_CATEGORY_LIMIT);
+-  const gspSlots = (allGames || []).filter((game) => isGitslotparkProvider(game?.provider));
+   const hubSlots = (allGames || []).filter(isOneGameHubSlotGame);
+   const filler =
+     scorpioGames.length >= OTHER_CATEGORY_LIMIT
+       ? []
+-      : pushUnique([...gspSlots, ...hubSlots], OTHER_CATEGORY_LIMIT - scorpioGames.length);
++      : pushUnique(hubSlots, OTHER_CATEGORY_LIMIT - scorpioGames.length);
+   const games = [...chickenGames, ...scorpioGames, ...filler];
+   if (!games.length) return null;
+   return { id: 'others', label: 'Other', games, ranked: false };
+ }
+ 
+ export function buildCuratedSlotsCategory(allGames) {
+-  const gspById = indexGitslotparkGames(allGames);
+   const games = [];
+   const seen = new Set();
+   const seenTitles = new Set();
+@@ -909,14 +862,6 @@ export function buildCuratedSlotsCategory(allGames) {
+     if (compact) seenTitles.add(compact);
+   };
+ 
+-  for (const spec of SLOTS_CATEGORY_GAMES) {
+-    if (String(spec.provider || '').toLowerCase() === 'onegamehub') continue;
+-    const key = String(spec.gameid || '').trim();
+-    if (!key) continue;
+-    const found = gspById.get(key) || gspById.get(key.toLowerCase());
+-    if (found) pushGame(found, spec.title);
+-  }
+-
+   for (const game of pickScorpioLobbySlotGames(allGames)) {
+     pushGame(game, game.title);
+   }
+@@ -1285,7 +1230,7 @@ export function getGameLobbyCategoryLabel(game) {
+ /**
+  * Orionstars-style lobby:
+  * 1GameHub games grouped by hub `categories[0]`, 1GameHub first in each row.
+- * Slots category: fixed top-20 list only (GitSlotPark + 1GameHub).
++ * Slots category: Scorpio lobby slots.
+  */
+ export function buildOrionstarSlotCategories(allGames, options = {}) {
+   const eligible = prepareDashboardSlotGames(allGames || []).filter(
+@@ -1489,9 +1434,38 @@ export function buildCategoryGameIndex(allGames) {
+       return isOneGameHubProvider(game.provider) && resolveOrionstarCategory(game).id === 'virtual-games';
+     })
+   );
++
++  // Scorpio and Bona carry no hub categories, so place them straight from their own type.
++  for (const game of prepareDashboardSlotGames(allGames || [])) {
++    const id = resolveDirectProviderCategory(game);
++    if (!id) continue;
++    const key = gameCatalogId(game) || game.id;
++    if (!index.has(id)) {
++      if (isHiddenSlotCategoryId(id)) continue;
++      index.set(id, []);
++    }
++    const list = index.get(id);
++    if (list.some((g) => (gameCatalogId(g) || g.id) === key)) continue;
++    list.push(game);
++  }
+   return index;
+ }
+ 
++/** Category for providers without hub categories: Scorpio (by game type) and Bona (slots / fishing). */
++function resolveDirectProviderCategory(game) {
++  const provider = String(game?.provider || '').trim().toLowerCase();
++  if (provider === 'bona') {
++    return String(game.gameType || '').trim().toLowerCase() === 'fishing' ? 'fishing' : 'slots';
++  }
++  if (isScorpioPlayProvider(provider)) {
++    const type = Number(game.gameType);
++    if (type === 1) return 'live-casino';
++    if (type === 2) return 'crash-game';
++    return 'slots';
++  }
++  return null;
++}
++
+ export function buildCategoryPageGames(allGames, catalogId) {
+   return buildCategoryGameIndex(allGames).get(catalogId) || [];
+ }

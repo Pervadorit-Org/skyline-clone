@@ -1,3 +1,4 @@
+import { LOBBY_INSERT_AFTER } from '../../config/lobbyDefaults';
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLobbyCatalog } from '../../hooks/useLobbyCatalog';
@@ -283,6 +284,14 @@ export function GoldenLobbySections({ onPlayGame, renderInsert }) {
 
   const handlePlay = useCallback((game) => onPlayGame(game), [onPlayGame]);
 
+  // Panels (packages, invite/deals, providers, exclusive) are anchored after a game section.
+  // With few providers some anchor sections do not exist, so those panels would never show: render them
+  // after the last section instead.
+  const orphanAnchors = useMemo(() => {
+    const present = new Set(sections.map((section) => section.id));
+    return Object.keys(LOBBY_INSERT_AFTER).filter((id) => !present.has(id));
+  }, [sections]);
+
   return (
     <div className="gl-feed">
       {sections.map((section) => {
@@ -295,6 +304,9 @@ export function GoldenLobbySections({ onPlayGame, renderInsert }) {
           </Fragment>
         );
       })}
+      {renderInsert
+        ? orphanAnchors.map((id) => <Fragment key={`orphan-${id}`}>{renderInsert(id)}</Fragment>)
+        : null}
     </div>
   );
 }

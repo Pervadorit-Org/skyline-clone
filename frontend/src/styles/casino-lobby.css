@@ -613,32 +613,6 @@
 }
 
 /* ---- providers ---- */
-.df-lobby__providers-title {
-  text-align: center;
-  font: 700 18px 'Outfit', sans-serif;
-  text-transform: uppercase;
-}
-.df-lobby__providers-row {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 130px;
-  gap: 8px;
-}
-.df-lobby__provider {
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background: #0b0b12;
-  border: 1px solid var(--lb-line);
-  padding: 6px 10px;
-}
-.df-lobby__provider img {
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: contain;
-}
 
 /* ---- invite + deals ---- */
 .df-lobby__invite-deals {
@@ -1153,3 +1127,323 @@
 .df-lobby__badge--tr { top: 14%; right: 3%; }
 .df-lobby__badge--br { bottom: 12%; right: 3%; }
 @media (max-width: 767px) { .df-lobby__badges { display: none; } }
+
+/* ---- top winners (dark + gold cards) ---- */
+.df-tw {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 24px 0 8px;
+}
+.df-tw__title {
+  margin: 0;
+  text-align: center;
+  font: 600 clamp(28px, 4.2vw, 46px) 'Outfit', sans-serif;
+  color: #fff;
+}
+.df-tw__title span {
+  color: #ffc400;
+  font-weight: 800;
+}
+.df-tw__cols {
+  position: relative;
+  width: 100%;
+  max-width: 1150px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.df-tw__cols.is-collapsed::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 110px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--lb-bg) 85%);
+}
+.df-tw__col h4 {
+  margin: 0 0 14px;
+  font: 500 clamp(20px, 2.4vw, 30px) 'Outfit', sans-serif;
+  color: #fff;
+}
+.df-tw__col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.df-tw__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px 10px 10px;
+  border-radius: 12px;
+  border: 2px solid #c8981e;
+  background: linear-gradient(180deg, #181a2b, #14151f);
+  box-shadow: 0 0 0 1px rgba(235, 197, 103, 0.12) inset;
+}
+.df-tw__thumb {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #0b0b12;
+  font-size: 28px;
+}
+.df-tw__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.df-tw__meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.df-tw__meta b {
+  font: 700 16px/1.25 'Montserrat', sans-serif;
+  color: #fff;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.df-tw__prize {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 700 16px 'Montserrat', sans-serif;
+  color: #35d36a;
+}
+.df-tw__prize img {
+  width: 22px;
+  height: 22px;
+}
+.df-tw__play {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font: 700 17px 'Montserrat', sans-serif;
+  color: #fff;
+}
+.df-tw__more {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  cursor: pointer;
+  min-width: 230px;
+  height: 46px;
+  border: 2px solid #fff3b0;
+  border-radius: 12px;
+  background: linear-gradient(#fff3a1, #ffc944 55%, #e9a21f);
+  box-shadow: 0 4px 0 #8f5a14, 0 0 18px rgba(255, 200, 70, 0.35);
+  color: #1a1305;
+  font: 800 22px 'Outfit', sans-serif;
+}
+.df-tw { padding-bottom: 54px; }
+@media (max-width: 899px) {
+  .df-tw__cols { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 1279px) {
+  .df-tw__play span { display: none; }
+  .df-tw__play svg { width: 34px; height: 34px; }
+  .df-tw__meta b { font-size: 14px; }
+  .df-tw__thumb { width: 52px; height: 52px; }
+}
+
+/* Lobby page: don't stack the shell's bottom padding (it left ~400px of empty space above the footer). */
+.df-games-page .dash-layout,
+.df-games-page .dash-main {
+  padding-bottom: 0 !important;
+}
+.df-games-page .df-lobby {
+  padding-bottom: 16px;
+}
+@media (min-width: 768px) {
+  .dash-shell-main:has(.df-lobby) {
+    padding-bottom: 24px !important;
+  }
+}
+
+/* ---- "Pick for me" lucky pick dialog ---- */
+.df-pick {
+  position: fixed;
+  inset: 0;
+  z-index: 10100;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+}
+.df-pick__box {
+  position: relative;
+  width: 100%;
+  max-width: 384px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 24px;
+  border: 1px solid var(--lb-gold);
+  border-radius: 20px;
+  background: #0b0e1a;
+  animation: df-pick-in 0.2s ease-out both;
+}
+@keyframes df-pick-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+.df-pick__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+}
+.df-pick__box h2 {
+  margin: 0;
+  text-align: center;
+  font: 800 22px 'Montserrat', sans-serif;
+  color: #fff;
+}
+.df-pick__img {
+  width: 128px;
+  height: 128px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #0b0e1a;
+}
+.df-pick__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.df-pick__box p {
+  margin: 0;
+  text-align: center;
+  font: 700 18px 'Montserrat', sans-serif;
+  color: rgba(255, 255, 255, 0.8);
+}
+.df-pick__play {
+  cursor: pointer;
+  min-width: 142px;
+  height: 44px;
+  padding: 0 28px;
+  border: 2px solid #fff3b0;
+  border-radius: 10px;
+  background: linear-gradient(#fff3a1, #ffc944 55%, #e9a21f);
+  box-shadow: 0 3px 0 #8f5a14;
+  color: #1a1305;
+  font: 900 15px 'Nunito', 'Montserrat', sans-serif;
+  text-transform: uppercase;
+}
+
+/* ---- exclusive platforms banner (reference layout) ---- */
+.df-ex {
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  height: clamp(190px, 27vw, 320px);
+  padding: 0 clamp(16px, 4vw, 72px);
+  border-radius: 16px;
+  color: #fff;
+  text-decoration: none;
+  background:
+    radial-gradient(ellipse at 35% 40%, rgba(120, 76, 24, 0.55), transparent 60%),
+    linear-gradient(100deg, #140d07, #2a1b0c 55%, #0e0904);
+}
+.df-ex__copy {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 55%;
+}
+.df-ex__copy p {
+  margin: 0;
+  font: 800 clamp(16px, 3vw, 40px) / 1.1 'Montserrat', sans-serif;
+  text-transform: uppercase;
+}
+.df-ex__copy strong {
+  font: 800 clamp(24px, 5.2vw, 66px) / 1 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  color: #22c55e;
+  text-shadow: 0 0 22px rgba(34, 197, 94, 0.55);
+}
+.df-ex img {
+  position: absolute;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+}
+.df-ex__a {
+  top: 4%;
+  right: 24%;
+  height: 28%;
+}
+.df-ex__b {
+  bottom: 4%;
+  right: 30%;
+  height: 28%;
+}
+.df-ex__man {
+  top: 4%;
+  right: 1%;
+  height: 96%;
+}
+@media (max-width: 640px) {
+  .df-ex__a { right: 36%; }
+  .df-ex__b { right: 42%; }
+}
+
+/* ---- invite friends card (reference colours) ---- */
+.df-lobby__invite {
+  min-height: clamp(150px, 20vw, 220px);
+  padding: 20px clamp(16px, 3vw, 32px);
+  border-radius: 24px;
+  background: linear-gradient(95deg, #7d1d1d, #b5532a 50%, #f2a666);
+}
+.df-lobby__invite-kicker {
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: linear-gradient(#ffd23a, #ffb800);
+  color: #1a1305;
+  font: 800 clamp(10px, 1.2vw, 14px) 'Montserrat', sans-serif;
+}
+.df-lobby__invite h3 {
+  font: 700 clamp(14px, 1.6vw, 20px) 'Montserrat', sans-serif;
+}
+.df-lobby__invite strong {
+  font: 700 clamp(32px, 5vw, 64px) 'Montserrat', sans-serif;
+  line-height: 1;
+}
+.df-lobby__invite img {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 130%;
+  max-width: 48%;
+}

@@ -133,26 +133,11 @@ export const casinoLobbyConfig = {
   // Extra sections slotted in after the Nth category row (1-based).
   inserts: {
     2: 'packages',
-    4: 'providers',
     6: 'inviteDeals',
     7: 'exclusive',
   },
 
   packages: { title: 'Available Packages', limit: 8, href: '/store' },
-
-  providers: {
-    title: 'Providers',
-    logos: [
-      { name: 'Pragmatic Play', image: '/providers/pragmatic.svg' },
-      { name: 'CQ9', image: '/providers/cq9.svg' },
-      { name: 'Greentube', image: '/providers/greentube.svg' },
-      { name: 'Playtech', image: '/providers/playtech.svg' },
-      { name: 'Quickspin', image: '/providers/quickspin.svg' },
-      { name: 'Spadegaming', image: '/providers/spadegaming.svg' },
-      { name: 'Spribe', image: '/providers/spribe.svg' },
-      { name: 'Wazdan', image: '/providers/wazdan.svg' },
-    ],
-  },
 
   invite: {
     kicker: 'INVITE FRIENDS PROGRAM',
@@ -162,7 +147,7 @@ export const casinoLobbyConfig = {
     note: 'of their first 3 purchases',
     ctaLabel: 'Copy Link',
     href: '/account/affiliate',
-    art: '/df-online/dragons/tier-hatchling.webp',
+    art: '/ref/lobby/exclusive/invite-card.webp',
   },
   deals: {
     title: 'Deals of The Day',

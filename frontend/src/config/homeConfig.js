@@ -176,22 +176,6 @@ export const homeConfig = {
     ],
   },
 
-  // Real provider logos already in /public/providers (software studios, not
-  // platform brands — kept distinct from the "Exclusive Platforms" tiles above).
-  providers: {
-    title: 'Providers',
-    logos: [
-      { name: 'Pragmatic Play', image: '/providers/pragmatic.svg' },
-      { name: 'CQ9', image: '/providers/cq9.svg' },
-      { name: 'Greentube', image: '/providers/greentube.svg' },
-      { name: 'Playtech', image: '/providers/playtech.svg' },
-      { name: 'Quickspin', image: '/providers/quickspin.svg' },
-      { name: 'Spadegaming', image: '/providers/spadegaming.svg' },
-      { name: 'Spribe', image: '/providers/spribe.svg' },
-      { name: 'Wazdan', image: '/providers/wazdan.svg' },
-    ],
-  },
-
   // Real existing copy from the live site (src/components/LandingTestimonials.jsx),
   // reshaped into the config-driven 3x2 grid the spec asks for.
   testimonials: {
@@ -264,7 +248,6 @@ export const homeConfig = {
       'topGames',
       'platforms',
       'reasons',
-      'providers',
       'testimonials',
       'banner1',
       'featureCards',
@@ -278,7 +261,6 @@ export const homeConfig = {
       topGames: true,
       platforms: true,
       reasons: true,
-      providers: true,
       testimonials: true,
       banner1: true,
       featureCards: true,
