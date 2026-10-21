@@ -560,6 +560,8 @@ export function Settings() {
     ['Verified phone number', user?.isPhoneVerified]
   ].filter(([, v]) => !v).map(([label]) => label);
   const kycApproved = Boolean(kyc?.approved);
+  // Admin turned KYC off for this store → hide every "Government ID" prompt.
+  const kycNotRequired = kyc?.required === false;
   const googleLinked = Boolean(user?.googleId || user?.authProvider === 'google' || user?.provider === 'google');
 
   return (
@@ -676,10 +678,12 @@ export function Settings() {
                 <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17 8c0-2.800-2.200-5-5-5S7 5.200 7 8l-2 .5h14zM3 9h18" /><circle cx="7" cy="16" r="3" /><circle cx="17" cy="16" r="3" /><path d="M10 16h4" /></svg>
                 <h2>Identity</h2>
               </div>
-              <span className={`acct-badge ${kycApproved ? 'is-ok' : ''}`}>
-                <span className="acct-badge-ic" aria-hidden="true">{kycApproved ? '✓' : 'i'}</span>
-                {kycApproved ? 'Verified' : 'Not verified'}
-              </span>
+              {kycNotRequired ? null : (
+                <span className={`acct-badge ${kycApproved ? 'is-ok' : ''}`}>
+                  <span className="acct-badge-ic" aria-hidden="true">{kycApproved ? '✓' : 'i'}</span>
+                  {kycApproved ? 'Verified' : 'Not verified'}
+                </span>
+              )}
             </header>
             <p className="acct-sec-copy">Verify your identity before your first redemption.</p>
             {missingProfile.length > 0 ? (
@@ -698,12 +702,14 @@ export function Settings() {
                   <li>{isVerified ? <span className="acct-ok" aria-hidden="true">✓</span> : <span className="acct-warn" aria-hidden="true">!</span>}Email {isVerified ? 'verified' : 'not verified yet'}</li>
                   <li><span className="acct-ok" aria-hidden="true">✓</span>Phone verified</li>
                   <li><span className="acct-ok" aria-hidden="true">✓</span>Profile details complete</li>
-                  <li>
-                    {kycApproved
-                      ? <span className="acct-ok" aria-hidden="true">✓</span>
-                      : <span className="acct-warn" aria-hidden="true">!</span>}
-                    Government ID {kycApproved ? 'verified' : 'not verified yet'}
-                  </li>
+                  {kycNotRequired ? null : (
+                    <li>
+                      {kycApproved
+                        ? <span className="acct-ok" aria-hidden="true">✓</span>
+                        : <span className="acct-warn" aria-hidden="true">!</span>}
+                      Government ID {kycApproved ? 'verified' : 'not verified yet'}
+                    </li>
+                  )}
                 </ul>
                 <p className="acct-lead">
                   {kycApproved
