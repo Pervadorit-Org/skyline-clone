@@ -29,7 +29,6 @@ const TAG_META = [
   { name: 'Withdraw', description: 'Speed / payout status' },
   { name: 'Transactions', description: 'Transaction history' },
   { name: 'Games', description: 'Platform games, register, top-up, redeem' },
-  { name: 'GitSlotPark', description: 'Iframe slots (GitSlotPark)' },
   { name: 'Bona', description: 'Iframe slots (Bona)' },
   { name: '568Win', description: '568Win Seamless Game Provider catalog and launch' },
   { name: 'Spin Wheel', description: 'Spin wheel config, status, spin, admin settings' },
@@ -69,7 +68,6 @@ const TAG_BY_PREFIX = {
   withdraw: 'Withdraw',
   transactions: 'Transactions',
   games: 'Games',
-  gitslotpark: 'GitSlotPark',
   bona: 'Bona',
   win568: '568Win',
   '568win': '568Win',
@@ -147,9 +145,6 @@ function tagForPath(fullPath) {
   const cleaned = String(fullPath || '').split('?')[0];
   const parts = cleaned.split('/').filter(Boolean);
   if (parts[0] !== 'api') {
-    if (['GetBalance', 'Withdraw', 'Deposit', 'BetWin', 'RollbackTransaction'].includes(parts[0])) {
-      return 'GitSlotPark';
-    }
     return 'Other';
   }
   return TAG_BY_PREFIX[parts[1]] || 'Other';
@@ -259,8 +254,7 @@ function buildOpenApiSpec() {
   const extras = [
     { prefix: '/api/webhooks', router: require('../routes/webhook.routes') },
     { prefix: '/api/bona/callback', router: require('../routes/bonaCallback.routes') },
-    { prefix: '/api/568win', router: require('../routes/win568Callback.routes') },
-    { prefix: '', router: require('../routes/gitslotparkCallback.routes') }
+    { prefix: '/api/568win', router: require('../routes/win568Callback.routes') }
   ];
   for (const extra of extras) {
     collectFromRouter(extra.router, extra.prefix, collected);

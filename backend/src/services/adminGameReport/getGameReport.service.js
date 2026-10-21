@@ -4,9 +4,6 @@ const { QueryTypes } = require('sequelize');
 const db = require('../../db/models');
 const { ROLES } = require('../../constants/roles');
 const { toDateRangeStart, toDateRangeEnd } = require('../../utils/dateRangeFilters');
-const { getGamesList: getGitslotparkGamesList } = require('../gitslotpark/getGamesList.service');
-const { GIT_SLOTPARK_PROVIDERS } = require('../gitslotpark/gitslotpark.config');
-const { SLOTS_CATEGORY_GAMES } = require('../../constants/slotsCategoryGames');
 
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 100;
@@ -256,52 +253,8 @@ function catalogGameId(game) {
   return String(raw).trim();
 }
 
-function gitslotparkListReq(req, provider) {
-  return {
-    user: req?.user,
-    headers: {
-      ...(req?.headers || {}),
-      'x-gitslotpark-provider': provider
-    },
-    query: {
-      store_code: req?.query?.store_code || req?.query?.storeCode || req?.storeCode,
-      storeCode: req?.query?.storeCode || req?.query?.store_code || req?.storeCode
-    },
-    body: {}
-  };
-}
-
-function addGitslotparkGamesToMap(gamesMap, games) {
-  if (!Array.isArray(games)) return;
-  for (const g of games) {
-    const gId = catalogGameId(g);
-    const gName = g?.name || g?.title || g?.gameName;
-    if (gId != null) {
-      setGameMeta(gamesMap, 'gitslotpark', gId, gName, categoryFromCatalogGame(g, 'gitslotpark'));
-    }
-  }
-}
-
-async function loadGitslotparkCatalogs(req, gamesMap) {
-  await Promise.all(GIT_SLOTPARK_PROVIDERS.map(async (provider) => {
-    try {
-      const { games } = await getGitslotparkGamesList(gitslotparkListReq(req, provider));
-      addGitslotparkGamesToMap(gamesMap, games);
-    } catch (_) {
-      /* catalog is optional enrichment */
-    }
-  }));
-
-  for (const g of SLOTS_CATEGORY_GAMES) {
-    if (g.provider !== 'gitslotpark' || !g.gameid || !g.title) continue;
-    setGameMeta(gamesMap, 'gitslotpark', g.gameid, g.title, 'slots');
-  }
-}
-
 async function buildGamesMap(req) {
   const gamesMap = {};
-  await loadGitslotparkCatalogs(req, gamesMap);
-
   try {
     const bona = require('../bona');
     if (bona.isBonaConfigured()) {

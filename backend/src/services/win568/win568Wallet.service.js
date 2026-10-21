@@ -11,8 +11,8 @@ const db = require('../../db/models');
 const {
   getPlayableBalance,
   applyBalanceDelta
-} = require('../gitslotpark/callbacks/gitslotparkCallbackWallet.service');
-const { formatBalance } = require('../gitslotpark/gitslotparkSign.helpers');
+} = require('../wallet/slotsCallbackWallet.service');
+const { formatBalance } = require('../wallet/formatBalance.helpers');
 
 function money(value) {
   return formatBalance(value);

@@ -31,7 +31,6 @@ const {
   isGameUsernameTakenDbError,
   isGameUsernameTakenError
 } = require('../../services/games/assertGameUsernameAvailable.service');
-const { getGamesList } = require('../../services/gitslotpark/getGamesList.service');
 const { getGamesList: getScorpioGamesList } = require('../../services/scorpioplay/getGamesList.service');
 
 function getOperationDoneBy(role) {
@@ -541,19 +540,7 @@ async function listGitslotparkTransactions(req, res) {
       { replacements: { userId, limit, offset }, type: db.Sequelize.QueryTypes.SELECT }
     );
 
-    let gamesMap = {};
-    try {
-      const { games } = await getGamesList(req);
-      if (Array.isArray(games)) {
-        games.forEach((g) => {
-          const gId = g.id || g.gameId || g.gameid;
-          const gName = g.name || g.title || g.gameName;
-          if (gId) gamesMap[String(gId)] = gName;
-        });
-      }
-    } catch (err) {
-      // Ignore errors if config is missing or API fails, fallback to ID
-    }
+    const gamesMap = {};
 
     let scorpioGamesMap = {};
     try {

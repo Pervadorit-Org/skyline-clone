@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useLobbyCatalog } from '../../hooks/useLobbyCatalog';
 import { useLobbyContent } from '../../hooks/useLobbyContent';
 import { useLobbyPopular } from '../../hooks/useLobbyPopular';
-import { buildCategoryGameIndex, prepareDashboardSlotGames } from '../../utils/gitslotparkLandingGames';
+import { buildCategoryGameIndex, prepareDashboardSlotGames } from '../../utils/slotLobbyGames';
 import { buildLobbySections } from './lobbyBuilder';
 import '../../styles/golden-lobby.css';
 

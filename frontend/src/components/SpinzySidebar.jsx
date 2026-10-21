@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useClaimableTaskCount } from './Tasks/useClaimableTaskCount';
 import { openSupportWidget } from './intercomApi';
-import { openTaskList } from './Tasks/TaskListModal';
 import { DashboardSidebar, RAIL_ITEMS, applyRailShell } from './Home/DashboardSidebar';
 import { useLobbyShell } from '../hooks/useLobbyShell';
 import '../styles/dashboard-sidebar.css';
@@ -15,7 +13,6 @@ function IconRail({ onNavigate, isGuest = false }) {
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
   const { logout } = useAuth();
-  const claimableTasks = useClaimableTaskCount(!isGuest);
   const shell = useLobbyShell();
 
   const isActive = (to) => {
@@ -25,7 +22,7 @@ function IconRail({ onNavigate, isGuest = false }) {
   const handle = (it) => {
     if (isGuest) {
       // Login-gated features (account, rewards, tasks) → open the login modal.
-      if (it.action === 'tasks' || it.authRequired) {
+      if (it.authRequired) {
         navigate(`/login${search || ''}`);
       } else if (it.action === 'support') {
         openSupportWidget();
@@ -37,8 +34,6 @@ function IconRail({ onNavigate, isGuest = false }) {
     }
     if (it.action === 'support') {
       openSupportWidget();
-    } else if (it.action === 'tasks') {
-      openTaskList();
     } else if (it.action === 'logout') {
       logout?.();
     } else if (it.to) {
@@ -70,7 +65,7 @@ function IconRail({ onNavigate, isGuest = false }) {
             >
               {it.icon}
               {(() => {
-                const badge = it.id === 'tasks' ? (claimableTasks > 0 ? String(claimableTasks) : '') : it.badge;
+                const badge = it.badge;
                 return badge && !isGuest ? <span className="dgs-rail__badge">{badge}</span> : null;
               })()}
             </button>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { prefetchLobbySlotGames } from '../components/Home/DashboardSlotGamesSection';
 import { getAllCachedProviderSlotGames } from '../utils/dashboardSlotGamesCache';
-import { buildCategoryPageGames } from '../utils/gitslotparkLandingGames';
+import { buildCategoryPageGames } from '../utils/slotLobbyGames';
 
 function readGames(catalogId) {
   return buildCategoryPageGames(getAllCachedProviderSlotGames(), catalogId);

@@ -17,20 +17,6 @@ export const TOP_GAMES_BUFFALO_NAMES = [
 ];
 
 /** @deprecated Prefer TOP_GAMES_LEAD_NAMES. Kept for older imports. */
-export const GITSLOTPARK_TOP_GAMES = [
-  { gameid: '33' },
-  { gameid: '104' },
-  { gameid: '3' },
-  { gameid: '29' },
-  { gameid: '60' },
-  { gameid: '36' },
-  { gameid: '54' },
-  { gameid: '83' },
-  { gameid: '82' },
-  { gameid: '1473388' },
-];
-
-/** @deprecated Prefer TOP_GAMES_LEAD_NAMES. Kept for older imports. */
 export const ONEGAMEHUB_TOP_GAMES = [
   { gameid: 'kagaming2-BonusManiaPlinko', title: 'Bonus Mania Plinko' },
   { gameid: 'kagaming2-HotCoin', title: 'Hot Coin' },

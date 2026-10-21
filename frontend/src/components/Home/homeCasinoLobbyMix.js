@@ -7,7 +7,7 @@ import {
   buildOrionstarSlotCategories,
   getSlotCategoryPath,
   isHiddenSlotCategoryId,
-} from '../../utils/gitslotparkLandingGames';
+} from '../../utils/slotLobbyGames';
 import { fetchEnabledSlotProviders } from '../../hooks/useEnabledSlotProviders';
 
 export const IS_PLAYJUWA_STORE =
@@ -94,7 +94,6 @@ function useHomeCasinoCategories({ enabled = false, allowed = false } = {}) {
       .then((providers) => {
         if (cancelled) return null;
         const flags = {
-          gitslotpark: Boolean(providers?.gitslotpark),
           onegamehub: Boolean(providers?.onegamehub),
         };
         apply(flags);

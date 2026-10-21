@@ -3,7 +3,6 @@
 const db = require('../../db/models');
 const { Op } = require('sequelize');
 const { toDateRangeStart, toDateRangeEnd } = require('../../utils/dateRangeFilters');
-const { getGamesList } = require('../gitslotpark/getGamesList.service');
 
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 100;
@@ -288,20 +287,6 @@ function buildUserWhere(scope, username) {
 
 async function buildGamesMap(req) {
   const gamesMap = {};
-  try {
-    const { games } = await getGamesList(req || {});
-    if (Array.isArray(games)) {
-      for (const g of games) {
-        const gId = g.id ?? g.gameId ?? g.gameid;
-        const gName = g.name || g.title || g.gameName;
-        if (gId != null && gName) {
-          gamesMap[String(gId)] = String(gName);
-        }
-      }
-    }
-  } catch (_) {
-    // Catalog is optional enrichment; report still works with Game {id}.
-  }
 
   try {
     const bona = require('../bona');

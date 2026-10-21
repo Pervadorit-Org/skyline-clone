@@ -40,7 +40,7 @@ import { SlotGamesCatalogGrid } from '../SlotGamesCatalogGrid';
 import {
   appendBonaToSlotCategories,
   buildOrionstarSlotCategories,
-} from '../../../utils/gitslotparkLandingGames';
+} from '../../../utils/slotLobbyGames';
 import {
   getAllCachedProviderSlotGames,
 } from '../../../utils/dashboardSlotGamesCache';
@@ -217,7 +217,6 @@ export function GamesSection({ pageMode = false, initialFilter = null } = {}) {
       .then((providers) => {
         if (cancelled) return null;
         const flags = {
-          gitslotpark: Boolean(providers?.gitslotpark),
           onegamehub: Boolean(providers?.onegamehub),
         };
         refreshCasino(flags);

@@ -4,6 +4,7 @@ import { LOBBY_INSERT_AFTER } from '../../config/lobbyDefaults';
 import { useLobbyContent } from '../../hooks/useLobbyContent';
 import { useLobbyConfig } from '../../hooks/useLobbyConfig';
 import { getGameCategoryPath } from '../../config/gameCategories';
+import { useAvailableGameCategories } from '../../hooks/useAvailableGameCategories';
 import { useAuth } from '../../context/AuthContext';
 import { useCasinoLobbyCategories } from '../Home/homeCasinoLobbyMix';
 import { useLaunchDashboardSlotGame } from '../../hooks/useLaunchDashboardSlotGame';
@@ -57,7 +58,7 @@ function BannerCarousel() {
   const [active, setActive] = useState(0);
   // Signed-in players get the image banners; guests keep the built-in slides.
   const content = useLobbyContent();
-  // Banners the admin uploaded (Admin → Pages → Lobby) win; otherwise the built-in slides.
+  // Banners saved from the backend (/api/lobby-images) win; otherwise the built-in slides.
   const adminBanners = (content.banners || []).filter((b) => b && (b.desktop || b.mobile));
   const imageBanners = adminBanners.length ? adminBanners : cfg.imageBanners;
   const imageMode = isAuthenticated && imageBanners?.length > 0;
@@ -95,6 +96,14 @@ function BannerCarousel() {
           </div>
         ))}
       </div>
+      {imageMode ? (
+        <div className="df-lobby__badges">
+          <Link to="/store" className="df-lobby__badge df-lobby__badge--tl"><img src="/ref/lobby/badge-basket.webp" alt="" /><span className="is-sale">Flash Sale</span></Link>
+          <Link to="/account/affiliate" className="df-lobby__badge df-lobby__badge--tr"><img src="/ref/lobby/badge-phone-share.webp" alt="" /><span className="is-ref">Refer a Friend</span></Link>
+          <Link to="/daily-bonus" className="df-lobby__badge df-lobby__badge--br"><img src="/ref/lobby/badge-clipboard.webp" alt="" /><span className="is-daily">Daily Rewards</span></Link>
+          <Link to="/spinwheel" className="df-lobby__badge df-lobby__badge--bl"><img src="/ref/lobby/badge-trophy.webp" alt="" /><span className="is-join">Join Now</span></Link>
+        </div>
+      ) : null}
       <div className="df-lobby__dots">
         {slides.map((s, i) => (
           <button
@@ -113,9 +122,14 @@ function BannerCarousel() {
 /* ---------- daily rewards / spin cards ---------- */
 function PromoCards() {
   const cfg = useLobbyConfig();
+  const content = useLobbyContent();
+  // Card backgrounds the backend saved win over the built-in artwork.
+  const backendBg = { daily: content.dailyCardBg, spin: content.spinCardBg };
   return (
     <section className="df-lobby__promos">
-      {cfg.promoCards.map((c) => (
+      {cfg.promoCards.map((card) => {
+        const c = backendBg[card.id] ? { ...card, bg: backendBg[card.id] } : card;
+        return (
         <div
           key={c.id}
           className={`df-lobby__promo df-lobby__promo--${c.variant}`}
@@ -138,7 +152,8 @@ function PromoCards() {
             <img className="df-lobby__promo-art" src={c.art} alt="" loading="lazy" draggable="false" />
           )}
         </div>
-      ))}
+        );
+      })}
     </section>
   );
 }
@@ -146,6 +161,7 @@ function PromoCards() {
 /* ---------- category pills ---------- */
 function CategoryTabs() {
   const cfg = useLobbyConfig();
+  const isCategoryAvailable = useAvailableGameCategories();
   return (
     <nav className="df-lobby__tabs" aria-label="Game categories">
       <Link to="/casino" className="df-lobby__tabs-search" aria-label="Search games">
@@ -154,7 +170,7 @@ function CategoryTabs() {
           <path d="m20 20-3.5-3.5" />
         </svg>
       </Link>
-      {cfg.categories.map((c, i) => (
+      {cfg.categories.filter((c) => !c.id || isCategoryAvailable(c.id)).map((c, i) => (
         <Link
           key={c.label}
           to={c.id ? getGameCategoryPath(c.id) : '/casino'}

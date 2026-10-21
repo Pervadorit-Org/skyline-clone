@@ -23,7 +23,7 @@ export async function fetchEnabledSlotProviders() {
 
 export function hasVisibleSlotProviders(flags = DEFAULT_SLOT_PROVIDERS) {
   const providers = normalizeSlotProviders(flags);
-  return Boolean(providers.gitslotpark || providers.onegamehub || providers.bona || providers.scorpio);
+  return Boolean(providers.onegamehub || providers.bona || providers.scorpio);
 }
 
 export function useEnabledSlotProviders({ enabled = true } = {}) {

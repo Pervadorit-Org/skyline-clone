@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { GAME_CATEGORIES, getGameCategory } from '../../config/gameCategories';
 import { useCategoryPageGames } from '../../hooks/useCategoryPageGames';
+import { useAvailableGameCategories } from '../../hooks/useAvailableGameCategories';
 import { useLaunchDashboardSlotGame } from '../../hooks/useLaunchDashboardSlotGame';
 import { DepositRequiredModal } from '../../components/Games/DepositRequiredModal';
 import '../../styles/category-page.css';
@@ -32,6 +33,7 @@ function GameCard({ game, onPlay, playing }) {
 
 function CategoryStrip({ activeSlug }) {
   const activeRef = useRef(null);
+  const isAvailable = useAvailableGameCategories();
 
   useEffect(() => {
     activeRef.current?.scrollIntoView?.({ block: 'nearest', inline: 'center' });
@@ -44,7 +46,7 @@ function CategoryStrip({ activeSlug }) {
           <img src="/df-online/club-icons/gamepad.svg" alt="" width="24" height="24" />
           <span>Home</span>
         </Link>
-        {GAME_CATEGORIES.map((c) => {
+        {GAME_CATEGORIES.filter((c) => c.slug === activeSlug || isAvailable(c.slug)).map((c) => {
           const active = c.slug === activeSlug;
           return (
             <Link

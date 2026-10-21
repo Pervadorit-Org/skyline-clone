@@ -1,7 +1,7 @@
 'use strict';
 
 const db = require('../../db/models');
-const { formatBalance } = require('../gitslotpark/gitslotparkSign.helpers');
+const { formatBalance } = require('../wallet/formatBalance.helpers');
 const { resolveBonaConfig } = require('./bona.config');
 const bonaClient = require('./bona.client');
 const { getBonaUsernameForUser } = require('./bonaUser.helpers');

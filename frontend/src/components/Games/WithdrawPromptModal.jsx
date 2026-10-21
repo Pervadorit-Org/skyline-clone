@@ -4,13 +4,12 @@ import * as Dialog from '../ui/Dialog';
 import { useHideIntercomForGameTransferModal } from '../intercomApi';
 import { GiftIcon, ReferEarnIcon } from '../../assets/icons';
 import * as affiliateApi from '../../api/affiliate';
-import { GIT_SLOTPARK_PROVIDERS } from '../../api/gitslotpark';
 import { shareOptionsFromAffiliateStats } from '../../utils/socialShare';
 import { getAllCachedProviderSlotGames } from '../../utils/dashboardSlotGamesCache';
 import {
   prepareDashboardSlotGames,
   resolveLaunchGameId,
-} from '../../utils/gitslotparkLandingGames';
+} from '../../utils/slotLobbyGames';
 import { useEnabledSlotProviders } from '../../hooks/useEnabledSlotProviders';
 import { useLaunchDashboardSlotGame } from '../../hooks/useLaunchDashboardSlotGame';
 import { DepositRequiredModal } from './DepositRequiredModal';
@@ -63,9 +62,6 @@ function isEnabledSlotGame(game, flags) {
   if (!provider || !flags) return false;
   if (provider === 'onegamehub' || provider === '1gamehub') return flags.onegamehub === true;
   if (provider === 'bona') return flags.bona === true;
-  if (provider === 'gitslotpark' || GIT_SLOTPARK_PROVIDERS.includes(provider)) {
-    return flags.gitslotpark === true;
-  }
   return false;
 }
 

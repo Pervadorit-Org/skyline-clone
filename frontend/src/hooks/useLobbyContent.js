@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getLobbyContentConfig } from '../api/lobbyContent';
+import { getLobbyImages } from '../api/lobbyImages';
 
 // The lobby can mount several times (route changes), so share one fetch for a short while.
 const CACHE_MS = 60 * 1000;
@@ -8,8 +8,8 @@ let cache = { at: 0, content: {}, pending: null };
 function load() {
   if (Date.now() - cache.at < CACHE_MS) return Promise.resolve(cache.content);
   if (cache.pending) return cache.pending;
-  cache.pending = getLobbyContentConfig()
-    .catch(() => ({})) // API down / not set up: the built-in lobby layout
+  cache.pending = getLobbyImages()
+    .catch(() => ({})) // API down / nothing saved: the built-in artwork
     .then((content) => {
       cache = { at: Date.now(), content, pending: null };
       return content;
@@ -17,7 +17,7 @@ function load() {
   return cache.pending;
 }
 
-/** Admin-managed lobby content (an empty object until loaded, or when nothing is saved). */
+/** Backend-managed lobby images: { banners, dailyCardBg, spinCardBg } (empty until loaded or saved). */
 export function useLobbyContent() {
   const [content, setContent] = useState(cache.content);
   useEffect(() => {

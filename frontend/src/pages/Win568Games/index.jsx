@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import * as win568Api from '../../api/win568';
 import { WIN568_GAMES_SLUG } from '../../config/win568';
-import { mapWin568ToCarouselGame } from '../../utils/gitslotparkLandingGames';
+import { mapWin568ToCarouselGame } from '../../utils/slotLobbyGames';
 import { SlotGameCard } from '../../components/SlotGames/SlotGameCard';
 import { SlotGameCardSkeleton } from '../../components/SlotGames/SlotGameCardSkeleton';
 import { applyRobotsMeta } from '../../utils/pageSeo';

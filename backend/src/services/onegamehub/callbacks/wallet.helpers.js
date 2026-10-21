@@ -1,12 +1,12 @@
 'use strict';
 
-const { RESULT } = require('../../gitslotpark/callbacks/gitslotparkCallback.helpers');
-const { formatBalance } = require('../../gitslotpark/gitslotparkSign.helpers');
+const { RESULT } = require('../../wallet/slotsCallback.helpers');
+const { formatBalance } = require('../../wallet/formatBalance.helpers');
 const {
   getPlayableBalance,
   applyBalanceDelta,
   applyRollbackDelta
-} = require('../../gitslotpark/callbacks/gitslotparkCallbackWallet.service');
+} = require('../../wallet/slotsCallbackWallet.service');
 const { HUB_CURRENCY } = require('../onegamehub.constants');
 
 function centsToSc(amount) {

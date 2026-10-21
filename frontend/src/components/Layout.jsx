@@ -5,7 +5,6 @@ import { DragonFuryHelpLauncher } from './Home/DragonFuryHelpLauncher';
 import { WebsiteTour } from './WebsiteTour/WebsiteTour';
 import { Navbar } from './Navbar';
 import { SpinzySidebar } from './SpinzySidebar';
-import { TaskListModal } from './Tasks/TaskListModal';
 import '../styles/spinzy-layout.css';
 import '../styles/site-pages.css';
 import '../styles/site-header.css';
@@ -256,7 +255,6 @@ export function Layout({ children }) {
       {/* <a href="#main-content" className="skip-link">Skip to main content</a> */}
       <Navbar />
       <SpinzySidebar />
-      <TaskListModal />
       <main
         id="main-content"
         tabIndex={-1}

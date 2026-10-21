@@ -1,4 +1,3 @@
-import { SLOTS_CATEGORY_GAMES } from '../config/slotsCategoryGames';
 import { SCORPIO_POPULAR_SLOT_NAMES } from '../config/scorpioPopularSlots';
 import { isScorpioPlayProvider } from '../config/scorpio';
 import { ONEGAMEHUB_FISHING_GAMES } from '../config/onegamehubFishingGames';
@@ -14,7 +13,6 @@ import {
 import { ONEGAMEHUB_TABLE_GAMES } from '../config/onegamehubTableGames';
 import { ONEGAMEHUB_INSTANT_WIN_GAMES } from '../config/onegamehubInstantWinGames';
 import { ONEGAMEHUB_SCRATCH_CARD_GAMES } from '../config/onegamehubScratchCardGames';
-import { GIT_SLOTPARK_PROVIDERS } from '../config/gitslotpark';
 import { getSlotLocalIcon } from '../config/slotLocalIcons';
 
 const GAME_PLACEHOLDER = '/logo.webp';
@@ -56,14 +54,7 @@ export function isGenericGameImage(url) {
 
 const imageShapeCache = new Map();
 
-export function extractGitslotparkGamesList(res) {
-  if (Array.isArray(res?.games)) return res.games;
-  if (Array.isArray(res?.data?.games)) return res.data.games;
-  if (Array.isArray(res?.data)) return res.data;
-  return [];
-}
-
-export function getGitslotparkIconUrls(game) {
+export function getGameIconUrls(game) {
   return [
     game.iconurl,
     game.iconUrl,
@@ -131,25 +122,6 @@ export async function enrichGamesWithImageShapes(games) {
   const uniqueUrls = [...new Set(games.flatMap((game) => game.iconUrls))];
   await Promise.all(uniqueUrls.map((url) => probeImageShape(url)));
   return Promise.all(games.map((game) => resolveGameImages(game)));
-}
-
-export function mapGitslotparkToCarouselGame(game, provider) {
-  const iconUrls = getGitslotparkIconUrls(game);
-  const image = iconUrls[0] || '';
-
-  const rawGameId = game.gameid ?? game.gameId ?? game.id;
-  const gameid =
-    rawGameId != null && String(rawGameId).trim() !== '' ? rawGameId : null;
-
-  return {
-    id: `${provider}-${gameid ?? game.symbol ?? game.name}`,
-    gameid,
-    provider,
-    symbol: String(game.symbol || gameid || game.name || '').trim().toLowerCase(),
-    title: game.name || 'Game',
-    image,
-    iconUrls,
-  };
 }
 
 /** Map Bona gameList item → carousel game (provider = bona). */
@@ -494,23 +466,6 @@ const HUB_SLUG_TO_CATEGORY_ID = {
 function isOneGameHubProvider(provider) {
   const value = String(provider || '').trim().toLowerCase();
   return value === 'onegamehub' || value === '1gamehub';
-}
-
-function isGitslotparkProvider(provider) {
-  const value = String(provider || '').trim().toLowerCase();
-  return value === 'gitslotpark' || GIT_SLOTPARK_PROVIDERS.includes(value);
-}
-
-function indexGitslotparkGames(allGames) {
-  const byId = new Map();
-  for (const game of allGames || []) {
-    if (!isGitslotparkProvider(game?.provider)) continue;
-    const id = String(game.gameid ?? '').trim();
-    if (id && !byId.has(id)) byId.set(id, game);
-    const lower = id.toLowerCase();
-    if (lower && !byId.has(lower)) byId.set(lower, game);
-  }
-  return byId;
 }
 
 function indexOneGameHubGames(allGames) {
@@ -885,19 +840,17 @@ export function buildOtherLobbyCategory(allGames, occupiedGames = []) {
   };
 
   const scorpioGames = pushUnique((allGames || []).filter(isScorpioLobbyGame), OTHER_CATEGORY_LIMIT);
-  const gspSlots = (allGames || []).filter((game) => isGitslotparkProvider(game?.provider));
   const hubSlots = (allGames || []).filter(isOneGameHubSlotGame);
   const filler =
     scorpioGames.length >= OTHER_CATEGORY_LIMIT
       ? []
-      : pushUnique([...gspSlots, ...hubSlots], OTHER_CATEGORY_LIMIT - scorpioGames.length);
+      : pushUnique(hubSlots, OTHER_CATEGORY_LIMIT - scorpioGames.length);
   const games = [...chickenGames, ...scorpioGames, ...filler];
   if (!games.length) return null;
   return { id: 'others', label: 'Other', games, ranked: false };
 }
 
 export function buildCuratedSlotsCategory(allGames) {
-  const gspById = indexGitslotparkGames(allGames);
   const games = [];
   const seen = new Set();
   const seenTitles = new Set();
@@ -908,14 +861,6 @@ export function buildCuratedSlotsCategory(allGames) {
     if (!pushUniqueLobbyGame(games, seen, game, title)) return;
     if (compact) seenTitles.add(compact);
   };
-
-  for (const spec of SLOTS_CATEGORY_GAMES) {
-    if (String(spec.provider || '').toLowerCase() === 'onegamehub') continue;
-    const key = String(spec.gameid || '').trim();
-    if (!key) continue;
-    const found = gspById.get(key) || gspById.get(key.toLowerCase());
-    if (found) pushGame(found, spec.title);
-  }
 
   for (const game of pickScorpioLobbySlotGames(allGames)) {
     pushGame(game, game.title);
@@ -1285,7 +1230,7 @@ export function getGameLobbyCategoryLabel(game) {
 /**
  * Orionstars-style lobby:
  * 1GameHub games grouped by hub `categories[0]`, 1GameHub first in each row.
- * Slots category: fixed top-20 list only (GitSlotPark + 1GameHub).
+ * Slots category: Scorpio lobby slots.
  */
 export function buildOrionstarSlotCategories(allGames, options = {}) {
   const eligible = prepareDashboardSlotGames(allGames || []).filter(
@@ -1489,7 +1434,36 @@ export function buildCategoryGameIndex(allGames) {
       return isOneGameHubProvider(game.provider) && resolveOrionstarCategory(game).id === 'virtual-games';
     })
   );
+
+  // Scorpio and Bona carry no hub categories, so place them straight from their own type.
+  for (const game of prepareDashboardSlotGames(allGames || [])) {
+    const id = resolveDirectProviderCategory(game);
+    if (!id) continue;
+    const key = gameCatalogId(game) || game.id;
+    if (!index.has(id)) {
+      if (isHiddenSlotCategoryId(id)) continue;
+      index.set(id, []);
+    }
+    const list = index.get(id);
+    if (list.some((g) => (gameCatalogId(g) || g.id) === key)) continue;
+    list.push(game);
+  }
   return index;
+}
+
+/** Category for providers without hub categories: Scorpio (by game type) and Bona (slots / fishing). */
+function resolveDirectProviderCategory(game) {
+  const provider = String(game?.provider || '').trim().toLowerCase();
+  if (provider === 'bona') {
+    return String(game.gameType || '').trim().toLowerCase() === 'fishing' ? 'fishing' : 'slots';
+  }
+  if (isScorpioPlayProvider(provider)) {
+    const type = Number(game.gameType);
+    if (type === 1) return 'live-casino';
+    if (type === 2) return 'crash-game';
+    return 'slots';
+  }
+  return null;
 }
 
 export function buildCategoryPageGames(allGames, catalogId) {

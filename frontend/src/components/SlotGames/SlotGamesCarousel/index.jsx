@@ -1,6 +1,6 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { GAME_PLACEHOLDER } from '../../../utils/gitslotparkLandingGames';
+import { GAME_PLACEHOLDER } from '../../../utils/slotLobbyGames';
 import { isScorpioPlayProvider } from '../../../config/scorpio';
 import { getSlotLobbyCategoryMeta, SlotLobbyIcon } from '../slotLobbyMeta';
 import './slot-games-carousel.css';

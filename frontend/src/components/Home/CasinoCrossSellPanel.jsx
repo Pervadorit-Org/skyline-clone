@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { prefetchLobbySlotGames } from './DashboardSlotGamesSection';
 import { getCachedProviderSlotGames } from '../../utils/dashboardSlotGamesCache';
-import { getGameLobbyCategoryLabel, resolveLaunchGameId } from '../../utils/gitslotparkLandingGames';
+import { getGameLobbyCategoryLabel, resolveLaunchGameId } from '../../utils/slotLobbyGames';
 import { useLaunchDashboardSlotGame } from '../../hooks/useLaunchDashboardSlotGame';
 import { DepositRequiredModal } from '../Games/DepositRequiredModal';
 

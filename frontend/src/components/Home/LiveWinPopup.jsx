@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useBlockingOverlayOpen } from '../../hooks/useBlockingOverlayOpen';
-import * as gitslotparkApi from '../../api/gitslotpark';
 import { getCachedProviderSlotGames } from '../../utils/dashboardSlotGamesCache';
 import {
   LIVE_WIN_ACTIONS,
@@ -51,10 +50,7 @@ function LiveWinThumb({ src }) {
 }
 
 function readCachedSlotGames() {
-  const providers = [
-    ...gitslotparkApi.listConfiguredGitslotparkProviders(),
-    'bona',
-  ];
+  const providers = ['bona'];
   return collectLiveWinSlotGamesFromCache(getCachedProviderSlotGames, providers);
 }
 

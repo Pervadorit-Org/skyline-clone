@@ -6,7 +6,7 @@ import * as gamesApi from '../api/games';
 import { useDepositRequiredGate } from './useDepositRequiredGate';
 import { isDepositRequiredError } from '../utils/depositRequired';
 import { scrollToGamesSection } from '../utils/scrollToGames';
-import { GAME_PLACEHOLDER } from '../utils/gitslotparkLandingGames';
+import { GAME_PLACEHOLDER } from '../utils/slotLobbyGames';
 
 export const FIREKIRIN_EXCLUSIVE_PATH = '/firekirin-exclusive';
 const COVERFLOW_GAME_COUNT = 24;
