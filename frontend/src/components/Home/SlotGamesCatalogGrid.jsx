@@ -3,7 +3,8 @@ import { AppLoader } from '../AppLoader';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { site } from '../../config/site';
-import { GuestSlotSpinWheelModal } from '../SpinWheel/GuestSlotSpinWheelModal';
+// Guest Spin & Win popup disabled (commented out).
+// import { GuestSlotSpinWheelModal } from '../SpinWheel/GuestSlotSpinWheelModal';
 import { canGuestLandingSpin } from '../SpinWheel/guestLandingSpinCooldown';
 // import { slotFavoriteId } from '../../utils/gameFavorites';
 // import { GameFavoriteButton } from './GameFavoriteButton';
@@ -526,9 +527,11 @@ export function SlotGamesCatalogGrid({
         </div>
       ) : null}
 
+      {/* Guest Spin & Win popup disabled
       {showGuestSpinModal ? (
         <GuestSlotSpinWheelModal open={spinModalOpen} onClose={() => setSpinModalOpen(false)} />
       ) : null}
+      */}
     </section>
   );
 }

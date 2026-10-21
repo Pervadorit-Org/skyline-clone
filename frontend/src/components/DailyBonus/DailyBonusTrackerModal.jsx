@@ -83,6 +83,21 @@ function rewardLines(day) {
   return lines;
 }
 
+/** "+20K GC", "+0.5 SC", "+2 Spins" ... for the in-popup success message. */
+function claimedLines(reward, gcAmount) {
+  const lines = [];
+  if (Number(gcAmount) > 0) lines.push({ key: 'gc', coin: 'gc', text: `+${formatGc(gcAmount)} GC` });
+  if (reward?.type === 'sc_coins' && Number(reward.amount_sc) > 0) {
+    lines.push({ key: 'sc', coin: 'sc', text: `+${formatScShort(reward.amount_sc)} SC` });
+  } else if (reward?.type === 'bonus_spin') {
+    const spins = Math.max(1, Number(reward.spin_count) || 1);
+    lines.push({ key: 'spin', icon: SPIN_ICON, text: `+${spins} Free ${spins > 1 ? 'Spins' : 'Spin'}` });
+  } else if (reward?.type === 'discount_voucher') {
+    lines.push({ key: 'voucher', icon: VOUCHER_ICON, text: `${Number(reward.percent_off) || 0}% Off Voucher` });
+  }
+  return lines;
+}
+
 function CircleCheck() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -139,6 +154,7 @@ export function DailyBonusTrackerModal({
   loading,
   claimingDay,
   onClaim,
+  claimResult,
 }) {
   const [infoOpen, setInfoOpen] = useState(false);
 
@@ -259,6 +275,31 @@ export function DailyBonusTrackerModal({
                 </div>
               </div>
 
+              {claimResult ? (
+                <div className="dr-success" role="status">
+                  <div className="dr-success__icon"><CircleCheck /></div>
+                  <div className="dr-success__body">
+                    <strong>Day {claimResult.dayIndex} reward claimed!</strong>
+                    <div className="dr-success__lines">
+                      {claimedLines(
+                        claimResult.reward,
+                        claimResult.reward?.gc_amount ?? days.find((d) => d.dayIndex === claimResult.dayIndex)?.gcAmount
+                      ).map((line) => (
+                        <span key={line.key} className="dr-card__row">
+                          {line.coin ? (
+                            <CoinIcon kind={line.coin} />
+                          ) : (
+                            <img src={line.icon} alt="" aria-hidden="true" width={20} height={20} draggable={false} />
+                          )}
+                          <span>{line.text}</span>
+                        </span>
+                      ))}
+                    </div>
+                    <p>Added to your wallet. Come back tomorrow for the next reward.</p>
+                  </div>
+                  <button type="button" className="dr-claim" onClick={onClose}>Done</button>
+                </div>
+              ) : (
               <div className="dr-foot">
                 <div className="dr-progress">
                   <div className="dr-progress__head">
@@ -291,6 +332,7 @@ export function DailyBonusTrackerModal({
                   {claimLabel}
                 </button>
               </div>
+              )}
             </>
           )}
         </div>

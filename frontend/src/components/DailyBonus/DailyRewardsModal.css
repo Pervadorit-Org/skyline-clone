@@ -244,3 +244,37 @@
 @media (prefers-reduced-motion: reduce) {
   .dr-backdrop, .dr-modal, .dr-card, .dr-progress__bar, .dr-spin { animation: none; transition: none; }
 }
+
+/* In-popup claim success (replaces the old second modal) */
+.dr-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(251, 191, 36, 0.55);
+  border-radius: 1rem;
+  background: rgba(15, 15, 25, 0.72);
+  text-align: center;
+  animation: drPop 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@media (min-width: 768px) { .dr-success { flex-direction: row; text-align: left; } }
+.dr-success__icon { flex: none; width: 2.75rem; height: 2.75rem; color: #fcef85; }
+.dr-success__icon svg { width: 100%; height: 100%; }
+.dr-success__body { flex: 1; }
+.dr-success__body strong {
+  display: block;
+  font-family: Montserrat, system-ui, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  background: var(--dr-gold-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.dr-success__lines { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem 1rem; margin: 0.35rem 0; font-weight: 700; }
+@media (min-width: 768px) { .dr-success__lines { justify-content: flex-start; } }
+.dr-success__body p { margin: 0; font-size: 0.8rem; color: rgba(255, 255, 255, 0.7); }

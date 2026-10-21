@@ -2,16 +2,12 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useSpinWheelStatus } from '../../context/SpinWheelStatusContext';
-import { DailyBonusClaimModal } from './DailyBonusClaimModal';
 import { DailyBonusTrackerModal } from './DailyBonusTrackerModal';
 import * as dailyBonusApi from '../../api/dailyBonus';
 
-/** How long the claim-result celebration stays before auto-dismiss. */
-const CLAIM_RESULT_AUTO_CLOSE_MS = 3_500;
-
 /**
  * Hosts the Daily Bonus tracker + claim-result modals (promo auto-open and manual open).
- * After a successful claim the tracker closes immediately; the result popup auto-closes shortly after.
+ * After a successful claim the success message is shown inside the same Daily Rewards popup (no second modal).
  */
 export function DailyBonusModalHost({
   open,
@@ -35,12 +31,10 @@ export function DailyBonusModalHost({
     }
   }, [open, loading, status, onClose]);
 
-  // Auto-dismiss the claim celebration so the user is not stuck on it.
+  // Forget the last claim once the popup closes.
   useEffect(() => {
-    if (!claimResult) return undefined;
-    const id = window.setTimeout(() => setClaimResult(null), CLAIM_RESULT_AUTO_CLOSE_MS);
-    return () => window.clearTimeout(id);
-  }, [claimResult]);
+    if (!open) setClaimResult(null);
+  }, [open]);
 
   async function handleClaim(dayIndex) {
     setClaimingDay(dayIndex);
@@ -51,8 +45,6 @@ export function DailyBonusModalHost({
         reward: res?.reward || null,
         balanceSc: res?.balance_sc ?? null,
       });
-      // Close the tracker popup right after a successful claim.
-      onClose?.();
       await Promise.all([
         refreshBalance?.(),
         refreshSpinStatus?.(),
@@ -74,15 +66,8 @@ export function DailyBonusModalHost({
         loading={loading}
         claimingDay={claimingDay}
         onClaim={handleClaim}
+        claimResult={claimResult}
       />
-      {claimResult && (
-        <DailyBonusClaimModal
-          reward={claimResult.reward}
-          dayIndex={claimResult.dayIndex}
-          balanceSc={claimResult.balanceSc}
-          onClose={() => setClaimResult(null)}
-        />
-      )}
     </>
   );
 }

@@ -332,3 +332,86 @@ html body .device-block-modal__message {
 html body .lprm-modal {
   overflow: visible !important;
 }
+
+/* Refer & Earn (rfx) — navy + gold, matches Daily Rewards / lobby theme. */
+html body .rfx-backdrop {
+  background: rgba(0, 0, 0, 0.62) !important;
+}
+
+html body .rfx-modal {
+  --rfx-teal: #fce981;
+  --rfx-teal-soft: #fff7c2;
+  border: 1px solid #fbbf24 !important;
+  background:
+    radial-gradient(ellipse 90% 46% at 50% -8%, rgba(235, 197, 103, 0.22), transparent 58%),
+    linear-gradient(165deg, #1b2140 0%, #161b2e 52%, #0f0f19 100%) !important;
+}
+
+html body .rfx-title,
+html body .rfx-hero-pct {
+  font-family: Montserrat, "Baloo 2", system-ui, sans-serif !important;
+  font-weight: 800 !important;
+  background: linear-gradient(180deg, #f8d36f 0%, #fcef85 30%, #e1ad44 75%, #b9801f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent !important;
+  text-shadow: none !important;
+}
+
+html body .rfx-badge {
+  color: #1a1200 !important;
+  background: linear-gradient(180deg, #f8d36f, #e1ad44) !important;
+}
+
+html body .rfx-steps-head,
+html body .rfx-link-label {
+  color: #ebc567 !important;
+}
+
+html body .rfx-stat,
+html body .rfx-steps,
+html body .rfx-link-input {
+  border-color: rgba(251, 191, 36, 0.28) !important;
+  background: rgba(15, 15, 25, 0.55) !important;
+  color: #fff7c2 !important;
+}
+
+html body .rfx-stat--hero {
+  border-color: rgba(251, 191, 36, 0.6) !important;
+  background: rgba(235, 197, 103, 0.1) !important;
+}
+
+html body .rfx-stat-val,
+html body .rfx-hero-cap,
+html body .rfx-sub b {
+  color: #fce981 !important;
+}
+
+html body .rfx-step-icon,
+html body .rfx-copy {
+  border-color: rgba(251, 191, 36, 0.45) !important;
+  background: rgba(235, 197, 103, 0.12) !important;
+  color: #fce981 !important;
+}
+
+html body .rfx-step-num {
+  color: #1a1200 !important;
+  background: linear-gradient(180deg, #f8d36f, #e1ad44) !important;
+}
+
+html body .rfx-step:not(:last-child)::after {
+  background: linear-gradient(90deg, rgba(252, 233, 129, 0.7), rgba(251, 191, 36, 0.12)) !important;
+}
+
+html body .rfx-cta {
+  color: #1a1200 !important;
+  background: linear-gradient(180deg, #f8d36f 0%, #fcef85 30%, #e1ad44 75%, #b9801f 100%) !important;
+  box-shadow: 0 5px 0 #77511a !important;
+}
+
+html body .rfx-secondary {
+  color: #fce981 !important;
+  border-color: rgba(251, 191, 36, 0.4) !important;
+  background: rgba(15, 15, 25, 0.5) !important;
+}
