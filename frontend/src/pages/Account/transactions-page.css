@@ -24,7 +24,11 @@
 .tx-credit{color:#34c759;font-weight:500}
 .tx-debit{color:#ff6b6b;font-weight:500}
 .tx-coin{display:inline-flex;align-items:center;gap:.4rem;font-variant-numeric:tabular-nums;font-weight:500}
-.tx-coin img{width:1.5rem;height:1.5rem;object-fit:contain}
+.tx-coin-ic{display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border-radius:50%;font:800 .8rem/1 Montserrat,Inter,sans-serif;color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+.tx-coin-ic--gc{background:#f5b82e;color:#fff}
+.tx-coin-ic--sc{background:#18c964}
+.tx-pay{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1.25rem 2rem;margin:2rem 0 .5rem;padding:0;list-style:none}
+.tx-pay img{display:block;height:2rem;width:auto;max-width:5.5rem;object-fit:contain;filter:grayscale(1) brightness(1.6);opacity:.55}
 .tx-id{display:inline-block;max-width:8rem;overflow:hidden;text-overflow:ellipsis;color:rgba(255,255,255,.7);cursor:pointer;vertical-align:middle}
 .tx-dash{color:rgba(255,255,255,.7)}
 
@@ -41,7 +45,7 @@
 .tx-pager button:hover:not(:disabled){color:#fff}
 .tx-pager button:disabled{opacity:.4;pointer-events:none}
 
-@media(min-width:640px){.tx-card{padding:1.5rem}.tx-filters{grid-template-columns:repeat(2,1fr)}.tx-title{font-size:2rem}}
+@media(min-width:640px){.tx-card{padding:1.5rem}.tx-filters{grid-template-columns:repeat(3,1fr)}.tx-title{font-size:2rem}}
 @media(min-width:1024px){
  .tx-title{font-size:2.5rem}.tx-card{padding:2rem}
  .tx-filters{grid-template-columns:repeat(3,1fr)}.tx-field>span:first-child{font-size:.875rem}.tx-select-wrap select,.tx-field input{font-size:.875rem}
