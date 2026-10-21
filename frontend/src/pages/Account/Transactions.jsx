@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '../../context/ToastContext';
 import * as transactionsApi from '../../api/transactions';
 import { usePageContentReady } from '../../context/PageReadyContext';
@@ -6,6 +6,88 @@ import { formatSc } from '../../utils/currency';
 import './transactions-page.css';
 
 const DEFAULT_LIMIT = 20;
+
+/** "2026-10-21" -> "10/21/2026" */
+function isoToUs(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+  return m ? `${m[2]}/${m[3]}/${m[1]}` : '';
+}
+
+/** "10/21/2026" -> "2026-10-21" (null when not a real date). */
+function usToIso(text) {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(text.trim());
+  if (!m) return null;
+  const [, mm, dd, yyyy] = m;
+  const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+  if (d.getFullYear() !== Number(yyyy) || d.getMonth() !== Number(mm) - 1 || d.getDate() !== Number(dd)) return null;
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+/** Date field that always shows and accepts MM/DD/YYYY (value stays ISO yyyy-mm-dd for the API). */
+function UsDateInput({ value, min, max, onChange }) {
+  const [text, setText] = useState(isoToUs(value));
+  const pickerRef = useRef(null);
+  useEffect(() => {
+    setText(isoToUs(value));
+  }, [value]);
+
+  const handleText = (e) => {
+    let digits = e.target.value.replace(/[^\d]/g, '').slice(0, 8);
+    let out = digits;
+    if (digits.length > 4) out = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+    else if (digits.length > 2) out = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    setText(out);
+    if (!out) onChange('');
+    else {
+      const iso = usToIso(out);
+      if (iso && (!min || iso >= min) && (!max || iso <= max)) onChange(iso);
+    }
+  };
+
+  return (
+    <span className="tx-date-wrap">
+      <input
+        type="text"
+        inputMode="numeric"
+        placeholder="MM/DD/YYYY"
+        maxLength={10}
+        value={text}
+        onChange={handleText}
+        onBlur={() => setText(isoToUs(value))}
+      />
+      <button
+        type="button"
+        className="tx-date-btn"
+        aria-label="Open calendar"
+        onClick={() => {
+          const el = pickerRef.current;
+          if (!el) return;
+          if (typeof el.showPicker === 'function') {
+            try {
+              el.showPicker();
+              return;
+            } catch (_) {
+              /* fall through */
+            }
+          }
+          el.focus();
+          el.click();
+        }}
+      />
+      <input
+        ref={pickerRef}
+        type="date"
+        className="tx-date-native"
+        tabIndex={-1}
+        aria-hidden="true"
+        value={value}
+        min={min}
+        max={max}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </span>
+  );
+}
 
 const PAY_LOGOS = [
   { src: '/df-online/payment-logos/bitcoin.webp', alt: 'Bitcoin' },
@@ -197,11 +279,11 @@ export function AccountTransactions() {
           </label>
           <label className="tx-field">
             <span>From Date</span>
-            <input type="date" value={filters.dateFrom} max={filters.dateTo || undefined} onChange={(e) => setFilter('dateFrom', e.target.value)} />
+            <UsDateInput value={filters.dateFrom} max={filters.dateTo || undefined} onChange={(v) => setFilter('dateFrom', v)} />
           </label>
           <label className="tx-field">
             <span>To Date</span>
-            <input type="date" value={filters.dateTo} min={filters.dateFrom || undefined} onChange={(e) => setFilter('dateTo', e.target.value)} />
+            <UsDateInput value={filters.dateTo} min={filters.dateFrom || undefined} onChange={(v) => setFilter('dateTo', v)} />
           </label>
         </div>
 
