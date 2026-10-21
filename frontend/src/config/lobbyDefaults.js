@@ -42,36 +42,35 @@ export const LOBBY_DEFAULT_SECTIONS = [
   mosaic('mosaic-picks', "Editor's Picks", 'b', { kind: 'all', offset: 0 }, 25),
   cat('crash-game'),
   { id: 'feat-2', type: 'featured', title: 'Featured', source: { kind: 'brand', index: 1 }, count: 18 },
-  mosaic('mosaic-arcade', 'Arcade', 'a', { kind: 'all', offset: 25 }, 30),
+  mosaic('after-dark', 'After Dark', 'b', { kind: 'all', offset: 140 }, 32),
   cat('fishing', 3),
   { id: 'top10', type: 'rank', title: 'Top 10 Games', icon: LOBBY_ICON_SPARKLE, source: { kind: 'top' }, count: 10, popular: 0 },
-  { ...mosaic('trending', 'Trending Games', 'a', { kind: 'all', offset: 55 }, 18), popular: 10 },
+  mosaic('jackpot', 'Jackpot Zone', 'a', { kind: 'keyword', words: ['jackpot'], offset: 110 }, 29),
   cat('instant-win'),
   { id: 'feat-3', type: 'featured', title: 'Featured', source: { kind: 'brand', index: 2 }, count: 25 },
-  { ...mosaic('top-games', 'Top Games', 'a', { kind: 'all', offset: 75 }, 32), popular: 28 },
+  { ...mosaic('trending', 'Trending Games', 'a', { kind: 'all', offset: 55 }, 18), popular: 10 },
   cat('keno'),
-  mosaic('jackpot', 'Jackpot Zone', 'a', { kind: 'keyword', words: ['jackpot'], offset: 110 }, 29),
   cat('live-dealer'),
   cat('lottery'),
+  { ...mosaic('top-games', 'Top Games', 'a', { kind: 'all', offset: 75 }, 32), popular: 28 },
   { id: 'new', type: 'grid', title: 'New Games', icon: LOBBY_ICON_SPARKLE, source: { kind: 'new' }, count: 20 },
-  mosaic('after-dark', 'After Dark', 'b', { kind: 'all', offset: 140 }, 32),
   cat('scratch-cards'),
+  mosaic('mosaic-arcade', 'Arcade', 'a', { kind: 'all', offset: 25 }, 30),
   {
     id: 'top10-fishing', type: 'rank', title: 'Top 10 Fish Games', icon: LOBBY_ICON_FISH,
     source: { kind: 'category', catalogId: 'fishing' }, count: 10, popular: 0,
   },
   cat('shooting'),
-  mosaic('casual', 'Casual Fun', 'c', { kind: 'all', offset: 175 }, 20),
   cat('slots', 3),
+  mosaic('jokes', 'Jokes', 'a', { kind: 'keyword', words: ['joker'], offset: 175 }, 20),
   { id: 'feat-4', type: 'featured', title: 'Featured', source: { kind: 'brand', index: 3 }, count: 20 },
   cat('table-games'),
 ];
 
-/** Row ids after which the lobby shows its extra panels (packages, providers, exclusive banner). */
+/** Row ids after which the lobby shows its extra panels (packages, invite/deals, exclusive banner). */
 export const LOBBY_INSERT_AFTER = {
-  'feat-3': ['packages', 'inviteDeals'],
-  keno: ['providers'],
-  'cat-shooting': ['exclusive'],
+  'feat-3': ['packages'],
+  'cat-shooting': ['inviteDeals', 'exclusive'],
 };
 
 /** Our own background art for the featured (studio) rows, used when the admin has not set one. */

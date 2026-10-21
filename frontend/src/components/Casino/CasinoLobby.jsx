@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { LOBBY_INSERT_AFTER } from '../../config/lobbyDefaults';
 import { useLobbyContent } from '../../hooks/useLobbyContent';
@@ -13,6 +14,8 @@ import { GoldenLobbySections } from './GoldenLobbySections';
 import { BIG_WIN_ENTRIES } from '../Home/RecentBigWins';
 import { fetchNormalizedDepositPackagesCatalog } from '../../api/depositPackages';
 import { cloneGuestWinnerRows } from '../../utils/guestWinnersLeaderboard';
+import { getAllCachedProviderSlotGames } from '../../utils/dashboardSlotGamesCache';
+import { prepareDashboardSlotGames } from '../../utils/slotLobbyGames';
 import '../../styles/casino-lobby.css';
 
 const PLACEHOLDER = '/logo.webp';
@@ -461,24 +464,6 @@ function PackagesRow() {
   );
 }
 
-function ProvidersStrip() {
-  const cfg = useLobbyConfig();
-  const logos = cfg.providers.logos;
-  if (cfg.off('panel:providers') || !logos.length) return null;
-  return (
-    <section className="df-lobby__section df-lobby__providers">
-      <h3 className="df-lobby__providers-title">{cfg.providers.title}</h3>
-      <div className="df-lobby__scroller df-lobby__providers-row">
-        {logos.map((p) => (
-          <div className="df-lobby__provider" key={p.name}>
-            <img src={p.image} alt={p.name} loading="lazy" />
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function InviteDeals() {
   const cfg = useLobbyConfig();
   const { invite, deals } = cfg;
@@ -533,14 +518,15 @@ function ExclusiveBanner() {
   if (cfg.off('panel:exclusive')) return null;
   return (
     <section className="df-lobby__section">
-      <SectionHead title={e.title} />
-      <Link to={e.href} className="df-lobby__exclusive">
-        <p>
-          {e.headline}
-          <br />
+      <SectionHead title={e.title} icon="/ref/lobby/gem.svg" />
+      <Link to={e.href} className="df-ex">
+        <div className="df-ex__copy">
+          <p>{e.headline}</p>
           <strong>{e.highlight}</strong>
-        </p>
-        <img src={e.art} alt="" loading="lazy" draggable="false" />
+        </div>
+        <img className="df-ex__a" src="/ref/lobby/exclusive/top-right.webp" alt="" aria-hidden="true" loading="lazy" draggable="false" />
+        <img className="df-ex__b" src="/ref/lobby/exclusive/bottom-right.webp" alt="" aria-hidden="true" loading="lazy" draggable="false" />
+        <img className="df-ex__man" src="/ref/lobby/exclusive/man-holding-chest.webp" alt="" aria-hidden="true" loading="lazy" draggable="false" />
       </Link>
     </section>
   );
@@ -548,10 +534,26 @@ function ExclusiveBanner() {
 
 function PickForMe({ games, onPlay }) {
   const cfg = useLobbyConfig();
+  const [picked, setPicked] = useState(null);
+  useEffect(() => {
+    if (!picked) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setPicked(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [picked]);
   if (cfg.off('panel:pick')) return null;
   const pick = () => {
-    if (!games.length) return;
-    onPlay(games[Math.floor(Math.random() * games.length)]);
+    // Lobby rows first; otherwise any game from the cached provider catalog.
+    const pool = games.length ? games : prepareDashboardSlotGames(getAllCachedProviderSlotGames());
+    if (!pool.length) return;
+    setPicked(pool[Math.floor(Math.random() * pool.length)]);
+  };
+  const play = () => {
+    const game = picked;
+    setPicked(null);
+    if (game) onPlay(game);
   };
   return (
     <section className="df-lobby__pick">
@@ -560,6 +562,35 @@ function PickForMe({ games, onPlay }) {
       <button type="button" className="df-lobby__chip df-lobby__chip--lg" onClick={pick}>
         {cfg.pick.ctaLabel}
       </button>
+      {picked
+        ? createPortal(
+            <div className="df-pick" role="presentation" onClick={() => setPicked(null)}>
+              <div
+                className="df-pick__box"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="df-pick-title"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button type="button" className="df-pick__close" aria-label="Close" onClick={() => setPicked(null)}>
+                  <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </button>
+                <h2 id="df-pick-title">Your lucky pick is here!</h2>
+                <div className="df-pick__img">
+                  <img src={gameImage(picked)} alt={picked.title || picked.name || 'Game'} width="128" height="128" draggable="false" />
+                </div>
+                <p>{picked.title || picked.name}</p>
+                <button type="button" className="df-pick__play" onClick={play}>
+                  Play Now
+                </button>
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
     </section>
   );
 }
@@ -578,26 +609,33 @@ function TopWinners() {
   );
   if (cfg.off('panel:winners')) return null;
   return (
-    <section className="df-lobby__winners">
-      <h2>
+    <section className="df-tw">
+      <h2 className="df-tw__title">
         {w.titleLead} <span>{w.titleHighlight}</span>
       </h2>
-      <div className="df-lobby__winners-cols">
+      <div className={`df-tw__cols${showAll ? '' : ' is-collapsed'}`}>
         {cols.map((c) => (
-          <div key={c.id}>
+          <div key={c.id} className="df-tw__col">
             <h4>{c.label}</h4>
             <ul>
               {c.rows.slice(0, showAll ? c.rows.length : w.initialRows).map((r) => (
-                <li key={r._id} className="df-lobby__winner">
-                  <span className="df-lobby__winner-avatar" aria-hidden>
-                    {r.avatar}
+                <li key={r._id} className="df-tw__row">
+                  <span className="df-tw__thumb" aria-hidden>
+                    {r.image ? <img src={r.image} alt="" loading="lazy" draggable="false" /> : r.avatar}
                   </span>
-                  <span className="df-lobby__winner-meta">
+                  <span className="df-tw__meta">
                     <b>{r.game}</b>
-                    <small>{r.prize}</small>
+                    <span className="df-tw__prize">
+                      <img src="/ref/images/sweep-coin.webp" alt="" width="22" height="22" />
+                      {String(r.prize).replace(/\s*SC$/i, '')}
+                    </span>
                   </span>
-                  <Link to="/casino" className="df-lobby__winner-play">
-                    ▶ Play
+                  <Link to="/casino" className="df-tw__play" aria-label={`Play ${r.game}`}>
+                    <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true">
+                      <circle cx="12" cy="12" r="11.5" fill="#fff" />
+                      <path d="M10 8.2v7.6a.6.6 0 0 0 .9.5l6.2-3.8a.6.6 0 0 0 0-1l-6.2-3.8a.6.6 0 0 0-.9.5z" fill="#1a1b2b" />
+                    </svg>
+                    <span>Play</span>
                   </Link>
                 </li>
               ))}
@@ -606,7 +644,7 @@ function TopWinners() {
         ))}
       </div>
       {!showAll ? (
-        <button type="button" className="df-lobby__chip" onClick={() => setShowAll(true)}>
+        <button type="button" className="df-tw__more" onClick={() => setShowAll(true)}>
           {w.showMoreLabel}
         </button>
       ) : null}
@@ -697,7 +735,6 @@ export function CasinoLobby() {
       <>
         {panels.includes('packages') ? <PackagesRow /> : null}
         {panels.includes('inviteDeals') ? <InviteDeals /> : null}
-        {panels.includes('providers') ? <ProvidersStrip /> : null}
         {panels.includes('exclusive') ? <ExclusiveBanner /> : null}
       </>
     );
@@ -734,7 +771,6 @@ export function CasinoLobby() {
           </div>
 
           <PackagesRow />
-          <ProvidersStrip />
           <InviteDeals />
           <ExclusiveBanner />
         </>

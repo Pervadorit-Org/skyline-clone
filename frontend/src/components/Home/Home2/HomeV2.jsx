@@ -8,7 +8,6 @@ import { CategoryStrip } from './CategoryStrip';
 import { TopGamesSection } from './TopGamesSection';
 import { PlatformsSection } from './PlatformsSection';
 import { ReasonsSection } from './ReasonsSection';
-import { ProviderStrip } from './ProviderStrip';
 import { TestimonialsSection } from './TestimonialsSection';
 import { PromoBanner } from './PromoBanner';
 import { FeatureCardsSection } from './FeatureCardsSection';
@@ -19,7 +18,6 @@ import { NoPurchaseSection } from './NoPurchaseSection';
 // (see src/pages/Home/index.jsx) so LCP/above-the-fold paint isn't delayed.
 const BELOW_FOLD_KEYS = new Set([
   'reasons',
-  'providers',
   'testimonials',
   'banner1',
   'featureCards',
@@ -35,7 +33,6 @@ const SECTION_COMPONENTS = {
   topGames: TopGamesSection,
   platforms: PlatformsSection,
   reasons: ReasonsSection,
-  providers: ProviderStrip,
   testimonials: TestimonialsSection,
   banner1: () => <PromoBanner configKey="banner1" />,
   featureCards: FeatureCardsSection,
