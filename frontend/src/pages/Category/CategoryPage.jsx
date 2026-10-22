@@ -7,7 +7,7 @@ import { useLaunchDashboardSlotGame } from '../../hooks/useLaunchDashboardSlotGa
 import { DepositRequiredModal } from '../../components/Games/DepositRequiredModal';
 import '../../styles/category-page.css';
 
-const PLACEHOLDER = '/logo.webp';
+const PLACEHOLDER = '/golden-dragon-logo.webp';
 const SKELETON_COUNT = 12;
 
 function gameImage(game) {

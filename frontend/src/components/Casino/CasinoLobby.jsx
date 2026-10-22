@@ -18,7 +18,7 @@ import { getAllCachedProviderSlotGames } from '../../utils/dashboardSlotGamesCac
 import { prepareDashboardSlotGames } from '../../utils/slotLobbyGames';
 import '../../styles/casino-lobby.css';
 
-const PLACEHOLDER = '/logo.webp';
+const PLACEHOLDER = '/golden-dragon-logo.webp';
 
 function gameImage(game) {
   const icons = Array.isArray(game?.iconUrls) ? game.iconUrls : [];

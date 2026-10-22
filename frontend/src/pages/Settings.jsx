@@ -1047,7 +1047,7 @@ export function Settings() {
                     <div className="avatar-modal-back otp-modal-back" onClick={() => !verifyingOtp && setOtpOpen(false)}>
                       <div className="avatar-modal otp-modal" role="dialog" aria-modal="true" aria-label="Check your phone" onClick={(e) => e.stopPropagation()}>
                         <button type="button" className="avatar-modal-close" aria-label="Close" onClick={() => { setOtpOpen(false); setOtpCode(''); }}>×</button>
-                        <img className="otp-logo" src="/logo.webp" alt="" />
+                        <img className="otp-logo" src="/golden-dragon-logo.webp" alt="" />
                         <h2 className="otp-title">Check your phone</h2>
                         <p className="otp-sub">Enter the verification code sent to<br /><strong>{String(values.phone || '').replace(/^\+1(\d)/, '+1 $1')}</strong></p>
                         <div className="otp-boxes" onPaste={(e) => { e.preventDefault(); setOtpCode(e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)); }}>

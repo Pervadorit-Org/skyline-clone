@@ -11,6 +11,7 @@ import { FooterPageLayout, hasFooterLayout } from './FooterPageLayout';
 import '../Blog/Blog.css';
 import './FooterPage.css';
 import '../df-content-pages.css';
+import '../legal-prose.css';
 
 function wrapTablesForScroll(root) {
   if (!root) return;
@@ -21,6 +22,14 @@ function wrapTablesForScroll(root) {
     table.parentNode.insertBefore(wrap, table);
     wrap.appendChild(table);
   });
+}
+
+function formatUpdated(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  return Number.isNaN(d.getTime())
+    ? ''
+    : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function FooterPageSkeleton() {
@@ -183,25 +192,29 @@ export function FooterPage() {
 
   const useLayout = hasFooterLayout(page.sections);
 
+  if (!useLayout) {
+    // Same look as the Privacy / Terms pages: gold title, "last updated" line, readable text.
+    const updated = formatUpdated(page.updatedAt || page.updated_at);
+    return (
+      <main className="legal-page">
+        <header className="legal-head">
+          <h1>{page.title}</h1>
+          {updated ? <p>Last updated {updated}</p> : null}
+        </header>
+        <article className="legal-prose">
+          <div
+            className="pj-legal-page-content pj-footer-page-content"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content || '') }}
+          />
+        </article>
+      </main>
+    );
+  }
+
   return (
-    <div className={`pj-blog-page pj-blog-detail df-content-skin${useLayout ? ' pj-footer-layout-page df-content-page--wide' : ' df-content-page'}`}>
-      <article className={useLayout ? 'pj-blog-article' : 'df-content-card pj-blog-article'}>
-        {useLayout ? (
-          <FooterPageLayout sections={page.sections} fallbackTitle={page.title} />
-        ) : (
-          <>
-            <nav className="df-content-crumbs" aria-label="Breadcrumb">
-              <Link to="/">Home</Link>
-              <span aria-hidden="true">/</span>
-              <span>{page.title}</span>
-            </nav>
-            <h1 className="df-content-title pj-blog-title">{page.title}</h1>
-            <div
-              className="pj-blog-content pj-footer-page-content df-content-body"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content || '') }}
-            />
-          </>
-        )}
+    <div className="pj-blog-page pj-blog-detail df-content-skin pj-footer-layout-page df-content-page--wide">
+      <article className="pj-blog-article">
+        <FooterPageLayout sections={page.sections} fallbackTitle={page.title} />
       </article>
     </div>
   );

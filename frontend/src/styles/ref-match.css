@@ -1,0 +1,43 @@
+/*
+ * Layout shell matched to the reference (goldendragon.casino) at >= 768px.
+ * Values are the ones measured on the reference at a 1007px viewport; mobile (< 768px) is unchanged.
+ * Loaded last so it wins over the older dashboard/header/sidebar stylesheets.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800;900&display=swap");
+
+@media (min-width: 768px) {
+  html, html body { background: #0f0f19 !important; }
+  /* ---- sidebar: full height, in the left column, 76px wide ---- */
+  html body #root#root .dgs-rail { padding-top: 64px !important; box-sizing: border-box !important; top: 0 !important; height: 100svh !important; width: 76px !important; }
+  html body #root#root .dgs-rail__btn { width: 44px !important; height: 32px !important; margin: 4px auto !important; border-radius: 16px !important; border: 2px solid transparent !important; padding: 0 !important; }
+  html body #root#root .dgs-rail__btn.is-active { border: 2px solid #ebc567 !important; background: transparent !important; }
+  html body #root#root .dgs-rail__btn svg, html body #root#root .dgs-rail__btn img { width: 24px !important; height: 24px !important; }
+  html body #root#root .dgs-rail__div { width: 52px !important; margin: 20px auto !important; }
+  html body #root#root .df-rail-burger { position: fixed !important; left: 24px !important; top: 17.5px !important; width: 28px !important; height: 28px !important; min-width: 0 !important; padding: 0 !important; z-index: 950 !important; }
+  html body #root#root .df-rail-burger svg { width: 28px !important; height: 28px !important; }
+  html body #root#root .dash-nav { z-index: 850 !important; left: 76px !important; width: calc(100% - 76px) !important; }
+  html body #root#root .dash-nav-inner { padding: 0 12px !important; }
+  html body #root#root .site-logo--nav { width: auto !important; height: 50px !important; max-width: 120px !important; object-fit: contain !important; }
+  html body #root#root .df-gcsc__pill { height: 40px !important; width: 288px !important; }
+  html body #root#root .df-gcsc__amount { font-size: 24px !important; }
+  html body #root#root .df-gcsc__store { height: 40px !important; padding: 0 16px !important; font-family: "Montserrat", system-ui, sans-serif !important; font-size: 30px !important; border-radius: 24px !important; }
+  html body #root#root .df-header-bell { width: 30px !important; height: 30.9px !important; }
+  html body #root#root .df-header-bell svg { width: 22px !important; height: 22.9px !important; }
+  html body #root#root .dash-nav--authenticated .df-profile-trigger { width: 24px !important; height: 24px !important; min-width: 24px !important; }
+  html body #root#root .dash-nav--authenticated .df-profile-trigger svg { width: 24px !important; height: 24px !important; }
+  html body #root#root .dash-root { padding-left: 76px !important; padding-bottom: 0 !important; }
+  html body #root#root .dash-root > main { padding: 24px 80px 64px 80px !important; }
+  html body #root#root .dash-shell-inner { max-width: 1328px !important; }
+  html body #root#root .dash-page { max-width: none !important; }
+  html body #root#root .gd-nav, html body #root#root .mobile-lobby-nav { display: none !important; }
+  html body #root#root .df-help-launcher { width: 36px !important; height: 36px !important; right: 20px !important; bottom: 20px !important; }
+  html body #root#root .dgs { width: 305.7px !important; font-family: "Montserrat", system-ui, sans-serif !important; }
+  html body #root#root .dgs__row { font-weight: 400 !important; }
+  html body #root#root .dgs__row svg { width: 24px !important; height: 24px !important; }
+  html body #root#root .site-footer { margin-top: 0 !important; font-family: "Montserrat", system-ui, sans-serif !important; }
+  html body #root#root .site-footer__inner { max-width: 1328px !important; padding: 20px 20px 8px !important; }
+  html body #root#root .site-footer__panels { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 32px !important; }
+  html body #root#root .site-footer__panels h3, html body #root#root .site-footer__panels h4 { font-size: 18px !important; line-height: 28px !important; font-weight: 700 !important; }
+  html body #root#root .site-footer__panels a { font-size: 14px !important; line-height: 20px !important; font-weight: 500 !important; }
+  html body #root#root .site-footer p { font-size: 14px !important; }
+}

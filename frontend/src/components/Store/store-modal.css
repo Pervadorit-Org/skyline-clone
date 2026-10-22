@@ -112,6 +112,8 @@
 .sm-stroke-dark{color:#fff;paint-order:stroke fill;-webkit-text-stroke:2px #312e2e;filter:drop-shadow(0 2px #312e2e)}
 .sm-bundle__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;margin-top:.375rem}
 @media(min-width:640px){.sm-bundle__grid{gap:.75rem;margin-top:.75rem}}
+.sm-bundle__grid--few{display:flex;justify-content:center}
+.sm-bundle__grid--few .sm-bpack{width:calc((100% - 1rem)/3)}
 .sm-bpack{position:relative;display:flex;min-width:0;flex-direction:column;gap:.375rem;padding:.5rem;border:0;border-radius:1rem;font-family:"Baloo Bhaijaan 2",sans-serif;color:#fff;cursor:pointer}
 .sm-bundle--daily .sm-bpack{background:linear-gradient(#6c7648,#b3b878)}
 .sm-bundle--weekly .sm-bpack{background:linear-gradient(#6c7648,#b3b878)}
@@ -140,7 +142,7 @@
 /* general grid */
 .sm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;padding:0 .25rem}
 @media(min-width:400px){.sm-grid{gap:.875rem;padding:0 .5rem}}
-@media(min-width:1024px){.sm-grid{max-width:36rem;margin:0 auto;gap:1.125rem}}
+@media(min-width:1024px){.sm-grid{max-width:36rem;margin-left:auto;margin-right:auto;gap:1.125rem}}
 .sm-pack__in--grid{justify-content:space-between;gap:.25rem;padding-bottom:.25rem}
 @media(min-width:400px){.sm-pack__in--grid{gap:.375rem}}
 .sm-gamt{display:flex;align-items:center;gap:.125rem;padding-top:.5rem;font-weight:700;color:#fff}
@@ -207,7 +209,3 @@
 .sm-how p{margin:0;font-size:1rem;line-height:1.5;font-weight:700}
 .sm-steps{margin:.25rem 0 0;padding:0 0 0 1.25rem;list-style:decimal outside;font-size:.875rem;line-height:1.4286;font-weight:600;color:#fff}
 .sm-steps li+li{margin-top:.25rem}
-
-/* Dark + gold theme: neutralise the purple artwork */
-.sm-modal__bg{filter:grayscale(1) brightness(.55);background-color:#14151f}
-.sm-welcome__ribbon{filter:hue-rotate(80deg) saturate(1.1)}

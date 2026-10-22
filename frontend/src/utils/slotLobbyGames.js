@@ -15,7 +15,7 @@ import { ONEGAMEHUB_INSTANT_WIN_GAMES } from '../config/onegamehubInstantWinGame
 import { ONEGAMEHUB_SCRATCH_CARD_GAMES } from '../config/onegamehubScratchCardGames';
 import { getSlotLocalIcon } from '../config/slotLocalIcons';
 
-const GAME_PLACEHOLDER = '/logo.webp';
+const GAME_PLACEHOLDER = '/golden-dragon-logo.webp';
 
 /** 1GameHub sometimes ships Cyrillic "х" (U+0445) in filenames. The CDN file uses a Latin x. */
 export function normalizeSlotImageUrl(url) {

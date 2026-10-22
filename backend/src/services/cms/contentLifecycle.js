@@ -2,6 +2,7 @@
 
 const { Op } = require('sequelize');
 const db = require('../../db/models');
+const { columnMissing } = require('../../db/schemaCompat');
 
 const PLAYJUWA = 'playjuwa';
 const GAME_STORES = new Set(['playjuwa', 'dragonfury']);
@@ -13,6 +14,9 @@ function normalizeStoreCode(str) {
 
 /** Blog posts and footer pages: every store. Game pages: PlayJuwa and Dragon Fury. */
 function supportsLifecycle(kind, storeCode) {
+  // No deleted_at column in the database yet (migration pending): delete for real instead of stamping.
+  const model = { footer: 'FooterPage', game: 'GameSeoPage' }[kind];
+  if (model && columnMissing(model, 'deletedAt')) return false;
   const code = normalizeStoreCode(storeCode);
   if (kind === 'game') return GAME_STORES.has(code);
   return true;

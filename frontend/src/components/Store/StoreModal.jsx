@@ -136,7 +136,7 @@ function BundleSection({ title, variant, endsAt, packages, onPick }) {
         </h3>
         <Timer endsAt={endsAt} />
       </div>
-      <div className="sm-bundle__grid">
+      <div className={`sm-bundle__grid${packages.length < 3 ? ' sm-bundle__grid--few' : ''}`}>
         {packages.map((pkg) => {
           const a = pkgAmount(pkg);
           return (
@@ -189,7 +189,14 @@ const PACK_ICON_LADDER = [
 ];
 function packIconSrc(pkg) {
   const gc = Math.round(Number(pkg.gc_coin) || 0);
-  if (!gc) return GOLD_COIN;
+  if (!gc) {
+    // SC-only package: no Gold Coins to key on, so use the art whose free-SC size is closest.
+    const sc = Number(pkg.final_sc) || 0;
+    if (!sc) return GOLD_COIN;
+    const keys = Object.keys(PACK_ICONS).map((k) => [Number(k.split('-')[1]), PACK_ICONS[k]]);
+    const nearest = keys.reduce((best, cur) => (Math.abs(cur[0] - sc) < Math.abs(best[0] - sc) ? cur : best));
+    return PACK_ICON_BASE + nearest[1];
+  }
   const exact = PACK_ICONS[`${gc}-${Math.round(Number(pkg.final_sc) || 0)}`];
   const file = exact || PACK_ICON_LADDER.find(([max]) => gc <= max)[1];
   return PACK_ICON_BASE + file;

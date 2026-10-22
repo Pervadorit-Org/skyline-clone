@@ -7,7 +7,14 @@ import { getVipTierImage } from '../../utils/vipTierColors';
 import './vip-page.css';
 
 const TIER_NAMES = ['Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
-const HERO_TIERS = ['Bronze', 'Gold', 'Silver', 'Platinum', 'Diamond'];
+const TIER_DIR = '/vip/tier';
+const ROW_DIR = `${TIER_DIR}/rows`;
+
+/** Medal artwork per tier (reference design); falls back to the shared tier image for unknown names. */
+function tierMedal(name) {
+  const key = String(name || '').toLowerCase();
+  return TIER_NAMES.some((t) => t.toLowerCase() === key) ? `${TIER_DIR}/legacy/${key}.webp` : getVipTierImage(name);
+}
 
 const FALLBACK_FAQ = [
   { id: 1, question: 'Why should I become a VIP Club member?', answer: 'Once you join, your gaming experience will soar to new heights. You will benefit from weekly Coins Back, rewards for each level-up, and special privileges that unlock as you progress in VIP Club.' },
@@ -22,9 +29,9 @@ const FALLBACK_FAQ = [
 const fmt = (n) => (Number(n) || 0).toLocaleString();
 
 const PERKS = [
-  { icon: '📱', title: 'Create an Account', text: (<><span className="vipTier__hl">Join the Club</span> and become part of the VIP Rank Program</>) },
-  { icon: '🏅', title: 'Deposit & Refer', text: (<>Deposits and referral rewards earn <span className="vipTier__hl">VIP Points</span> and boost your Rank</>) },
-  { icon: '🎁', title: 'Earn Ranks, Get Rewards', text: 'Each Rank has its own rewards that are simple and easy to claim' },
+  { icon: `${TIER_DIR}/vip-tier-create-account.webp`, title: 'Create an Account', text: (<><span className="vipTier__hl">Join the Club</span> and become part of the VIP Rank Program</>) },
+  { icon: `${TIER_DIR}/vip-tier-engage.webp`, title: 'Deposit & Refer', text: (<>Deposits and referral rewards earn <span className="vipTier__hl">VIP Points</span> and boost your Rank</>) },
+  { icon: `${TIER_DIR}/vip-tier-earn-ranks.webp`, title: 'Earn Ranks, Get Rewards', text: 'Each Rank has its own rewards that are simple and easy to claim' },
 ];
 
 const PLATFORMS = [
@@ -47,9 +54,9 @@ const Sc = ({ value }) => <span className="vipTier__rowCoin">{fmt(value)} SC</sp
 /** Only values the backend returns per level; nothing is invented here. */
 function buildRows(level) {
   return [
-    { icon: '🏆', label: 'Level Up Bonus', value: level?.level_up_reward_sc != null ? <Sc value={level.level_up_reward_sc} /> : '—' },
-    { icon: '💳', label: 'Daily Withdrawal', value: <span className="vipTier__rowText">{level?.withdrawal_limit != null ? fmt(level.withdrawal_limit) : '—'}</span> },
-    { icon: '🎮', label: 'Platform Daily WD', value: <span className="vipTier__rowText">{level?.platform_withdrawal_limit != null ? fmt(level.platform_withdrawal_limit) : '—'}</span> },
+    { icon: `${ROW_DIR}/vip-tier-level-up.svg`, label: 'Level Up Bonus', value: level?.level_up_reward_sc != null ? <Sc value={level.level_up_reward_sc} /> : '—' },
+    { icon: `${ROW_DIR}/vip-tier-daily-withdrawal.svg`, label: 'Daily Withdrawal', value: <span className="vipTier__rowText">{level?.withdrawal_limit != null ? fmt(level.withdrawal_limit) : '—'}</span> },
+    { icon: `${ROW_DIR}/vip-tier-platform-daily-wd.svg`, label: 'Platform Daily WD', value: <span className="vipTier__rowText">{level?.platform_withdrawal_limit != null ? fmt(level.platform_withdrawal_limit) : '—'}</span> },
   ];
 }
 
@@ -58,6 +65,7 @@ export function AccountVip() {
   const [status, setStatus] = useState(null);
   const [faq, setFaq] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pickedIdx, setPickedIdx] = useState(null);
 
   usePageContentReady(!loading);
 
@@ -101,21 +109,15 @@ export function AccountVip() {
   const nextXp = Number(status?.next_level_xp) || 500;
   const pct = Math.min(100, nextXp > 0 ? (100 * curXp) / nextXp : 0);
   const faqItems = faq.length ? faq : FALLBACK_FAQ;
-  const perRow = levels.map((l) => buildRows(l));
-  const tableRows = perRow[0].map((r, idx) => ({
-    label: r.label,
-    icon: r.icon,
-    cells: perRow.map((rows) => rows[idx].value),
-  }));
+  const selectedIdx = pickedIdx != null && pickedIdx < levels.length ? pickedIdx : currentIdx;
+  const featureRows = buildRows(levels[selectedIdx]);
 
   return (
     <main className="vipTier-wrapper">
       <div className="vipTier__wrapper_main">
         <section className="vipTier__hero">
           <div className="vipTier__heroGraphic" aria-hidden="true">
-            {HERO_TIERS.map((t) => (
-              <img key={t} src={getVipTierImage(t)} alt="" className={`vipTier__medal vipTier__medal--${t.toLowerCase()}`} />
-            ))}
+            <img src={`${TIER_DIR}/vip-tier-image.webp`} alt="" width="900" height="750" loading="eager" fetchpriority="high" />
           </div>
           <div className="vipTier__heroContent">
             <h1 className="vipTier__heroTitle">VIP RANKS</h1>
@@ -137,24 +139,26 @@ export function AccountVip() {
 
         <section className="vipTier__section">
           <div className="vipTier__sectionBanner"><h3>VIP Perks</h3></div>
+          <div className="vipTier__perksViewport">
           <div className="vipTier__perksContainer">
             {PERKS.map((p) => (
               <div key={p.title} className="vipTier__perkCard">
-                <div className="vipTier__perkIcon" aria-hidden="true">{p.icon}</div>
+                <div className="vipTier__perkIcon" aria-hidden="true"><img src={p.icon} alt="" width="234" height="234" loading="lazy" /></div>
                 <h4 className="vipTier__perkTitle">{p.title}</h4>
                 <p className="vipTier__perkText">{p.text}</p>
               </div>
             ))}
           </div>
+          </div>
         </section>
 
-        <section className="vipTier__section vipTier__section--narrow">
+        <section className="vipTier__section vipTier__section--level">
           <div className="vipTier__levelRow">
             <div className="vipTier__currentCard">
               <div className="vipTier__currentCardBg" />
               <div className="vipTier__currentTop">
                 <div className="vipTier__currentMedal">
-                  <img src={getVipTierImage(current?.name)} alt="" />
+                  <img src={tierMedal(current?.name)} alt="" width="122" height="122" />
                 </div>
                 <div className="vipTier__currentInfo">
                   <h3 className="vipTier__currentName">{current?.name || 'Iron'}</h3>
@@ -162,7 +166,7 @@ export function AccountVip() {
                 </div>
                 {nextLevel && (
                   <div className="vipTier__currentBadge">
-                    <img src={getVipTierImage(nextLevel.name)} alt={nextLevel.name} />
+                    <img src={tierMedal(nextLevel.name)} alt={nextLevel.name} width="80" height="80" />
                   </div>
                 )}
               </div>
@@ -186,11 +190,11 @@ export function AccountVip() {
               <h3 className="vipTier__earnTitle">Turn Every Deposit Into VIP Points and Every Point Into Something Bigger.</h3>
               <div className="vipTier__earnGrid">
                 <div className="vipTier__earnItem">
-                  <img src="/df-online/sc-coin.webp" alt="" />
+                  <img src={`${TIER_DIR}/vip-tier-sweep-stack.webp`} alt="" width="140" height="140" loading="lazy" />
                   <p><span className="vipTier__hl">1 SC</span> Deposited = 1 XP (VIP Points)</p>
                 </div>
                 <div className="vipTier__earnItem">
-                  <img src="/df-online/sc-coin.webp" alt="" />
+                  <img src={`${TIER_DIR}/vip-tier-sweep-stack.webp`} alt="" width="140" height="140" loading="lazy" />
                   <p><span className="vipTier__hl">1 SC</span> Earned from Referral Rewards = 1 XP (VIP Points)</p>
                 </div>
               </div>
@@ -200,36 +204,35 @@ export function AccountVip() {
 
         <section className="vipTier__section" id="vip-tier-level">
           <div className="vipTier__tierLevelPanel">
-            <h3 className="vipTier__tierLevelTitle">Tier Level</h3>
-            <div className="vipTier__tableScroll">
-              <table className="vipTier__table">
-                <thead>
-                  <tr>
-                    <th className="vipTier__stickyCol" aria-label="Perk" />
-                    {levels.map((l, i) => (
-                      <th key={l.name} className={i === currentIdx ? 'is-current' : ''}>
-                        <span className="vipTier__selectorBadgeImg" data-tier={String(l.name).toLowerCase()}>
-                          <img src={getVipTierImage(l.name)} alt="" loading="lazy" />
-                        </span>
-                        <span className="vipTier__selectorBadgeName">{l.name}</span>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {tableRows.map((row, r) => (
-                    <tr key={row.label}>
-                      <th scope="row" className="vipTier__stickyCol">
-                        <span className="vipTier__rowIcon" aria-hidden="true">{row.icon}</span>
-                        {row.label}
-                      </th>
-                      {row.cells.map((cell, c) => (
-                        <td key={c} className={c === currentIdx ? 'is-current' : ''}>{cell}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="vipTier__tierTitleContainer">
+              <h3 className="vipTier__tierLevelTitle">Tier Level</h3>
+              <div className="vipTier__selector">
+                {levels.map((l, i) => (
+                  <button
+                    key={l.name}
+                    type="button"
+                    className="vipTier__selectorBadge"
+                    aria-pressed={i === selectedIdx}
+                    onClick={() => setPickedIdx(i)}
+                  >
+                    <span className="vipTier__selectorBadgeImg" data-tier={String(l.name).toLowerCase()}>
+                      <img src={tierMedal(l.name)} alt="" width="80" height="80" loading="lazy" />
+                    </span>
+                    <span className="vipTier__selectorBadgeName">{l.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="vipTier__featurePanel">
+              {featureRows.map((row) => (
+                <div key={row.label} className="vipTier__featureRow">
+                  <div className="vipTier__featureRow__label">
+                    <img src={row.icon} alt="" width="16" height="16" loading="lazy" />
+                    <span>{row.label}</span>
+                  </div>
+                  <div className="vipTier__featureRow__value">{row.value}</div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
