@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { getLegalPage } from '../api/legal';
 import { site } from '../config/site';
 import { usePageContentReady } from '../context/PageReadyContext';
@@ -84,18 +84,19 @@ function LegalPageSkeleton() {
   );
 }
 
-function fallbackCopy(pageKey) {
-  const support = site.supportEmail;
-  if (pageKey === 'privacy') {
-    return `Privacy policy content will be added here. For support, contact ${support}.`;
-  }
-  if (pageKey === 'terms') {
-    return `Terms and conditions content will be added here. For support, contact ${support}.`;
-  }
-  if (pageKey !== 'responsible-gaming') {
-    return `This page's content will be added here. For support, contact ${support}.`;
-  }
-  return `${site.platformName} is committed to responsible play. You must be 18+ to participate. Set personal limits, take breaks, and never play with money you cannot afford to lose. If you need help, contact support at ${support} or visit ncpgambling.org.`;
+/** Shown when the admin has not published this page (hidden, empty or failed to load): never a blank page. */
+function UnavailableNotice({ meta }) {
+  return (
+    <div role="status">
+      <p>
+        This page isn't available right now. For help, contact{' '}
+        <a href={`mailto:${site.supportEmail}`}>{site.supportEmail}</a>.
+      </p>
+      <p>
+        <Link to={meta.backTo}>{meta.backLabel}</Link>
+      </p>
+    </div>
+  );
 }
 
 function formatUpdated(value) {
@@ -186,7 +187,7 @@ export function LegalDocument({ pageKey }) {
         {html ? (
           <div className="pj-legal-page-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }} />
         ) : (
-          <p>{fallbackCopy(pageKey)}</p>
+          <UnavailableNotice meta={meta} />
         )}
       </article>
     </main>

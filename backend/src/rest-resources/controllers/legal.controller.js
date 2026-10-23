@@ -2,6 +2,7 @@
 
 const { sendSuccess, sendError } = require('../../helpers/response.helpers');
 const legalPages = require('../../services/legal/legalPages.service');
+const { logger } = require('../../libs/logger');
 
 async function getOne(req, res) {
   try {
@@ -9,6 +10,7 @@ async function getOne(req, res) {
     const data = await legalPages.getPublic(storeCode, req.params.pageKey);
     return sendSuccess(res, data);
   } catch (err) {
+    if (!err.statusCode || err.statusCode >= 500) logger.error(`GET /api/legal/${req.params.pageKey} failed: ${err.message}`);
     return sendError(res, err.message || 'Failed to get legal page', err.statusCode || 500);
   }
 }
@@ -18,6 +20,7 @@ async function list(req, res) {
     const storeCode = req.query.store_code || req.query.storeCode;
     return sendSuccess(res, await legalPages.listPublic(storeCode));
   } catch (err) {
+    if (!err.statusCode || err.statusCode >= 500) logger.error(`GET /api/legal failed: ${err.message}`);
     return sendError(res, err.message || 'Failed to list legal pages', err.statusCode || 500);
   }
 }

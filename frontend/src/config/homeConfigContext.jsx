@@ -37,10 +37,12 @@ function deepMerge(base, override) {
   return out;
 }
 
-export function HomeConfigProvider({ children }) {
+export function HomeConfigProvider({ children, skipFetch = false }) {
   const [content, setContent] = useState(null);
 
   useEffect(() => {
+    // Login/Signup only show the landing page as a backdrop: the built-in defaults are enough there.
+    if (skipFetch) return undefined;
     let cancelled = false;
     getHomePageContentConfig()
       .then((data) => {
@@ -52,7 +54,7 @@ export function HomeConfigProvider({ children }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [skipFetch]);
 
   const value = useMemo(() => {
     if (!content || Object.keys(content).length === 0) return defaultHomeConfig;

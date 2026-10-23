@@ -282,6 +282,8 @@ async function getPublic(storeCodeRaw, pageKeyRaw) {
       canonicalUrl: published ? plain.canonicalUrl : null,
       allowIndex: published ? plain.allowIndex : true,
       isActive: plain.isActive !== false,
+      hasContent: plain.hasContent,
+      visible: published,
       updatedAt: published ? plain.updatedAt : null
     }
   };

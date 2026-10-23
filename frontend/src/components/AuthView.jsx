@@ -24,7 +24,7 @@ export function AuthView() {
   }
   return (
     <>
-      <Home />
+      <Home authBackdrop />
       <AuthPage mode={mode} />
     </>
   );

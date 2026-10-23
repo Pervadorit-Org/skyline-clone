@@ -238,7 +238,7 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
   const [bonusesOpen, setBonusesOpen] = useState(false);
   const shell = useLobbyShell();
   // Only legal pages that are enabled (and filled in) in the backend; Responsible Gaming already has its own row.
-  const legalLinks = useLegalPageLinks({ fallback: false }).filter((l) => l.to !== '/responsible-gaming');
+  const legalLinks = useLegalPageLinks().filter((l) => l.to !== '/responsible-gaming');
   const isCategoryAvailable = useAvailableGameCategories();
   const { vipStatus } = useVipStatus();
   const vipLevels = Array.isArray(vipStatus?.levels) ? vipStatus.levels : [];
