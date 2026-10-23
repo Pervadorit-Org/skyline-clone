@@ -37,7 +37,7 @@ const ICONS = {
 
 const ITEMS = [
   { key: 'settings', label: 'Settings', to: '/settings' },
-  { key: 'vip', label: 'VIP', to: '/account/vip' },
+  { key: 'vip', label: 'VIP', to: '/vip' },
   { key: 'referral', label: 'Referral', to: '/account/affiliate' },
   { key: 'transactions', label: 'Transactions', to: '/account/transactions' },
 ];

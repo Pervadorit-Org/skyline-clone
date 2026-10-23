@@ -412,7 +412,7 @@ function RedeemTab({ shell, user, onNavigate }) {
       </div>
       {dailyMax != null ? (
         <p className="sm-redeem__limit">
-          Total payout per day is up to {formatSc(dailyMax)} SC. <Link to="/account/vip" onClick={onNavigate}>Learn More</Link>
+          Total payout per day is up to {formatSc(dailyMax)} SC. <Link to="/vip" onClick={onNavigate}>Learn More</Link>
         </p>
       ) : null}
       {limits?.neverDeposited && withdrawMax != null ? (

@@ -339,7 +339,7 @@ function RouteTitleManager() {
       ['/bonus', 'Bonus'],
       ['/account', 'Account'],
       ['/account/profile', 'Link Payment Account'],
-      ['/account/vip', 'VIP'],
+      ['/vip', 'VIP'],
       ['/account/transactions', 'Transactions'],
       ['/account/affiliate', 'Refer & Earn'],
       ['/settings', 'Settings'],
@@ -534,8 +534,8 @@ function App() {
                 {/* Account: profile redirects to settings; rest placeholders */}
                 <Route path="/account" element={<Navigate to="/settings" replace />} />
                 <Route path="/account/profile" element={<ProtectedRoute><AccountProfile /></ProtectedRoute>} />
-                <Route path="/account/vip" element={<ProtectedRoute><AccountVip /></ProtectedRoute>} />
-                <Route path="/vip" element={<Navigate to="/account/vip" replace />} />
+                <Route path="/vip" element={<ProtectedRoute><AccountVip /></ProtectedRoute>} />
+                <Route path="/account/vip" element={<Navigate to="/vip" replace />} />
                 <Route path="/account/transactions" element={<ProtectedRoute><AccountTransactions /></ProtectedRoute>} />
                 <Route path="/account/affiliate" element={<ProtectedRoute><AccountAffiliate /></ProtectedRoute>} />
 

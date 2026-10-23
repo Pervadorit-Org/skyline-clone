@@ -61,7 +61,7 @@ export const casinoLobbyConfig = {
     { id: 'img-daily-tasks', label: 'Daily Rewards', href: '/daily-bonus', desktop: '/ref/lobby/banners/daily-tasks-d.webp', mobile: '/ref/lobby/banners/daily-tasks-m.webp' },
     { id: 'img-spin-wheel', label: 'Spin the Wheel', href: '/spinwheel', desktop: '/ref/lobby/banners/spin-wheel-d.webp', mobile: '/ref/lobby/banners/spin-wheel-m.webp' },
     { id: 'img-referral', label: 'Refer a Friend', href: '/account/affiliate', desktop: '/ref/lobby/banners/referral-d.webp', mobile: '/ref/lobby/banners/referral-m.webp' },
-    { id: 'img-vip', label: 'VIP', href: '/account/vip', desktop: '/ref/lobby/banners/vip-d.webp', mobile: '/ref/lobby/banners/vip-m.webp' },
+    { id: 'img-vip', label: 'VIP', href: '/vip', desktop: '/ref/lobby/banners/vip-d.webp', mobile: '/ref/lobby/banners/vip-m.webp' },
     { id: 'img-community', label: 'Community', href: '', desktop: '/ref/lobby/banners/community-d.webp', mobile: '/ref/lobby/banners/community-m.webp' },
   ],
 
