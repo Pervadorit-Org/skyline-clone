@@ -14,6 +14,7 @@ export function loadDashboardStyles() {
       .then(() => import('./dashboard-df-online.css'))
       .then(() => import('../components/Auth/auth-df-modal.css'))
       .then(() => import('./club-promo-modals.css'))
+      .then(() => import('./ref-match.css'))
       .catch(() => {
         /* Still resolve so UI never waits forever if a CSS chunk fails. */
       });

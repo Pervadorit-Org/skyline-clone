@@ -24,6 +24,14 @@ async function start() {
     infoBlue('Database connected');
 
     try {
+      const { applySchemaCompat } = require('./src/db/schemaCompat');
+      const skipped = await applySchemaCompat(db);
+      if (skipped.length) logger.warn(`Columns missing in DB (run npm run migrate): ${skipped.join(' | ')}`);
+    } catch (e) {
+      logger.warn('Schema compat skip:', e.message);
+    }
+
+    try {
       const { initSocket } = require('./src/services/realtime/socket.service');
       const { attachWalletBalanceHooks } = require('./src/services/realtime/walletBalanceHooks');
       initSocket(server);

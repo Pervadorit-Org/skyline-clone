@@ -14,10 +14,10 @@ import { useVipStatus } from '../../context/VipStatusContext';
 /* ---- your own assets ---- */
 const LOGO_SRC = '/ref/sidebar/logo-v2.webp';
 const LOGO_GLOW_SRC = '/ref/sidebar/casino-glow.svg';
-const VAULT_SRC = '/ref/sidebar/vault.webp';
+const VAULT_SRC = '/sidebar/balance-vault.webp';
 const VAULT_FALLBACK = '/df-online/balance-background.webp';
-const GC_COIN_SRC = '/ref/sidebar/gold-coin.webp';
-const SC_COIN_SRC = '/ref/sidebar/sweep-coin.webp';
+const GC_COIN_SRC = '/sidebar/gold-coin.webp';
+const SC_COIN_SRC = '/sidebar/sweep-coin.webp';
 const VIP_TIER_SRC = '/ref/sidebar/vip-egg.webp';
 const VIP_TIER_FALLBACK = '/df-online/dragons/tier-hatchling.webp';
 const onImgFallback = (fb) => (e) => {
@@ -197,7 +197,7 @@ export const RAIL_ITEMS = [
   { id: 'install', label: 'Install App', icon: ICON.install, to: '/install' },
   { id: 'referral', label: 'Referral', icon: ICON.referral, to: '/account/affiliate', authRequired: true },
   { divider: true },
-  { id: 'vip', label: 'VIP', icon: ICON.vip, to: '/account/vip', authRequired: true },
+  { id: 'vip', label: 'VIP', icon: ICON.vip, to: '/vip', authRequired: true },
   // Favorites disabled (no backend management)
   // { id: 'favorites', label: 'Favorites', icon: ICON.favorites, to: '/favorites', authRequired: true },
   { id: 'faq', label: 'FAQ', icon: ICON.faq, to: '/faq' },
@@ -266,7 +266,7 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
   ));
 
   return (
-    <aside className="dgs" aria-label="Dashboard navigation">
+    <aside className="dgs" aria-label="Dashboard navigation w-100">
       <Link to="/casino" className="dgs__logo" aria-label={`${site.platformName} home`} onClick={onNavigate}>
         <img src={shell.text('sidebar.logo', LOGO_SRC)} alt={site.platformName} width="200" height="107" draggable="false" />
         <img className="dgs__logo-glow" src={LOGO_GLOW_SRC} alt="" aria-hidden width="347" height="248" draggable="false" />
@@ -303,7 +303,7 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
 
           {/* ---- vip card ---- */}
           <div className="dgs__card dgs__vip">
-            <Link to="/account/vip" className="dgs__vip-link" onClick={onNavigate}>
+            <Link to="/vip" className="dgs__vip-link" onClick={onNavigate}>
               <img className="dgs__vip-tier" src={VIP_TIER_SRC} onError={onImgFallback(VIP_TIER_FALLBACK)} alt="" aria-hidden draggable="false" />
               <div className="dgs__vip-meta">
                 <div className="dgs__vip-row">
@@ -319,7 +319,7 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
                 </div>
               </div>
             </Link>
-            <button type="button" className="dgs__vip-info" aria-label="VIP info" onClick={() => go('/account/vip')}>
+            <button type="button" className="dgs__vip-info" aria-label="VIP info" onClick={() => go('/vip')}>
               {ICON.info}
             </button>
           </div>
@@ -344,7 +344,7 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
 
           <div className="dgs__divider" aria-hidden />
 
-          <Row id="vip" icon={ICON.vip} label="VIP" to="/account/vip" />
+          <Row id="vip" icon={ICON.vip} label="VIP" to="/vip" />
           {/* Favorites disabled (no backend management)
           <Row id="favorites" icon={ICON.favorites} label="Favorites" to="/favorites" />
           */}

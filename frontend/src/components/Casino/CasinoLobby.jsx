@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { LOBBY_INSERT_AFTER } from '../../config/lobbyDefaults';
 import { useLobbyContent } from '../../hooks/useLobbyContent';
+import { useDashboardSlideshow } from '../../hooks/useDashboardSlideshow';
 import { useLobbyConfig } from '../../hooks/useLobbyConfig';
 import { getGameCategoryPath } from '../../config/gameCategories';
 import { useAvailableGameCategories } from '../../hooks/useAvailableGameCategories';
@@ -18,7 +19,7 @@ import { getAllCachedProviderSlotGames } from '../../utils/dashboardSlotGamesCac
 import { prepareDashboardSlotGames } from '../../utils/slotLobbyGames';
 import '../../styles/casino-lobby.css';
 
-const PLACEHOLDER = '/logo.webp';
+const PLACEHOLDER = '/golden-dragon-logo.webp';
 
 function gameImage(game) {
   const icons = Array.isArray(game?.iconUrls) ? game.iconUrls : [];
@@ -63,7 +64,20 @@ function BannerCarousel() {
   const content = useLobbyContent();
   // Banners saved from the backend (/api/lobby-images) win; otherwise the built-in slides.
   const adminBanners = (content.banners || []).filter((b) => b && (b.desktop || b.mobile));
-  const imageBanners = adminBanners.length ? adminBanners : cfg.imageBanners;
+  // Admin → Homepage pictures (/api/dashboard-slideshow) come next, then the built-in slides.
+  const { slides: slideshowSlides } = useDashboardSlideshow({ placement: 'casino' });
+  const slideshowBanners = (slideshowSlides || []).map((slide, i) => ({
+    id: `slideshow-${i}`,
+    desktop: slide.src,
+    mobile: slide.mobileSrc || slide.src,
+    href: slide.link,
+    label: slide.alt || `Slide ${i + 1}`,
+  }));
+  const imageBanners = adminBanners.length
+    ? adminBanners
+    : slideshowBanners.length
+      ? slideshowBanners
+      : cfg.imageBanners;
   const imageMode = isAuthenticated && imageBanners?.length > 0;
   const slides = imageMode ? imageBanners : cfg.banners.filter((b) => !cfg.off(`banner:${b.id}`));
 

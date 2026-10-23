@@ -22,7 +22,13 @@ function resolveTrustProxy() {
 // Set TRUST_PROXY=2 if Cloudflare (or another proxy) sits in front of nginx.
 app.set('trust proxy', resolveTrustProxy());
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+
+// Dev-only local upload storage (LOCAL_UPLOADS=true); files saved by src/utils/s3Upload.js.
+const { isLocalUploadsEnabled, LOCAL_UPLOAD_DIR } = require('../utils/s3Upload');
+if (isLocalUploadsEnabled()) {
+  app.use('/uploads', cors(), express.static(LOCAL_UPLOAD_DIR, { maxAge: '1h' }));
+}
 
 // DollarPay webhooks are form-urlencoded; mount before JSON body parsers / raw JSON webhooks
 const dollarpayWebhookController = require('./controllers/dollarpayWebhook.controller');

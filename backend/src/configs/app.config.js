@@ -165,6 +165,11 @@ const config = convict({
     /** Optional public base URL (e.g. CloudFront/CDN). Falls back to the standard S3 URL. */
     publicBaseUrl: { format: String, default: '', env: 'AWS_S3_PUBLIC_BASE_URL' }
   },
+  /** Dev only: save uploads to backend/uploads and serve them from /uploads instead of S3. */
+  localUploads: {
+    enabled: { format: String, default: '', env: 'LOCAL_UPLOADS' },
+    baseUrl: { format: String, default: 'http://localhost:8080', env: 'LOCAL_UPLOADS_BASE_URL' }
+  },
   geo: {
     url: {
       format: String,

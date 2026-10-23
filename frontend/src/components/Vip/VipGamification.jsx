@@ -17,10 +17,12 @@ const PARTICLES = [
   { id: 5, e: '🔥', t: '30%', r: '20%', d: 1.5 },
 ];
 
-export function useCountUp(target, duration = 1400) {
+export function useCountUp(target, duration = 1400, decimals = 0) {
   const [value, setValue] = useState(0);
   useEffect(() => {
-    const end = Math.max(0, Math.floor(target));
+    // decimals = 0 keeps whole numbers; pass 2 for values like 86.9 XP so they are not truncated.
+    const factor = 10 ** decimals;
+    const end = Math.floor(Math.max(0, target) * factor + 1e-9) / factor;
     if (end === 0) {
       setValue(0);
       return;
@@ -30,13 +32,13 @@ export function useCountUp(target, duration = 1400) {
     const step = (now) => {
       const t = Math.min(1, (now - start) / duration);
       const eased = 1 - (1 - t) ** 3;
-      setValue(Math.floor(eased * end));
+      setValue(Math.floor(eased * end * factor) / factor);
       if (t < 1) frame = requestAnimationFrame(step);
       else setValue(end);
     };
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
-  }, [target, duration]);
+  }, [target, duration, decimals]);
   return value;
 }
 
@@ -101,11 +103,11 @@ export function VipStatsRow({ status, tierStyle }) {
   const unlocked = status?.levels?.filter((l) => l.is_unlocked !== false).length ?? levelNum;
   const cur = status?.levels?.find((l) => l.is_current);
   const reward = Number(cur?.level_up_reward_sc) || 0;
-  const xpVal = useCountUp(currentXp);
+  const xpVal = useCountUp(currentXp, 1400, 2);
 
   const stats = [
     { icon: '🏆', label: 'VIP Level', value: `${levelNum}/${total}` },
-    { icon: '⚡', label: 'Total XP', value: xpVal.toLocaleString() },
+    { icon: '⚡', label: 'Total XP', value: xpVal.toLocaleString(undefined, { maximumFractionDigits: 2 }) },
     { icon: '🔓', label: 'Unlocked', value: `${unlocked}/${total}` },
     { icon: '🎁', label: 'Tier Reward', value: `${reward} SC`, gold: true },
   ];

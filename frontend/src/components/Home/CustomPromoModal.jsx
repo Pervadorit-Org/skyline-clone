@@ -10,6 +10,8 @@ export function CustomPromoModal({ open, onClose, step }) {
   const title = step?.title || 'Promotional offer';
   const ctaUrl = step?.ctaUrl ? String(step.ctaUrl).trim() : '';
   const [exiting, setExiting] = useState(false);
+  const [failedSrc, setFailedSrc] = useState('');
+  const imageFailed = failedSrc === src;
 
   const requestClose = useCallback(() => {
     beginAnimatedClose(exiting, setExiting, onClose);
@@ -82,11 +84,33 @@ export function CustomPromoModal({ open, onClose, step }) {
             onClick={handleImageClick}
             aria-label={ctaLabel || title}
           >
-            <img src={src} alt={title} className="df-promo-image is-ready" draggable={false} decoding="async" />
+            {imageFailed ? (
+              <span className="df-promo-art-skel df-promo-art-skel--fallback">{title}</span>
+            ) : (
+              <img
+                src={src}
+                alt={title}
+                className="df-promo-image is-ready"
+                draggable={false}
+                decoding="async"
+                onError={() => setFailedSrc(src)}
+              />
+            )}
           </button>
         ) : (
           <div className="df-promo-art">
-            <img src={src} alt={title} className="df-promo-image is-ready" draggable={false} decoding="async" />
+            {imageFailed ? (
+              <span className="df-promo-art-skel df-promo-art-skel--fallback">{title}</span>
+            ) : (
+              <img
+                src={src}
+                alt={title}
+                className="df-promo-image is-ready"
+                draggable={false}
+                decoding="async"
+                onError={() => setFailedSrc(src)}
+              />
+            )}
           </div>
         )}
         {ctaLabel ? (

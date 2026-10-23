@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-const PLACEHOLDER = '/logo.webp';
+const PLACEHOLDER = '/golden-dragon-logo.webp';
 
 function getGameIconUrls(game, usePlaceholder) {
   const urls = [game.iconurl1, game.iconurl2, game.iconurl, game.thumbnailUrl, game.image]

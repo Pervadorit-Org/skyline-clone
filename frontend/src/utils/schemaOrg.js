@@ -50,7 +50,7 @@ export function buildOrganizationSchema() {
     '@type': 'Organization',
     name: site.platformName,
     url: SITE_ORIGIN,
-    logo: absoluteUrl(site.logoUrl || '/logo.webp'),
+    logo: absoluteUrl(site.logoUrl || '/golden-dragon-logo.webp'),
     description:
       `${site.platformName} is an online sweepstakes lobby with fish games, slots, and exclusive platforms.`,
     email: site.supportEmail,
@@ -77,7 +77,7 @@ export function buildWebSiteSchema() {
     publisher: {
       '@type': 'Organization',
       name: site.platformName,
-      logo: absoluteUrl(site.logoUrl || '/logo.webp'),
+      logo: absoluteUrl(site.logoUrl || '/golden-dragon-logo.webp'),
     },
   };
 }

@@ -14,7 +14,7 @@ import '../../styles/golden-lobby.css';
  * lobby slot its own panels (packages, providers …) between rows.
  */
 
-const PLACEHOLDER = '/logo.webp';
+const PLACEHOLDER = '/golden-dragon-logo.webp';
 
 function gameImage(game) {
   const icons = Array.isArray(game?.iconUrls) ? game.iconUrls : [];

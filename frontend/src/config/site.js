@@ -36,7 +36,7 @@ export const site = {
   logoUrl:
     typeof import.meta !== 'undefined' && import.meta.env?.VITE_LOGO_URL
       ? String(import.meta.env.VITE_LOGO_URL).trim()
-      : '/logo.webp',
+      : '/golden-dragon-logo.webp',
   /** Alias for screens that still read landingLogoUrl — same as post-login logo */
   get landingLogoUrl() {
     return this.logoUrl;
@@ -45,7 +45,7 @@ export const site = {
   loaderLogoUrl:
     typeof import.meta !== 'undefined' && import.meta.env?.VITE_LOADER_LOGO_URL
       ? String(import.meta.env.VITE_LOADER_LOGO_URL).trim()
-      : '/logo.webp',
+      : '/golden-dragon-logo.webp',
   /** Browser tab icon (favicon) */
   faviconUrl: typeof import.meta !== 'undefined' && import.meta.env?.VITE_FAVICON_URL
     ? String(import.meta.env.VITE_FAVICON_URL).trim()

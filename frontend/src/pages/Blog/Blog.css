@@ -171,7 +171,7 @@
 
 .pj-journal {
   --blog-main-gap: clamp(1.25rem, 3.5vw, 2.5rem);
-  --blog-body-extra: clamp(1.75rem, 9vw, 7rem);
+  --blog-body-extra: 0px;
   max-width: none;
   width: 100%;
   box-sizing: border-box;
@@ -689,7 +689,7 @@
 @media (max-width: 860px) {
   .pj-journal {
     --blog-main-gap: 1rem;
-    --blog-body-extra: 1.35rem;
+    --blog-body-extra: 0px;
   }
 
   .pj-journal-feature-card,

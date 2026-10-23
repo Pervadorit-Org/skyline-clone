@@ -14,7 +14,7 @@ export function DragonFuryOnlineHero() {
   const registerPath = `/register${search || ''}`;
   const loginPath = `/login${search || ''}`;
 
-  const logo = useMemo(() => site.logoUrl || '/logo.webp', []);
+  const logo = useMemo(() => site.logoUrl || '/golden-dragon-logo.webp', []);
 
   return (
     <section className="df-online-hero" aria-label={`${site.platformName} welcome`}>

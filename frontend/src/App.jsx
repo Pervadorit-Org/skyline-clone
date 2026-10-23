@@ -53,9 +53,6 @@ const ForgotPassword = lazy(() =>
 const Terms = lazy(() =>
   import('./pages/Terms').then((m) => ({ default: m.Terms }))
 );
-const LegalDocument = lazy(() =>
-  import('./pages/LegalDocument').then((m) => ({ default: m.LegalDocument }))
-);
 const Privacy = lazy(() =>
   import('./pages/Privacy').then((m) => ({ default: m.Privacy }))
 );
@@ -342,7 +339,7 @@ function RouteTitleManager() {
       ['/bonus', 'Bonus'],
       ['/account', 'Account'],
       ['/account/profile', 'Link Payment Account'],
-      ['/account/vip', 'VIP'],
+      ['/vip', 'VIP'],
       ['/account/transactions', 'Transactions'],
       ['/account/affiliate', 'Refer & Earn'],
       ['/settings', 'Settings'],
@@ -477,9 +474,7 @@ function App() {
                 <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
                 <Route path="/terms-conditions" element={<Navigate to="/terms" replace />} />
                 <Route path="/responsible-gambling" element={<Navigate to="/responsible-gaming" replace />} />
-                {['about-us', 'bonus-terms', 'sweep-policy', 'amoe', 'aml-cft-policy', 'cookie-policy', 'ssl-encryption'].map((key) => (
-                  <Route key={key} path={`/${key}`} element={<LegalDocument pageKey={key} />} />
-                ))}
+                {/* about-us, bonus-terms, sweep-policy, amoe, aml-cft-policy, cookie-policy, ssl-encryption are admin footer pages (Footer links), served by /:slug below */}
                 <Route path="/responsible-gaming" element={<ResponsibleGaming />} />
                 <Route path="/help" element={<Help />} />
                 <Route path="/faq" element={<FaqPage />} />
@@ -539,7 +534,8 @@ function App() {
                 {/* Account: profile redirects to settings; rest placeholders */}
                 <Route path="/account" element={<Navigate to="/settings" replace />} />
                 <Route path="/account/profile" element={<ProtectedRoute><AccountProfile /></ProtectedRoute>} />
-                <Route path="/account/vip" element={<ProtectedRoute><AccountVip /></ProtectedRoute>} />
+                <Route path="/vip" element={<ProtectedRoute><AccountVip /></ProtectedRoute>} />
+                <Route path="/account/vip" element={<Navigate to="/vip" replace />} />
                 <Route path="/account/transactions" element={<ProtectedRoute><AccountTransactions /></ProtectedRoute>} />
                 <Route path="/account/affiliate" element={<ProtectedRoute><AccountAffiliate /></ProtectedRoute>} />
 
