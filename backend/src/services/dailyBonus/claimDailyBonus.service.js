@@ -4,6 +4,7 @@ const db = require('../../db/models');
 const { createLogger } = require('../../libs/logger');
 const { BONUS_CURRENCY_CODE } = require('../wallet/getCurrencySetting.service');
 const { creditBonusSc } = require('../wallet/walletBuckets.service');
+const gcWallet = require('../wallet/gcWallet.service');
 const { getBalance } = require('../wallet/getBalance.service');
 const { getEffectiveSettings } = require('./dailyBonusSettings.service');
 const {
@@ -110,6 +111,7 @@ async function claimDailyBonus(userId, dayIndexRaw) {
       dayIndex,
       rewardType,
       amountSc: dayConfig.amountSc,
+      gcAmount: dayConfig.gcAmount || 0,
       spinCount: dayConfig.spinCount,
       percentOff: dayConfig.percentOff,
       packageScope: dayConfig.packageScope,
@@ -144,36 +146,54 @@ async function claimDailyBonus(userId, dayIndexRaw) {
 
     if (rewardType === 'sc_coins') {
       const credit = roundMoney(dayConfig.amountSc);
-      await db.UserTransaction.create(
-        {
-          userId,
-          type: DAILY_BONUS_TX_TYPE,
-          amount: credit,
-          currencyCode,
-          description: `Daily bonus day ${dayIndex}: ${credit} BSC`,
-          metadata: {
-            source: 'daily_bonus',
-            dayIndex,
-            claimId: claim.id,
-            campaignId: campaign.id,
-            bonusSc: credit
-          }
-        },
-        { transaction: t }
-      );
+      if (credit > 0) {
+        await db.UserTransaction.create(
+          {
+            userId,
+            type: DAILY_BONUS_TX_TYPE,
+            amount: credit,
+            currencyCode,
+            description: `Daily bonus day ${dayIndex}: ${credit} BSC`,
+            metadata: {
+              source: 'daily_bonus',
+              dayIndex,
+              claimId: claim.id,
+              campaignId: campaign.id,
+              bonusSc: credit
+            }
+          },
+          { transaction: t }
+        );
 
-      await creditBonusSc(userId, credit, {
-        transaction: t,
-        ledger: {
-          eventType: 'DAILY_BONUS',
-          bonusType: 'DAILY_BONUS',
-          sourceType: 'DAILY_BONUS',
-          sourceId: claim.id,
-          remarks: `Daily bonus day ${dayIndex}`
-        }
-      });
+        await creditBonusSc(userId, credit, {
+          transaction: t,
+          ledger: {
+            eventType: 'DAILY_BONUS',
+            bonusType: 'DAILY_BONUS',
+            sourceType: 'DAILY_BONUS',
+            sourceId: claim.id,
+            remarks: `Daily bonus day ${dayIndex}`
+          }
+        });
+      }
       amountScCredited = credit;
       granted = { type: rewardType, amount_sc: credit };
+
+      // Gold Coins (play only) — GC stores only; credited once per claim.
+      const gcAmount = Math.floor(Number(dayConfig.gcAmount) || 0);
+      if (gcAmount > 0 && (await gcWallet.isGcStoreUser(userId, t))) {
+        await gcWallet.creditGc(userId, gcAmount, {
+          transaction: t,
+          type: 'daily_bonus_gc',
+          reason: 'DAILY_BONUS',
+          referenceType: 'DAILY_BONUS',
+          referenceId: claim.id,
+          idempotencyKey: `daily_bonus_gc:${claim.id}`,
+          description: `Daily bonus day ${dayIndex}: ${gcAmount.toLocaleString('en-US')} GC`,
+          metadata: { source: 'daily_bonus', dayIndex, claimId: claim.id, campaignId: campaign.id }
+        });
+        granted.gc_amount = gcAmount;
+      }
     } else if (rewardType === 'bonus_spin') {
       // Grant extra spins on the normal Daily Spin wheel (pending_free_spins).
       const spins = dayConfig.spinCount;

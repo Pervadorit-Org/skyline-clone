@@ -11,6 +11,7 @@ const log = createLogger('dailyBonusSettings');
 
 const KEY = 'daily_bonus_settings';
 const MAX_AMOUNT_SC = 10000;
+const MAX_AMOUNT_GC = 1000000000;
 const MAX_SPIN_COUNT = 20;
 const MAX_PERCENT_OFF = 100;
 
@@ -26,6 +27,7 @@ function defaultDay(dayIndex) {
     dayIndex,
     rewardType: 'sc_coins',
     amountSc: 5,
+    gcAmount: 0,
     spinCount: 1,
     percentOff: 10,
     packageScope: 'all',
@@ -68,6 +70,17 @@ function normalizeAmountSc(raw) {
     throw err;
   }
   return roundMoney(n);
+}
+
+function normalizeAmountGc(raw) {
+  if (raw == null || raw === '') return 0;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0 || n > MAX_AMOUNT_GC) {
+    const err = new Error(`gcAmount must be between 0 and ${MAX_AMOUNT_GC}.`);
+    err.statusCode = 400;
+    throw err;
+  }
+  return Math.floor(n);
 }
 
 function normalizeSpinCount(raw) {
@@ -133,6 +146,7 @@ function normalizeDay(raw, index) {
     dayIndex,
     rewardType,
     amountSc: 0,
+    gcAmount: 0,
     spinCount: 1,
     percentOff: 10,
     packageScope: 'all',
@@ -142,8 +156,9 @@ function normalizeDay(raw, index) {
 
   if (rewardType === 'sc_coins') {
     day.amountSc = normalizeAmountSc(raw?.amountSc ?? raw?.amount_sc ?? 0);
-    if (!(day.amountSc > 0)) {
-      const err = new Error(`Day ${dayIndex}: amountSc must be greater than 0.`);
+    day.gcAmount = normalizeAmountGc(raw?.gcAmount ?? raw?.gc_amount ?? 0);
+    if (!(day.amountSc > 0) && !(day.gcAmount > 0)) {
+      const err = new Error(`Day ${dayIndex}: set SC or GC amount greater than 0.`);
       err.statusCode = 400;
       throw err;
     }

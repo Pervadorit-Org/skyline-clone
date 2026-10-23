@@ -4,6 +4,8 @@ const { Op } = require('sequelize');
 const db = require('../../db/models');
 const { DEPOSIT_PACKAGE_GROUP_DEFS, WELCOME_SIGNUP_WINDOW_HOURS } = require('../../constants/depositPackageGroups');
 const { normalizeScope } = require('./getDepositPackageSettings.service');
+const { getPackageGcMap } = require('./packageGc.service');
+const { isGcStoreCode } = require('../wallet/gcWallet.service');
 const { countUserPackagePurchasesBatch } = require('./countUserPackagePurchases.service');
 const {
   getWelcomeWindowEnd,
@@ -43,7 +45,7 @@ function toNumber(value) {
   return Number.isFinite(n) ? n : 0;
 }
 
-function serializePackage(row, { adminMode = false, purchasesUsed = null } = {}) {
+function serializePackage(row, { adminMode = false, purchasesUsed = null, gcMap = null } = {}) {
   const plain = row.get ? row.get({ plain: true }) : row;
   const maxPurchases = plain.maxPurchasesPerUser ?? plain.max_purchases_per_user;
   const maxParsed = maxPurchases != null ? parseInt(maxPurchases, 10) : null;
@@ -53,6 +55,7 @@ function serializePackage(row, { adminMode = false, purchasesUsed = null } = {})
     group_id: plain.groupId,
     title: plain.title || null,
     final_sc: toNumber(plain.finalSc),
+    gc_coin: gcMap?.get(plain.id) || 0,
     actual_price: toNumber(plain.actualPrice),
     final_price: toNumber(plain.finalPrice),
     discount_label: plain.discountLabel || null,
@@ -73,7 +76,8 @@ function serializePackage(row, { adminMode = false, purchasesUsed = null } = {})
 function serializeGroup(row, packages = [], {
   adminMode = false,
   purchaseCounts = null,
-  welcomeWindowEnd = null
+  welcomeWindowEnd = null,
+  gcMap = null
 } = {}) {
   const plain = row.get ? row.get({ plain: true }) : row;
   const isWelcome = plain.groupKey === 'welcome';
@@ -130,6 +134,7 @@ function serializeGroup(row, packages = [], {
       const pkgPlain = pkg.get ? pkg.get({ plain: true }) : pkg;
       return serializePackage(pkg, {
         adminMode,
+        gcMap,
         purchasesUsed: purchaseCounts?.get(pkgPlain.id) ?? 0
       });
     })
@@ -226,6 +231,8 @@ async function getActiveCatalogForScope(scope, { includeInactive = false, userId
   const purchaseCounts = userId && !includeInactive
     ? await countUserPackagePurchasesBatch(userId, packages.map((p) => p.id))
     : null;
+  // Non-GC stores never expose GC packages.
+  const gcMap = isGcStoreCode(normalized.storeCode) ? await getPackageGcMap(packages.map((p) => p.id)) : null;
   const welcomeWindowEnd = userCreatedAt ? getWelcomeWindowEnd(userCreatedAt) : null;
   const now = new Date();
 
@@ -242,6 +249,7 @@ async function getActiveCatalogForScope(scope, { includeInactive = false, userId
     .map((group) => serializeGroup(group, packagesByGroup.get(group.id) || [], {
       adminMode: includeInactive,
       purchaseCounts,
+      gcMap,
       welcomeWindowEnd: group.groupKey === 'welcome' ? welcomeWindowEnd : null
     }))
     .filter((group) => includeInactive || group.group_key === 'general' || group.packages.length > 0)
@@ -280,10 +288,11 @@ async function getAdminCatalogForScope(scope) {
     packagesByGroup.set(pkg.groupId, list);
   });
 
+  const gcMap = isGcStoreCode(normalized.storeCode) ? await getPackageGcMap(packages.map((p) => p.id)) : null;
   return {
     enabled: settings.enabled,
     groups: groups.map((group) =>
-      serializeGroup(group, packagesByGroup.get(group.id) || [], { adminMode: true })
+      serializeGroup(group, packagesByGroup.get(group.id) || [], { adminMode: true, gcMap })
     )
   };
 }
