@@ -1,27 +1,13 @@
 import { useEffect, useState } from 'react';
 import { getLegalPageList } from '../api/legal';
 
-/** Used until the list loads, or if it can't be fetched: every page, in footer order. */
-export const BUILT_IN_LEGAL_LINKS = [
-  { to: '/about-us', label: 'About Us' },
-  { to: '/privacy', label: 'Privacy Policy' },
-  { to: '/terms', label: 'Terms & Conditions' },
-  { to: '/bonus-terms', label: 'Bonus Terms' },
-  { to: '/sweep-policy', label: 'Sweep Policy' },
-  { to: '/responsible-gaming', label: 'Responsible Gambling' },
-  { to: '/amoe', label: 'AMOE' },
-  { to: '/aml-cft-policy', label: 'AML/CFT Policy' },
-  { to: '/cookie-policy', label: 'Cookie Policy' },
-  { to: '/ssl-encryption', label: 'SSL Encryption' },
-];
-
 /**
  * Legal pages the footer links to (About Us, Privacy Policy, Terms…), as managed in
- * Admin → Pages (pages an admin hid are left out). Falls back to every page when the list
- * can't be fetched.
+ * Admin → Pages. Only pages that are visible AND have content are listed; nothing is listed
+ * until the list loads or if it can't be fetched.
  */
-export function useLegalPageLinks({ fallback = true } = {}) {
-  const [links, setLinks] = useState(fallback ? BUILT_IN_LEGAL_LINKS : []);
+export function useLegalPageLinks() {
+  const [links, setLinks] = useState([]);
 
   useEffect(() => {
     let cancelled = false;

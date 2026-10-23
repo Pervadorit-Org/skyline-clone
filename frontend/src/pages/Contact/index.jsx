@@ -1,61 +1,22 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getLegalPage } from '../../api/legal';
 import { usePageContentReady } from '../../context/PageReadyContext';
 import { site } from '../../config/site';
 import { openIntercomChat } from '../../components/intercomApi';
-import { sanitizeHtml } from '../../utils/sanitizeHtml';
 import '../Faq/faq-page.css';
-import '../legal-prose.css';
 import './contact-page.css';
 
-function hasText(html) {
-  return Boolean(
-    String(html || '')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/&nbsp;/gi, ' ')
-      .trim()
-  );
-}
-
-/** Contact Us — same look as the FAQ page. The intro text can be edited in Admin → Pages → Contact Us. */
+/** Contact Us — same look as the FAQ page. Static support page: it does not use the legal pages API. */
 export function ContactPage() {
-  const [page, setPage] = useState(null);
-  const [loading, setLoading] = useState(true);
-  usePageContentReady(!loading);
-
-  useEffect(() => {
-    let cancelled = false;
-    getLegalPage('contact-us')
-      .then((res) => {
-        if (!cancelled) setPage(res?.legal_page ?? null);
-      })
-      .catch(() => {
-        if (!cancelled) setPage(null);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const html = hasText(page?.content) ? String(page.content) : '';
-  const title = page?.title || 'Contact Us';
+  usePageContentReady(true);
 
   return (
     <main className="faq-page">
       <div className="faq-wrap">
-        <h1 className="faq-title">{title}</h1>
-        {html ? (
-          <div className="legal-prose contact-intro" dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }} />
-        ) : (
-          <p className="faq-lead">
-            Reach {site.platformName} customer support through live chat, email, or the help center. Use official
-            channels only, and never share your login details.
-          </p>
-        )}
+        <h1 className="faq-title">Contact Us</h1>
+        <p className="faq-lead">
+          Reach {site.platformName} customer support through live chat, email, or the help center. Use official
+          channels only, and never share your login details.
+        </p>
 
         <div className="contact-grid">
           <div className="contact-card">

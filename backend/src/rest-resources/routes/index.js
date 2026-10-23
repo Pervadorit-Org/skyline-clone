@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('../../db/models');
+const { logger } = require('../../libs/logger');
 const authRoutes = require('./auth.routes');
 const adminRoutes = require('./admin.routes');
 const walletRoutes = require('./wallet.routes');
@@ -90,22 +91,27 @@ router.get('/api/page-seo', (req, res) => {
     .then((data) => res.json(data))
     .catch((err) => res.status(err.statusCode || 500).json({ message: err.message || 'Could not load page SEO.' }));
 });
-router.get('/api/page-schema/home', (req, res) => {
-  const homeSchema = require('../../services/seo/homeSchema.service');
+router.get('/api/page-schema/home', async (req, res) => {
+  // JSON-LD is optional SEO: any failure (missing table/column, null row, DB hiccup) answers with
+  // `schema: null` instead of a 500, and is logged so it can still be traced.
   const storeCode = String(req.query.store_code || req.query.storeCode || '').trim();
-  if (!storeCode) {
+  res.set('Cache-Control', 'no-store');
+  if (!storeCode) return res.json({ schema: null });
+  try {
+    const homeSchema = require('../../services/seo/homeSchema.service');
+    const data = await homeSchema.getHome(storeCode);
+    return res.json({ schema: data?.schema || null });
+  } catch (e) {
+    logger.warn(`GET /api/page-schema/home failed for store "${storeCode}": ${e.message}`);
     return res.json({ schema: null });
   }
-  return homeSchema.getHome(storeCode)
-    .then((data) => res.json({ schema: data.schema || null }))
-    // JSON-LD is optional SEO: a missing table/column must not surface as a 500 on the home page.
-    .catch(() => res.json({ schema: null }));
 });
 router.get('/api/home-page/config', async (req, res) => {
   // Admin-managed guest home content (settings key `home_page_content`); {} makes the frontend use its defaults.
+  // Never 404/500: a missing row, invalid JSON or a DB error all answer with `homePage: {}`.
+  const storeCode = String(req.query.store_code || req.query.storeCode || '').trim();
+  res.set('Cache-Control', 'no-store');
   try {
-    const db = require('../../db/models');
-    const storeCode = String(req.query.store_code || req.query.storeCode || '').trim();
     const row = db.Setting
       ? await db.Setting.findOne({ where: { key: 'home_page_content', ...(storeCode ? { storeCode } : {}) } })
       : null;
@@ -113,12 +119,14 @@ router.get('/api/home-page/config', async (req, res) => {
     if (row?.value) {
       try {
         const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
-        if (parsed && typeof parsed === 'object') homePage = parsed;
-      } catch (e) { /* invalid JSON: use defaults */ }
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) homePage = parsed;
+      } catch (e) {
+        logger.warn(`home_page_content for store "${storeCode}" is not valid JSON; using defaults: ${e.message}`);
+      }
     }
-    res.set('Cache-Control', 'no-store');
     return res.json({ homePage });
   } catch (e) {
+    logger.warn(`GET /api/home-page/config failed for store "${storeCode}": ${e.message}`);
     return res.json({ homePage: {} });
   }
 });

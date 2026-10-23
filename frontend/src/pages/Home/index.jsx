@@ -26,7 +26,7 @@ function GamesLoading() {
   return <AppLoader fillPage={false} message="Loading games" />;
 }
 
-export function Home() {
+export function Home({ authBackdrop = false }) {
   const { isAuthenticated, loading } = useAuth();
   const { hash } = useLocation();
   usePageContentReady(true);
@@ -117,7 +117,7 @@ export function Home() {
           {showGuestSections ? (
             <>
               <h1 className="dash-home-h1 sr-only">{site.seoTitle || site.platformName}</h1>
-              <HomeConfigProvider>
+              <HomeConfigProvider skipFetch={authBackdrop}>
                 <HomeV2 revealBelowFold={belowFoldReady} />
               </HomeConfigProvider>
             </>
