@@ -2,6 +2,7 @@
 
 const { Op } = require('sequelize');
 const db = require('../../db/models');
+const { ensureSchemaCompat } = require('../../db/schemaCompat');
 const { ROLES } = require('../../constants/roles');
 const { ADMIN_FEATURE_KEYS } = require('../../constants/permissions');
 const { seoFromBody, seoToPlain } = require('../cms/seoFields');
@@ -815,6 +816,7 @@ async function restorePageAdmin(req, id) {
 /* ---------- Public ---------- */
 
 async function listPublic(storeCodeRaw) {
+  await ensureSchemaCompat(db);
   const storeCode = normalizeStoreCode(storeCodeRaw || '');
   if (!storeCode) {
     const err = new Error('store_code is required.');
@@ -869,6 +871,7 @@ async function listPublic(storeCodeRaw) {
 }
 
 async function getPagePublic(storeCodeRaw, { slug, id } = {}) {
+  await ensureSchemaCompat(db);
   const storeCode = normalizeStoreCode(storeCodeRaw || '');
   if (!storeCode) {
     const err = new Error('store_code is required.');

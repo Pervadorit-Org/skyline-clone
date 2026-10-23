@@ -1296,6 +1296,22 @@ export function Settings() {
                 <h2>Responsible gameplay</h2>
               </div>
             </header>
+            <div className="acct-soon" role="status">
+              <span className="acct-soon__glow" aria-hidden="true" />
+              <span className="acct-soon__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 4 6v6c0 4.500 3.200 8 8 9 4.800-1 8-4.500 8-9V6l-8-3Z" /><path d="m9 12 2 2 4-4" /></svg>
+              </span>
+              <span className="acct-soon__badge">Coming soon</span>
+              <h3 className="acct-soon__title">Spending limits and breaks</h3>
+              <p className="acct-soon__copy">Soon you will be able to set daily, weekly and monthly spending limits, or take a cool-off break. We are putting the finishing touches on it.</p>
+              <ul className="acct-soon__list">
+                <li>Daily, weekly and monthly limits</li>
+                <li>Cool-off breaks from 1 day to 1 month</li>
+                <li>Self-exclusion</li>
+              </ul>
+              <p className="acct-soon__note">Need help right now? Contact support and we will assist you.</p>
+            </div>
+            {/* Spending limits and breaks are not available yet; restore the block below to enable them.
             <p className="acct-sec-copy">Cap what you can spend, or take a break from playing.</p>
             <div className="acct-limits">
               {[['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly']].map(([key, label]) => (
@@ -1341,6 +1357,7 @@ export function Settings() {
             <button type="button" className="acct-outline-danger" onClick={() => requestSupport(breakMode === 'cooloff' ? `A ${breakLength} break` : `Self-exclusion (${breakLength})`)}>
               {breakMode === 'cooloff' ? 'Start break' : 'Start self-exclusion'}
             </button>
+            */}
           </section>
         )}
       </section>

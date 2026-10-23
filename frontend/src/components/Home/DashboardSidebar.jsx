@@ -10,6 +10,7 @@ import '../../styles/dashboard-sidebar.css';
 import { site } from '../../config/site';
 import { useLobbyShell } from '../../hooks/useLobbyShell';
 import { useVipStatus } from '../../context/VipStatusContext';
+import { useLegalPageLinks } from '../../hooks/useLegalPageLinks';
 
 /* ---- your own assets ---- */
 const LOGO_SRC = '/ref/sidebar/logo-v2.webp';
@@ -18,7 +19,7 @@ const VAULT_SRC = '/sidebar/balance-vault.webp';
 const VAULT_FALLBACK = '/df-online/balance-background.webp';
 const GC_COIN_SRC = '/sidebar/gold-coin.webp';
 const SC_COIN_SRC = '/sidebar/sweep-coin.webp';
-const VIP_TIER_SRC = '/ref/sidebar/vip-egg.webp';
+const VIP_TIER_SRC = '/df-online/dragons/tier-hatchling.webp';
 const VIP_TIER_FALLBACK = '/df-online/dragons/tier-hatchling.webp';
 const onImgFallback = (fb) => (e) => {
   if (!e.currentTarget.dataset.fb) {
@@ -236,6 +237,8 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
   const [gamesOpen, setGamesOpen] = useState(false);
   const [bonusesOpen, setBonusesOpen] = useState(false);
   const shell = useLobbyShell();
+  // Only legal pages that are enabled (and filled in) in the backend; Responsible Gaming already has its own row.
+  const legalLinks = useLegalPageLinks({ fallback: false }).filter((l) => l.to !== '/responsible-gaming');
   const isCategoryAvailable = useAvailableGameCategories();
   const { vipStatus } = useVipStatus();
   const vipLevels = Array.isArray(vipStatus?.levels) ? vipStatus.levels : [];
@@ -415,6 +418,15 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
           <Row id="support" icon={ICON.support} label="Support" onClick={() => openSupportWidget()} />
           <Row id="blog" icon={ICON.blog} label="Blog" to="/blog" />
           <Row id="tutorial" icon={ICON.tutorial} label="Tutorial" onClick={() => go('/install')} />
+          {legalLinks.map((l) => (
+            <Row
+              key={`legal-${l.to}`}
+              id={`legal-${l.to.replace(/[^a-z0-9]+/gi, '-')}`}
+              icon={ICON.responsible}
+              label={l.label}
+              to={l.to}
+            />
+          ))}
 
           {shell.sidebarLinks.map((l) => (
             <Row

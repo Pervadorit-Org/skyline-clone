@@ -14,6 +14,7 @@ const CMS_MODELS = ['FooterMenu', 'FooterPage', 'LegalPage', 'GameSeoPage'];
 
 // modelName -> Set of attribute names whose column is missing in the database
 const missing = new Map();
+const hooked = new Set();
 
 function missingAttrs(modelName) {
   return missing.get(modelName) || new Set();
@@ -58,8 +59,15 @@ function cleanOptions(model, options) {
 
 async function applySchemaCompat(db) {
   const { sequelize } = db;
+  const tables = CMS_MODELS.map((name) => db[name]).filter(Boolean).map((m) => {
+    const t = m.getTableName();
+    return typeof t === 'string' ? t : t.tableName;
+  });
+  if (!tables.length) return [];
   const [rows] = await sequelize.query(
-    `SELECT table_name, column_name FROM information_schema.columns WHERE table_schema = current_schema()`
+    `SELECT table_name, column_name FROM information_schema.columns
+     WHERE table_name IN (:tables) AND table_schema = ANY (current_schemas(false))`,
+    { replacements: { tables } }
   );
   const columnsByTable = new Map();
   rows.forEach((r) => {
@@ -70,7 +78,7 @@ async function applySchemaCompat(db) {
   const report = [];
   CMS_MODELS.forEach((name) => {
     const model = db[name];
-    if (!model) return;
+    if (!model || hooked.has(name)) return;
     const tableName = typeof model.getTableName() === 'string' ? model.getTableName() : model.getTableName().tableName;
     const columns = columnsByTable.get(tableName);
     if (!columns) return; // table itself is absent: leave it to the migrations
@@ -79,6 +87,7 @@ async function applySchemaCompat(db) {
       if (!columns.has(def.field || attr)) gone.add(attr);
     });
     if (!gone.size) return;
+    hooked.add(name);
     missing.set(name, gone);
     gone.forEach((attr) => model.removeAttribute(attr));
     model.addHook('beforeFind', (options) => cleanOptions(model, options));
@@ -88,4 +97,17 @@ async function applySchemaCompat(db) {
   return report;
 }
 
-module.exports = { applySchemaCompat, columnMissing };
+let ensured = null;
+
+/** Runs applySchemaCompat once (also covers a startup run that failed); safe to await before CMS reads. */
+function ensureSchemaCompat(db) {
+  if (!ensured) {
+    ensured = applySchemaCompat(db).catch(() => {
+      ensured = null;
+      return [];
+    });
+  }
+  return ensured;
+}
+
+module.exports = { applySchemaCompat, ensureSchemaCompat, columnMissing };

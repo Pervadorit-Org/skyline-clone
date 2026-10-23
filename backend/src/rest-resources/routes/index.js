@@ -98,7 +98,29 @@ router.get('/api/page-schema/home', (req, res) => {
   }
   return homeSchema.getHome(storeCode)
     .then((data) => res.json({ schema: data.schema || null }))
-    .catch((err) => res.status(err.statusCode || 500).json({ message: err.message || 'Could not load schema.' }));
+    // JSON-LD is optional SEO: a missing table/column must not surface as a 500 on the home page.
+    .catch(() => res.json({ schema: null }));
+});
+router.get('/api/home-page/config', async (req, res) => {
+  // Admin-managed guest home content (settings key `home_page_content`); {} makes the frontend use its defaults.
+  try {
+    const db = require('../../db/models');
+    const storeCode = String(req.query.store_code || req.query.storeCode || '').trim();
+    const row = db.Setting
+      ? await db.Setting.findOne({ where: { key: 'home_page_content', ...(storeCode ? { storeCode } : {}) } })
+      : null;
+    let homePage = {};
+    if (row?.value) {
+      try {
+        const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
+        if (parsed && typeof parsed === 'object') homePage = parsed;
+      } catch (e) { /* invalid JSON: use defaults */ }
+    }
+    res.set('Cache-Control', 'no-store');
+    return res.json({ homePage });
+  } catch (e) {
+    return res.json({ homePage: {} });
+  }
 });
 router.use('/api/blog', blogRoutes);
 router.use('/api/link2play', link2playRoutes);
