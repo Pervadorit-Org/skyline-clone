@@ -20,8 +20,8 @@ export const BUILT_IN_LEGAL_LINKS = [
  * Admin → Pages (pages an admin hid are left out). Falls back to every page when the list
  * can't be fetched.
  */
-export function useLegalPageLinks() {
-  const [links, setLinks] = useState(BUILT_IN_LEGAL_LINKS);
+export function useLegalPageLinks({ fallback = true } = {}) {
+  const [links, setLinks] = useState(fallback ? BUILT_IN_LEGAL_LINKS : []);
 
   useEffect(() => {
     let cancelled = false;

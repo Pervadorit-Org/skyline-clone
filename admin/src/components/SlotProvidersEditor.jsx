@@ -6,8 +6,9 @@ import {
 } from '../api/slotProviders'
 
 const DEFAULTS = {
-  onegamehub: false,
+  onegamehub: true,
   bona: true,
+  gitslotpark: true,
   scorpio: true,
 }
 
@@ -25,6 +26,12 @@ const FIELDS = [
     help: 'Show Bona games on the slots page.',
   },
   {
+    id: 'gitslotpark',
+    emoji: '🎰',
+    label: 'GitSlotPark games',
+    help: 'Show GitSlotPark games (Pragmatic, PG Soft, and more).',
+  },
+  {
     id: 'scorpio',
     emoji: '🦂',
     label: 'Scorpio games',
@@ -34,8 +41,9 @@ const FIELDS = [
 
 function normalize(data) {
   return {
-    onegamehub: data?.onegamehub === true,
+    onegamehub: data?.onegamehub !== false,
     bona: data?.bona !== false,
+    gitslotpark: data?.gitslotpark !== false,
     scorpio: data?.scorpio !== false,
   }
 }

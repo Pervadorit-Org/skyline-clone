@@ -4,6 +4,7 @@ const db = require('../../db/models');
 const { ROLES } = require('../../constants/roles');
 const { seoFromBody, seoToPlain } = require('../cms/seoFields');
 const footer = require('../footer/footer.service');
+const { ensureSchemaCompat } = require('../../db/schemaCompat');
 
 const LEGAL_PAGES = [
   {
@@ -20,7 +21,14 @@ const LEGAL_PAGES = [
     pageKey: 'responsible-gaming',
     path: '/responsible-gaming',
     title: 'Responsible Gaming'
-  }
+  },
+  { pageKey: 'about-us', path: '/about-us', title: 'About Us' },
+  { pageKey: 'bonus-terms', path: '/bonus-terms', title: 'Bonus Terms' },
+  { pageKey: 'sweep-policy', path: '/sweep-policy', title: 'Sweep Policy' },
+  { pageKey: 'amoe', path: '/amoe', title: 'AMOE' },
+  { pageKey: 'aml-cft-policy', path: '/aml-cft-policy', title: 'AML/CFT Policy' },
+  { pageKey: 'cookie-policy', path: '/cookie-policy', title: 'Cookie Policy' },
+  { pageKey: 'ssl-encryption', path: '/ssl-encryption', title: 'SSL Encryption' }
 ];
 
 const LEGAL_PAGE_MAP = Object.fromEntries(LEGAL_PAGES.map((page) => [page.pageKey, page]));
@@ -32,7 +40,14 @@ const PAGE_KEY_ALIASES = {
   'terms-and-conditions': 'terms',
   'terms-of-service': 'terms',
   'responsible-gaming': 'responsible-gaming',
-  'responsiblegaming': 'responsible-gaming'
+  'responsiblegaming': 'responsible-gaming',
+  'about-us': 'about-us',
+  'bonus-terms': 'bonus-terms',
+  'sweep-policy': 'sweep-policy',
+  amoe: 'amoe',
+  'aml-cft-policy': 'aml-cft-policy',
+  'cookie-policy': 'cookie-policy',
+  'ssl-encryption': 'ssl-encryption'
 };
 
 function normalizePageKey(raw) {
@@ -126,7 +141,7 @@ function assertKnownPageKey(pageKeyRaw) {
   const pageKey = normalizePageKey(pageKeyRaw);
   const catalog = pageKey ? catalogPage(pageKey) : null;
   if (!catalog) {
-    const err = new Error('Unknown legal page. Use privacy, terms, or responsible-gaming.');
+    const err = new Error('Unknown legal page. Use one of: ' + LEGAL_PAGES.map((p) => p.pageKey).join(', ') + '.');
     err.statusCode = 400;
     throw err;
   }
@@ -241,6 +256,7 @@ async function upsertAdmin(req, pageKeyRaw, body = {}) {
 }
 
 async function getPublic(storeCodeRaw, pageKeyRaw) {
+  await ensureSchemaCompat(db);
   const catalog = assertKnownPageKey(pageKeyRaw);
   const storeCode = footer.normalizeStoreCode(storeCodeRaw || '');
   if (!storeCode) {
@@ -271,8 +287,35 @@ async function getPublic(storeCodeRaw, pageKeyRaw) {
   };
 }
 
+/** Pages the storefront should link to: enabled in admin and with content. */
+async function listPublic(storeCodeRaw) {
+  await ensureSchemaCompat(db);
+  const storeCode = footer.normalizeStoreCode(storeCodeRaw || '');
+  if (!storeCode) {
+    const err = new Error('store_code is required.');
+    err.statusCode = 400;
+    throw err;
+  }
+  const rows = await db.LegalPage.findAll({ where: { storeCode } });
+  const byKey = new Map(rows.map((row) => [row.pageKey, row]));
+  return {
+    store_code: storeCode,
+    legal_pages: LEGAL_PAGES.map((catalog) => {
+      const row = byKey.get(catalog.pageKey);
+      const plain = row ? toPlain(row, catalog) : emptyPlain(storeCode, catalog);
+      return {
+        pageKey: plain.pageKey,
+        path: plain.path,
+        title: plain.title,
+        visible: plain.isActive !== false && plain.hasContent
+      };
+    })
+  };
+}
+
 module.exports = {
   LEGAL_PAGES,
+  listPublic,
   normalizePageKey,
   listAdmin,
   getAdmin,
