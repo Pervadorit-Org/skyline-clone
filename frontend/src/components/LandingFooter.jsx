@@ -168,7 +168,7 @@ export function LandingFooter() {
       menus.forEach((menu) =>
         (menu.pages || []).forEach((page) => add(`/${encodeURIComponent(page.slug)}`, page.title))
       );
-      (legalLinks || []).forEach((l) => add(l.to, l.label));
+      // Only the store's own footer pages: the built-in legal list is a fallback, not store data.
       return out;
     }
     // Legal pages (About Us, Privacy, Terms, Bonus Terms…) come from Admin → Pages so they can be
@@ -198,6 +198,8 @@ export function LandingFooter() {
     `${site.platformName} brings supported games, account tools, transfers and rewards together. Availability and eligibility depend on current rules. No purchase necessary where provided by the Sweepstakes Rules.`;
 
   const supportEmail = cfg.contact?.email || site.supportEmail;
+  // Partners address: same domain as the support address (partners@<domain>).
+  const partnersEmail = site.partnersEmail || `partners@${String(supportEmail).split('@')[1] || ''}`;
   const socials = cfg.contact?.socials || {};
   const socialHrefs = {
     instagram: socials.instagram || site.socialLinks.instagram,
@@ -231,7 +233,6 @@ export function LandingFooter() {
                   <SiteLogo variant="footer" className="site-footer__logo-img" />
                 )}
               </Link>
-              <p className="site-footer__brand-copy">{brandCopy}</p>
             </div>
           )}
 
@@ -277,11 +278,19 @@ export function LandingFooter() {
             <div className="site-footer__contact">
               <ul className="site-footer__contact-list">
                 <li>
+                  <svg viewBox="0 0 24 24" aria-hidden className="site-footer__contact-ico"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm4 5v2h8V9H8Z" /></svg>
                   <a href={`mailto:${supportEmail}`} className="site-footer__contact-mail">
                     {supportEmail}
                   </a>
                 </li>
                 <li>
+                  <svg viewBox="0 0 24 24" aria-hidden className="site-footer__contact-ico"><path fill="currentColor" d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm6 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM2 19c0-3 3-5 7-5s7 2 7 5v1H2v-1Zm14.5-4.6c2.9.2 5.5 1.7 5.5 4.6v1h-4v-1c0-1.9-.6-3.5-1.5-4.6Z" /></svg>
+                  <a href={`mailto:${partnersEmail}`} className="site-footer__contact-mail">
+                    {partnersEmail}
+                  </a>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" aria-hidden className="site-footer__contact-ico"><path fill="currentColor" d="M12 2a8 8 0 0 0-8 8v4a3 3 0 0 0 3 3h1v-6H6v-1a6 6 0 0 1 12 0v1h-2v6h1v1a2 2 0 0 1-2 2h-2v2h2a4 4 0 0 0 4-4v-1a3 3 0 0 0 1-2.2V10a8 8 0 0 0-8-8Z" /></svg>
                   <button type="button" onClick={openSupportWidget} className="site-footer__contact-chat">
                     {cfg.contact?.chatLabel || 'Chat Now'}
                   </button>

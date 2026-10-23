@@ -6,7 +6,7 @@ import { usePageContentReady } from '../../context/PageReadyContext';
 import { getVipTierImage } from '../../utils/vipTierColors';
 import './vip-page.css';
 
-const TIER_NAMES = ['Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+const TIER_NAMES = ['Iron', 'Bronze', 'Silver', 'Gold'];
 const TIER_DIR = '/vip/tier';
 const ROW_DIR = `${TIER_DIR}/rows`;
 
@@ -90,8 +90,10 @@ export function AccountVip() {
   }, [load]);
 
   const levels = useMemo(() => {
-    const api = status?.levels;
-    if (Array.isArray(api) && api.length) return api;
+    const api = Array.isArray(status?.levels)
+      ? status.levels.filter((l) => TIER_NAMES.some((t) => t.toLowerCase() === String(l.name).toLowerCase()))
+      : [];
+    if (api.length) return api;
     return TIER_NAMES.map((name) => ({ name }));
   }, [status]);
 

@@ -2496,6 +2496,21 @@ body.welcome-modal-open {
   background: linear-gradient(180deg, #401150, #1b0f20);
 }
 
+.df-promo-art-skel--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  color: #ffe08a;
+  font-family: "Lilita One", "Baloo 2", sans-serif;
+  font-size: clamp(22px, 4vw, 34px);
+  line-height: 1.15;
+  text-align: center;
+  text-shadow: 0 3px 0 #751296;
+  border: 2px solid #ffe08a55;
+}
+
 .df-promo-cta {
   min-height: 52px;
   margin-top: 16px;

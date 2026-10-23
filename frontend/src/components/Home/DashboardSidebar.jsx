@@ -14,10 +14,10 @@ import { useVipStatus } from '../../context/VipStatusContext';
 /* ---- your own assets ---- */
 const LOGO_SRC = '/ref/sidebar/logo-v2.webp';
 const LOGO_GLOW_SRC = '/ref/sidebar/casino-glow.svg';
-const VAULT_SRC = '/ref/sidebar/vault.webp';
+const VAULT_SRC = '/sidebar/balance-vault.webp';
 const VAULT_FALLBACK = '/df-online/balance-background.webp';
-const GC_COIN_SRC = '/ref/sidebar/gold-coin.webp';
-const SC_COIN_SRC = '/ref/sidebar/sweep-coin.webp';
+const GC_COIN_SRC = '/sidebar/gold-coin.webp';
+const SC_COIN_SRC = '/sidebar/sweep-coin.webp';
 const VIP_TIER_SRC = '/ref/sidebar/vip-egg.webp';
 const VIP_TIER_FALLBACK = '/df-online/dragons/tier-hatchling.webp';
 const onImgFallback = (fb) => (e) => {
@@ -266,7 +266,7 @@ export function DashboardSidebar({ onNavigate, isAuthenticated = true }) {
   ));
 
   return (
-    <aside className="dgs" aria-label="Dashboard navigation">
+    <aside className="dgs" aria-label="Dashboard navigation w-100">
       <Link to="/casino" className="dgs__logo" aria-label={`${site.platformName} home`} onClick={onNavigate}>
         <img src={shell.text('sidebar.logo', LOGO_SRC)} alt={site.platformName} width="200" height="107" draggable="false" />
         <img className="dgs__logo-glow" src={LOGO_GLOW_SRC} alt="" aria-hidden width="347" height="248" draggable="false" />

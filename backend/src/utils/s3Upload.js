@@ -1,6 +1,8 @@
 'use strict';
 
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const config = require('../configs/app.config');
 
@@ -14,10 +16,17 @@ const EXT_BY_MIME = {
 
 const ALLOWED_IMAGE_MIMES = new Set(Object.keys(EXT_BY_MIME));
 
+const LOCAL_UPLOAD_DIR = path.resolve(__dirname, '../../uploads');
+
+function isLocalUploadsEnabled() {
+  return ['1', 'true', 'yes'].includes(String(config.get('localUploads.enabled') || '').trim().toLowerCase());
+}
+
 let cachedClient = null;
 let cachedAllowedHosts = null;
 
 function isS3Configured() {
+  if (isLocalUploadsEnabled()) return true;
   return Boolean(
     config.get('s3.bucket') &&
       config.get('s3.accessKeyId') &&
@@ -72,6 +81,12 @@ function getAllowedUploadHosts() {
 function isAllowedUploadPublicUrl(url) {
   try {
     const parsed = new URL(String(url || '').trim());
+    if (isLocalUploadsEnabled()) {
+      const local = new URL(String(config.get('localUploads.baseUrl')));
+      if (parsed.host.toLowerCase() === local.host.toLowerCase() && parsed.pathname.startsWith('/uploads/')) {
+        return true;
+      }
+    }
     if (parsed.protocol !== 'https:') return false;
     const hosts = getAllowedUploadHosts();
     if (!hosts.size) return false;
@@ -146,6 +161,12 @@ async function uploadImageBuffer(buffer, { contentType, keyPrefix = 'uploads' } 
   }
   const ext = EXT_BY_MIME[detected];
   const key = `${keyPrefix.replace(/\/$/, '')}/${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${ext}`;
+  if (isLocalUploadsEnabled()) {
+    const file = path.join(LOCAL_UPLOAD_DIR, key);
+    await fs.promises.mkdir(path.dirname(file), { recursive: true });
+    await fs.promises.writeFile(file, buffer);
+    return `${String(config.get('localUploads.baseUrl')).replace(/\/$/, '')}/uploads/${key}`;
+  }
   await getClient().send(
     new PutObjectCommand({
       Bucket: config.get('s3.bucket'),
@@ -162,5 +183,7 @@ module.exports = {
   uploadImageBuffer,
   isS3Configured,
   isAllowedUploadPublicUrl,
-  detectImageContentType
+  detectImageContentType,
+  isLocalUploadsEnabled,
+  LOCAL_UPLOAD_DIR
 };

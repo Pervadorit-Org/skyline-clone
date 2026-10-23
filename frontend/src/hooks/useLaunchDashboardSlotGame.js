@@ -5,6 +5,8 @@ import { useToast } from '../context/ToastContext';
 import { getSlotLaunchMode } from '../config/slotLaunch';
 import * as onegamehubApi from '../api/onegamehub';
 import * as bonaApi from '../api/bona';
+import * as scorpioApi from '../api/scorpio';
+import { SCORPIO_GAMES_SLUG, isScorpioPlayProvider } from '../config/scorpio';
 import { resolveLaunchGameId, isOneGameHubFishingPlayGame } from '../utils/slotLobbyGames';
 import { useDepositRequiredGate } from './useDepositRequiredGate';
 import { isDepositRequiredError } from '../utils/depositRequired';
@@ -69,6 +71,36 @@ export function useLaunchDashboardSlotGame() {
                 gameType: game.gameType || null,
               },
             });
+            return;
+          }
+
+          if (isScorpioPlayProvider(provider)) {
+            const providerId = Number(game.providerId);
+            const gameCode = String(game.gameCode || gameid || '').trim();
+            if (!gameCode || !Number.isFinite(providerId) || providerId <= 0) {
+              throw new Error('This game cannot be launched right now. Please try another title.');
+            }
+            if (getSlotLaunchMode() === 'tab') {
+              const res = await scorpioApi.launchScorpioGame({ gameCode, providerId });
+              const url = res?.url ? String(res.url).trim() : '';
+              if (!url) throw new Error('Game launch URL not returned');
+              window.open(url, '_blank', 'noopener,noreferrer');
+              return;
+            }
+            navigate(
+              `/play/${encodeURIComponent(gameCode)}?provider=${SCORPIO_GAMES_SLUG}&g=${encodeURIComponent(providerId)}`,
+              {
+                state: {
+                  provider: SCORPIO_GAMES_SLUG,
+                  providerId,
+                  gameCode,
+                  name: game.title || 'Game',
+                  returnTo: location.pathname,
+                  image: game.image || '',
+                  iconUrls: game.iconUrls || [],
+                },
+              }
+            );
             return;
           }
 
