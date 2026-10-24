@@ -326,7 +326,7 @@ export default function DailyBonus() {
                           SC amount
                           <input
                             type="number"
-                            min="0"
+                            min="0.01"
                             step="0.01"
                             value={day.amountSc}
                             onChange={(e) => updateDay(day.dayIndex, { amountSc: e.target.value })}
