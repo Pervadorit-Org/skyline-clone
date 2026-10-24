@@ -10,6 +10,7 @@ const {
   getAdminCatalogForScope,
   parseDate
 } = require('./getDepositPackagesCatalog.service');
+const { parseGcInput, setPackageGc, removePackageGc } = require('./packageGc.service');
 const {
   getDepositPackageSettings,
   updateDepositPackageSettings,
@@ -181,6 +182,7 @@ async function createPackage(req, scope, body) {
     body.max_purchases_per_user ?? body.maxPurchasesPerUser,
     group.groupKey
   );
+  const gcCoin = parseGcInput(body.gc_coin ?? body.gcCoin);
   const row = await db.DepositPackage.create({
     groupId: group.id,
     distributorCode: normalized.distributorCode,
@@ -198,6 +200,7 @@ async function createPackage(req, scope, body) {
     maxPurchasesPerUser,
     isActive: body.is_active != null || body.isActive != null ? (body.is_active ?? body.isActive) !== false : true
   });
+  if (gcCoin > 0) await setPackageGc(row, gcCoin);
   return row;
 }
 
@@ -259,12 +262,16 @@ async function updatePackage(req, scope, packageId, body) {
     updates.endsAt = null;
   }
   await pkg.update(updates);
+  if (body.gc_coin !== undefined || body.gcCoin !== undefined) {
+    await setPackageGc(pkg, parseGcInput(body.gc_coin ?? body.gcCoin));
+  }
   return pkg;
 }
 
 async function deletePackage(req, scope, packageId) {
   const { pkg } = await assertPackageScope(req, packageId, scope);
   await pkg.destroy();
+  await removePackageGc(pkg.id);
   return { deleted: true };
 }
 
