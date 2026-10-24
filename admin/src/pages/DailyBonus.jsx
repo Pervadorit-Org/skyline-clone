@@ -156,7 +156,7 @@ export default function DailyBonus() {
         days: draft.days.map((d) => ({
           dayIndex: d.dayIndex,
           rewardType: d.rewardType,
-          amountSc: Number(d.amountSc) || 0,
+          amountSc: Number(d.amountSc),
           gcAmount: d.gcAmount ? Number(d.gcAmount) : 0,
           spinCount: Number(d.spinCount),
           percentOff: Number(d.percentOff),
@@ -326,7 +326,7 @@ export default function DailyBonus() {
                           SC amount
                           <input
                             type="number"
-                            min="0"
+                            min="0.01"
                             step="0.01"
                             value={day.amountSc}
                             onChange={(e) => updateDay(day.dayIndex, { amountSc: e.target.value })}
