@@ -14,7 +14,6 @@ const EMPTY_PKG_FORM = {
   group_id: '',
   title: '',
   final_sc: '',
-  gc_coin: '',
   actual_price: '',
   final_price: '',
   discount_label: '',
@@ -75,7 +74,6 @@ export default function DepositPackages() {
   const [saving, setSaving] = useState(false)
   const [enabled, setEnabled] = useState(false)
   const [groups, setGroups] = useState([])
-  const [gcEnabled, setGcEnabled] = useState(false)
   const [storeOptions, setStoreOptions] = useState([])
   const [selectedStore, setSelectedStore] = useState(null)
   const [pkgForm, setPkgForm] = useState(EMPTY_PKG_FORM)
@@ -125,7 +123,6 @@ export default function DepositPackages() {
   const loadCatalog = useCallback(async () => {
     if (!scope) {
       setGroups([])
-      setGcEnabled(false)
       setEnabled(false)
       setLoading(false)
       return
@@ -134,7 +131,6 @@ export default function DepositPackages() {
     try {
       const data = await depositPackagesApi.getDepositPackagesCatalog(scope)
       setEnabled(data?.enabled === true)
-      setGcEnabled(data?.gc_enabled === true)
       setGroups(Array.isArray(data?.groups) ? data.groups : [])
       const edits = {}
       ;(data?.groups || []).forEach((g) => {
@@ -215,7 +211,6 @@ export default function DepositPackages() {
       group_id: String(groupId),
       title: pkg?.title || '',
       final_sc: pkg?.final_sc != null ? String(pkg.final_sc) : '',
-      gc_coin: pkg?.gc_coin > 0 ? String(pkg.gc_coin) : '',
       actual_price: pkg?.actual_price != null ? String(pkg.actual_price) : '',
       final_price: pkg?.final_price != null ? String(pkg.final_price) : '',
       discount_label: pkg?.discount_label || '',
@@ -245,7 +240,6 @@ export default function DepositPackages() {
         group_id: Number(group.id),
         title: pkgForm.title.trim() || null,
         final_sc: Number(pkgForm.final_sc),
-        ...(gcEnabled ? { gc_coin: pkgForm.gc_coin.trim() ? Number(pkgForm.gc_coin) : 0 } : {}),
         actual_price: Number(pkgForm.actual_price),
         final_price: Number(pkgForm.final_price),
         discount_label: pkgForm.discount_label.trim() || null,
@@ -487,7 +481,6 @@ export default function DepositPackages() {
                       <thead>
                         <tr>
                           <th>SC</th>
-                          {gcEnabled && <th>GC (optional)</th>}
                           <th>Actual</th>
                           <th>Price</th>
                           <th>Label</th>
@@ -499,12 +492,11 @@ export default function DepositPackages() {
                       <tbody>
                         {packages.length === 0 ? (
                           <tr className="deposit-packages-table-empty">
-                            <td colSpan={gcEnabled ? 8 : 7}>No packages yet. Add one below.</td>
+                            <td colSpan={7}>No packages yet. Add one below.</td>
                           </tr>
                         ) : packages.map((pkg) => (
                           <tr key={pkg.id}>
                             <td><strong>{pkg.final_sc}</strong></td>
-                            {gcEnabled && <td>{pkg.gc_coin > 0 ? Number(pkg.gc_coin).toLocaleString('en-US') : '—'}</td>}
                             <td><s>{pkg.actual_price}</s></td>
                             <td>{pkg.final_price}</td>
                             <td>{pkg.discount_label || '—'}</td>
@@ -551,12 +543,6 @@ export default function DepositPackages() {
                           Final SC *
                           <input className={inputClass} required type="number" step="0.01" min="0" value={pkgForm.final_sc} onChange={(e) => setPkgForm((f) => ({ ...f, final_sc: e.target.value }))} />
                         </label>
-                        {gcEnabled && (
-                          <label>
-                            Gold Coins (GC, optional)
-                            <input className={inputClass} type="number" step="1" min="0" value={pkgForm.gc_coin} onChange={(e) => setPkgForm((f) => ({ ...f, gc_coin: e.target.value }))} />
-                          </label>
-                        )}
                         <label>
                           Actual price (strikethrough) *
                           <input className={inputClass} required type="number" step="0.01" min="0" value={pkgForm.actual_price} onChange={(e) => setPkgForm((f) => ({ ...f, actual_price: e.target.value }))} />
