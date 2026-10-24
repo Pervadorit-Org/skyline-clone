@@ -10,9 +10,9 @@ Separate `frontend/`, `backend/`, and `admin/` — same layout as Play Juwa / Ca
 
 ## Production
 
-- Site: https://dragonfury.casino
-- Admin: https://admin.dragonfury.casino
-- Backend on the server: **8084** (nginx proxies `/api`)
+- Site: https://luckywinners.bet
+- Admin: https://admin.luckywinners.bet
+- Backend on the server: **8085** (nginx proxies `/api`, PM2 `skyline-api`)
 
 See [docs/DEPLOY.md](docs/DEPLOY.md) for nginx, PM2, Certbot, and GitHub Actions.
 
@@ -27,7 +27,7 @@ npm install
 npm run start:dev
 ```
 
-Create a store admin with `storeCode=dragonfury` in the admin panel (or shared DB).
+Store code stays `dragonfury`. Set that store’s User site URL to `https://luckywinners.bet`.
 
 ### Frontend
 
