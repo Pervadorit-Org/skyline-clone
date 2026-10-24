@@ -1,4 +1,4 @@
-name: Deploy Lucky Winners Admin
+name: Deploy Partner Platform Admin
 
 on:
   pull_request:
@@ -44,7 +44,7 @@ jobs:
           command_timeout: 30m
           script: |
             set -e
-            DEPLOY_PATH="/var/www/skyline-clone/admin"
+            DEPLOY_PATH="/var/www/partner-platform-admin"
 
             cd "$DEPLOY_PATH"
             echo ">>> Pulling latest code..."

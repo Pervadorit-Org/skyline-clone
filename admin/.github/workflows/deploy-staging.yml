@@ -1,4 +1,4 @@
-name: Deploy Lucky Winners Admin (staging)
+name: Deploy Partner Platform Admin (staging)
 
 on:
   pull_request:
@@ -45,7 +45,7 @@ jobs:
           command_timeout: 30m
           script: |
             set -e
-            DEPLOY_PATH="/var/www/skyline-clone-staging/admin"
+            DEPLOY_PATH="/var/www/partner-platform-admin"
             export NODE_OPTIONS="--max-old-space-size=2048"
 
             cd "$DEPLOY_PATH"

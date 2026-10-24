@@ -1,15 +1,13 @@
-# Deploy Lucky Winners (luckywinners.bet)
+# Deploy Dragon Fury (dragonfury.casino)
 
-Nginx serves the Vite `dist` folders. `/api` and Socket.IO proxy to the Node API on **port 8085**.
+Same pattern as MyVePower: nginx serves the Vite `dist` folders, `/api` and Socket.IO proxy to the Node API on **port 8084**.
 
 | Host | App |
 |---|---|
-| https://luckywinners.bet | User frontend |
-| https://www.luckywinners.bet | Redirects to apex |
-| https://admin.luckywinners.bet | Admin panel |
-| `127.0.0.1:8085` | Backend (PM2 `skyline-api`) |
-
-Port 8085 is local only. Do not open it in the EC2 security group. 8080 and 8084 are used by other stores on a shared box.
+| https://dragonfury.casino | User frontend |
+| https://www.dragonfury.casino | Redirects to apex |
+| https://admin.dragonfury.casino | Admin panel |
+| `127.0.0.1:8084` | Backend (PM2 `dragonfury-api`) |
 
 ## GitHub Actions secrets
 
@@ -26,58 +24,58 @@ Push to `main` runs lint/build, then SSH deploys.
 
 ```bash
 sudo mkdir -p /var/www
-sudo chown "$USER:$USER" /var/www
-git clone <THIS_REPO_URL> /var/www/skyline-clone
-cd /var/www/skyline-clone
+sudo git clone <THIS_REPO_URL> /var/www/dragonfury-store-clone
+cd /var/www/dragonfury-store-clone
 
-# Env files are copied from your machine (they are gitignored).
-# Store code stays dragonfury. Domains point at luckywinners.bet. PORT=8085.
+# Env files (never commit secrets)
+cp backend/env.production.sample backend/.env
+cp frontend/.env.production.sample frontend/.env
+cp admin/.env.production.sample admin/.env
+# Edit backend/.env: DB, JWT, Mailgun, payment keys. Keep PORT=8084.
 
 cd backend && npm install --omit=dev && npm run migrate
 cd ../frontend && npm install && npm run build
 cd ../admin && npm install && npm run build
 
-# Start PM2 once. Later deploys only `pm2 restart skyline-api`.
-cd /var/www/skyline-clone/backend
-pm2 start index.js --name skyline-api
+# Same as other stores: start PM2 once. Later deploys only `pm2 restart dragonfury-api`.
+cd /var/www/dragonfury-store-clone/backend
+pm2 start index.js --name dragonfury-api
 pm2 save
 pm2 startup
 
-sudo cp frontend/nginx.luckywinners.bet.conf /etc/nginx/sites-available/luckywinners.bet
-sudo ln -sf /etc/nginx/sites-available/luckywinners.bet /etc/nginx/sites-enabled/luckywinners.bet
+sudo cp frontend/nginx.dragonfury.casino.conf /etc/nginx/sites-available/dragonfury.casino
+sudo ln -sf /etc/nginx/sites-available/dragonfury.casino /etc/nginx/sites-enabled/dragonfury.casino
 sudo nginx -t
 
-# DNS A records for luckywinners.bet, www, and admin must point here first.
-sudo certbot --nginx -d luckywinners.bet -d www.luckywinners.bet
-sudo certbot --nginx -d admin.luckywinners.bet
+# DNS A records for dragonfury.casino, www, and admin must point here first.
+sudo certbot --nginx -d dragonfury.casino -d www.dragonfury.casino
+sudo certbot --nginx -d admin.dragonfury.casino
 sudo systemctl reload nginx
 ```
 
 Confirm API:
 
 ```bash
-curl -sS http://127.0.0.1:8085/api/healthcheck
+curl -sS http://127.0.0.1:8084/api/healthcheck
 ```
-
-Store code stays `dragonfury` (same database). In admin, set that store’s User site URL to `https://luckywinners.bet`.
 
 ## Nginx
 
-Production site file: `frontend/nginx.luckywinners.bet.conf`
+Production site file: `frontend/nginx.dragonfury.casino.conf`
 
-- Upstream: `127.0.0.1:8085`
+- Upstream: `127.0.0.1:8084`
 - SPA + hashed assets
 - `/api` and `/socket.io/` → backend
 - GitSlotPark root POSTs (`GetBalance`, `Deposit`, …)
-- Deploy maintenance via `/var/www/skyline-clone/maintenance.flag`
+- Deploy maintenance via `/var/www/dragonfury-store-clone/maintenance.flag`
 
 After certbot, SSL paths should be:
 
-- `/etc/letsencrypt/live/luckywinners.bet/`
-- `/etc/letsencrypt/live/admin.luckywinners.bet/`
+- `/etc/letsencrypt/live/dragonfury.casino/`
+- `/etc/letsencrypt/live/admin.dragonfury.casino/`
 
 If www is not on the apex certificate, issue a combined cert:
 
 ```bash
-sudo certbot --nginx -d luckywinners.bet -d www.luckywinners.bet --expand
+sudo certbot --nginx -d dragonfury.casino -d www.dragonfury.casino --expand
 ```
