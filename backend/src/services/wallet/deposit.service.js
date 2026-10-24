@@ -8,8 +8,6 @@ const { applySignupBonusCodeOnDeposit } = require('../bonusCodes/applySignupBonu
 const { redeemActivePayDiscount } = require('../payDiscount/applyActivePayDiscount.service');
 const { addVipXp } = require('../vip/addVipXp.service');
 const { getBalance } = require('./getBalance.service');
-const gcWallet = require('./gcWallet.service');
-const { getPackageGc } = require('../depositPackages/packageGc.service');
 const {
   normalizePackageMeta,
   formatPackageDepositDescription,
@@ -105,22 +103,6 @@ async function deposit(userId, body) {
           suffix: 'bonus'
         }
       });
-    }
-    // Package Gold Coins go to the GC balance (play only). GC stores only; retried completions credit once.
-    if (packageMeta?.packageId && (await gcWallet.isGcStoreUser(userId, t))) {
-      const packageGc = await getPackageGc(packageMeta.packageId, { transaction: t });
-      if (packageGc > 0) {
-        await gcWallet.creditGc(userId, packageGc, {
-          transaction: t,
-          type: 'gc_purchase',
-          reason: 'PACKAGE_PURCHASE',
-          referenceType: 'DEPOSIT',
-          referenceId: depositReq.id,
-          idempotencyKey: `deposit_gc:${depositReq.id}`,
-          description: `${packageGc.toLocaleString('en-US')} GC${packageMeta.packageTitle ? ` - ${packageMeta.packageTitle}` : ''}`,
-          metadata: { packageId: packageMeta.packageId, depositRequestId: depositReq.id }
-        });
-      }
     }
     if (db.UserTransaction) {
       const depositDescription = packageMeta
