@@ -12,6 +12,7 @@ const { getWalletLimitsForUser } = require('./getWalletLimits.service');
 const { getCurrencySetting } = require('./getCurrencySetting.service');
 const { paymentLog, paymentErrorLog } = require('../../libs/logger');
 const { markPaymentProviderError } = require('../../utils/playerFacingMessage');
+const { assertCentryosWalletAvailable } = require('../payments/centryosWalletCheck.service');
 const { resolveDepositPackageForUser } = require('../depositPackages/resolveDepositPackage.service');
 const {
   applyActivePayDiscountForUser,
@@ -225,6 +226,8 @@ async function requestDeposit(userId, options) {
   const centryosApplicationId = linkObj?.applicationId != null ? String(linkObj.applicationId).trim() : null;
   const payinToken = linkObj?.token != null ? String(linkObj.token) : null;
   const payinExpiredAt = linkObj?.expiredAt != null ? linkObj.expiredAt : null;
+  // Stop here (no deposit order, no popup) when CentryOS reports the merchant wallet as unavailable.
+  await assertCentryosWalletAvailable(paymentLink, payinToken);
   const providerMetadata = (centryosApplicationId || payinToken || payinExpiredAt)
     ? {
         ...(centryosApplicationId && { centryosApplicationId }),

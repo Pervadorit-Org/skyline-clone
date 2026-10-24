@@ -17,6 +17,7 @@ const {
 } = require('../../utils/paymentPasswordEncryption');
 const { isCryptoOptionAllowed } = require('../../constants/cryptoDepositRails');
 const { markPaymentProviderError } = require('../../utils/playerFacingMessage');
+const { assertCentryosWalletAvailable } = require('./centryosWalletCheck.service');
 
 const PROVIDER_META = {
   selfcrypto: {
@@ -118,6 +119,8 @@ async function createOrionstarsPayinSession(userId, {
   const centryosApplicationId = linkObj?.applicationId != null ? String(linkObj.applicationId).trim() : null;
   const payinToken = linkObj?.token != null ? String(linkObj.token) : null;
   const payinExpiredAt = linkObj?.expiredAt != null ? linkObj.expiredAt : null;
+  // Stop here (no pending deposit, no popup) when CentryOS reports the merchant wallet as unavailable.
+  await assertCentryosWalletAvailable(paymentLink, payinToken);
   const pending = await db.PaymentPendingDeposit.create({
     userId,
     amount,
