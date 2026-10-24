@@ -1,4 +1,4 @@
-name: Deploy Lucky Winners Store
+name: Deploy Dragon Fury Store
 
 on:
   pull_request:
@@ -57,7 +57,7 @@ jobs:
           command_timeout: 30m
           script: |
             set -e
-            DEPLOY_PATH="/var/www/skyline-clone"
+            DEPLOY_PATH="/var/www/dragonfury-store-clone"
             MAINT_FLAG="$DEPLOY_PATH/maintenance.flag"
             ETA_FILE="$DEPLOY_PATH/frontend/maintenance/eta.json"
             DEPLOY_ETA_SECONDS="${DEPLOY_ETA_SECONDS:-300}"
@@ -127,7 +127,7 @@ jobs:
             fi
             echo ">>> Running database migrations..."
             npm run migrate
-            pm2 restart skyline-api --update-env
+            pm2 restart dragonfury-api --update-env || pm2 restart partner-api --update-env
 
             echo ">>> Frontend..."
             cd "$DEPLOY_PATH/frontend"
@@ -157,4 +157,4 @@ jobs:
 
             echo ">>> Done."
             pm2 status
-            curl -sf -o /dev/null http://127.0.0.1:8085/api/healthcheck || true
+            curl -sf -o /dev/null http://127.0.0.1:8084/api/healthcheck || true
