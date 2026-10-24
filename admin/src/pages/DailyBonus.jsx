@@ -24,6 +24,7 @@ function toDraft(store) {
       dayIndex: i + 1,
       rewardType: src.rewardType || 'sc_coins',
       amountSc: src.amountSc != null ? String(src.amountSc) : '5',
+      gcAmount: src.gcAmount > 0 ? String(src.gcAmount) : '',
       spinCount: src.spinCount != null ? String(src.spinCount) : '1',
       percentOff: src.percentOff != null ? String(src.percentOff) : '10',
       packageScope: src.packageScope || 'all',
@@ -155,7 +156,8 @@ export default function DailyBonus() {
         days: draft.days.map((d) => ({
           dayIndex: d.dayIndex,
           rewardType: d.rewardType,
-          amountSc: Number(d.amountSc),
+          amountSc: Number(d.amountSc) || 0,
+          gcAmount: d.gcAmount ? Number(d.gcAmount) : 0,
           spinCount: Number(d.spinCount),
           percentOff: Number(d.percentOff),
           packageScope: d.packageScope,
@@ -328,6 +330,19 @@ export default function DailyBonus() {
                             step="0.01"
                             value={day.amountSc}
                             onChange={(e) => updateDay(day.dayIndex, { amountSc: e.target.value })}
+                          />
+                        </label>
+                      )}
+
+                      {day.rewardType === 'sc_coins' && selectedStore?.gcEnabled && (
+                        <label>
+                          GC amount (optional, GC stores)
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            value={day.gcAmount}
+                            onChange={(e) => updateDay(day.dayIndex, { gcAmount: e.target.value })}
                           />
                         </label>
                       )}
