@@ -291,6 +291,7 @@ async function getAdminCatalogForScope(scope) {
   const gcMap = isGcStoreCode(normalized.storeCode) ? await getPackageGcMap(packages.map((p) => p.id)) : null;
   return {
     enabled: settings.enabled,
+    gc_enabled: isGcStoreCode(normalized.storeCode),
     groups: groups.map((group) =>
       serializeGroup(group, packagesByGroup.get(group.id) || [], { adminMode: true, gcMap })
     )

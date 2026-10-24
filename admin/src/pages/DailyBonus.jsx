@@ -3,7 +3,6 @@ import * as dailyBonusApi from '../api/dailyBonus'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { ROLES } from '../constants/roles'
-import { isGcStore } from '../constants/gcStores'
 import './WalletLimits.css'
 import './WelcomeSignupBonus.css'
 import './DailyBonus.css'
@@ -335,7 +334,7 @@ export default function DailyBonus() {
                         </label>
                       )}
 
-                      {day.rewardType === 'sc_coins' && isGcStore(selectedStore?.storeCode) && (
+                      {day.rewardType === 'sc_coins' && selectedStore?.gcEnabled && (
                         <label>
                           GC amount (optional, GC stores)
                           <input

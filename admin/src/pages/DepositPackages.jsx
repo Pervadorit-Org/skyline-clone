@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { useConfirm } from '../context/ConfirmContext'
 import { ROLES } from '../constants/roles'
-import { isGcStore } from '../constants/gcStores'
 import './StoreFeatures.css'
 import './DepositPackages.css'
 
@@ -76,6 +75,7 @@ export default function DepositPackages() {
   const [saving, setSaving] = useState(false)
   const [enabled, setEnabled] = useState(false)
   const [groups, setGroups] = useState([])
+  const [gcEnabled, setGcEnabled] = useState(false)
   const [storeOptions, setStoreOptions] = useState([])
   const [selectedStore, setSelectedStore] = useState(null)
   const [pkgForm, setPkgForm] = useState(EMPTY_PKG_FORM)
@@ -98,7 +98,6 @@ export default function DepositPackages() {
     }
     return null
   }, [isStoreAdmin, user, selectedStore])
-  const gcEnabled = isGcStore(scope?.storeCode)
 
   const loadStores = useCallback(async () => {
     if (!isMaster) {
@@ -126,6 +125,7 @@ export default function DepositPackages() {
   const loadCatalog = useCallback(async () => {
     if (!scope) {
       setGroups([])
+      setGcEnabled(false)
       setEnabled(false)
       setLoading(false)
       return
@@ -134,6 +134,7 @@ export default function DepositPackages() {
     try {
       const data = await depositPackagesApi.getDepositPackagesCatalog(scope)
       setEnabled(data?.enabled === true)
+      setGcEnabled(data?.gc_enabled === true)
       setGroups(Array.isArray(data?.groups) ? data.groups : [])
       const edits = {}
       ;(data?.groups || []).forEach((g) => {

@@ -5,6 +5,7 @@ const db = require('../../db/models');
 const { ROLES } = require('../../constants/roles');
 const { createLogger } = require('../../libs/logger');
 const { normalizeStoreCode } = require('../auth/storeBinding.helpers');
+const { isGcStoreCode } = require('../wallet/gcWallet.service');
 const { CAMPAIGN_DAYS, REWARD_TYPES, roundMoney } = require('./dailyBonus.constants');
 
 const log = createLogger('dailyBonusSettings');
@@ -459,6 +460,7 @@ async function listAllStoreSettings() {
         email: s.email,
         distributorCode: s.distributorCode,
         storeCode: s.storeCode,
+        gcEnabled: isGcStoreCode(s.storeCode),
         isActive: s.isActive !== false,
         enabled: effective.enabled,
         repeatAfterComplete: effective.repeatAfterComplete === true,
@@ -488,6 +490,7 @@ async function listOwnStoreSettings(scope) {
         email: store.email,
         distributorCode: store.distributorCode,
         storeCode: store.storeCode,
+        gcEnabled: isGcStoreCode(store.storeCode),
         isActive: store.isActive,
         enabled: effective.enabled,
         repeatAfterComplete: effective.repeatAfterComplete === true,
@@ -605,6 +608,7 @@ async function upsertStoreSettings(scope, payload, { updatedBy } = {}) {
   return {
     distributorCode: store.distributorCode,
     storeCode: store.storeCode,
+    gcEnabled: isGcStoreCode(store.storeCode),
     enabled,
     repeatAfterComplete,
     days,
