@@ -755,3 +755,221 @@ button.df-store-price-button:disabled {
     transition: none;
   }
 }
+
+/* Crypto coin / network picker inside "Complete crypto details" (CryptoCurrencyPicker markup, store theme). */
+.df-store-pay .pj-ac-sec {
+  margin-top: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.df-store-pay .pj-ac-sec-top {
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.df-store-pay .pj-ac-badge {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(231, 185, 76, 0.18);
+  border: 1px solid rgba(231, 185, 76, 0.5);
+  color: #ffe08a;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.df-store-pay .pj-ac-badge.ok {
+  background: rgba(66, 226, 148, 0.16);
+  border-color: rgba(66, 226, 148, 0.55);
+  color: #8ff0c0;
+}
+
+.df-store-pay .pj-ac-sec h2 {
+  margin: 0;
+  color: #fff0b7;
+  font: 400 18px / 1.2 var(--df-display, "Lilita One", sans-serif);
+}
+
+.df-store-pay .pj-ac-lede {
+  margin: 4px 0 0;
+  color: #e7decc;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.df-store-pay .pj-ac-coin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(138px, 1fr));
+  gap: 8px;
+}
+
+.df-store-pay .pj-ac-coin {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 232, 142, 0.22);
+  border-radius: 14px;
+  background: rgba(11, 12, 19, 0.85);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.df-store-pay .pj-ac-coin:hover {
+  border-color: rgba(255, 232, 142, 0.6);
+}
+
+.df-store-pay .pj-ac-coin.on {
+  border-color: #ffe08a;
+  background: linear-gradient(180deg, rgba(255, 204, 61, 0.18), rgba(11, 12, 19, 0.92));
+  box-shadow: 0 0 0 1px #ffe08a, 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.df-store-pay .pj-ac-coin-mark {
+  flex: none;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+}
+
+.df-store-pay .pj-ac-coin-mark svg {
+  width: 30px;
+  height: 30px;
+}
+
+.df-store-pay .pj-ac-coin-fallback {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--coin-accent, #ffcc3d);
+  color: #111;
+  font-weight: 800;
+}
+
+.df-store-pay .pj-ac-coin-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.df-store-pay .pj-ac-coin-code {
+  color: #fff0b7;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.df-store-pay .pj-ac-coin-name {
+  color: #cfc6b4;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.df-store-pay .pj-ac-coin-hint,
+.df-store-pay .pj-ac-net-hint {
+  color: #b7ad99;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.df-store-pay .pj-ac-coin-hint.fast,
+.df-store-pay .pj-ac-net-hint.fast {
+  color: #8ff0c0;
+}
+
+.df-store-pay .pj-ac-coin-tick {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: transparent;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.df-store-pay .pj-ac-coin.on .pj-ac-coin-tick {
+  background: #ffcc3d;
+  color: #2a1700;
+}
+
+.df-store-pay .pj-ac-net-wrap {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 232, 142, 0.18);
+}
+
+.df-store-pay .pj-ac-net-label {
+  margin: 0 0 8px;
+  color: #ffe08a;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.df-store-pay .pj-ac-net-grid,
+.df-store-pay .pj-ac-chips {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.df-store-pay .pj-ac-net,
+.df-store-pay .pj-ac-chip {
+  display: flex;
+  min-height: 52px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 232, 142, 0.22);
+  border-radius: 12px;
+  background: rgba(11, 12, 19, 0.85);
+  color: #fff;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.df-store-pay .pj-ac-net.on,
+.df-store-pay .pj-ac-chip.on {
+  border-color: #ffe08a;
+  background: linear-gradient(180deg, rgba(255, 204, 61, 0.18), rgba(11, 12, 19, 0.92));
+  box-shadow: 0 0 0 1px #ffe08a;
+}
+
+.df-store-pay .pj-ac-net-name {
+  color: #fff0b7;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.df-store-pay .pj-ac-crypto-eta {
+  margin: 10px 0 0;
+  padding: 9px 12px;
+  border: 1px solid rgba(255, 232, 142, 0.2);
+  border-radius: 12px;
+  background: rgba(11, 12, 19, 0.7);
+  color: #e7decc;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
